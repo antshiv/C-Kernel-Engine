@@ -62,9 +62,22 @@ def run_single_test(H=2, T=8):
     ref = softmax_causal_reference(scores)
     out = run_c_softmax(scores)
 
-    print(f"Causal softmax head-major vs PyTorch ref max diff: {max_diff(out, ref):.2e}")
+    diff = max_diff(out, ref)
+    print(f"Causal softmax head-major vs PyTorch ref max diff: {diff:.2e}")
+
+    tol = 1e-6
+    if diff > tol:
+        print("Softmax forward mismatch. Showing first row for first head:")
+        h = 0
+        i = 0
+        for j in range(min(5, T)):
+            print(
+                f"j={j}: score={scores[h,i,j].item():.6f}, "
+                f"ref={ref[h,i,j].item():.6f}, "
+                f"c={out[h,i,j].item():.6f}"
+            )
+        raise AssertionError(f"Causal softmax forward mismatch: max diff {diff}")
 
 
 if __name__ == "__main__":
     run_single_test()
-

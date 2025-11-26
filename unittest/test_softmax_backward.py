@@ -88,9 +88,23 @@ def run_single_test(H=2, T=8):
     dX_ref = backward_causal_softmax_ref(dY, Y)
     dX_c = backward_causal_softmax_c(dY, Y)
 
-    print(f"Backward causal softmax max diff: {max_diff(dX_c, dX_ref):.2e}")
+    diff = max_diff(dX_c, dX_ref)
+    print(f"Backward causal softmax max diff: {diff:.2e}")
+
+    tol = 1e-6
+    if diff > tol:
+        print("Softmax backward mismatch. Showing first row for first head:")
+        h = 0
+        i = 0
+        for j in range(min(5, T)):
+            print(
+                f"j={j}: Y={Y[h,i,j].item():.6f}, "
+                f"dY={dY[h,i,j].item():.6f}, "
+                f"ref_dX={dX_ref[h,i,j].item():.6f}, "
+                f"c_dX={dX_c[h,i,j].item():.6f}"
+            )
+        raise AssertionError(f"Causal softmax backward mismatch: max diff {diff}")
 
 
 if __name__ == "__main__":
     run_single_test()
-

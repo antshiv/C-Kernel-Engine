@@ -167,9 +167,29 @@ def run_single_test(T=32, D=128, eps=1e-5):
     out_rolled, _, _ = run_c_layernorm_rolled(x, gamma, beta, eps)
     out_unrolled, _, _ = run_c_layernorm_unrolled(x, gamma, beta, eps)
 
-    print(f"Naive vs PyTorch max diff:      {max_diff(out_naive, ref):.2e}")
-    print(f"Rolled vs PyTorch max diff:     {max_diff(out_rolled, ref):.2e}")
-    print(f"Unrolled vs PyTorch max diff:   {max_diff(out_unrolled, ref):.2e}")
+    diff_naive = max_diff(out_naive, ref)
+    diff_rolled = max_diff(out_rolled, ref)
+    diff_unrolled = max_diff(out_unrolled, ref)
+
+    print(f"Naive vs PyTorch max diff:      {diff_naive:.2e}")
+    print(f"Rolled vs PyTorch max diff:     {diff_rolled:.2e}")
+    print(f"Unrolled vs PyTorch max diff:   {diff_unrolled:.2e}")
+
+    # Enforce near-exactness; if this fails, print a few entries.
+    tol = 1e-6
+    if diff_naive > tol or diff_rolled > tol or diff_unrolled > tol:
+        print("LayerNorm forward mismatch detected. Showing first few elements for naive vs PyTorch:")
+        for t in range(min(2, T)):
+            for d in range(min(5, D)):
+                print(
+                    f"t={t}, d={d}: x={x[t,d].item():.6f}, "
+                    f"ref={ref[t,d].item():.6f}, "
+                    f"naive={out_naive[t,d].item():.6f}"
+                )
+        raise AssertionError(
+            f"LayerNorm forward mismatch: "
+            f"diff_naive={diff_naive}, diff_rolled={diff_rolled}, diff_unrolled={diff_unrolled}"
+        )
 
 
 def run_backward_test(T=16, D=32, eps=1e-5):
@@ -212,9 +232,28 @@ def run_backward_test(T=16, D=32, eps=1e-5):
         ctypes.c_int(D),
     )
 
-    print(f"Backward d_input max diff:  {max_diff(d_input, dx_ref):.2e}")
-    print(f"Backward d_gamma max diff:  {max_diff(d_gamma, dgamma_ref):.2e}")
-    print(f"Backward d_beta max diff:   {max_diff(d_beta, dbeta_ref):.2e}")
+    diff_d_input = max_diff(d_input, dx_ref)
+    diff_d_gamma = max_diff(d_gamma, dgamma_ref)
+    diff_d_beta = max_diff(d_beta, dbeta_ref)
+
+    print(f"Backward d_input max diff:  {diff_d_input:.2e}")
+    print(f"Backward d_gamma max diff:  {diff_d_gamma:.2e}")
+    print(f"Backward d_beta max diff:   {diff_d_beta:.2e}")
+
+    tol_bwd = 1e-6
+    if diff_d_input > tol_bwd or diff_d_gamma > tol_bwd or diff_d_beta > tol_bwd:
+        print("LayerNorm backward mismatch. Showing first few elements for d_input vs PyTorch:")
+        for t in range(min(2, T)):
+            for d in range(min(5, D)):
+                print(
+                    f"t={t}, d={d}: upstream={upstream[t,d].item():.6f}, "
+                    f"ref_dx={dx_ref[t,d].item():.6f}, "
+                    f"c_dx={d_input[t,d].item():.6f}"
+                )
+        raise AssertionError(
+            f"LayerNorm backward mismatch: "
+            f"d_input={diff_d_input}, d_gamma={diff_d_gamma}, d_beta={diff_d_beta}"
+        )
 
 
 if __name__ == "__main__":

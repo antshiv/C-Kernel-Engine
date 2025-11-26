@@ -1,6 +1,10 @@
 # C Kernel Engine
 
+![C Kernel Engine cover](assets/cover_image.png)
+
 A C-first kernel library for LLMs and deep-learning workloads.
+
+> Cover image generated with Google Gemini (banana-themed concept art).
 
 This project focuses on a **small, high-impact set of kernel shapes** that appear in transformer-style models, instead of trying to cover every BLAS case. The goal is to:
 
