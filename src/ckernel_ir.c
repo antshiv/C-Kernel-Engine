@@ -1,0 +1,425 @@
+#include "ckernel_ir.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static int parse_int_field(const char *json,
+                           const char *key,
+                           int *out_value)
+{
+    const char *p = strstr(json, key);
+    if (!p) {
+        return -1;
+    }
+
+    // Move to after the key, look for the first digit or minus sign.
+    p = strchr(p, ':');
+    if (!p) {
+        return -1;
+    }
+    while (*p && (*p == ':' || *p == ' ' || *p == '\t')) {
+        ++p;
+    }
+
+    int value = 0;
+    if (sscanf(p, "%d", &value) != 1) {
+        return -1;
+    }
+
+    *out_value = value;
+    return 0;
+}
+
+int ck_model_config_from_hf_json(const char *path, CKModelConfig *cfg)
+{
+    if (!path || !cfg) {
+        return -1;
+    }
+
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        perror("ck_model_config_from_hf_json: fopen");
+        return -1;
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        return -1;
+    }
+    long len = ftell(f);
+    if (len < 0) {
+        fclose(f);
+        return -1;
+    }
+    if (fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        return -1;
+    }
+
+    char *buf = (char *)malloc((size_t)len + 1);
+    if (!buf) {
+        fclose(f);
+        return -1;
+    }
+    size_t nread = fread(buf, 1, (size_t)len, f);
+    fclose(f);
+    buf[nread] = '\0';
+
+    CKModelConfig tmp = {0};
+
+    if (parse_int_field(buf, "\"num_hidden_layers\"", &tmp.num_layers) != 0) {
+        fprintf(stderr, "Warning: num_hidden_layers not found in %s\n", path);
+    }
+    if (parse_int_field(buf, "\"hidden_size\"", &tmp.hidden_size) != 0) {
+        fprintf(stderr, "Warning: hidden_size not found in %s\n", path);
+    }
+    if (parse_int_field(buf, "\"intermediate_size\"", &tmp.intermediate_size) != 0) {
+        fprintf(stderr, "Warning: intermediate_size not found in %s\n", path);
+    }
+    if (parse_int_field(buf, "\"num_attention_heads\"", &tmp.num_heads) != 0) {
+        fprintf(stderr, "Warning: num_attention_heads not found in %s\n", path);
+    }
+
+    // num_key_value_heads is optional; default to num_heads if missing.
+    if (parse_int_field(buf, "\"num_key_value_heads\"", &tmp.num_kv_heads) != 0) {
+        tmp.num_kv_heads = tmp.num_heads;
+    }
+
+    free(buf);
+    *cfg = tmp;
+    return 0;
+}
+
+int ck_build_decoder_ir(const CKModelConfig *cfg, CKIRGraph *graph)
+{
+    if (!cfg || !graph) {
+        return -1;
+    }
+
+    const int L = cfg->num_layers > 0 ? cfg->num_layers : 1;
+    const int nodes_per_layer = 10; // LN1, QKV, ATT, ADD, LN2, W1, SPLIT, SWIGLU, W2, ADD
+    const int total_nodes = L * nodes_per_layer;
+
+    CKIRNode *nodes = (CKIRNode *)calloc((size_t)total_nodes, sizeof(CKIRNode));
+    if (!nodes) {
+        return -1;
+    }
+
+    // Sentinel producer for block inputs (e.g., h_in, past_kv) per layer.
+    const uint16_t INPUT_NODE_SENTINEL = 0xFFFF;
+
+    for (int layer = 0; layer < L; ++layer) {
+        const int base = layer * nodes_per_layer;
+
+        // Node 0: LN1 = RMSNorm(h_in)
+        nodes[base + 0].id.layer = (uint16_t)layer;
+        nodes[base + 0].id.node  = 0;
+        nodes[base + 0].op       = CK_OP_RMSNORM;
+        nodes[base + 0].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 0].inputs[0].producer.node  = INPUT_NODE_SENTINEL; // h_in
+        nodes[base + 0].inputs[0].out_index      = 0;
+        nodes[base + 0].n_inputs  = 1;
+        nodes[base + 0].n_outputs = 1;
+
+        // Node 1: QKV Linear
+        nodes[base + 1].id.layer = (uint16_t)layer;
+        nodes[base + 1].id.node  = 1;
+        nodes[base + 1].op       = CK_OP_LINEAR_QKV;
+        nodes[base + 1].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 1].inputs[0].producer.node  = 0;
+        nodes[base + 1].inputs[0].out_index      = 0;
+        nodes[base + 1].n_inputs  = 1;
+        nodes[base + 1].n_outputs = 1;
+
+        // Node 2: Attention
+        nodes[base + 2].id.layer = (uint16_t)layer;
+        nodes[base + 2].id.node  = 2;
+        nodes[base + 2].op       = CK_OP_ATTENTION;
+        nodes[base + 2].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 2].inputs[0].producer.node  = 1; // qkv
+        nodes[base + 2].inputs[0].out_index      = 0;
+        nodes[base + 2].n_inputs  = 1;  // past_kv omitted for now
+        nodes[base + 2].n_outputs = 1;
+
+        // Node 3: Add residual (h_in + attn_out)
+        nodes[base + 3].id.layer = (uint16_t)layer;
+        nodes[base + 3].id.node  = 3;
+        nodes[base + 3].op       = CK_OP_ADD;
+        nodes[base + 3].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 3].inputs[0].producer.node  = INPUT_NODE_SENTINEL; // h_in
+        nodes[base + 3].inputs[0].out_index      = 0;
+        nodes[base + 3].inputs[1].producer.layer = (uint16_t)layer;
+        nodes[base + 3].inputs[1].producer.node  = 2; // attn_out
+        nodes[base + 3].inputs[1].out_index      = 0;
+        nodes[base + 3].n_inputs  = 2;
+        nodes[base + 3].n_outputs = 1;
+
+        // Node 4: LN2 = RMSNorm(residual)
+        nodes[base + 4].id.layer = (uint16_t)layer;
+        nodes[base + 4].id.node  = 4;
+        nodes[base + 4].op       = CK_OP_RMSNORM;
+        nodes[base + 4].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 4].inputs[0].producer.node  = 3;
+        nodes[base + 4].inputs[0].out_index      = 0;
+        nodes[base + 4].n_inputs  = 1;
+        nodes[base + 4].n_outputs = 1;
+
+        // Node 5: W1 Linear
+        nodes[base + 5].id.layer = (uint16_t)layer;
+        nodes[base + 5].id.node  = 5;
+        nodes[base + 5].op       = CK_OP_LINEAR;
+        nodes[base + 5].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 5].inputs[0].producer.node  = 4;
+        nodes[base + 5].inputs[0].out_index      = 0;
+        nodes[base + 5].n_inputs  = 1;
+        nodes[base + 5].n_outputs = 1;
+
+        // Node 6: Split into (a, b)
+        nodes[base + 6].id.layer = (uint16_t)layer;
+        nodes[base + 6].id.node  = 6;
+        nodes[base + 6].op       = CK_OP_SPLIT;
+        nodes[base + 6].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 6].inputs[0].producer.node  = 5;
+        nodes[base + 6].inputs[0].out_index      = 0;
+        nodes[base + 6].n_inputs  = 1;
+        nodes[base + 6].n_outputs = 2;
+
+        // Node 7: SwiGLU(a,b)
+        nodes[base + 7].id.layer = (uint16_t)layer;
+        nodes[base + 7].id.node  = 7;
+        nodes[base + 7].op       = CK_OP_SWIGLU;
+        nodes[base + 7].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 7].inputs[0].producer.node  = 6;
+        nodes[base + 7].inputs[0].out_index      = 0; // a
+        nodes[base + 7].inputs[1].producer.layer = (uint16_t)layer;
+        nodes[base + 7].inputs[1].producer.node  = 6;
+        nodes[base + 7].inputs[1].out_index      = 1; // b
+        nodes[base + 7].n_inputs  = 2;
+        nodes[base + 7].n_outputs = 1;
+
+        // Node 8: W2 Linear
+        nodes[base + 8].id.layer = (uint16_t)layer;
+        nodes[base + 8].id.node  = 8;
+        nodes[base + 8].op       = CK_OP_LINEAR;
+        nodes[base + 8].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 8].inputs[0].producer.node  = 7;
+        nodes[base + 8].inputs[0].out_index      = 0;
+        nodes[base + 8].n_inputs  = 1;
+        nodes[base + 8].n_outputs = 1;
+
+        // Node 9: Add residual: out = residual + mlp_out
+        nodes[base + 9].id.layer = (uint16_t)layer;
+        nodes[base + 9].id.node  = 9;
+        nodes[base + 9].op       = CK_OP_ADD;
+        nodes[base + 9].inputs[0].producer.layer = (uint16_t)layer;
+        nodes[base + 9].inputs[0].producer.node  = 3; // first residual output
+        nodes[base + 9].inputs[0].out_index      = 0;
+        nodes[base + 9].inputs[1].producer.layer = (uint16_t)layer;
+        nodes[base + 9].inputs[1].producer.node  = 8; // mlp_out
+        nodes[base + 9].inputs[1].out_index      = 0;
+        nodes[base + 9].n_inputs  = 2;
+        nodes[base + 9].n_outputs = 1;
+    }
+
+    graph->config   = *cfg;
+    graph->num_nodes = total_nodes;
+    graph->nodes     = nodes;
+    return 0;
+}
+
+static CKOpType map_forward_to_backward(CKOpType op)
+{
+    switch (op) {
+    case CK_OP_RMSNORM:    return CK_OP_RMSNORM_BWD;
+    case CK_OP_LINEAR_QKV: return CK_OP_LINEAR_QKV_BWD;
+    case CK_OP_ATTENTION:  return CK_OP_ATTENTION_BWD;
+    case CK_OP_ADD:        return CK_OP_ADD_BWD;
+    case CK_OP_LINEAR:     return CK_OP_LINEAR_BWD;
+    case CK_OP_SPLIT:      return CK_OP_SPLIT_BWD;
+    case CK_OP_SWIGLU:     return CK_OP_SWIGLU_BWD;
+    default:               return op;
+    }
+}
+
+int ck_build_decoder_backward_ir(const CKIRGraph *forward, CKIRGraph *backward)
+{
+    if (!forward || !backward) {
+        return -1;
+    }
+    if (forward->num_nodes <= 0 || !forward->nodes) {
+        return -1;
+    }
+
+    const int N = forward->num_nodes;
+    CKIRNode *nodes = (CKIRNode *)calloc((size_t)N, sizeof(CKIRNode));
+    if (!nodes) {
+        return -1;
+    }
+
+    for (int i = 0; i < N; ++i) {
+        const CKIRNode *f = &forward->nodes[N - 1 - i]; // reverse order
+        CKIRNode *b = &nodes[i];
+
+        b->id       = f->id;                         // same layer/node id
+        b->op       = map_forward_to_backward(f->op);
+        b->n_inputs = f->n_outputs;                  // placeholder
+        b->n_outputs= f->n_inputs;                   // placeholder
+
+        // For now we simply copy the forward inputs to keep a reference
+        // to which activations this backward op relates to.
+        for (int j = 0; j < f->n_inputs; ++j) {
+            b->inputs[j] = f->inputs[j];
+        }
+    }
+
+    backward->config    = forward->config;
+    backward->num_nodes = N;
+    backward->nodes     = nodes;
+    return 0;
+}
+
+void ck_ir_free(CKIRGraph *graph)
+{
+    if (!graph) {
+        return;
+    }
+    free(graph->nodes);
+    graph->nodes = NULL;
+    graph->num_nodes = 0;
+}
+
+static const char *op_name(CKOpType op)
+{
+    switch (op) {
+    case CK_OP_RMSNORM:     return "RMSNORM";
+    case CK_OP_LINEAR_QKV:  return "LINEAR_QKV";
+    case CK_OP_ATTENTION:   return "ATTENTION";
+    case CK_OP_ADD:         return "ADD";
+    case CK_OP_LINEAR:      return "LINEAR";
+    case CK_OP_SPLIT:       return "SPLIT";
+    case CK_OP_SWIGLU:      return "SWIGLU";
+    case CK_OP_RMSNORM_BWD:    return "RMSNORM_BWD";
+    case CK_OP_LINEAR_QKV_BWD: return "LINEAR_QKV_BWD";
+    case CK_OP_ATTENTION_BWD:  return "ATTENTION_BWD";
+    case CK_OP_ADD_BWD:        return "ADD_BWD";
+    case CK_OP_LINEAR_BWD:     return "LINEAR_BWD";
+    case CK_OP_SPLIT_BWD:      return "SPLIT_BWD";
+    case CK_OP_SWIGLU_BWD:     return "SWIGLU_BWD";
+    default:                return "UNKNOWN";
+    }
+}
+
+void ck_ir_dump(const CKIRGraph *graph, FILE *out)
+{
+    if (!graph || !out) {
+        return;
+    }
+
+    fprintf(out,
+            "CKIRGraph: layers=%d, hidden_size=%d, intermediate_size=%d, heads=%d, kv_heads=%d\n",
+            graph->config.num_layers,
+            graph->config.hidden_size,
+            graph->config.intermediate_size,
+            graph->config.num_heads,
+            graph->config.num_kv_heads);
+
+    for (int i = 0; i < graph->num_nodes; ++i) {
+        const CKIRNode *n = &graph->nodes[i];
+        fprintf(out, "  L%u N%u %-14s outputs=[",
+                (unsigned)n->id.layer,
+                (unsigned)n->id.node,
+                op_name(n->op));
+        for (int o = 0; o < n->n_outputs; ++o) {
+            if (o > 0) {
+                fputc(',', out);
+            }
+            fprintf(out, "L%u:N%u:%d",
+                    (unsigned)n->id.layer,
+                    (unsigned)n->id.node,
+                    o);
+        }
+        fprintf(out, "] inputs=[");
+        for (int j = 0; j < n->n_inputs; ++j) {
+            const CKInputRef *inp = &n->inputs[j];
+            if (j > 0) {
+                fputc(',', out);
+            }
+            if (inp->producer.node == 0xFFFFu) {
+                fprintf(out, "IN");
+            } else {
+                fprintf(out, "L%u:N%u",
+                        (unsigned)inp->producer.layer,
+                        (unsigned)inp->producer.node);
+            }
+        }
+        fprintf(out, "]\n");
+    }
+}
+
+int ck_ir_serialize_json(const CKIRGraph *graph, const char *path)
+{
+    if (!graph || !path) {
+        return -1;
+    }
+
+    FILE *f = fopen(path, "wb");
+    if (!f) {
+        perror("ck_ir_serialize_json: fopen");
+        return -1;
+    }
+
+    fprintf(f, "{\n");
+    fprintf(f, "  \"config\": {\n");
+    fprintf(f, "    \"num_layers\": %d,\n", graph->config.num_layers);
+    fprintf(f, "    \"hidden_size\": %d,\n", graph->config.hidden_size);
+    fprintf(f, "    \"intermediate_size\": %d,\n", graph->config.intermediate_size);
+    fprintf(f, "    \"num_attention_heads\": %d,\n", graph->config.num_heads);
+    fprintf(f, "    \"num_key_value_heads\": %d\n", graph->config.num_kv_heads);
+    fprintf(f, "  },\n");
+
+    // For now we only emit a flat "nodes" array. Higher-level tools can
+    // reorganize this into header/block/footer with per-layer arrays.
+    fprintf(f, "  \"nodes\": [\n");
+    for (int i = 0; i < graph->num_nodes; ++i) {
+        const CKIRNode *n = &graph->nodes[i];
+        fprintf(f, "    {\n");
+        fprintf(f, "      \"layer\": %u,\n", (unsigned)n->id.layer);
+        fprintf(f, "      \"node\": %u,\n", (unsigned)n->id.node);
+        fprintf(f, "      \"op\": \"%s\",\n", op_name(n->op));
+
+        // Outputs: derive labels L<layer>:N<node>:slot
+        fprintf(f, "      \"outputs\": [");
+        for (int o = 0; o < n->n_outputs; ++o) {
+            if (o > 0) fprintf(f, ", ");
+            fprintf(f, "\"L%u:N%u:%d\"",
+                    (unsigned)n->id.layer,
+                    (unsigned)n->id.node,
+                    o);
+        }
+        fprintf(f, "],\n");
+
+        // Inputs: either "IN" or L<layer>:N<node>:slot
+        fprintf(f, "      \"inputs\": [");
+        for (int j = 0; j < n->n_inputs; ++j) {
+            const CKInputRef *inp = &n->inputs[j];
+            if (j > 0) fprintf(f, ", ");
+            if (inp->producer.node == 0xFFFFu) {
+                fprintf(f, "\"IN\"");
+            } else {
+                fprintf(f, "\"L%u:N%u:%u\"",
+                        (unsigned)inp->producer.layer,
+                        (unsigned)inp->producer.node,
+                        (unsigned)inp->out_index);
+            }
+        }
+        fprintf(f, "]\n");
+
+        fprintf(f, "    }%s\n", (i + 1 < graph->num_nodes) ? "," : "");
+    }
+    fprintf(f, "  ]\n");
+    fprintf(f, "}\n");
+
+    fclose(f);
+    return 0;
+}

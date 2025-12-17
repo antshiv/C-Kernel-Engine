@@ -151,6 +151,21 @@ void backward_causal_softmax_head_major(float *d_scores,
                                         int num_tokens,
                                         int aligned_context_window);
 
+// Scaled dot-product attention (causal) in head-major layout.
+// Q/K/V layout: [head][token][head_dim] with stride aligned_head_dim.
+// scores: [head][query_token][key_token] with stride aligned_context_window.
+// output: same layout as Q/V.
+void attention_forward_causal_head_major(const float *q,
+                                         const float *k,
+                                         const float *v,
+                                         float *scores,
+                                         float *output,
+                                         int num_heads,
+                                         int num_tokens,
+                                         int head_dim,
+                                         int aligned_head_dim,
+                                         int aligned_context_window);
+
 // MLP forward kernel (FC1 -> GELU -> FC2), generic token-parallel version.
 void mlp_token_parallel(const float *input,
                         const float *W_fc1,
