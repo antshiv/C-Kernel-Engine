@@ -100,7 +100,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/backend_native.c" line="18" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/backend_native.c" bodystart="18" bodyend="28"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="99" endline="137">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="109" endline="154">gemm_blocked_serial</references>
         <referencedby refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" compoundref="backend__native_8c" startline="30" endline="35">ckernel_backend_native</referencedby>
       </memberdef>
       </sectiondef>

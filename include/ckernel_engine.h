@@ -283,13 +283,14 @@ void rope_precompute_cache(float *cos_cache,
                            int head_dim,
                            float base);
 
-// Apply RoPE forward in-place: x[num_heads, num_tokens, head_dim].
+// Apply RoPE forward in-place: x[num_heads, num_tokens, aligned_head_dim].
 void rope_forward(float *x,
                   const float *cos_cache,
                   const float *sin_cache,
                   int num_heads,
                   int num_tokens,
                   int head_dim,
+                  int aligned_head_dim,
                   int pos_offset);
 
 // RoPE backward: inverse rotation.
@@ -300,6 +301,7 @@ void rope_backward(const float *d_out,
                    int num_heads,
                    int num_tokens,
                    int head_dim,
+                   int aligned_head_dim,
                    int pos_offset);
 
 // RoPE backward in-place.
@@ -309,6 +311,7 @@ void rope_backward_inplace(float *d_x,
                            int num_heads,
                            int num_tokens,
                            int head_dim,
+                           int aligned_head_dim,
                            int pos_offset);
 
 // Combined RoPE for Q and K.
@@ -320,6 +323,7 @@ void rope_forward_qk(float *q,
                      int num_kv_heads,
                      int num_tokens,
                      int head_dim,
+                     int aligned_head_dim,
                      int pos_offset);
 
 void rope_backward_qk(const float *d_q_out,
@@ -332,6 +336,7 @@ void rope_backward_qk(const float *d_q_out,
                       int num_kv_heads,
                       int num_tokens,
                       int head_dim,
+                      int aligned_head_dim,
                       int pos_offset);
 
 #ifdef __cplusplus

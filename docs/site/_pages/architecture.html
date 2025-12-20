@@ -5,6 +5,33 @@
 
 <p>C-Kernel-Engine uses a three-stage pipeline to transform model configurations into optimized C runtimes.</p>
 
+<div class="card">
+    <h3 style="margin-top: 0;">The "Website" Metaphor</h3>
+    <p>The engine treats LLMs like a website generator treats pages. This allows us to unroll the "Block" section efficiently in C without complex control flow.</p>
+    <table>
+        <tr>
+            <th>Section</th>
+            <th>Website</th>
+            <th>LLM</th>
+        </tr>
+        <tr>
+            <td><strong>Header</strong></td>
+            <td>&lt;head&gt;, Nav, CSS</td>
+            <td>Embeddings, Positional Encoding</td>
+        </tr>
+        <tr>
+            <td><strong>Block</strong></td>
+            <td>Blog Posts, Articles</td>
+            <td>Transformer Layers (repeated)</td>
+        </tr>
+        <tr>
+            <td><strong>Footer</strong></td>
+            <td>Copyright, Scripts</td>
+            <td>Final Norm, Language Head</td>
+        </tr>
+    </table>
+</div>
+
 <div class="img-container">
     <img src="assets/architecture-overview.svg" alt="Architecture Overview">
 </div>
@@ -205,3 +232,9 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
     <li>Backward pass for all layers</li>
     <li>Parameter gradient accumulation</li>
 </ul>
+
+<h2>Project Structure</h2>
+
+<p>The codebase is organized for easy navigation:</p>
+
+{{FOLDER_STRUCTURE}}

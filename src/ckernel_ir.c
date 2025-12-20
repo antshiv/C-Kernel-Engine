@@ -1,5 +1,6 @@
 #include "ckernel_ir.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +30,180 @@ static int parse_int_field(const char *json,
 
     *out_value = value;
     return 0;
+}
+
+static int parse_int_field_in_range(const char *json,
+                                    size_t len,
+                                    const char *key,
+                                    int *out_value)
+{
+    if (!json || !key || !out_value) {
+        return -1;
+    }
+
+    size_t key_len = strlen(key);
+    const char *end = json + len;
+    for (const char *p = json; p + key_len <= end; ++p) {
+        if (memcmp(p, key, key_len) != 0) {
+            continue;
+        }
+
+        const char *colon = memchr(p + key_len, ':', (size_t)(end - (p + key_len)));
+        if (!colon) {
+            return -1;
+        }
+        const char *v = colon + 1;
+        while (v < end && (*v == ' ' || *v == '\t' || *v == '\n' || *v == '\r')) {
+            ++v;
+        }
+
+        int value = 0;
+        if (v < end && sscanf(v, "%d", &value) == 1) {
+            *out_value = value;
+            return 0;
+        }
+        return -1;
+    }
+
+    return -1;
+}
+
+static int parse_int_field_any(const char *json,
+                               size_t len,
+                               const char *const *keys,
+                               int *out_value)
+{
+    if (!keys) {
+        return -1;
+    }
+    for (int i = 0; keys[i]; ++i) {
+        if (parse_int_field_in_range(json, len, keys[i], out_value) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+static int parse_float_field_in_range(const char *json,
+                                      size_t len,
+                                      const char *key,
+                                      float *out_value)
+{
+    if (!json || !key || !out_value) {
+        return -1;
+    }
+
+    size_t key_len = strlen(key);
+    const char *end = json + len;
+    for (const char *p = json; p + key_len <= end; ++p) {
+        if (memcmp(p, key, key_len) != 0) {
+            continue;
+        }
+
+        const char *colon = memchr(p + key_len, ':', (size_t)(end - (p + key_len)));
+        if (!colon) {
+            return -1;
+        }
+        const char *v = colon + 1;
+        while (v < end && (*v == ' ' || *v == '\t' || *v == '\n' || *v == '\r')) {
+            ++v;
+        }
+
+        float value = 0.0f;
+        if (v < end && sscanf(v, "%f", &value) == 1) {
+            *out_value = value;
+            return 0;
+        }
+        return -1;
+    }
+
+    return -1;
+}
+
+static int parse_float_field_any(const char *json,
+                                 size_t len,
+                                 const char *const *keys,
+                                 float *out_value)
+{
+    if (!keys) {
+        return -1;
+    }
+    for (int i = 0; keys[i]; ++i) {
+        if (parse_float_field_in_range(json, len, keys[i], out_value) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+static int find_object_range(const char *json,
+                             const char *key,
+                             const char **out_start,
+                             size_t *out_len)
+{
+    if (!json || !key || !out_start || !out_len) {
+        return -1;
+    }
+
+    const char *p = strstr(json, key);
+    if (!p) {
+        return -1;
+    }
+
+    const char *colon = strchr(p, ':');
+    if (!colon) {
+        return -1;
+    }
+
+    const char *brace = strchr(colon, '{');
+    if (!brace) {
+        return -1;
+    }
+
+    bool in_string = false;
+    bool escape = false;
+    int depth = 0;
+    const char *start = NULL;
+
+    for (const char *cur = brace; *cur; ++cur) {
+        char c = *cur;
+        if (in_string) {
+            if (escape) {
+                escape = false;
+                continue;
+            }
+            if (c == '\\') {
+                escape = true;
+                continue;
+            }
+            if (c == '"') {
+                in_string = false;
+            }
+            continue;
+        }
+
+        if (c == '"') {
+            in_string = true;
+            continue;
+        }
+        if (c == '{') {
+            if (depth == 0) {
+                start = cur;
+            }
+            depth++;
+            continue;
+        }
+        if (c == '}') {
+            depth--;
+            if (depth == 0) {
+                *out_start = start;
+                *out_len = (size_t)(cur - start + 1);
+                return 0;
+            }
+        }
+    }
+
+    return -1;
 }
 
 int ck_model_config_from_hf_json(const char *path, CKModelConfig *cfg)
@@ -68,35 +243,58 @@ int ck_model_config_from_hf_json(const char *path, CKModelConfig *cfg)
 
     CKModelConfig tmp;
     memset(&tmp, 0, sizeof(tmp));
+    tmp.rms_norm_eps = 1e-5f;
+    tmp.rope_theta = 0.0f;
 
-    if (parse_int_field(buf, "\"num_hidden_layers\"", &tmp.num_layers) != 0) {
+    const char *scope = buf;
+    size_t scope_len = nread;
+    if (find_object_range(buf, "\"text_config\"", &scope, &scope_len) != 0) {
+        scope = buf;
+        scope_len = nread;
+    }
+
+    const char *num_layers_keys[] = { "\"num_hidden_layers\"", "\"n_layer\"", NULL };
+    const char *hidden_size_keys[] = { "\"hidden_size\"", "\"n_embd\"", "\"d_model\"", NULL };
+    const char *intermediate_keys[] = { "\"intermediate_size\"", "\"n_inner\"", "\"ffn_dim\"", "\"mlp_dim\"", NULL };
+    const char *num_heads_keys[] = { "\"num_attention_heads\"", "\"n_head\"", "\"num_heads\"", NULL };
+    const char *num_kv_heads_keys[] = { "\"num_key_value_heads\"", "\"num_kv_heads\"", NULL };
+    const char *vocab_keys[] = { "\"vocab_size\"", "\"n_vocab\"", NULL };
+    const char *context_keys[] = { "\"max_position_embeddings\"", "\"n_positions\"", "\"context_length\"", "\"seq_len\"", NULL };
+    const char *rms_eps_keys[] = { "\"rms_norm_eps\"", "\"layer_norm_eps\"", NULL };
+    const char *rope_theta_keys[] = { "\"rope_theta\"", "\"rope_base\"", NULL };
+
+    if (parse_int_field_any(scope, scope_len, num_layers_keys, &tmp.num_layers) != 0) {
         fprintf(stderr, "Warning: num_hidden_layers not found in %s\n", path);
     }
-    if (parse_int_field(buf, "\"hidden_size\"", &tmp.hidden_size) != 0) {
+    if (parse_int_field_any(scope, scope_len, hidden_size_keys, &tmp.hidden_size) != 0) {
         fprintf(stderr, "Warning: hidden_size not found in %s\n", path);
     }
-    if (parse_int_field(buf, "\"intermediate_size\"", &tmp.intermediate_size) != 0) {
+    if (parse_int_field_any(scope, scope_len, intermediate_keys, &tmp.intermediate_size) != 0) {
         fprintf(stderr, "Warning: intermediate_size not found in %s\n", path);
     }
-    if (parse_int_field(buf, "\"num_attention_heads\"", &tmp.num_heads) != 0) {
+    if (parse_int_field_any(scope, scope_len, num_heads_keys, &tmp.num_heads) != 0) {
         fprintf(stderr, "Warning: num_attention_heads not found in %s\n", path);
     }
 
     // num_key_value_heads is optional; default to num_heads if missing.
-    if (parse_int_field(buf, "\"num_key_value_heads\"", &tmp.num_kv_heads) != 0) {
+    if (parse_int_field_any(scope, scope_len, num_kv_heads_keys, &tmp.num_kv_heads) != 0) {
         tmp.num_kv_heads = tmp.num_heads;
     }
 
     // Optional: vocab_size
-    if (parse_int_field(buf, "\"vocab_size\"", &tmp.vocab_size) != 0) {
+    if (parse_int_field_any(scope, scope_len, vocab_keys, &tmp.vocab_size) != 0) {
         tmp.vocab_size = 0;
     }
 
     // Optional: context length (try max_position_embeddings, then n_positions)
-    if (parse_int_field(buf, "\"max_position_embeddings\"", &tmp.context_window) != 0) {
-        if (parse_int_field(buf, "\"n_positions\"", &tmp.context_window) != 0) {
-            tmp.context_window = 0;
-        }
+    if (parse_int_field_any(scope, scope_len, context_keys, &tmp.context_window) != 0) {
+        tmp.context_window = 0;
+    }
+    if (parse_float_field_any(scope, scope_len, rms_eps_keys, &tmp.rms_norm_eps) != 0) {
+        tmp.rms_norm_eps = 1e-5f;
+    }
+    if (parse_float_field_any(scope, scope_len, rope_theta_keys, &tmp.rope_theta) != 0) {
+        tmp.rope_theta = 0.0f;
     }
 
     free(buf);
@@ -330,14 +528,16 @@ void ck_ir_dump(const CKIRGraph *graph, FILE *out)
     }
 
     fprintf(out,
-            "CKIRGraph: layers=%d, hidden_size=%d, intermediate_size=%d, heads=%d, kv_heads=%d, vocab=%d, ctx=%d\n",
+            "CKIRGraph: layers=%d, hidden_size=%d, intermediate_size=%d, heads=%d, kv_heads=%d, vocab=%d, ctx=%d, eps=%.6g, rope_theta=%.6g\n",
             graph->config.num_layers,
             graph->config.hidden_size,
             graph->config.intermediate_size,
             graph->config.num_heads,
             graph->config.num_kv_heads,
             graph->config.vocab_size,
-            graph->config.context_window);
+            graph->config.context_window,
+            graph->config.rms_norm_eps,
+            graph->config.rope_theta);
 
     for (int i = 0; i < graph->num_nodes; ++i) {
         const CKIRNode *n = &graph->nodes[i];
@@ -392,7 +592,9 @@ int ck_ir_serialize_json(const CKIRGraph *graph, const char *path)
     fprintf(f, "    \"num_attention_heads\": %d,\n", graph->config.num_heads);
     fprintf(f, "    \"num_key_value_heads\": %d,\n", graph->config.num_kv_heads);
     fprintf(f, "    \"vocab_size\": %d,\n", graph->config.vocab_size);
-    fprintf(f, "    \"context_window\": %d\n", graph->config.context_window);
+    fprintf(f, "    \"context_window\": %d,\n", graph->config.context_window);
+    fprintf(f, "    \"rms_norm_eps\": %.9g,\n", graph->config.rms_norm_eps);
+    fprintf(f, "    \"rope_theta\": %.9g\n", graph->config.rope_theta);
     fprintf(f, "  },\n");
 
     // For now we only emit a flat "nodes" array. Higher-level tools can
@@ -521,6 +723,12 @@ int ck_ir_parse_json(const char *path, CKIRGraph *graph)
     }
     if (parse_int_field(buf, "\"context_window\"", &tmp.config.context_window) != 0) {
         tmp.config.context_window = 0;
+    }
+    if (parse_float_field_in_range(buf, nread, "\"rms_norm_eps\"", &tmp.config.rms_norm_eps) != 0) {
+        tmp.config.rms_norm_eps = 1e-5f;
+    }
+    if (parse_float_field_in_range(buf, nread, "\"rope_theta\"", &tmp.config.rope_theta) != 0) {
+        tmp.config.rope_theta = 0.0f;
     }
 
     // Count nodes by scanning for "layer" keys in the nodes array.

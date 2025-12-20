@@ -99,7 +99,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="6" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="6" bodyend="17"/>
-        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="19" endline="50">mlp_token_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="21" endline="52">mlp_token_parallel</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

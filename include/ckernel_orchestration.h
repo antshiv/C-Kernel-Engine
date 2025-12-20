@@ -19,10 +19,14 @@ typedef struct {
     int intermediate_dim;
     int aligned_intermediate_dim;
     float eps;
+    int rope_pos_offset;
 
     const float *input;     /* [T x aligned_embed_dim] */
     const float *ln1_gamma; /* [aligned_embed_dim] */
     const float *ln2_gamma; /* [aligned_embed_dim] */
+
+    const float *rope_cos; /* [max_seq_len x head_dim/2] */
+    const float *rope_sin; /* [max_seq_len x head_dim/2] */
 
     const float *wq; /* [num_heads x aligned_head_dim x aligned_embed_dim] */
     const float *bq; /* [num_heads x aligned_head_dim] */

@@ -687,6 +687,10 @@
                         Code Generation
                         <small>IR to C compilation</small>
                     </a>
+                    <a href="concepts.html">
+                        Deep Dive Concepts
+                        <small>RoPE, Flash Attention, GQA</small>
+                    </a>
                 </div>
             </div>
             <a href="pytorch-parity.html" class="">PyTorch Parity</a>
@@ -714,6 +718,33 @@
 <h1>System Architecture</h1>
 
 <p>C-Kernel-Engine uses a three-stage pipeline to transform model configurations into optimized C runtimes.</p>
+
+<div class="card">
+    <h3 style="margin-top: 0;">The "Website" Metaphor</h3>
+    <p>The engine treats LLMs like a website generator treats pages. This allows us to unroll the "Block" section efficiently in C without complex control flow.</p>
+    <table>
+        <tr>
+            <th>Section</th>
+            <th>Website</th>
+            <th>LLM</th>
+        </tr>
+        <tr>
+            <td><strong>Header</strong></td>
+            <td>&lt;head&gt;, Nav, CSS</td>
+            <td>Embeddings, Positional Encoding</td>
+        </tr>
+        <tr>
+            <td><strong>Block</strong></td>
+            <td>Blog Posts, Articles</td>
+            <td>Transformer Layers (repeated)</td>
+        </tr>
+        <tr>
+            <td><strong>Footer</strong></td>
+            <td>Copyright, Scripts</td>
+            <td>Final Norm, Language Head</td>
+        </tr>
+    </table>
+</div>
 
 <div class="img-container">
     <img src="assets/architecture-overview.svg" alt="Architecture Overview">
@@ -915,7 +946,301 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
     <li>Backward pass for all layers</li>
     <li>Parameter gradient accumulation</li>
 </ul>
+
+<h2>Project Structure</h2>
+
+<p>The codebase is organized for easy navigation:</p>
+
+<div class="folder-structure">
+    <div class="folder-header">
+        <span class="folder-title">Project Structure</span>
+        <span class="folder-updated">Updated: 2025-12-20 10:20</span>
+    </div>
+    <pre class="tree-output">
+.
+|-- assets
+|   `-- cover_image.png
+|-- docs
+|   |-- site
+|   |   |-- assets
+|   |   |-- doxygen -&gt; ../doxygen_output/html
+|   |   |-- _pages
+|   |   |-- _partials
+|   |   |-- scripts
+|   |   |-- api.html
+|   |   |-- architecture.html
+|   |   |-- build.sh
+|   |   |-- codegen.html
+|   |   |-- concepts.html
+|   |   |-- contributing.html
+|   |   |-- index.html
+|   |   |-- kernels.html
+|   |   |-- pytorch-parity.html
+|   |   |-- quickstart.html
+|   |   `-- test-viewer.html
+|   |-- study-materials
+|   |   |-- profiling
+|   |   |-- references
+|   |   |-- 00-index.md
+|   |   |-- 01-cache-hierarchy-blocking.md
+|   |   |-- 02-brgemm-architecture.md
+|   |   |-- 03-microkernel-design.md
+|   |   |-- 04-ai-shape-optimizations.md
+|   |   |-- 08-computational-complexity.md
+|   |   |-- career-roadmap-8-months.md
+|   |   `-- README.md
+|   |-- 00-quickstart.md
+|   |-- 01-llm-kernel-shapes.md
+|   |-- 02-kernel-parallelism-and-backends.md
+|   |-- 03-ir-and-codegen-design.md
+|   |-- architecture_diagram.md
+|   |-- developer-guide.md
+|   |-- Doxyfile
+|   |-- doxygen_header.html
+|   |-- gemm-in-transformers.md
+|   |-- kernel-catalog.md
+|   |-- kernel-design-pattern.md
+|   `-- threading-strategy.md
+|-- include
+|   |-- ckernel_alloc.h
+|   |-- ckernel_codegen.h
+|   |-- ckernel_engine.h
+|   |-- ckernel_ir.h
+|   |-- ckernel_model.h
+|   |-- ckernel_orchestration.h
+|   `-- ckernel_registry.h
+|-- notebooks
+|   `-- kernel_testing_workflow.ipynb
+|-- scripts
+|   `-- run_litmus_demo.sh
+|-- src
+|   |-- kernels
+|   |   |-- attention_kernels.c
+|   |   |-- gelu_kernels.c
+|   |   |-- gemm_kernels.c
+|   |   |-- layernorm_kernels.c
+|   |   |-- mlp_kernels.c
+|   |   |-- rmsnorm_kernels.c
+|   |   |-- rope_kernels.c
+|   |   |-- sigmoid_kernels.c
+|   |   |-- softmax_kernels.c
+|   |   `-- swiglu_kernels.c
+|   |-- backend_native.c
+|   |-- ckernel_alloc.c
+|   |-- ckernel_codegen.c
+|   |-- ckernel_ir.c
+|   |-- ckernel_ir_demo.c
+|   |-- ckernel_model_layout.c
+|   |-- ckernel_model_load.c
+|   |-- ckernel_orchestration.c
+|   `-- ckernel_registry.c
+|-- tests
+|-- unittest
+|   |-- compare_outputs.py
+|   |-- generate_reference_data.py
+|   |-- test_attention_backward.py
+|   |-- test_attention.py
+|   |-- test_gelu.py
+|   |-- test_gemm.py
+|   |-- test_layernorm.py
+|   |-- test_lm_head_litmus.py
+|   |-- test_mlp.py
+|   |-- test_orchestration_layer.py
+|   |-- test_rmsnorm.py
+|   |-- test_rope.py
+|   |-- test_sigmoid.py
+|   |-- test_softmax_backward.py
+|   |-- test_softmax.py
+|   `-- test_swiglu.py
+|-- config.json
+|-- default.config.json
+|-- default.json
+|-- Makefile
+|-- README.md
+|-- smolLM-135.json
+|-- test_forward_pass.c
+`-- TESTING.md
+
+18 directories, 84 files
+</pre>
+</div>
+
+<style>
+.folder-structure {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+}
+.folder-header {
+    background: #252525;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+.folder-title {
+    color: #ffb400;
+    font-weight: 600;
+    font-size: 14px;
+}
+.folder-updated {
+    color: #666;
+    font-size: 11px;
+}
+.tree-output {
+    margin: 0;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #b0b0b0;
+    overflow-x: auto;
+    white-space: pre;
+}
+.tree-output .directory {
+    color: #6ab0f3;
+}
+</style>
     </main>
+
+    <!-- SVG Viewer Overlay (shared across all pages) -->
+    <style>
+    .svg-viewer { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .svg-viewer:hover { transform: scale(1.01); box-shadow: 0 8px 32px rgba(255, 180, 0, 0.3); }
+    #svg-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 999999; }
+    #svg-overlay .toolbar { position: fixed; top: 0; left: 0; right: 0; padding: 10px 20px; background: rgba(0,0,0,0.9); display: flex; justify-content: space-between; align-items: center; z-index: 1000000; border-bottom: 1px solid #333; }
+    #svg-overlay .toolbar .title { color: #ccc; font-size: 14px; }
+    #svg-overlay .toolbar .controls { display: flex; gap: 8px; align-items: center; }
+    #svg-overlay .toolbar button { background: #333; color: #ffb400; border: 1px solid #555; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-size: 14px; }
+    #svg-overlay .toolbar button:hover { background: #444; border-color: #ffb400; }
+    #svg-overlay .toolbar .close-btn { font-size: 20px; padding: 4px 12px; }
+    #svg-overlay .toolbar .zoom-display { color: #888; font-size: 12px; min-width: 45px; text-align: center; }
+    #svg-overlay .toolbar .separator { color: #444; }
+    #svg-overlay .image-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 60px 20px 20px; cursor: grab; }
+    #svg-overlay .image-container:active { cursor: grabbing; }
+    #svg-overlay .image-container img { max-width: 95%; max-height: 90vh; transform-origin: center center; }
+    #svg-overlay .nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.7); color: #ffb400; border: 1px solid #555; font-size: 30px; padding: 20px 15px; cursor: pointer; z-index: 1000000; border-radius: 4px; }
+    #svg-overlay .nav-btn:hover { background: rgba(255,180,0,0.2); border-color: #ffb400; }
+    #svg-overlay .nav-prev { left: 10px; }
+    #svg-overlay .nav-next { right: 10px; }
+    #svg-overlay .hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #666; font-size: 12px; background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 20px; }
+    </style>
+
+    <div id="svg-overlay">
+        <div class="toolbar">
+            <span class="title" id="svg-title">Image</span>
+            <div class="controls">
+                <button onclick="svgViewer.zoomOut()" title="Zoom Out (-)">-</button>
+                <span class="zoom-display" id="zoom-display">100%</span>
+                <button onclick="svgViewer.zoomIn()" title="Zoom In (+)">+</button>
+                <span class="separator">|</span>
+                <button onclick="svgViewer.fitWidth()" title="Fit Width (W)">Width</button>
+                <button onclick="svgViewer.fitHeight()" title="Fit Height (H)">Height</button>
+                <button onclick="svgViewer.resetZoom()" title="Reset (0)">Reset</button>
+                <span class="separator">|</span>
+                <button class="close-btn" onclick="svgViewer.close()" title="Close (ESC)">&times;</button>
+            </div>
+        </div>
+        <button class="nav-btn nav-prev" onclick="svgViewer.prev()" title="Previous">&larr;</button>
+        <button class="nav-btn nav-next" onclick="svgViewer.next()" title="Next">&rarr;</button>
+        <div class="image-container" id="svg-container">
+            <img id="svg-image" src="" alt="">
+        </div>
+        <div class="hint">Scroll to zoom | Drag to pan | W/H to fit | 0 to reset | ESC to close</div>
+    </div>
+
+    <script>
+    var svgViewer = (function() {
+        var overlay, img, titleEl, container;
+        var images = [];
+        var currentIndex = 0;
+        var scale = 1, panX = 0, panY = 0;
+        var isDragging = false, dragStartX, dragStartY, panStartX, panStartY;
+
+        function init() {
+            overlay = document.getElementById('svg-overlay');
+            img = document.getElementById('svg-image');
+            titleEl = document.getElementById('svg-title');
+            container = document.getElementById('svg-container');
+            if (!overlay || !img) return;
+
+            document.querySelectorAll('.svg-viewer').forEach(function(viewer, index) {
+                var viewerImg = viewer.querySelector('img');
+                if (viewerImg) {
+                    images.push({ src: viewerImg.src, title: viewer.getAttribute('data-title') || viewerImg.alt || 'Diagram' });
+                    viewer.onclick = function(e) { e.preventDefault(); open(index); };
+                }
+            });
+
+            container.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                scale = Math.max(0.5, Math.min(10, scale + (e.deltaY > 0 ? -0.2 : 0.2)));
+                updateTransform();
+            });
+
+            container.addEventListener('mousedown', function(e) { isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY; panStartX = panX; panStartY = panY; });
+            document.addEventListener('mousemove', function(e) { if (!isDragging) return; panX = panStartX + (e.clientX - dragStartX); panY = panStartY + (e.clientY - dragStartY); updateTransform(); });
+            document.addEventListener('mouseup', function() { isDragging = false; });
+
+            document.addEventListener('keydown', function(e) {
+                if (overlay.style.display !== 'block') return;
+                if (e.key === 'Escape') close();
+                if (e.key === 'ArrowLeft') prev();
+                if (e.key === 'ArrowRight') next();
+                if (e.key === '+' || e.key === '=') zoomIn();
+                if (e.key === '-') zoomOut();
+                if (e.key === '0') resetZoom();
+                if (e.key === 'w' || e.key === 'W') fitWidth();
+                if (e.key === 'h' || e.key === 'H') fitHeight();
+            });
+
+            overlay.addEventListener('click', function(e) { if (e.target === overlay || e.target === container) close(); });
+        }
+
+        function updateTransform() {
+            img.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
+            var zd = document.getElementById('zoom-display');
+            if (zd) zd.textContent = Math.round(scale * 100) + '%';
+        }
+
+        function open(index) {
+            if (!images[index]) return;
+            currentIndex = index; scale = 1; panX = 0; panY = 0;
+            img.src = images[index].src;
+            titleEl.textContent = images[index].title + ' (' + (index + 1) + '/' + images.length + ')';
+            updateTransform();
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function close() { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+        function prev() { open((currentIndex - 1 + images.length) % images.length); }
+        function next() { open((currentIndex + 1) % images.length); }
+        function zoomIn() { scale = Math.min(10, scale + 0.25); updateTransform(); }
+        function zoomOut() { scale = Math.max(0.5, scale - 0.25); updateTransform(); }
+        function resetZoom() { scale = 1; panX = 0; panY = 0; updateTransform(); }
+
+        function fitWidth() {
+            if (!img.naturalWidth || !img.complete) { img.onload = fitWidth; return; }
+            scale = Math.max(0.1, Math.min(10, (window.innerWidth - 150) / img.naturalWidth));
+            panX = 0; panY = 0; updateTransform();
+        }
+
+        function fitHeight() {
+            if (!img.naturalHeight || !img.complete) { img.onload = fitHeight; return; }
+            scale = Math.max(0.1, Math.min(10, (window.innerHeight - 120) / img.naturalHeight));
+            panX = 0; panY = 0; updateTransform();
+        }
+
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+
+        return { open: open, close: close, prev: prev, next: next, zoomIn: zoomIn, zoomOut: zoomOut, resetZoom: resetZoom, fitWidth: fitWidth, fitHeight: fitHeight };
+    })();
+    </script>
+
     <footer style="background: #2a2a2a; border-top: 1px solid #454545; color: #b0b0b0; padding: 3rem 2rem; margin-top: auto;">
         <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
             <div>
@@ -939,7 +1264,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-19</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-20</p>
             </div>
         </div>
     </footer>

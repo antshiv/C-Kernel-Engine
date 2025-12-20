@@ -1,6 +1,27 @@
+#if defined(__AVX512F__) || defined(__AVX2__) || defined(__AVX__)
 #include <immintrin.h>
+#endif
 #include <math.h>
 
+void layernorm_naive_serial_matched_precision(const float *input,
+                                              const float *gamma,
+                                              const float *beta,
+                                              float *output,
+                                              float *mean_cache,
+                                              float *rstd_cache,
+                                              int tokens, int d_model, float eps);
+
+#if defined(__AVX2__) || defined(__AVX__)
+static inline float hsum256_ps(__m256 v)
+{
+    __m128 low = _mm256_castps256_ps128(v);
+    __m128 high = _mm256_extractf128_ps(v, 1);
+    __m128 sum = _mm_add_ps(low, high);
+    sum = _mm_hadd_ps(sum, sum);
+    sum = _mm_hadd_ps(sum, sum);
+    return _mm_cvtss_f32(sum);
+}
+#endif
 // Naive serial LayerNorm implementation (forward only), copied from C-Transformer.
 void layernorm_naive_serial(const float *input,
                             const float *gamma,
@@ -45,6 +66,7 @@ void layernorm_naive_serial(const float *input,
     }
 }
 
+#if defined(__AVX512F__)
 // AVX-512 rolled slice kernel, copied from C-Transformer (model-agnostic).
 void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
                                     const float *__restrict gamma,
@@ -121,7 +143,111 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
         }
     }
 }
+#elif defined(__AVX2__) || defined(__AVX__)
+// AVX/AVX2 rolled slice kernel (8-float vectors).
+void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
+                                    const float *__restrict gamma,
+                                    const float *__restrict beta,
+                                    float *__restrict output_slice_base,
+                                    float *__restrict mean_cache_slice,
+                                    float *__restrict rstd_cache_slice,
+                                    int num_tokens_in_slice,
+                                    int d_model,
+                                    int aligned_embed_dim,
+                                    float eps)
+{
+    for (int t = 0; t < num_tokens_in_slice; ++t) {
+        const float *in_ptr_token = input_slice_base + t * aligned_embed_dim;
+        float *out_ptr_token = output_slice_base + t * aligned_embed_dim;
 
+        __m256 acc_sum_vec = _mm256_setzero_ps();
+        int j = 0;
+        for (; j <= d_model - 8; j += 8) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+            __m256 v = _mm256_load_ps(in_ptr_token + j);
+            acc_sum_vec = _mm256_add_ps(acc_sum_vec, v);
+        }
+        float mean = hsum256_ps(acc_sum_vec);
+        for (; j < d_model; ++j) {
+            mean += in_ptr_token[j];
+        }
+        mean /= (float)d_model;
+        __m256 mean_vec = _mm256_set1_ps(mean);
+
+        __m256 acc_var_vec = _mm256_setzero_ps();
+        j = 0;
+        for (; j <= d_model - 8; j += 8) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+            __m256 v = _mm256_load_ps(in_ptr_token + j);
+            __m256 diff = _mm256_sub_ps(v, mean_vec);
+#if defined(__FMA__)
+            acc_var_vec = _mm256_fmadd_ps(diff, diff, acc_var_vec);
+#else
+            acc_var_vec = _mm256_add_ps(acc_var_vec, _mm256_mul_ps(diff, diff));
+#endif
+        }
+        float var = hsum256_ps(acc_var_vec);
+        for (; j < d_model; ++j) {
+            float diff = in_ptr_token[j] - mean;
+            var += diff * diff;
+        }
+        var = var / (float)d_model + eps;
+        double var_double = (double)var;
+        float inv_std = (float)(1.0 / sqrt(var_double));
+        __m256 inv_std_vec = _mm256_set1_ps(inv_std);
+
+        if (mean_cache_slice) {
+            mean_cache_slice[t] = mean;
+        }
+        if (rstd_cache_slice) {
+            rstd_cache_slice[t] = inv_std;
+        }
+
+        j = 0;
+        for (; j <= d_model - 8; j += 8) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+            _mm_prefetch((const char *)(gamma + j + 128), _MM_HINT_T0);
+            _mm_prefetch((const char *)(beta + j + 128), _MM_HINT_T0);
+
+            __m256 v = _mm256_load_ps(in_ptr_token + j);
+            __m256 g = _mm256_load_ps(gamma + j);
+            __m256 b = _mm256_load_ps(beta + j);
+
+            __m256 n = _mm256_mul_ps(_mm256_sub_ps(v, mean_vec), inv_std_vec);
+#if defined(__FMA__)
+            __m256 o = _mm256_fmadd_ps(n, g, b);
+#else
+            __m256 o = _mm256_add_ps(_mm256_mul_ps(n, g), b);
+#endif
+
+            _mm256_store_ps(out_ptr_token + j, o);
+        }
+        for (; j < d_model; ++j) {
+            float normed = (in_ptr_token[j] - mean) * inv_std;
+            out_ptr_token[j] = normed * gamma[j] + beta[j];
+        }
+    }
+}
+#else
+// Scalar fallback when AVX-512 is unavailable.
+void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
+                                    const float *__restrict gamma,
+                                    const float *__restrict beta,
+                                    float *__restrict output_slice_base,
+                                    float *__restrict mean_cache_slice,
+                                    float *__restrict rstd_cache_slice,
+                                    int num_tokens_in_slice,
+                                    int d_model,
+                                    int aligned_embed_dim,
+                                    float eps)
+{
+    layernorm_naive_serial(input_slice_base, gamma, beta,
+                           output_slice_base, mean_cache_slice, rstd_cache_slice,
+                           num_tokens_in_slice, d_model, aligned_embed_dim, eps);
+}
+#endif
+
+#if defined(__AVX512F__)
 // AVX-512 unrolled slice kernel, copied from C-Transformer (model-agnostic).
 void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
                                       const float *__restrict gamma,
@@ -254,6 +380,170 @@ void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
         }
     }
 }
+#elif defined(__AVX2__) || defined(__AVX__)
+// AVX/AVX2 unrolled slice kernel (8-float vectors).
+void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
+                                      const float *__restrict gamma,
+                                      const float *__restrict beta,
+                                      float *__restrict output_slice_base,
+                                      float *__restrict mean_cache_slice,
+                                      float *__restrict rstd_cache_slice,
+                                      int num_tokens_in_slice,
+                                      int d_model,
+                                      float eps)
+{
+    for (int t = 0; t < num_tokens_in_slice; ++t) {
+        const float *in_ptr_token = input_slice_base + t * d_model;
+        float *out_ptr_token = output_slice_base + t * d_model;
+
+        __m256 acc0 = _mm256_setzero_ps();
+        __m256 acc1 = _mm256_setzero_ps();
+        __m256 acc2 = _mm256_setzero_ps();
+        __m256 acc3 = _mm256_setzero_ps();
+
+        int j = 0;
+        int unroll_factor_floats = 32;
+
+        for (; j <= d_model - unroll_factor_floats; j += unroll_factor_floats) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+
+            __m256 v0 = _mm256_load_ps(in_ptr_token + j);
+            __m256 v1 = _mm256_load_ps(in_ptr_token + j + 8);
+            __m256 v2 = _mm256_load_ps(in_ptr_token + j + 16);
+            __m256 v3 = _mm256_load_ps(in_ptr_token + j + 24);
+
+            acc0 = _mm256_add_ps(acc0, v0);
+            acc1 = _mm256_add_ps(acc1, v1);
+            acc2 = _mm256_add_ps(acc2, v2);
+            acc3 = _mm256_add_ps(acc3, v3);
+        }
+        __m256 acc_sum = _mm256_add_ps(_mm256_add_ps(acc0, acc1),
+                                       _mm256_add_ps(acc2, acc3));
+        float mean = hsum256_ps(acc_sum);
+
+        for (; j < d_model; ++j) {
+            mean += in_ptr_token[j];
+        }
+        mean /= (float)d_model;
+        __m256 mean_vec = _mm256_set1_ps(mean);
+
+        acc0 = _mm256_setzero_ps();
+        acc1 = _mm256_setzero_ps();
+        acc2 = _mm256_setzero_ps();
+        acc3 = _mm256_setzero_ps();
+
+        j = 0;
+        for (; j <= d_model - unroll_factor_floats; j += unroll_factor_floats) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+
+            __m256 v0 = _mm256_load_ps(in_ptr_token + j);
+            __m256 v1 = _mm256_load_ps(in_ptr_token + j + 8);
+            __m256 v2 = _mm256_load_ps(in_ptr_token + j + 16);
+            __m256 v3 = _mm256_load_ps(in_ptr_token + j + 24);
+
+            __m256 d0 = _mm256_sub_ps(v0, mean_vec);
+            __m256 d1 = _mm256_sub_ps(v1, mean_vec);
+            __m256 d2 = _mm256_sub_ps(v2, mean_vec);
+            __m256 d3 = _mm256_sub_ps(v3, mean_vec);
+
+#if defined(__FMA__)
+            acc0 = _mm256_fmadd_ps(d0, d0, acc0);
+            acc1 = _mm256_fmadd_ps(d1, d1, acc1);
+            acc2 = _mm256_fmadd_ps(d2, d2, acc2);
+            acc3 = _mm256_fmadd_ps(d3, d3, acc3);
+#else
+            acc0 = _mm256_add_ps(acc0, _mm256_mul_ps(d0, d0));
+            acc1 = _mm256_add_ps(acc1, _mm256_mul_ps(d1, d1));
+            acc2 = _mm256_add_ps(acc2, _mm256_mul_ps(d2, d2));
+            acc3 = _mm256_add_ps(acc3, _mm256_mul_ps(d3, d3));
+#endif
+        }
+        acc_sum = _mm256_add_ps(_mm256_add_ps(acc0, acc1),
+                                _mm256_add_ps(acc2, acc3));
+        float var = hsum256_ps(acc_sum);
+
+        for (; j < d_model; ++j) {
+            float diff = in_ptr_token[j] - mean;
+            var += diff * diff;
+        }
+        var = var / (float)d_model + eps;
+        double var_double = (double)var;
+        float inv_std = (float)(1.0 / sqrt(var_double));
+        __m256 inv_std_vec = _mm256_set1_ps(inv_std);
+
+        if (mean_cache_slice) {
+            mean_cache_slice[t] = mean;
+        }
+        if (rstd_cache_slice) {
+            rstd_cache_slice[t] = inv_std;
+        }
+
+        j = 0;
+        for (; j <= d_model - unroll_factor_floats; j += unroll_factor_floats) {
+            _mm_prefetch((const char *)(in_ptr_token + j + 128), _MM_HINT_T0);
+            _mm_prefetch((const char *)(gamma + j + 128), _MM_HINT_T0);
+            _mm_prefetch((const char *)(beta + j + 128), _MM_HINT_T0);
+
+            __m256 v0 = _mm256_load_ps(in_ptr_token + j);
+            __m256 v1 = _mm256_load_ps(in_ptr_token + j + 8);
+            __m256 v2 = _mm256_load_ps(in_ptr_token + j + 16);
+            __m256 v3 = _mm256_load_ps(in_ptr_token + j + 24);
+
+            __m256 g0 = _mm256_load_ps(gamma + j);
+            __m256 g1 = _mm256_load_ps(gamma + j + 8);
+            __m256 g2 = _mm256_load_ps(gamma + j + 16);
+            __m256 g3 = _mm256_load_ps(gamma + j + 24);
+
+            __m256 b0 = _mm256_load_ps(beta + j);
+            __m256 b1 = _mm256_load_ps(beta + j + 8);
+            __m256 b2 = _mm256_load_ps(beta + j + 16);
+            __m256 b3 = _mm256_load_ps(beta + j + 24);
+
+            __m256 n0 = _mm256_mul_ps(_mm256_sub_ps(v0, mean_vec), inv_std_vec);
+            __m256 n1 = _mm256_mul_ps(_mm256_sub_ps(v1, mean_vec), inv_std_vec);
+            __m256 n2 = _mm256_mul_ps(_mm256_sub_ps(v2, mean_vec), inv_std_vec);
+            __m256 n3 = _mm256_mul_ps(_mm256_sub_ps(v3, mean_vec), inv_std_vec);
+
+#if defined(__FMA__)
+            __m256 o0 = _mm256_fmadd_ps(n0, g0, b0);
+            __m256 o1 = _mm256_fmadd_ps(n1, g1, b1);
+            __m256 o2 = _mm256_fmadd_ps(n2, g2, b2);
+            __m256 o3 = _mm256_fmadd_ps(n3, g3, b3);
+#else
+            __m256 o0 = _mm256_add_ps(_mm256_mul_ps(n0, g0), b0);
+            __m256 o1 = _mm256_add_ps(_mm256_mul_ps(n1, g1), b1);
+            __m256 o2 = _mm256_add_ps(_mm256_mul_ps(n2, g2), b2);
+            __m256 o3 = _mm256_add_ps(_mm256_mul_ps(n3, g3), b3);
+#endif
+
+            _mm256_store_ps(out_ptr_token + j, o0);
+            _mm256_store_ps(out_ptr_token + j + 8, o1);
+            _mm256_store_ps(out_ptr_token + j + 16, o2);
+            _mm256_store_ps(out_ptr_token + j + 24, o3);
+        }
+        for (; j < d_model; ++j) {
+            float normed = (in_ptr_token[j] - mean) * inv_std;
+            out_ptr_token[j] = normed * gamma[j] + beta[j];
+        }
+    }
+}
+#else
+// Scalar fallback when AVX-512 is unavailable.
+void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
+                                      const float *__restrict gamma,
+                                      const float *__restrict beta,
+                                      float *__restrict output_slice_base,
+                                      float *__restrict mean_cache_slice,
+                                      float *__restrict rstd_cache_slice,
+                                      int num_tokens_in_slice,
+                                      int d_model,
+                                      float eps)
+{
+    layernorm_naive_serial_matched_precision(input_slice_base, gamma, beta,
+                                             output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                             num_tokens_in_slice, d_model, eps);
+}
+#endif
 
 // Precision-matched naive LayerNorm used for benchmarking, copied from C-Transformer.
 void layernorm_naive_serial_matched_precision(const float *input,
@@ -368,4 +658,3 @@ void layernorm_backward_kernel(const float *d_output,  // [T×aligned_D]
         d_beta[d] += beta_grad;
     }
 }
-

@@ -53,6 +53,9 @@
     <member refid="structCKLayerForwardParams_1a1fa5c8ae6f1c35f1edd9041c6007731d" kind="variable"><name>proj_tmp</name></member>
     <member refid="structCKLayerForwardParams_1a6d0ecfad1a74e3fe0583785851741e71" kind="variable"><name>q</name></member>
     <member refid="structCKLayerForwardParams_1a97ce8698227c9cf419c8e21d17cebc12" kind="variable"><name>residual1</name></member>
+    <member refid="structCKLayerForwardParams_1a3be9a0f9fae1ab8fddc30e14628d74a0" kind="variable"><name>rope_cos</name></member>
+    <member refid="structCKLayerForwardParams_1ad0e18a97d0cd2746890333bcc2d0d0e1" kind="variable"><name>rope_pos_offset</name></member>
+    <member refid="structCKLayerForwardParams_1a332fc12fb11a99adfd72dba034c56ea7" kind="variable"><name>rope_sin</name></member>
     <member refid="structCKLayerForwardParams_1a9b1930ef9e3d94dae2f16bacd354dc2d" kind="variable"><name>scores</name></member>
     <member refid="structCKLayerForwardParams_1a64b3c9bf08573696fe23f773e0af3f4a" kind="variable"><name>swiglu_out</name></member>
     <member refid="structCKLayerForwardParams_1a9b2e8d95ad724035dc4ef7d8f2aeb2b8" kind="variable"><name>tokens</name></member>
@@ -86,6 +89,8 @@
     <member refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" kind="variable"><name>num_heads</name></member>
     <member refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" kind="variable"><name>num_kv_heads</name></member>
     <member refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" kind="variable"><name>num_layers</name></member>
+    <member refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" kind="variable"><name>rms_norm_eps</name></member>
+    <member refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" kind="variable"><name>rope_theta</name></member>
     <member refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" kind="variable"><name>vocab_size</name></member>
   </compound>
   <compound refid="structTransformerModel" kind="struct"><name>TransformerModel</name>
@@ -183,9 +188,14 @@
     <member refid="ckernel__ir_8c_1ad7bf30d5d03182c1b05159f068aa94a9" kind="function"><name>ck_ir_parse_json</name></member>
     <member refid="ckernel__ir_8c_1a2de46e1fdc26cd83db161c34b4ca1b0d" kind="function"><name>ck_ir_serialize_json</name></member>
     <member refid="ckernel__ir_8c_1acd82d4aceebe2b6c8feafb9d1fc9c8db" kind="function"><name>ck_model_config_from_hf_json</name></member>
+    <member refid="ckernel__ir_8c_1aeef8b4a2018c1d65c02ba52d6b837523" kind="function"><name>find_object_range</name></member>
     <member refid="ckernel__ir_8c_1ab7340ed7d61056b7ad5ebb1b8a088a65" kind="function"><name>map_forward_to_backward</name></member>
     <member refid="ckernel__ir_8c_1a2b6e6d4584a3004711ed6950fd8e72f4" kind="function"><name>op_name</name></member>
+    <member refid="ckernel__ir_8c_1a923c9060ebb745215ee92e05985cce07" kind="function"><name>parse_float_field_any</name></member>
+    <member refid="ckernel__ir_8c_1a601cf1d7923b5d7440623b5cfc9ea9a1" kind="function"><name>parse_float_field_in_range</name></member>
     <member refid="ckernel__ir_8c_1a7b8d0344f72372022fd4c99d5eb54dc5" kind="function"><name>parse_int_field</name></member>
+    <member refid="ckernel__ir_8c_1ae8239d59e5afaf52342aab7fbae17816" kind="function"><name>parse_int_field_any</name></member>
+    <member refid="ckernel__ir_8c_1a57b34e6db4ee6617037edc06c0edf7e0" kind="function"><name>parse_int_field_in_range</name></member>
     <member refid="ckernel__ir_8c_1ab8755f4c008ebd1ae718823fd0c699fd" kind="function"><name>parse_op</name></member>
   </compound>
   <compound refid="ckernel__ir_8h" kind="file"><name>ckernel_ir.h</name>

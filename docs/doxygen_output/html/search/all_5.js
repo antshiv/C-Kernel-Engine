@@ -9,5 +9,6 @@ var searchData=
   ['fc2_5fweight_5foffset_101',['fc2_weight_offset',['../structCKLayerLayout.html#a361610425e7a88f29595253c4b6f833d',1,'CKLayerLayout']]],
   ['final_5fln_5fbias_5foffset_102',['final_ln_bias_offset',['../structTransformerModel.html#a4a924d843ebdc352caa809c1f72b1838',1,'TransformerModel']]],
   ['final_5fln_5fweight_5foffset_103',['final_ln_weight_offset',['../structTransformerModel.html#a08ba885dfade40a3910ffba35076a1a3',1,'TransformerModel']]],
-  ['final_5foutput_5foffset_104',['final_output_offset',['../structTransformerModel.html#aa4fd42c5214bd3b0adcbc64f82461ee7',1,'TransformerModel']]]
+  ['final_5foutput_5foffset_104',['final_output_offset',['../structTransformerModel.html#aa4fd42c5214bd3b0adcbc64f82461ee7',1,'TransformerModel']]],
+  ['find_5fobject_5frange_105',['find_object_range',['../ckernel__ir_8c.html#aeef8b4a2018c1d65c02ba52d6b837523',1,'ckernel_ir.c']]]
 ];

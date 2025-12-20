@@ -342,13 +342,13 @@ def make_svg_report(path, logits, targets, cfg):
     if loss_range < 1e-9:
         loss_range = 1.0
 
-    path = []
+    path_cmds = []
     for i in range(T):
         px = chart_x + (i / max(1, T - 1)) * chart_w
         py = chart_y + (1.0 - (loss_per[i] - loss_min) / loss_range) * chart_h
         cmd = "M" if i == 0 else "L"
-        path.append(f"{cmd} {px:.2f} {py:.2f}")
-    parts.append(f'<path d="{" ".join(path)}" fill="none" stroke="#1C7F86" stroke-width="2"/>')
+        path_cmds.append(f"{cmd} {px:.2f} {py:.2f}")
+    parts.append(f'<path d="{" ".join(path_cmds)}" fill="none" stroke="#1C7F86" stroke-width="2"/>')
 
     mean_y = chart_y + (1.0 - (loss_mean - loss_min) / loss_range) * chart_h
     parts.append(f'<line x1="{chart_x}" y1="{mean_y}" x2="{chart_x + chart_w}" y2="{mean_y}" stroke="#B85A3F" stroke-width="1.5"/>')

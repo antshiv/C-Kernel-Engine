@@ -154,6 +154,19 @@ void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p)
                               p->num_kv_heads,
                               p->aligned_head_dim);
 
+    if (p->rope_cos && p->rope_sin) {
+        rope_forward_qk(p->q,
+                        p->k,
+                        p->rope_cos,
+                        p->rope_sin,
+                        p->num_heads,
+                        p->num_kv_heads,
+                        p->tokens,
+                        p->head_dim,
+                        p->aligned_head_dim,
+                        p->rope_pos_offset);
+    }
+
     attention_forward_causal_head_major_gqa(p->q,
                                             p->k,
                                             p->v,

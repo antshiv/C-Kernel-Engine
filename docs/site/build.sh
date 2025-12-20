@@ -53,6 +53,11 @@ if [ -f "$SCRIPT_DIR/scripts/parse_doxygen.py" ] && [ -d "$DOCS_DIR/doxygen_outp
     python3 "$SCRIPT_DIR/scripts/parse_doxygen.py" || echo "  Warning: API parsing failed"
 fi
 
+# Step 3: Generate folder structure
+if [ -f "$SCRIPT_DIR/scripts/generate_tree.sh" ]; then
+    bash "$SCRIPT_DIR/scripts/generate_tree.sh"
+fi
+
 # Process each page in _pages directory
 for page in "$PAGES_DIR"/*.html; do
     if [ -f "$page" ]; then
@@ -121,6 +126,12 @@ for page in "$PAGES_DIR"/*.html; do
         if [[ "$filename" == "pytorch-parity.html" ]] && [ -f "$PARTIALS_DIR/test_results.html" ]; then
             echo "    Injecting test results..."
             inject_content "$output_file" "{{TEST_RESULTS}}" "$PARTIALS_DIR/test_results.html"
+        fi
+
+        # Inject folder structure where placeholder exists
+        if grep -q "{{FOLDER_STRUCTURE}}" "$output_file" && [ -f "$PARTIALS_DIR/folder_structure.html" ]; then
+            echo "    Injecting folder structure..."
+            inject_content "$output_file" "{{FOLDER_STRUCTURE}}" "$PARTIALS_DIR/folder_structure.html"
         fi
     fi
 done

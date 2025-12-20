@@ -79,26 +79,28 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="17" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="28" bodyend="167" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="17" declcolumn="6"/>
-        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="71">CKIRGraph::config</references>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="17" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="28" bodyend="171" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="17" declcolumn="6"/>
+        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::config</references>
         <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
         <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
-        <references refid="structCKIRNode_1a5a7a5149c743e17aad1e63791b44ce49" compoundref="ckernel__ir_8h" startline="62">CKIRNode::id</references>
-        <references refid="structCKIRNode_1a595fda2c0bbc4073e1f28af4495ec8ac" compoundref="ckernel__ir_8h" startline="64">CKIRNode::inputs</references>
+        <references refid="structCKIRNode_1a5a7a5149c743e17aad1e63791b44ce49" compoundref="ckernel__ir_8h" startline="64">CKIRNode::id</references>
+        <references refid="structCKIRNode_1a595fda2c0bbc4073e1f28af4495ec8ac" compoundref="ckernel__ir_8h" startline="66">CKIRNode::inputs</references>
         <references refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" compoundref="ckernel__ir_8h" startline="26">CKModelConfig::intermediate_size</references>
-        <references refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" compoundref="ckernel__ir_8h" startline="52">CKKernelId::layer</references>
-        <references refid="structCKIRNode_1abf6244a44982d225b1f19abfa2906e8c" compoundref="ckernel__ir_8h" startline="65">CKIRNode::n_inputs</references>
-        <references refid="structCKIRNode_1ac80c87853b9a0b35958d643481e95fc7" compoundref="ckernel__ir_8h" startline="66">CKIRNode::n_outputs</references>
-        <references refid="structCKKernelId_1aaa58279e743ef1ec7a4c9cce3dc67c79" compoundref="ckernel__ir_8h" startline="53">CKKernelId::node</references>
-        <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::nodes</references>
+        <references refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" compoundref="ckernel__ir_8h" startline="54">CKKernelId::layer</references>
+        <references refid="structCKIRNode_1abf6244a44982d225b1f19abfa2906e8c" compoundref="ckernel__ir_8h" startline="67">CKIRNode::n_inputs</references>
+        <references refid="structCKIRNode_1ac80c87853b9a0b35958d643481e95fc7" compoundref="ckernel__ir_8h" startline="68">CKIRNode::n_outputs</references>
+        <references refid="structCKKernelId_1aaa58279e743ef1ec7a4c9cce3dc67c79" compoundref="ckernel__ir_8h" startline="55">CKKernelId::node</references>
+        <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="75">CKIRGraph::nodes</references>
         <references refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" compoundref="ckernel__ir_8h" startline="27">CKModelConfig::num_heads</references>
         <references refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" compoundref="ckernel__ir_8h" startline="28">CKModelConfig::num_kv_heads</references>
         <references refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" compoundref="ckernel__ir_8h" startline="24">CKModelConfig::num_layers</references>
-        <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="72">CKIRGraph::num_nodes</references>
-        <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="63">CKIRNode::op</references>
+        <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="74">CKIRGraph::num_nodes</references>
+        <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="65">CKIRNode::op</references>
         <references refid="ckernel__codegen_8c_1a2b6e6d4584a3004711ed6950fd8e72f4" compoundref="ckernel__codegen_8c" startline="7" endline="26">op_name</references>
-        <references refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" compoundref="ckernel__ir_8h" startline="58">CKInputRef::out_index</references>
-        <references refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" compoundref="ckernel__ir_8h" startline="57">CKInputRef::producer</references>
+        <references refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" compoundref="ckernel__ir_8h" startline="60">CKInputRef::out_index</references>
+        <references refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" compoundref="ckernel__ir_8h" startline="59">CKInputRef::producer</references>
+        <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
+        <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
         <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
       </memberdef>
@@ -123,16 +125,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="26" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="395" bodyend="1107" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="26" declcolumn="5"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="26" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="405" bodyend="1148" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="26" declcolumn="5"/>
         <references refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" compoundref="ckernel__registry_8c" startline="42" endline="60">ck_ir_validate_supported</references>
-        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="71">CKIRGraph::config</references>
+        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::config</references>
         <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
-        <references refid="ckernel__codegen_8c_1a11930dff28761c36379a2fb510f9ee9b" compoundref="ckernel__codegen_8c" startline="277" endline="393">emit_runtime_preamble</references>
+        <references refid="ckernel__codegen_8c_1a11930dff28761c36379a2fb510f9ee9b" compoundref="ckernel__codegen_8c" startline="281" endline="403">emit_runtime_preamble</references>
         <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
         <references refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" compoundref="ckernel__ir_8h" startline="26">CKModelConfig::intermediate_size</references>
         <references refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" compoundref="ckernel__ir_8h" startline="27">CKModelConfig::num_heads</references>
         <references refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" compoundref="ckernel__ir_8h" startline="28">CKModelConfig::num_kv_heads</references>
         <references refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" compoundref="ckernel__ir_8h" startline="24">CKModelConfig::num_layers</references>
+        <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
+        <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
         <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
       </memberdef>

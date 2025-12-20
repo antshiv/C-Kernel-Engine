@@ -314,6 +314,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" line="180" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="180" bodyend="192"/>
         <references refid="rope__kernels_8c_1af57337d51fd945de2ffec609bbb6866d" compoundref="rope__kernels_8c" startline="81" endline="96">rope_forward</references>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="131" endline="223">ck_layer_forward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="rope__kernels_8c_1a3c55e1a13ca92346f9cf41bc4453f3df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>

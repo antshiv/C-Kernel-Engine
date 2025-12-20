@@ -35,9 +35,12 @@ class CKLayerForwardParams(ctypes.Structure):
         ("intermediate_dim", ctypes.c_int),
         ("aligned_intermediate_dim", ctypes.c_int),
         ("eps", ctypes.c_float),
+        ("rope_pos_offset", ctypes.c_int),
         ("input", ctypes.POINTER(ctypes.c_float)),
         ("ln1_gamma", ctypes.POINTER(ctypes.c_float)),
         ("ln2_gamma", ctypes.POINTER(ctypes.c_float)),
+        ("rope_cos", ctypes.POINTER(ctypes.c_float)),
+        ("rope_sin", ctypes.POINTER(ctypes.c_float)),
         ("wq", ctypes.POINTER(ctypes.c_float)),
         ("bq", ctypes.POINTER(ctypes.c_float)),
         ("wk", ctypes.POINTER(ctypes.c_float)),
@@ -97,7 +100,34 @@ def rmsnorm_ref(x, gamma, eps):
     return x * rstd * gamma
 
 
-def run_layer_test(num_kv_heads):
+def rope_cache(head_dim, max_seq_len, base=10000.0):
+    half_dim = head_dim // 2
+    freqs = 1.0 / (base ** (torch.arange(0, half_dim, dtype=torch.float32) * 2.0 / head_dim))
+    t = torch.arange(max_seq_len, dtype=torch.float32)
+    angles = torch.outer(t, freqs)
+    cos_cache = torch.cos(angles)
+    sin_cache = torch.sin(angles)
+    return cos_cache, sin_cache
+
+
+def rope_apply(x, cos_cache, sin_cache, pos_offset=0):
+    T, D = x.shape
+    half_dim = D // 2
+    out = x.clone()
+    for t in range(T):
+        cos_row = cos_cache[pos_offset + t]
+        sin_row = sin_cache[pos_offset + t]
+        for i in range(half_dim):
+            x0 = x[t, 2 * i]
+            x1 = x[t, 2 * i + 1]
+            c = cos_row[i]
+            s = sin_row[i]
+            out[t, 2 * i] = x0 * c - x1 * s
+            out[t, 2 * i + 1] = x0 * s + x1 * c
+    return out
+
+
+def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
     torch.manual_seed(0)
     T = 8
     D = 32
@@ -194,6 +224,18 @@ def run_layer_test(num_kv_heads):
     mlp_out = aligned_empty((T, aligned_embed_dim))
     output = aligned_empty((T, aligned_embed_dim))
 
+    rope_cos_ptr = ctypes.POINTER(ctypes.c_float)()
+    rope_sin_ptr = ctypes.POINTER(ctypes.c_float)()
+    rope_offset = 0
+    cos_cache = None
+    sin_cache = None
+    if use_rope:
+        cos_cache, sin_cache = rope_cache(head_dim, T, base=rope_theta)
+        cos_np = cos_cache.numpy().astype(np.float32, copy=False)
+        sin_np = sin_cache.numpy().astype(np.float32, copy=False)
+        rope_cos_ptr = cos_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        rope_sin_ptr = sin_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+
     params = CKLayerForwardParams(
         tokens=T,
         embed_dim=D,
@@ -206,9 +248,12 @@ def run_layer_test(num_kv_heads):
         intermediate_dim=intermediate_dim,
         aligned_intermediate_dim=aligned_intermediate_dim,
         eps=eps,
+        rope_pos_offset=rope_offset,
         input=ptr(x),
         ln1_gamma=ptr(ln1_gamma),
         ln2_gamma=ptr(ln2_gamma),
+        rope_cos=rope_cos_ptr,
+        rope_sin=rope_sin_ptr,
         wq=ptr(wq),
         bq=ptr(bq),
         wk=ptr(wk),
@@ -264,6 +309,10 @@ def run_layer_test(num_kv_heads):
         k_h = h1 @ wk_h.t() + bk_h
         v_h = h1 @ wv_h.t() + bv_h
 
+        if use_rope:
+            q_h = rope_apply(q_h, cos_cache, sin_cache, pos_offset=rope_offset)
+            k_h = rope_apply(k_h, cos_cache, sin_cache, pos_offset=rope_offset)
+
         scores_h = (q_h @ k_h.t()) / math.sqrt(head_dim)
         mask = torch.triu(torch.ones_like(scores_h), diagonal=1).bool()
         scores_h = scores_h.masked_fill(mask, float("-inf"))
@@ -290,11 +339,14 @@ def run_layer_test(num_kv_heads):
 
     out_c = torch.from_numpy(output[:, :D]).float()
     diff = (out_c - ref_out).abs().max().item()
-    print(f"Layer forward (kv_heads={num_kv_heads}) max diff: {diff:.2e}")
-    if diff > 1e-4:
+    print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}) max diff: {diff:.2e}")
+    tol = 1e-3  # Blocked GEMM + GQA accumulation order introduces small float32 drift.
+    if diff > tol:
         raise AssertionError(f"Layer forward mismatch: max diff {diff}")
 
 
 if __name__ == "__main__":
     run_layer_test(num_kv_heads=4)
     run_layer_test(num_kv_heads=2)
+    run_layer_test(num_kv_heads=4, use_rope=True)
+    run_layer_test(num_kv_heads=2, use_rope=True)

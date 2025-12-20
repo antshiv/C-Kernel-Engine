@@ -45,6 +45,7 @@ lib.rope_forward.argtypes = [
     ctypes.c_int,  # num_heads
     ctypes.c_int,  # num_tokens
     ctypes.c_int,  # head_dim
+    ctypes.c_int,  # aligned_head_dim
     ctypes.c_int,  # pos_offset
 ]
 lib.rope_forward.restype = None
@@ -58,6 +59,7 @@ lib.rope_backward.argtypes = [
     ctypes.c_int,  # num_heads
     ctypes.c_int,  # num_tokens
     ctypes.c_int,  # head_dim
+    ctypes.c_int,  # aligned_head_dim
     ctypes.c_int,  # pos_offset
 ]
 lib.rope_backward.restype = None
@@ -212,6 +214,7 @@ def test_forward(H: int = 4, T: int = 16, D: int = 32, seed: int = 0):
         ctypes.c_int(H),
         ctypes.c_int(T),
         ctypes.c_int(D),
+        ctypes.c_int(D),
         ctypes.c_int(0),
     )
 
@@ -251,6 +254,7 @@ def test_backward(H: int = 4, T: int = 16, D: int = 32, seed: int = 0):
         tensor_to_ptr(sin_cache),
         ctypes.c_int(H),
         ctypes.c_int(T),
+        ctypes.c_int(D),
         ctypes.c_int(D),
         ctypes.c_int(0),
     )
@@ -295,6 +299,7 @@ def test_round_trip(H: int = 4, T: int = 16, D: int = 32, seed: int = 0):
         ctypes.c_int(H),
         ctypes.c_int(T),
         ctypes.c_int(D),
+        ctypes.c_int(D),
         ctypes.c_int(0),
     )
 
@@ -307,6 +312,7 @@ def test_round_trip(H: int = 4, T: int = 16, D: int = 32, seed: int = 0):
         tensor_to_ptr(sin_cache),
         ctypes.c_int(H),
         ctypes.c_int(T),
+        ctypes.c_int(D),
         ctypes.c_int(D),
         ctypes.c_int(0),
     )
@@ -348,6 +354,7 @@ def test_pos_offset(H: int = 2, T: int = 8, D: int = 16, offset: int = 5, seed: 
         tensor_to_ptr(sin_cache),
         ctypes.c_int(H),
         ctypes.c_int(T),
+        ctypes.c_int(D),
         ctypes.c_int(D),
         ctypes.c_int(offset),
     )

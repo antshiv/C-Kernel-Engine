@@ -9,7 +9,7 @@
  *
  * Design note:
  *  - The long-term IR structure follows a "header / block / footer" pattern,
- *    inspired by the @antsand HMVC website generator:
+ *    inspired by the Antsand HMVC website generator:
  *      - header: one-time ops before the decoder stack (embeddings, pos-enc, etc.)
  *      - block : per-layer ops (RMSNorm, attention, MLP/SwiGLU, residual adds)
  *      - footer: one-time ops after the stack (final norm, LM head / weight-tying, loss)
@@ -28,6 +28,8 @@ typedef struct {
     int num_kv_heads;       // num_key_value_heads (GQA)
     int vocab_size;         // vocab_size (if available)
     int context_window;     // max positions / context length (if available)
+    float rms_norm_eps;     // RMSNorm epsilon (if available)
+    float rope_theta;       // RoPE base (0 disables RoPE)
 } CKModelConfig;
 
 typedef enum {
@@ -77,12 +79,19 @@ typedef struct {
  * Parse a HuggingFace-style config.json into CKModelConfig.
  *
  * This is a very small, dependency-free parser that looks for a handful
- * of integer keys:
- *   - "num_hidden_layers"
- *   - "hidden_size"
- *   - "intermediate_size"
- *   - "num_attention_heads"
- *   - "num_key_value_heads" (optional; defaults to num_attention_heads)
+ * of integer keys. If a "text_config" object is present, it will parse
+ * the fields from that object (so vision_config does not override text).
+ *
+ * Keys recognized (with common fallbacks):
+ *   - "num_hidden_layers" ("n_layer")
+ *   - "hidden_size" ("n_embd", "d_model")
+ *   - "intermediate_size" ("n_inner", "ffn_dim", "mlp_dim")
+ *   - "num_attention_heads" ("n_head", "num_heads")
+ *   - "num_key_value_heads" ("num_kv_heads") (optional; defaults to num_attention_heads)
+ *   - "vocab_size" ("n_vocab") (optional)
+ *   - "max_position_embeddings" ("n_positions", "context_length", "seq_len") (optional)
+ *   - "rms_norm_eps" ("layer_norm_eps") (optional; defaults to 1e-5)
+ *   - "rope_theta" (optional; 0 disables RoPE)
  *
  * Returns 0 on success, non-zero on failure.
  */

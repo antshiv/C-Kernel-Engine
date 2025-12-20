@@ -1,7 +1,17 @@
 CC      := gcc
 # You can override AVX/arch flags from the environment if needed, e.g.:
-#   make AVX_FLAGS="-march=native -mavx512f -mfma"
-AVX_FLAGS ?= -march=native -mavx512f -mfma
+#   make AVX_FLAGS="-mavx2"
+#   make AVX_FLAGS=""            # scalar build
+CPU_FLAGS := $(shell grep -m1 '^flags' /proc/cpuinfo 2>/dev/null)
+ifneq (,$(findstring avx512f,$(CPU_FLAGS)))
+AVX_FLAGS ?= -mavx512f
+else ifneq (,$(findstring avx2,$(CPU_FLAGS)))
+AVX_FLAGS ?= -mavx2
+else ifneq (,$(findstring avx,$(CPU_FLAGS)))
+AVX_FLAGS ?= -mavx
+else
+AVX_FLAGS ?=
+endif
 INCLUDES := -Iinclude
 CFLAGS  := -O3 -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)
 
@@ -162,8 +172,8 @@ help:
 	@echo "  make litmus-demo     Run the 100x100 litmus demo and capture output + SVG"
 	@echo "  make libckernel_gelu.so      Build GELU-only shared library (outputs to $(LIB_GELU))"
 	@echo "  make libckernel_rmsnorm.so   Build RMSNorm-only shared library (outputs to $(LIB_RMSNORM))"
-	@echo "  make libckernel_layernorm.so Build LayerNorm-only shared library (requires AVX-512 CPU, outputs to $(LIB_LN))"
-	@echo "  make libckernel_softmax.so    Build Softmax-only shared library (requires AVX-512 CPU, outputs to $(LIB_SOFT))"
+	@echo "  make libckernel_layernorm.so Build LayerNorm-only shared library (AVX-512 if available, outputs to $(LIB_LN))"
+	@echo "  make libckernel_softmax.so    Build Softmax-only shared library (outputs to $(LIB_SOFT))"
 	@echo "  make libckernel_swiglu.so     Build SwiGLU-only shared library (outputs to $(LIB_SWIGLU))"
 	@echo "  make libckernel_sigmoid.so    Build Sigmoid-only shared library (outputs to $(LIB_SIGMOID))"
 	@echo "  make libckernel_attention.so  Build attention-only shared library (scalar math + softmax kernel, outputs to $(LIB_ATTENTION))"
@@ -173,9 +183,9 @@ help:
 	@echo "  unittest/test_gelu.py        - GELU forward/backward vs PyTorch"
 	@echo "  unittest/test_rmsnorm.py     - RMSNorm forward/backward vs PyTorch"
 	@echo "  unittest/test_sigmoid.py     - Sigmoid forward/backward vs PyTorch"
-	@echo "  unittest/test_layernorm.py   - LayerNorm forward/backward vs PyTorch (AVX-512)"
-	@echo "  unittest/test_softmax.py     - Causal softmax forward vs PyTorch (AVX-512)"
-	@echo "  unittest/test_softmax_backward.py - Causal softmax backward vs PyTorch (AVX-512)"
+	@echo "  unittest/test_layernorm.py   - LayerNorm forward/backward vs PyTorch"
+	@echo "  unittest/test_softmax.py     - Causal softmax forward vs PyTorch"
+	@echo "  unittest/test_softmax_backward.py - Causal softmax backward vs PyTorch"
 	@echo "  unittest/test_gemm.py        - GEMM variants vs PyTorch matmul"
 	@echo "  unittest/test_mlp.py         - MLP block forward/backward vs PyTorch"
 	@echo "  unittest/test_swiglu.py      - SwiGLU activation forward/backward vs PyTorch"

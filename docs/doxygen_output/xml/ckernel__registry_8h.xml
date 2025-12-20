@@ -64,13 +64,13 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_registry.h" line="12" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_registry.c" bodystart="42" bodyend="60" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_registry.h" declline="12" declcolumn="5"/>
         <references refid="ckernel__registry_8c_1ab6651fcb314241f4e8857136e4edfec0" compoundref="ckernel__registry_8c" startline="5" endline="24">ck_op_name</references>
         <references refid="ckernel__registry_8c_1a4178dea993cf3973166fd2dc9d1f2223" compoundref="ckernel__registry_8c" startline="26" endline="40">ck_op_supported</references>
-        <references refid="structCKIRNode_1a5a7a5149c743e17aad1e63791b44ce49" compoundref="ckernel__ir_8h" startline="62">CKIRNode::id</references>
-        <references refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" compoundref="ckernel__ir_8h" startline="52">CKKernelId::layer</references>
-        <references refid="structCKKernelId_1aaa58279e743ef1ec7a4c9cce3dc67c79" compoundref="ckernel__ir_8h" startline="53">CKKernelId::node</references>
-        <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::nodes</references>
-        <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="72">CKIRGraph::num_nodes</references>
-        <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="63">CKIRNode::op</references>
-        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <references refid="structCKIRNode_1a5a7a5149c743e17aad1e63791b44ce49" compoundref="ckernel__ir_8h" startline="64">CKIRNode::id</references>
+        <references refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" compoundref="ckernel__ir_8h" startline="54">CKKernelId::layer</references>
+        <references refid="structCKKernelId_1aaa58279e743ef1ec7a4c9cce3dc67c79" compoundref="ckernel__ir_8h" startline="55">CKKernelId::node</references>
+        <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="75">CKIRGraph::nodes</references>
+        <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="74">CKIRGraph::num_nodes</references>
+        <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="65">CKIRNode::op</references>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="405" endline="1148">ck_codegen_emit_runtime</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__registry_8h_1a4178dea993cf3973166fd2dc9d1f2223" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -88,13 +88,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_registry.h" line="10" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_registry.c" bodystart="26" bodyend="40" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_registry.h" declline="10" declcolumn="5"/>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a7051396a4aa176f36318dcaa3af3e5fb" compoundref="ckernel__ir_8h" startline="37">CK_OP_ADD</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933afe1b595e10ffff05fedd7bbed373a536" compoundref="ckernel__ir_8h" startline="36">CK_OP_ATTENTION</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933ac7daba53293e375ee15e8197a913147d" compoundref="ckernel__ir_8h" startline="38">CK_OP_LINEAR</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933aafa299bf9615d5833b7ed9d186f0a5ef" compoundref="ckernel__ir_8h" startline="35">CK_OP_LINEAR_QKV</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933ada7e0c57759aed4a8ce5575330f11ed6" compoundref="ckernel__ir_8h" startline="34">CK_OP_RMSNORM</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a873de2c8646443e7ef7e3757dccbdcb9" compoundref="ckernel__ir_8h" startline="39">CK_OP_SPLIT</references>
-        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a29f456078ffd9a510971d70ee47bd11f" compoundref="ckernel__ir_8h" startline="40">CK_OP_SWIGLU</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a7051396a4aa176f36318dcaa3af3e5fb" compoundref="ckernel__ir_8h" startline="39">CK_OP_ADD</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933afe1b595e10ffff05fedd7bbed373a536" compoundref="ckernel__ir_8h" startline="38">CK_OP_ATTENTION</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933ac7daba53293e375ee15e8197a913147d" compoundref="ckernel__ir_8h" startline="40">CK_OP_LINEAR</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933aafa299bf9615d5833b7ed9d186f0a5ef" compoundref="ckernel__ir_8h" startline="37">CK_OP_LINEAR_QKV</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933ada7e0c57759aed4a8ce5575330f11ed6" compoundref="ckernel__ir_8h" startline="36">CK_OP_RMSNORM</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a873de2c8646443e7ef7e3757dccbdcb9" compoundref="ckernel__ir_8h" startline="41">CK_OP_SPLIT</references>
+        <references refid="ckernel__ir_8h_1a37376e6b0c13d2069c36be3bbc93c933a29f456078ffd9a510971d70ee47bd11f" compoundref="ckernel__ir_8h" startline="42">CK_OP_SWIGLU</references>
         <referencedby refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" compoundref="ckernel__registry_8c" startline="42" endline="60">ck_ir_validate_supported</referencedby>
       </memberdef>
       </sectiondef>

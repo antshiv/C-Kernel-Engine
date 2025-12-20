@@ -52,6 +52,7 @@ static inline void rope_apply_head(float *x,
                                    const float *sin_cache,
                                    int num_tokens,
                                    int head_dim,
+                                   int aligned_head_dim,
                                    int pos_offset)
 {
     int half_dim = head_dim / 2;
@@ -60,7 +61,7 @@ static inline void rope_apply_head(float *x,
         int pos = pos_offset + t;
         const float *cos_row = cos_cache + pos * half_dim;
         const float *sin_row = sin_cache + pos * half_dim;
-        float *x_row = x + t * head_dim;
+        float *x_row = x + (size_t)t * (size_t)aligned_head_dim;
 
         for (int i = 0; i < half_dim; ++i) {
             float x0 = x_row[2 * i];
@@ -84,14 +85,15 @@ void rope_forward(float *x,
                   int num_heads,
                   int num_tokens,
                   int head_dim,
+                  int aligned_head_dim,
                   int pos_offset)
 {
-    size_t head_stride = (size_t)num_tokens * (size_t)head_dim;
+    size_t head_stride = (size_t)num_tokens * (size_t)aligned_head_dim;
 
     for (int h = 0; h < num_heads; ++h) {
         rope_apply_head(x + h * head_stride,
                         cos_cache, sin_cache,
-                        num_tokens, head_dim, pos_offset);
+                        num_tokens, head_dim, aligned_head_dim, pos_offset);
     }
 }
 
@@ -110,9 +112,10 @@ void rope_backward(const float *d_out,
                    int num_heads,
                    int num_tokens,
                    int head_dim,
+                   int aligned_head_dim,
                    int pos_offset)
 {
-    size_t head_stride = (size_t)num_tokens * (size_t)head_dim;
+    size_t head_stride = (size_t)num_tokens * (size_t)aligned_head_dim;
     int half_dim = head_dim / 2;
 
     for (int h = 0; h < num_heads; ++h) {
@@ -121,7 +124,7 @@ void rope_backward(const float *d_out,
             const float *cos_row = cos_cache + pos * half_dim;
             const float *sin_row = sin_cache + pos * half_dim;
 
-            size_t idx = h * head_stride + t * head_dim;
+            size_t idx = h * head_stride + (size_t)t * (size_t)aligned_head_dim;
             const float *d_out_row = d_out + idx;
             float *d_x_row = d_x + idx;
 
@@ -135,6 +138,10 @@ void rope_backward(const float *d_out,
                 d_x_row[2 * i]     =  d0 * c + d1 * s;
                 d_x_row[2 * i + 1] = -d0 * s + d1 * c;
             }
+
+            for (int i = head_dim; i < aligned_head_dim; ++i) {
+                d_x_row[i] = 0.0f;
+            }
         }
     }
 }
@@ -147,9 +154,10 @@ void rope_backward_inplace(float *d_x,
                            int num_heads,
                            int num_tokens,
                            int head_dim,
+                           int aligned_head_dim,
                            int pos_offset)
 {
-    size_t head_stride = (size_t)num_tokens * (size_t)head_dim;
+    size_t head_stride = (size_t)num_tokens * (size_t)aligned_head_dim;
     int half_dim = head_dim / 2;
 
     for (int h = 0; h < num_heads; ++h) {
@@ -158,7 +166,7 @@ void rope_backward_inplace(float *d_x,
             const float *cos_row = cos_cache + pos * half_dim;
             const float *sin_row = sin_cache + pos * half_dim;
 
-            float *d_row = d_x + h * head_stride + t * head_dim;
+            float *d_row = d_x + h * head_stride + (size_t)t * (size_t)aligned_head_dim;
 
             for (int i = 0; i < half_dim; ++i) {
                 float d0 = d_row[2 * i];
@@ -169,6 +177,10 @@ void rope_backward_inplace(float *d_x,
                 // Inverse rotation: rotate by -θ
                 d_row[2 * i]     =  d0 * c + d1 * s;
                 d_row[2 * i + 1] = -d0 * s + d1 * c;
+            }
+
+            for (int i = head_dim; i < aligned_head_dim; ++i) {
+                d_row[i] = 0.0f;
             }
         }
     }
@@ -185,10 +197,11 @@ void rope_forward_qk(float *q,
                      int num_kv_heads,
                      int num_tokens,
                      int head_dim,
+                     int aligned_head_dim,
                      int pos_offset)
 {
-    rope_forward(q, cos_cache, sin_cache, num_heads, num_tokens, head_dim, pos_offset);
-    rope_forward(k, cos_cache, sin_cache, num_kv_heads, num_tokens, head_dim, pos_offset);
+    rope_forward(q, cos_cache, sin_cache, num_heads, num_tokens, head_dim, aligned_head_dim, pos_offset);
+    rope_forward(k, cos_cache, sin_cache, num_kv_heads, num_tokens, head_dim, aligned_head_dim, pos_offset);
 }
 
 // Combined RoPE backward for both d_q and d_k.
@@ -202,8 +215,9 @@ void rope_backward_qk(const float *d_q_out,
                       int num_kv_heads,
                       int num_tokens,
                       int head_dim,
+                      int aligned_head_dim,
                       int pos_offset)
 {
-    rope_backward(d_q_out, d_q, cos_cache, sin_cache, num_heads, num_tokens, head_dim, pos_offset);
-    rope_backward(d_k_out, d_k, cos_cache, sin_cache, num_kv_heads, num_tokens, head_dim, pos_offset);
+    rope_backward(d_q_out, d_q, cos_cache, sin_cache, num_heads, num_tokens, head_dim, aligned_head_dim, pos_offset);
+    rope_backward(d_k_out, d_k, cos_cache, sin_cache, num_kv_heads, num_tokens, head_dim, aligned_head_dim, pos_offset);
 }

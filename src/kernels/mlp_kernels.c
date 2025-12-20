@@ -1,5 +1,7 @@
 #include "ckernel_engine.h"
+#if defined(__AVX512F__) || defined(__AVX2__) || defined(__AVX__)
 #include <immintrin.h>
+#endif
 #include <omp.h>
 
 // Forward MLP kernel (FC1 -> GELU -> FC2) adapted from C-Transformer's
@@ -88,6 +90,7 @@ void fc2_backward_kernel(const float *d_output,
     for (int out_idx = 0; out_idx < aligned_out; ++out_idx) {
         float *dst_row = d_W_fc2 + (size_t)out_idx * aligned_in;
 
+#if defined(__AVX512F__)
         for (int in_idx = 0; in_idx < aligned_in; in_idx += 16) {
             __m512 accum = _mm512_setzero_ps();
 
@@ -101,6 +104,34 @@ void fc2_backward_kernel(const float *d_output,
             __m512 prev = _mm512_load_ps(dst_row + in_idx);
             _mm512_store_ps(dst_row + in_idx, _mm512_add_ps(prev, accum));
         }
+#elif defined(__AVX2__) || defined(__AVX__)
+        for (int in_idx = 0; in_idx < aligned_in; in_idx += 8) {
+            __m256 accum = _mm256_setzero_ps();
+
+            for (int t = 0; t < T; ++t) {
+                __m256 input_vec = _mm256_load_ps(fc2_input + (size_t)t * aligned_in + in_idx);
+                __m256 grad_broadcast =
+                    _mm256_set1_ps(d_output[(size_t)t * aligned_out + out_idx]);
+#if defined(__FMA__)
+                accum = _mm256_fmadd_ps(grad_broadcast, input_vec, accum);
+#else
+                accum = _mm256_add_ps(accum, _mm256_mul_ps(grad_broadcast, input_vec));
+#endif
+            }
+
+            __m256 prev = _mm256_load_ps(dst_row + in_idx);
+            _mm256_store_ps(dst_row + in_idx, _mm256_add_ps(prev, accum));
+        }
+#else
+        for (int in_idx = 0; in_idx < aligned_in; ++in_idx) {
+            float accum = 0.0f;
+            for (int t = 0; t < T; ++t) {
+                accum += d_output[(size_t)t * aligned_out + out_idx]
+                       * fc2_input[(size_t)t * aligned_in + in_idx];
+            }
+            dst_row[in_idx] += accum;
+        }
+#endif
     }
 
     // 3. d_b_fc2 = sum_over_T(d_output)
@@ -153,6 +184,7 @@ void fc1_backward_kernel(const float *d_output,
     for (int out_idx = 0; out_idx < aligned_out; ++out_idx) {
         float *dst_row = d_W_fc1 + (size_t)out_idx * aligned_in;
 
+#if defined(__AVX512F__)
         for (int in_idx = 0; in_idx < aligned_in; in_idx += 16) {
             __m512 accum = _mm512_setzero_ps();
             for (int t = 0; t < T; ++t) {
@@ -164,6 +196,32 @@ void fc1_backward_kernel(const float *d_output,
             __m512 prev = _mm512_load_ps(dst_row + in_idx);
             _mm512_store_ps(dst_row + in_idx, _mm512_add_ps(prev, accum));
         }
+#elif defined(__AVX2__) || defined(__AVX__)
+        for (int in_idx = 0; in_idx < aligned_in; in_idx += 8) {
+            __m256 accum = _mm256_setzero_ps();
+            for (int t = 0; t < T; ++t) {
+                __m256 input_vec = _mm256_load_ps(fc1_input + (size_t)t * aligned_in + in_idx);
+                __m256 grad_broadcast =
+                    _mm256_set1_ps(d_output[(size_t)t * aligned_out + out_idx]);
+#if defined(__FMA__)
+                accum = _mm256_fmadd_ps(grad_broadcast, input_vec, accum);
+#else
+                accum = _mm256_add_ps(accum, _mm256_mul_ps(grad_broadcast, input_vec));
+#endif
+            }
+            __m256 prev = _mm256_load_ps(dst_row + in_idx);
+            _mm256_store_ps(dst_row + in_idx, _mm256_add_ps(prev, accum));
+        }
+#else
+        for (int in_idx = 0; in_idx < aligned_in; ++in_idx) {
+            float accum = 0.0f;
+            for (int t = 0; t < T; ++t) {
+                accum += d_output[(size_t)t * aligned_out + out_idx]
+                       * fc1_input[(size_t)t * aligned_in + in_idx];
+            }
+            dst_row[in_idx] += accum;
+        }
+#endif
     }
 
     // 3. d_b_fc1 = sum_over_T(d_output)

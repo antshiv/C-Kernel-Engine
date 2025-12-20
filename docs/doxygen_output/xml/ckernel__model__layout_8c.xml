@@ -109,7 +109,7 @@
         <references refid="structCKLayerLayout_1aaece9ea1e0a761b00bdce132c24aa6a0" compoundref="ckernel__model_8h" startline="28">CKLayerLayout::attn_proj_bias_offset</references>
         <references refid="structCKLayerLayout_1ace90b671a13ec6e8cb08fac170a25038" compoundref="ckernel__model_8h" startline="27">CKLayerLayout::attn_proj_weight_offset</references>
         <references refid="structTransformerModel_1af6538865812c32df1cbd785b2d40e370" compoundref="ckernel__model_8h" startline="38">TransformerModel::cfg</references>
-        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="71">CKIRGraph::config</references>
+        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::config</references>
         <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
         <references refid="structTransformerModel_1a1989f1f535ad94b85bb4242ec2148969" compoundref="ckernel__model_8h" startline="47">TransformerModel::embedded_input_offset</references>
         <references refid="structCKLayerLayout_1a38798910bd66aeaa0eb43aa696197c10" compoundref="ckernel__model_8h" startline="31">CKLayerLayout::fc1_bias_offset</references>

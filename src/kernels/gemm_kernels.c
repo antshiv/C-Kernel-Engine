@@ -1,5 +1,7 @@
 #include "ckernel_engine.h"
+#if defined(__AVX512F__)
 #include <immintrin.h>
+#endif
 #include <omp.h>
 
 static inline int ck_min(int a, int b) { return a < b ? a : b; }
@@ -31,6 +33,7 @@ void gemm_avx512_parallel(const float *A,
                           float *C,
                           int M, int N, int K)
 {
+#if defined(__AVX512F__)
 #pragma omp parallel for
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
@@ -49,6 +52,9 @@ void gemm_avx512_parallel(const float *A,
             C[i * N + j] = sum + bias_val;
         }
     }
+#else
+    gemm_naive_parallel(A, B, bias, C, M, N, K);
+#endif
 }
 
 // Cache-blocked GEMM with fine-grained parallelism – copied from C-Transformer.
@@ -58,6 +64,7 @@ void gemm_fine_grained_parallel(const float *A,
                                 float *C,
                                 int M, int N, int K)
 {
+#if defined(__AVX512F__)
     const int block_size = 64;
 #pragma omp parallel for
     for (int i = 0; i < M; i++) {
@@ -93,6 +100,9 @@ void gemm_fine_grained_parallel(const float *A,
             }
         }
     }
+#else
+    gemm_naive_parallel(A, B, bias, C, M, N, K);
+#endif
 }
 
 // Serial cache-blocked GEMM – copied from C-Transformer (with NULL-safe bias).
@@ -117,6 +127,7 @@ void gemm_blocked_serial(const float *A,
 
                 for (int i = ii; i < i_end; i++) {
                     for (int j = jj; j < j_end; j++) {
+#if defined(__AVX512F__)
                         __m512 sum_vec = _mm512_setzero_ps();
                         int k;
                         for (k = kk; k <= k_end - 16; k += 16) {
@@ -128,6 +139,12 @@ void gemm_blocked_serial(const float *A,
                         for (; k < k_end; k++) {
                             partial_sum += A[i * K + k] * B[j * K + k];
                         }
+#else
+                        float partial_sum = 0.0f;
+                        for (int k = kk; k < k_end; k++) {
+                            partial_sum += A[i * K + k] * B[j * K + k];
+                        }
+#endif
                         C[i * N + j] += partial_sum;
                     }
                 }
