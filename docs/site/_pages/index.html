@@ -1,0 +1,183 @@
+<!-- TITLE: Home -->
+<!-- NAV: index -->
+
+<div class="hero">
+    <span class="badge badge-amber">High Performance</span>
+    <h1>C-Kernel-Engine</h1>
+    <p>A modular, high-performance ML kernel library with full PyTorch parity for inference and training. Generate optimized C runtimes from model configs.</p>
+</div>
+
+<h2>Key Features</h2>
+
+<div class="grid grid-3">
+    <div class="card card-accent">
+        <div class="feature-icon amber">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3 style="margin-top: 0;">Full PyTorch Parity</h3>
+        <p>Every kernel has both forward and backward passes, validated against PyTorch autograd with max diff &lt; 1e-5.</p>
+    </div>
+    <div class="card">
+        <div class="feature-icon indigo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+        </div>
+        <h3 style="margin-top: 0;">IR-Based Codegen</h3>
+        <p>Build an intermediate representation from config, then emit optimized C code with automatic buffer allocation.</p>
+    </div>
+    <div class="card card-green">
+        <div class="feature-icon green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3 style="margin-top: 0;">Zero Dependencies</h3>
+        <p>Pure C with optional SIMD. No external libraries required. Compiles with just GCC.</p>
+    </div>
+</div>
+
+<h2>Architecture Overview</h2>
+
+<div class="img-container">
+    <img src="assets/architecture-overview.svg" alt="C-Kernel-Engine Architecture">
+</div>
+
+<h2>Kernel Library</h2>
+
+<p>All kernels implement both forward and backward passes with full PyTorch parity:</p>
+
+<table>
+    <tr>
+        <th>Kernel</th>
+        <th>Forward</th>
+        <th>Backward</th>
+        <th>Features</th>
+    </tr>
+    <tr>
+        <td><code>attention</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Causal mask, GQA support, head-major layout</td>
+    </tr>
+    <tr>
+        <td><code>rope</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Rotary position embeddings, precomputed cache</td>
+    </tr>
+    <tr>
+        <td><code>rmsnorm</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Fused normalization, rstd caching</td>
+    </tr>
+    <tr>
+        <td><code>swiglu</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Fused gate activation for Llama-style MLP</td>
+    </tr>
+    <tr>
+        <td><code>softmax</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Causal row-wise, numerically stable</td>
+    </tr>
+    <tr>
+        <td><code>layernorm</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Rolled and unrolled variants</td>
+    </tr>
+    <tr>
+        <td><code>gelu</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>Exact and fast approximation</td>
+    </tr>
+    <tr>
+        <td><code>gemm</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-indigo">N/A</span></td>
+        <td>Blocked serial, AVX-512, parallel variants</td>
+    </tr>
+    <tr>
+        <td><code>mlp</code></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+        <td>FC1 + activation + FC2, token parallel</td>
+    </tr>
+</table>
+
+<h2>Quick Start</h2>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Build the Library</h3>
+    <pre>git clone https://github.com/antshiv/C-Kernel-Engine.git
+cd C-Kernel-Engine
+make</pre>
+    <p>This builds <code>build/libckernel_engine.so</code> with all kernels.</p>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Run Tests</h3>
+    <pre>make test</pre>
+    <p>Runs all Python ctypes tests against PyTorch reference implementations.</p>
+</div>
+
+<div class="card card-green">
+    <h3 style="margin-top: 0;">Generate Model Runtime</h3>
+    <pre># From a HuggingFace config.json:
+make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
+    <p>Emits a complete C file with forward/backward passes stitched together.</p>
+</div>
+
+<h2>Data Flow</h2>
+
+<div class="img-container">
+    <img src="assets/forward-backward-flow.svg" alt="Forward and Backward Pass Data Flow">
+</div>
+
+<h2>Design Goals</h2>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">Inference + Training</h3>
+        <p>Unlike inference-only engines, C-Kernel-Engine provides complete backward passes for every operation, enabling full training loops in pure C.</p>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Modular Composition</h3>
+        <p>Each kernel is a standalone unit. The codegen layer stitches them together based on your model architecture.</p>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Llama/SmolLM Compatible</h3>
+        <p>Full support for modern architectures: RoPE, GQA, SwiGLU, RMSNorm. Load SmolLM configs and run with full parity.</p>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Verifiable Correctness</h3>
+        <p>Every kernel ships with Python test that loads via ctypes and compares against PyTorch autograd.</p>
+    </div>
+</div>
+
+<h2>Project Structure</h2>
+
+<pre>C-Kernel-Engine/
+├── include/
+│   └── ckernel_engine.h     # Public API
+├── src/
+│   ├── ckernel_ir.c         # IR builder
+│   ├── ckernel_codegen.c    # Code generator
+│   ├── ckernel_alloc.c      # Buffer allocation
+│   └── kernels/
+│       ├── attention_kernels.c
+│       ├── rope_kernels.c
+│       ├── rmsnorm_kernels.c
+│       ├── softmax_kernels.c
+│       ├── swiglu_kernels.c
+│       ├── gelu_kernels.c
+│       ├── layernorm_kernels.c
+│       ├── gemm_kernels.c
+│       ├── mlp_kernels.c
+│       └── sigmoid_kernels.c
+├── unittest/
+│   └── test_*.py            # PyTorch parity tests
+├── docs/
+│   └── site/                # This documentation
+└── Makefile</pre>

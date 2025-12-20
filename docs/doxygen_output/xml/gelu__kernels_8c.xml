@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="gelu__kernels_8c" kind="file" language="C++">
+    <compoundname>gelu_kernels.c</compoundname>
+    <includes local="no">math.h</includes>
+    <includes local="no">stddef.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>gelu_kernels.c</label>
+        <link refid="gelu__kernels_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>math.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="gelu__kernels_8c_1a3075b77764b4b408e3c1c9b89a2822ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_backward_exact</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>gelu_backward_exact</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="22" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="22" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="gelu__kernels_8c_1aeaf518a5239f4588f8c28b05b96d5478" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_backward_fast</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>gelu_backward_fast</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="49" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="49" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="gelu__kernels_8c_1abc5977fca1e95c2406a779657c4d2365" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_fast_inplace</definition>
+        <argsstring>(float *data, size_t n)</argsstring>
+        <name>gelu_fast_inplace</name>
+        <param>
+          <type>float *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="6" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="6" bodyend="17"/>
+        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="19" endline="50">mlp_token_parallel</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Fast<sp/>GELU<sp/>approximation,<sp/>copied<sp/>from<sp/>C-Transformer&apos;s<sp/>gelu_activation_token_parallel.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Applies<sp/>in-place<sp/>to<sp/>a<sp/>contiguous<sp/>buffer<sp/>of<sp/>length<sp/>n.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6" refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gelu__kernels_8c_1abc5977fca1e95c2406a779657c4d2365" kindref="member">gelu_fast_inplace</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="7"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>sqrt_2_over_pi<sp/>=<sp/>0.7978845608f;</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>coeff<sp/>=<sp/>0.044715f;</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>data[i];</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x3<sp/>=<sp/>x<sp/>*<sp/>x<sp/>*<sp/>x;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>inner<sp/>=<sp/>sqrt_2_over_pi<sp/>*<sp/>(x<sp/>+<sp/>coeff<sp/>*<sp/>x3);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data[i]<sp/>=<sp/>0.5f<sp/>*<sp/>x<sp/>*<sp/>(1.0f<sp/>+<sp/>tanhf(inner));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Exact<sp/>GELU<sp/>backward<sp/>using<sp/>the<sp/>tanh-based<sp/>approximation<sp/>derivative,<sp/>adapted</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>from<sp/>C-Transformer&apos;s<sp/>backward_gelu.<sp/>Operates<sp/>element-wise<sp/>on<sp/>contiguous</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>buffers.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="ckernel__engine_8h_1a3075b77764b4b408e3c1c9b89a2822ad" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gelu__kernels_8c_1a3075b77764b4b408e3c1c9b89a2822ad" kindref="member">gelu_backward_exact</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>sqrt_2_over_pi<sp/>=<sp/>0.7978845608f;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>coeff<sp/>=<sp/>0.044715f;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>input[i];</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x3<sp/>=<sp/>x<sp/>*<sp/>x<sp/>*<sp/>x;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>g<sp/>=<sp/>sqrt_2_over_pi<sp/>*<sp/>(x<sp/>+<sp/>coeff<sp/>*<sp/>x3);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>tanh_g<sp/>=<sp/>tanhf(g);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x2<sp/>=<sp/>x<sp/>*<sp/>x;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>g_prime<sp/>=<sp/>sqrt_2_over_pi<sp/>*<sp/>(1.0f<sp/>+<sp/>3.0f<sp/>*<sp/>coeff<sp/>*<sp/>x2);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>sech2_g<sp/>=<sp/>1.0f<sp/>-<sp/>tanh_g<sp/>*<sp/>tanh_g;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>gelu_derivative<sp/>=</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0.5f<sp/>*<sp/>(1.0f<sp/>+<sp/>tanh_g)<sp/>+<sp/>0.5f<sp/>*<sp/>x<sp/>*<sp/>sech2_g<sp/>*<sp/>g_prime;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d_input[i]<sp/>=<sp/>d_output[i]<sp/>*<sp/>gelu_derivative;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Fast<sp/>approximate<sp/>GELU<sp/>backward,<sp/>adapted<sp/>from<sp/>C-Transformer&apos;s<sp/>backward_gelu_fast.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="ckernel__engine_8h_1aeaf518a5239f4588f8c28b05b96d5478" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gelu__kernels_8c_1aeaf518a5239f4588f8c28b05b96d5478" kindref="member">gelu_backward_fast</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>input[i];</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>s<sp/>=<sp/>1.0f<sp/>/<sp/>(1.0f<sp/>+<sp/>expf(-1.702f<sp/>*<sp/>x));</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>gelu_derivative<sp/>=<sp/>s<sp/>*<sp/>(1.0f<sp/>+<sp/>x<sp/>*<sp/>(1.0f<sp/>-<sp/>s)<sp/>*<sp/>1.702f);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d_input[i]<sp/>=<sp/>d_output[i]<sp/>*<sp/>gelu_derivative;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c"/>
+  </compounddef>
+</doxygen>

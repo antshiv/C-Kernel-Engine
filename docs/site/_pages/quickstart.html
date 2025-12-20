@@ -1,0 +1,71 @@
+<!-- TITLE: Quickstart Guide -->
+<!-- NAV: quickstart -->
+
+<h1>Quickstart Guide</h1>
+
+<p>This guide will get you up and running with the C-Kernel-Engine in less than 5 minutes.</p>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Prerequisites</strong><br>
+        Linux (tested on Ubuntu 20.04+), GCC with OpenMP, Make, Python 3 (for tests).
+    </div>
+</div>
+
+<h2>1. Build the Engine</h2>
+
+<p>The project uses a standard Makefile. To build the shared library and the IR demo tool:</p>
+
+<pre><code>make</code></pre>
+
+<p>This will create:</p>
+<ul>
+    <li><code>build/libckernel_engine.so</code>: The main runtime library.</li>
+    <li><code>build/ck_ir_demo</code>: The compiler tool that converts <code>config.json</code> -> C code.</li>
+</ul>
+
+<h2>2. Run the Compiler Demo</h2>
+
+<p>The "Hello World" of this engine is compiling a standard Llama-style configuration into a C runtime.</p>
+<p>We have a default configuration file ready: <code>default.config.json</code>.</p>
+
+<pre><code>make ck</code></pre>
+
+<p><strong>What just happened?</strong></p>
+<ol>
+    <li>The tool parsed <code>default.config.json</code>.</li>
+    <li>It generated an <strong>Intermediate Representation (IR)</strong> of the model's compute graph.</li>
+    <li>It emitted a <code>generated_model.c</code> file (conceptually) or printed the skeleton to stdout.</li>
+</ol>
+
+<p>You should see output like:</p>
+
+<pre><code>=== Forward IR ===
+CKIRGraph: layers=32, hidden_size=4096 ...
+  L0 N0 RMSNORM       outputs=[L0:N0:0]              inputs=[IN]
+  L0 N1 LINEAR_QKV    outputs=[L0:N1:0]              inputs=[L0:N0]
+  ...</code></pre>
+
+<h2>3. Run the Unit Tests</h2>
+
+<p>We use Python to verify that our C kernels match PyTorch's output exactly.</p>
+
+<pre><code>make test</code></pre>
+
+<p>This command will:</p>
+<ol>
+    <li>Build individual shared libraries for each kernel family (e.g., <code>libckernel_gelu.so</code>).</li>
+    <li>Run the Python scripts in <code>unittest/</code>.</li>
+    <li>Report <code>OK</code> if the C implementation matches PyTorch within floating-point tolerance.</li>
+</ol>
+
+<h2>4. Generate a Standalone Runtime</h2>
+
+<p>To generate a full C file <code>ai.c</code> that you could compile and run (this feature is currently in active development):</p>
+
+<pre><code>./build/ck_ir_demo default.config.json --emit build/ai.c</code></pre>
+
+<p>Open <code>build/ai.c</code> to see how the engine structures the forward pass using the "Header / Block / Footer" pattern.</p>

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="fwdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffb400"/>
+      <stop offset="100%" style="stop-color:#ffc933"/>
+    </linearGradient>
+    <linearGradient id="bwdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#07adf8"/>
+      <stop offset="100%" style="stop-color:#3fc1fa"/>
+    </linearGradient>
+    <marker id="fwdArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ffb400"/>
+    </marker>
+    <marker id="bwdArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#07adf8"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="400" fill="#232323"/>
+
+  <!-- Title -->
+  <text x="400" y="30" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="#ffb400" text-anchor="middle">Forward &amp; Backward Pass Data Flow</text>
+
+  <!-- Legend -->
+  <g transform="translate(250, 50)">
+    <line x1="0" y1="0" x2="40" y2="0" stroke="#ffb400" stroke-width="3" marker-end="url(#fwdArrow)"/>
+    <text x="55" y="5" font-family="Inter, sans-serif" font-size="11" fill="#ffb400">Forward Pass</text>
+    <line x1="170" y1="0" x2="210" y2="0" stroke="#07adf8" stroke-width="3" marker-end="url(#bwdArrow)"/>
+    <text x="225" y="5" font-family="Inter, sans-serif" font-size="11" fill="#07adf8">Backward Pass</text>
+  </g>
+
+  <!-- Input -->
+  <g transform="translate(30, 120)">
+    <rect width="80" height="50" rx="6" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="2" filter="url(#shadow)"/>
+    <text x="40" y="22" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#a0a0a0" text-anchor="middle">Input</text>
+    <text x="40" y="38" font-family="monospace" font-size="9" fill="#707070" text-anchor="middle">[B, T, D]</text>
+  </g>
+
+  <!-- RMSNorm 1 -->
+  <g transform="translate(140, 100)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">RMSNorm</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">Save: rstd</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_input, d_gamma</text>
+  </g>
+
+  <!-- QKV Projection -->
+  <g transform="translate(260, 100)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">QKV Proj</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">Save: Q, K, V</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_Wq, d_Wk, d_Wv</text>
+  </g>
+
+  <!-- RoPE -->
+  <g transform="translate(380, 100)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">RoPE</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">In-place rotation</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">Inverse rotation</text>
+  </g>
+
+  <!-- Attention -->
+  <g transform="translate(500, 100)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">Attention</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">Save: weights</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_Q, d_K, d_V</text>
+  </g>
+
+  <!-- Output Proj -->
+  <g transform="translate(620, 100)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">Out Proj</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">+ Residual</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_Wo</text>
+  </g>
+
+  <!-- Forward arrows -->
+  <line x1="110" y1="145" x2="135" y2="145" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="230" y1="145" x2="255" y2="145" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="350" y1="145" x2="375" y2="145" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="470" y1="145" x2="495" y2="145" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="590" y1="145" x2="615" y2="145" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+
+  <!-- MLP Block -->
+  <!-- RMSNorm 2 -->
+  <g transform="translate(140, 230)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">RMSNorm</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">Save: rstd</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_input, d_gamma</text>
+  </g>
+
+  <!-- FC1 + SwiGLU -->
+  <g transform="translate(280, 230)">
+    <rect width="110" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="55" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">FC1 + SwiGLU</text>
+    <text x="55" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">Save: fc1_out</text>
+    <rect x="10" y="48" width="90" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="55" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_W1, swiglu_bwd</text>
+  </g>
+
+  <!-- FC2 -->
+  <g transform="translate(440, 230)">
+    <rect width="90" height="70" rx="6" fill="#2a2a2a" stroke="url(#fwdGrad)" stroke-width="2" filter="url(#shadow)"/>
+    <text x="45" y="20" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#ffb400" text-anchor="middle">FC2</text>
+    <text x="45" y="38" font-family="Inter, sans-serif" font-size="8" fill="#707070" text-anchor="middle">+ Residual</text>
+    <rect x="10" y="48" width="70" height="14" rx="3" fill="#1a3d2a"/>
+    <text x="45" y="58" font-family="Inter, sans-serif" font-size="7" fill="#47b475" text-anchor="middle">d_W2</text>
+  </g>
+
+  <!-- Output -->
+  <g transform="translate(580, 230)">
+    <rect width="100" height="70" rx="6" fill="#2a2a2a" stroke="#47b475" stroke-width="2" filter="url(#shadow)"/>
+    <text x="50" y="22" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#47b475" text-anchor="middle">Layer Output</text>
+    <text x="50" y="42" font-family="monospace" font-size="9" fill="#707070" text-anchor="middle">[B, T, D]</text>
+    <text x="50" y="58" font-family="Inter, sans-serif" font-size="8" fill="#47b475" text-anchor="middle">Next layer</text>
+  </g>
+
+  <!-- Connection from attention block to MLP -->
+  <path d="M 665 175 L 720 175 L 720 265 L 80 265 L 80 265 L 135 265" fill="none" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+
+  <!-- Forward arrows for MLP -->
+  <line x1="230" y1="265" x2="275" y2="265" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="390" y1="265" x2="435" y2="265" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+  <line x1="530" y1="265" x2="575" y2="265" stroke="#ffb400" stroke-width="2" marker-end="url(#fwdArrow)"/>
+
+  <!-- Backward flow indicator -->
+  <g transform="translate(30, 350)">
+    <rect width="740" height="40" rx="8" fill="#1a2d3d" stroke="#07adf8" stroke-width="1.5"/>
+    <text x="370" y="18" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#07adf8" text-anchor="middle">Backward Pass: Reverse order, using saved activations</text>
+    <text x="370" y="32" font-family="Inter, sans-serif" font-size="9" fill="#3fc1fa" text-anchor="middle">d_loss flows back through each kernel, accumulating parameter gradients (d_W, d_b, d_gamma)</text>
+  </g>
+</svg>

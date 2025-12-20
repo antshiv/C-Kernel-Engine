@@ -1,0 +1,324 @@
+<!-- TITLE: Code Generation -->
+<!-- NAV: codegen -->
+
+<h1>Code Generation</h1>
+
+<p>C-Kernel-Engine can generate optimized C runtime code from HuggingFace model configs. This enables running models with zero Python overhead.</p>
+
+<div class="img-container">
+    <img src="assets/architecture-overview.svg" alt="Code Generation Pipeline">
+</div>
+
+<h2>Pipeline Overview</h2>
+
+<div class="grid grid-3">
+    <div class="card card-accent">
+        <h3 style="margin-top: 0;">1. Config Parsing</h3>
+        <p>Load a HuggingFace-style <code>config.json</code> and extract model dimensions.</p>
+        <pre>ck_model_config_from_hf_json(
+    "config.json",
+    &cfg
+);</pre>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">2. IR Building</h3>
+        <p>Construct an intermediate representation graph of all operations.</p>
+        <pre>ck_build_decoder_ir(
+    &cfg,
+    &forward_graph
+);
+ck_build_decoder_backward_ir(
+    &forward_graph,
+    &backward_graph
+);</pre>
+    </div>
+    <div class="card card-green">
+        <h3 style="margin-top: 0;">3. Code Emission</h3>
+        <p>Generate complete C code with forward and backward passes.</p>
+        <pre>ck_codegen_emit_runtime(
+    &forward_graph,
+    "model.c"
+);</pre>
+    </div>
+</div>
+
+<h2>Quick Start</h2>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Generate from Config</h3>
+    <pre># Build the codegen tool
+make build/ck_ir_demo
+
+# Generate C runtime from a HuggingFace config
+./build/ck_ir_demo path/to/config.json --emit build/model.c
+
+# Or use the make target
+make ck-emit CONFIG=path/to/config.json OUT=build/model.c</pre>
+</div>
+
+<h2>Input: Model Config</h2>
+
+<div class="card">
+    <h3 style="margin-top: 0;">HuggingFace config.json</h3>
+    <p>The codegen accepts standard HuggingFace model configurations:</p>
+    <pre>{
+  "architectures": ["LlamaForCausalLM"],
+  "hidden_size": 768,
+  "num_attention_heads": 12,
+  "num_key_value_heads": 4,
+  "num_hidden_layers": 6,
+  "intermediate_size": 2048,
+  "vocab_size": 32000,
+  "max_position_embeddings": 2048,
+  "rms_norm_eps": 1e-5,
+  "rope_theta": 10000.0
+}</pre>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Parsed CKModelConfig</h3>
+    <pre>typedef struct {
+    int hidden_size;           // 768
+    int num_attention_heads;   // 12
+    int num_key_value_heads;   // 4 (for GQA)
+    int num_hidden_layers;     // 6
+    int intermediate_size;     // 2048
+    int vocab_size;            // 32000
+    int max_position_embeddings; // 2048
+    float rms_norm_eps;        // 1e-5
+    float rope_theta;          // 10000.0
+} CKModelConfig;</pre>
+</div>
+
+<h2>Intermediate Representation</h2>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Why IR?</strong><br>
+        The IR layer decouples config parsing from code generation, enabling optimizations and different backends.
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">IR Graph Structure</h3>
+    <pre>typedef struct {
+    CKOpType op;        // CK_OP_RMSNORM, CK_OP_ATTENTION, etc.
+    int layer_index;
+    int input_ids[4];   // References to input nodes
+    int output_id;      // Output node ID
+    // ... dimension info
+} CKIRNode;
+
+typedef struct {
+    CKModelConfig config;
+    CKIRNode *nodes;
+    int num_nodes;
+    int num_layers;
+} CKIRGraph;</pre>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Supported Operations</h3>
+    <table>
+        <tr>
+            <th>Op Type</th>
+            <th>Forward</th>
+            <th>Backward</th>
+        </tr>
+        <tr>
+            <td><code>CK_OP_RMSNORM</code></td>
+            <td>rmsnorm_forward</td>
+            <td>rmsnorm_backward</td>
+        </tr>
+        <tr>
+            <td><code>CK_OP_ATTENTION</code></td>
+            <td>attention_forward_causal_head_major_gqa</td>
+            <td>attention_backward_causal_head_major_gqa</td>
+        </tr>
+        <tr>
+            <td><code>CK_OP_ROPE</code></td>
+            <td>rope_forward_qk</td>
+            <td>rope_backward_qk</td>
+        </tr>
+        <tr>
+            <td><code>CK_OP_SWIGLU</code></td>
+            <td>swiglu_forward</td>
+            <td>swiglu_backward</td>
+        </tr>
+        <tr>
+            <td><code>CK_OP_LINEAR</code></td>
+            <td>gemm_blocked_serial</td>
+            <td>fc_backward_kernel</td>
+        </tr>
+        <tr>
+            <td><code>CK_OP_RESIDUAL</code></td>
+            <td>ck_add_inplace</td>
+            <td>(gradient passthrough)</td>
+        </tr>
+    </table>
+</div>
+
+<h2>Output: Generated Code</h2>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Generated Forward Pass</h3>
+    <pre>void forward_layer_0(
+    const float *input,
+    const ModelWeights *weights,
+    LayerActivations *acts,
+    const float *cos_cache,
+    const float *sin_cache,
+    int num_tokens
+) {
+    // 1. Pre-attention RMSNorm
+    rmsnorm_forward(input, weights->ln1_gamma, acts->ln1_out,
+                    acts->rstd1, num_tokens, 768, 768, 1e-5f);
+
+    // 2. QKV projection
+    ck_qkv_project_head_major(acts->ln1_out,
+        weights->wq, weights->bq,
+        weights->wk, weights->bk,
+        weights->wv, weights->bv,
+        acts->q, acts->k, acts->v,
+        num_tokens, 768, 12, 4, 64);
+
+    // 3. Apply RoPE
+    rope_forward_qk(acts->q, acts->k, cos_cache, sin_cache,
+                    12, 4, num_tokens, 64, 0);
+
+    // 4. Attention
+    attention_forward_causal_head_major_gqa(
+        acts->q, acts->k, acts->v,
+        acts->scores, acts->attn_out,
+        12, 4, num_tokens, 64, 64, 2048);
+
+    // 5. Output projection + residual
+    ck_attention_project_head_major(acts->attn_out, weights->wo, weights->bo,
+                                     acts->proj_out, acts->scratch,
+                                     num_tokens, 768, 12, 64);
+    ck_add_inplace(acts->proj_out, input, num_tokens, 768);
+
+    // 6-8. MLP block...
+}</pre>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Generated Backward Pass</h3>
+    <pre>void backward_layer_0(
+    const float *d_output,
+    const ModelWeights *weights,
+    const LayerActivations *acts,
+    WeightGradients *grads,
+    float *d_input
+) {
+    // Reverse order of forward pass
+
+    // 1. Backward through MLP residual
+    // d_mlp_out = d_output (residual gradient passthrough)
+
+    // 2. Backward through FC2
+    fc2_backward_kernel(d_output, acts->swiglu_out, weights->w2,
+                        d_swiglu, grads->d_w2, grads->d_b2, ...);
+
+    // 3. Backward through SwiGLU
+    swiglu_backward(acts->fc1_out, d_swiglu, d_fc1, num_tokens, 2048);
+
+    // ... continue backwards through all ops
+
+    // N. Backward through RMSNorm 1
+    rmsnorm_backward(d_rmsnorm, input, weights->ln1_gamma,
+                     acts->rstd1, d_input, grads->d_ln1_gamma,
+                     num_tokens, 768, 768);
+}</pre>
+</div>
+
+<h2>IR Serialization</h2>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">Export IR to JSON</h3>
+        <pre>ck_ir_serialize_json(
+    &graph,
+    "model_ir.json"
+);</pre>
+        <p>Enables inspection, debugging, and external tooling.</p>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Load IR from JSON</h3>
+        <pre>ck_ir_parse_json(
+    "model_ir.json",
+    &graph
+);</pre>
+        <p>Two-stage pipeline: generate IR once, emit code multiple times.</p>
+    </div>
+</div>
+
+<h2>Memory Layout</h2>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Buffer Allocation</h3>
+    <p>The codegen calculates all buffer sizes based on config dimensions:</p>
+    <pre>layout_transformer_from_ir(&model, &ir);
+
+// Computed sizes:
+// - Weight memory: embeddings + all layer weights
+// - Activation memory: per-layer intermediates
+// - KV cache: for autoregressive generation</pre>
+</div>
+
+<table>
+    <tr>
+        <th>Buffer</th>
+        <th>Size Formula</th>
+    </tr>
+    <tr>
+        <td>Q</td>
+        <td><code>num_heads × max_tokens × head_dim</code></td>
+    </tr>
+    <tr>
+        <td>K, V</td>
+        <td><code>num_kv_heads × max_tokens × head_dim</code></td>
+    </tr>
+    <tr>
+        <td>Attention scores</td>
+        <td><code>num_heads × max_tokens × context_window</code></td>
+    </tr>
+    <tr>
+        <td>MLP hidden</td>
+        <td><code>max_tokens × 2 × intermediate_size</code></td>
+    </tr>
+    <tr>
+        <td>Layer weights</td>
+        <td><code>num_layers × (QKV + O + MLP weights)</code></td>
+    </tr>
+</table>
+
+<h2>Source Files</h2>
+
+<table>
+    <tr>
+        <th>File</th>
+        <th>Purpose</th>
+    </tr>
+    <tr>
+        <td><code>ckernel_ir.c</code></td>
+        <td>IR graph building, serialization</td>
+    </tr>
+    <tr>
+        <td><code>ckernel_codegen.c</code></td>
+        <td>C code emission from IR</td>
+    </tr>
+    <tr>
+        <td><code>ckernel_alloc.c</code></td>
+        <td>Memory layout computation</td>
+    </tr>
+    <tr>
+        <td><code>ckernel_ir.h</code></td>
+        <td>IR data structures</td>
+    </tr>
+</table>
+
+<p>For full source code, see the <a href="doxygen/files.html">Doxygen source browser</a>.</p>

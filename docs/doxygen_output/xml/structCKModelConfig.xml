@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structCKModelConfig" kind="struct" language="C++" prot="public">
+    <compoundname>CKModelConfig</compoundname>
+    <includes refid="ckernel__ir_8h" local="no">ckernel_ir.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::context_window</definition>
+        <argsstring></argsstring>
+        <name>context_window</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="30" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="30" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+        <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="155">ck_model_load_weights_flat</referencedby>
+        <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="13" endline="144">layout_transformer_from_ir</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::hidden_size</definition>
+        <argsstring></argsstring>
+        <name>hidden_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="25" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="25" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+        <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="155">ck_model_load_weights_flat</referencedby>
+        <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="13" endline="144">layout_transformer_from_ir</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::intermediate_size</definition>
+        <argsstring></argsstring>
+        <name>intermediate_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="26" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="26" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+        <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="155">ck_model_load_weights_flat</referencedby>
+        <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="13" endline="144">layout_transformer_from_ir</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::num_heads</definition>
+        <argsstring></argsstring>
+        <name>num_heads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="27" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="27" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::num_kv_heads</definition>
+        <argsstring></argsstring>
+        <name>num_kv_heads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="28" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="28" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::num_layers</definition>
+        <argsstring></argsstring>
+        <name>num_layers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="24" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="24" bodyend="-1"/>
+        <referencedby refid="ckernel__ir_8h_1a172c72d0dd9688733a74dcb3b7b307d6" compoundref="ckernel__ir_8c" startline="107" endline="242">ck_build_decoder_ir</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+        <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="155">ck_model_load_weights_flat</referencedby>
+        <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="13" endline="144">layout_transformer_from_ir</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKModelConfig::vocab_size</definition>
+        <argsstring></argsstring>
+        <name>vocab_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="29" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="29" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="28" endline="167">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" compoundref="ckernel__codegen_8c" startline="395" endline="1107">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="326" endline="373">ck_ir_dump</referencedby>
+        <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="463" endline="643">ck_ir_parse_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="375" endline="442">ck_ir_serialize_json</referencedby>
+        <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="34" endline="105">ck_model_config_from_hf_json</referencedby>
+        <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="155">ck_model_load_weights_flat</referencedby>
+        <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="13" endline="144">layout_transformer_from_ir</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Minimal HF-style model config extracted from config.json.</para>
+<para>Design note:<itemizedlist>
+<listitem><para>The long-term IR structure follows a &quot;header / block / footer&quot; pattern, inspired by the @antsand HMVC website generator:<itemizedlist>
+<listitem><para>header: one-time ops before the decoder stack (embeddings, pos-enc, etc.)</para>
+</listitem><listitem><para>block : per-layer ops (RMSNorm, attention, MLP/SwiGLU, residual adds)</para>
+</listitem><listitem><para>footer: one-time ops after the stack (final norm, LM head / weight-tying, loss)</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para>In code this will eventually become a double-array layout (layers x ops) for the block section, plus separate header/footer op lists. The current <ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref> is the primitive building block for that higher-level IR.</para>
+</listitem></itemizedlist>
+</para>
+<para>This header focuses on the basic decoder-only transformer parameters and node-level IR that higher layers (codegen, memory planner, etc.) will build on. </para>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="23" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="23" bodyend="31"/>
+    <listofallmembers>
+      <member refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>context_window</name></member>
+      <member refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>hidden_size</name></member>
+      <member refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>intermediate_size</name></member>
+      <member refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>num_heads</name></member>
+      <member refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>num_kv_heads</name></member>
+      <member refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>num_layers</name></member>
+      <member refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" prot="public" virt="non-virtual"><scope>CKModelConfig</scope><name>vocab_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

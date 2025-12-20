@@ -1,0 +1,144 @@
+#include "ckernel_model.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+/* Simple align-up helper for floats, alignment given in floats (e.g., 16 for 64 bytes). */
+static size_t align_up_size(size_t n, size_t align)
+{
+    if (align == 0) return n;
+    return (n + align - 1) & ~(align - 1);
+}
+
+void layout_transformer_from_ir(TransformerModel *m, const CKIRGraph *ir)
+{
+    if (!m) {
+        return;
+    }
+
+    if (ir) {
+        /* If IR is provided, copy its config. Otherwise, trust m->cfg. */
+        m->cfg = ir->config;
+    }
+
+    const int L   = m->cfg.num_layers;
+    const int H   = m->cfg.hidden_size;
+    const int Hff = m->cfg.intermediate_size;
+    const int V   = m->cfg.vocab_size > 0 ? m->cfg.vocab_size : 1;
+    const int T   = m->cfg.context_window > 0 ? m->cfg.context_window : 1;
+
+    /* Allocate per-layer layout array. */
+    if (m->layers) {
+        /* caller responsible for freeing if re-layout is needed */
+    } else if (L > 0) {
+        m->layers = (CKLayerLayout *)calloc((size_t)L, sizeof(CKLayerLayout));
+    }
+
+    /* Alignment in floats (16 floats = 64 bytes for float32). */
+    const size_t ALIGN_F = 16;
+
+    size_t offset = 0;
+
+    /* Token embeddings: [V × H] */
+    m->token_emb_offset = offset;
+    offset += (size_t)V * (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    /* Positional embeddings: [T × H] */
+    m->pos_emb_offset = offset;
+    offset += (size_t)T * (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    /* Embedded input buffer: [T × H] */
+    m->embedded_input_offset = offset;
+    offset += (size_t)T * (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    m->layers_start_offset = offset;
+
+    /* Per-layer weights. This is a simple, linear layout:
+     *  - LN1 gamma/beta           [H]
+     *  - QKV weight/bias          [H × 3H], [3H]
+     *  - Attention proj weight/bias [H × H], [H]
+     *  - FC1 weight/bias          [H × Hff], [Hff]
+     *  - FC2 weight/bias          [Hff × H], [H]
+     *
+     * Activations are not yet explicitly laid out here; this pass focuses
+     * on weights. A later planner can layer activations and gradients on top.
+     */
+    for (int layer = 0; layer < L; ++layer) {
+        CKLayerLayout *Lyt = &m->layers[layer];
+
+        /* LN1 weights/bias */
+        Lyt->ln1_weight_offset = offset;
+        offset += (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+
+        Lyt->ln1_bias_offset = offset;
+        offset += (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+
+        /* QKV weight: [H × 3H] */
+        Lyt->qkv_weight_offset = offset;
+        offset += (size_t)H * (size_t)(3 * H);
+        offset = align_up_size(offset, ALIGN_F);
+
+        /* QKV bias: [3H] */
+        Lyt->qkv_bias_offset = offset;
+        offset += (size_t)(3 * H);
+        offset = align_up_size(offset, ALIGN_F);
+
+        /* Attention output projection: [H × H] + [H] */
+        Lyt->attn_proj_weight_offset = offset;
+        offset += (size_t)H * (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+
+        Lyt->attn_proj_bias_offset = offset;
+        offset += (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+
+        /* FC1: [H × Hff] + [Hff] */
+        Lyt->fc1_weight_offset = offset;
+        offset += (size_t)H * (size_t)Hff;
+        offset = align_up_size(offset, ALIGN_F);
+
+        Lyt->fc1_bias_offset = offset;
+        offset += (size_t)Hff;
+        offset = align_up_size(offset, ALIGN_F);
+
+        /* FC2: [Hff × H] + [H] */
+        Lyt->fc2_weight_offset = offset;
+        offset += (size_t)Hff * (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+
+        Lyt->fc2_bias_offset = offset;
+        offset += (size_t)H;
+        offset = align_up_size(offset, ALIGN_F);
+    }
+
+    /* Final LayerNorm: gamma/beta [H], mean/rstd [T] if needed. */
+    m->final_ln_weight_offset = offset;
+    offset += (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    m->final_ln_bias_offset = offset;
+    offset += (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    /* Final normalized output: [T × H] */
+    m->final_output_offset = offset;
+    offset += (size_t)T * (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    /* LM head weight: [V × H] (often tied to token_emb_offset in logic) */
+    m->lm_head_weight_offset = offset;
+    offset += (size_t)V * (size_t)H;
+    offset = align_up_size(offset, ALIGN_F);
+
+    /* Logits buffer: [T × V] */
+    m->logits_offset = offset;
+    offset += (size_t)T * (size_t)V;
+    offset = align_up_size(offset, ALIGN_F);
+
+    m->total_floats = offset;
+}

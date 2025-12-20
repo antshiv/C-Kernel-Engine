@@ -166,6 +166,19 @@ void attention_forward_causal_head_major(const float *q,
                                          int aligned_head_dim,
                                          int aligned_context_window);
 
+// GQA-aware attention: Q has num_heads, K/V have num_kv_heads.
+void attention_forward_causal_head_major_gqa(const float *q,
+                                             const float *k,
+                                             const float *v,
+                                             float *scores,
+                                             float *output,
+                                             int num_heads,
+                                             int num_kv_heads,
+                                         int num_tokens,
+                                         int head_dim,
+                                         int aligned_head_dim,
+                                         int aligned_context_window);
+
 // MLP forward kernel (FC1 -> GELU -> FC2), generic token-parallel version.
 void mlp_token_parallel(const float *input,
                         const float *W_fc1,
@@ -226,6 +239,100 @@ void swiglu_backward(const float *input,
                      float *d_input,
                      int tokens,
                      int dim);
+
+// Attention backward (GQA-aware): computes d_q, d_k, d_v.
+void attention_backward_causal_head_major_gqa(
+    const float *d_output,
+    const float *q,
+    const float *k,
+    const float *v,
+    const float *attn_weights,
+    float *d_q,
+    float *d_k,
+    float *d_v,
+    float *d_scores,
+    int num_heads,
+    int num_kv_heads,
+    int num_tokens,
+    int head_dim,
+    int aligned_head_dim,
+    int aligned_context_window);
+
+// Attention backward (non-GQA): num_kv_heads == num_heads.
+void attention_backward_causal_head_major(
+    const float *d_output,
+    const float *q,
+    const float *k,
+    const float *v,
+    const float *attn_weights,
+    float *d_q,
+    float *d_k,
+    float *d_v,
+    float *d_scores,
+    int num_heads,
+    int num_tokens,
+    int head_dim,
+    int aligned_head_dim,
+    int aligned_context_window);
+
+// RoPE (Rotary Position Embedding) kernels.
+// Precompute cos/sin cache: [max_seq_len, head_dim/2].
+void rope_precompute_cache(float *cos_cache,
+                           float *sin_cache,
+                           int max_seq_len,
+                           int head_dim,
+                           float base);
+
+// Apply RoPE forward in-place: x[num_heads, num_tokens, head_dim].
+void rope_forward(float *x,
+                  const float *cos_cache,
+                  const float *sin_cache,
+                  int num_heads,
+                  int num_tokens,
+                  int head_dim,
+                  int pos_offset);
+
+// RoPE backward: inverse rotation.
+void rope_backward(const float *d_out,
+                   float *d_x,
+                   const float *cos_cache,
+                   const float *sin_cache,
+                   int num_heads,
+                   int num_tokens,
+                   int head_dim,
+                   int pos_offset);
+
+// RoPE backward in-place.
+void rope_backward_inplace(float *d_x,
+                           const float *cos_cache,
+                           const float *sin_cache,
+                           int num_heads,
+                           int num_tokens,
+                           int head_dim,
+                           int pos_offset);
+
+// Combined RoPE for Q and K.
+void rope_forward_qk(float *q,
+                     float *k,
+                     const float *cos_cache,
+                     const float *sin_cache,
+                     int num_heads,
+                     int num_kv_heads,
+                     int num_tokens,
+                     int head_dim,
+                     int pos_offset);
+
+void rope_backward_qk(const float *d_q_out,
+                      const float *d_k_out,
+                      float *d_q,
+                      float *d_k,
+                      const float *cos_cache,
+                      const float *sin_cache,
+                      int num_heads,
+                      int num_kv_heads,
+                      int num_tokens,
+                      int head_dim,
+                      int pos_offset);
 
 #ifdef __cplusplus
 } // extern "C"

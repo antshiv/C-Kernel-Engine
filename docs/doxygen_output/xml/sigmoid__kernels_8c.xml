@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="sigmoid__kernels_8c" kind="file" language="C++">
+    <compoundname>sigmoid_kernels.c</compoundname>
+    <includes local="no">math.h</includes>
+    <includes local="no">stddef.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>sigmoid_kernels.c</label>
+        <link refid="sigmoid__kernels_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>math.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sigmoid__kernels_8c_1aad3b3666d63fcbaa243ad4a988e187d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sigmoid_backward</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>sigmoid_backward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" line="23" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="23" bodyend="34"/>
+        <references refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+      </memberdef>
+      <memberdef kind="function" id="sigmoid__kernels_8c_1af621782be75fb6a9acf541f7935b87d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sigmoid_forward</definition>
+        <argsstring>(const float *input, float *output, size_t n)</argsstring>
+        <name>sigmoid_forward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" line="11" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="11" bodyend="18"/>
+        <references refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+      </memberdef>
+      <memberdef kind="function" id="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float sigmoid_scalar</definition>
+        <argsstring>(float x)</argsstring>
+        <name>sigmoid_scalar</name>
+        <param>
+          <type>float</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" line="5" column="7" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="5" bodyend="8"/>
+        <referencedby refid="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" compoundref="sigmoid__kernels_8c" startline="23" endline="34">sigmoid_backward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" compoundref="sigmoid__kernels_8c" startline="11" endline="18">sigmoid_forward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" compoundref="swiglu__kernels_8c" startline="45" endline="76">swiglu_backward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Core<sp/>sigmoid<sp/>scalar<sp/>kernel.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5" refid="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" kindref="member">sigmoid_scalar</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x)</highlight></codeline>
+<codeline lineno="6"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="7"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1.0f<sp/>/<sp/>(1.0f<sp/>+<sp/>expf(-x));</highlight></codeline>
+<codeline lineno="8"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Vectorized<sp/>(loop)<sp/>sigmoid<sp/>forward<sp/>over<sp/>a<sp/>contiguous<sp/>buffer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11" refid="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="sigmoid__kernels_8c_1af621782be75fb6a9acf541f7935b87d5" kindref="member">sigmoid_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output[i]<sp/>=<sp/><ref refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" kindref="member">sigmoid_scalar</ref>(input[i]);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Sigmoid<sp/>backward<sp/>over<sp/>a<sp/>contiguous<sp/>buffer:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Given<sp/>dY<sp/>and<sp/>X,<sp/>compute<sp/>dX<sp/>=<sp/>dY<sp/>*<sp/>s<sp/>*<sp/>(1<sp/>-<sp/>s),</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>where<sp/>s<sp/>=<sp/>sigmoid(X).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="sigmoid__kernels_8c_1aad3b3666d63fcbaa243ad4a988e187d8" kindref="member">sigmoid_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>input[i];</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>s<sp/>=<sp/><ref refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" kindref="member">sigmoid_scalar</ref>(x);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>s_prime<sp/>=<sp/>s<sp/>*<sp/>(1.0f<sp/>-<sp/>s);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d_input[i]<sp/>=<sp/>d_output[i]<sp/>*<sp/>s_prime;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c"/>
+  </compounddef>
+</doxygen>

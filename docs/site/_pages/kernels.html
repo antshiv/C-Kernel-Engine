@@ -1,0 +1,393 @@
+<!-- TITLE: Kernel Reference -->
+<!-- NAV: kernels -->
+
+<h1>Kernel Reference</h1>
+
+<p>Complete reference for all kernels in C-Kernel-Engine. Each kernel provides both forward and backward passes with full PyTorch parity.</p>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Memory Layout Convention</strong><br>
+        All kernels use head-major layout for Q/K/V: <code>[num_heads, num_tokens, head_dim]</code>
+    </div>
+</div>
+
+<h2>Attention Kernels</h2>
+
+<div class="img-container">
+    <img src="assets/kernel-attention.svg" alt="Scaled Dot-Product Attention Diagram">
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Scaled Dot-Product Attention</h3>
+    <p>Causal masked attention with optional Grouped Query Attention (GQA) support.</p>
+    <pre>// Forward pass
+void attention_forward_causal_head_major_gqa(
+    const float *q,           // [num_heads, num_tokens, head_dim]
+    const float *k,           // [num_kv_heads, num_tokens, head_dim]
+    const float *v,           // [num_kv_heads, num_tokens, head_dim]
+    float *scores,            // [num_heads, num_tokens, context_window]
+    float *output,            // [num_heads, num_tokens, head_dim]
+    int num_heads,
+    int num_kv_heads,         // For GQA: num_heads / num_kv_heads = group size
+    int num_tokens,
+    int head_dim,
+    int aligned_head_dim,
+    int aligned_context_window
+);
+
+// Backward pass
+void attention_backward_causal_head_major_gqa(
+    const float *d_output,    // Gradient from next layer
+    const float *q, *k, *v,   // Saved from forward
+    const float *attn_weights,// Saved attention weights
+    float *d_q, *d_k, *d_v,   // Output gradients
+    float *d_scores,          // Scratch buffer
+    ...
+);</pre>
+    <p><strong>Features:</strong> Causal masking, GQA support, numerically stable softmax</p>
+</div>
+
+<h2>RoPE (Rotary Position Embedding)</h2>
+
+<div class="img-container">
+    <img src="assets/kernel-rope.svg" alt="RoPE Rotary Position Embedding Diagram">
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Rotary Position Embedding</h3>
+    <p>Applies rotary position embeddings to Q and K tensors for position-aware attention.</p>
+    <pre>// Precompute cos/sin cache (do once at init)
+void rope_precompute_cache(
+    float *cos_cache,         // [max_seq_len, head_dim/2]
+    float *sin_cache,         // [max_seq_len, head_dim/2]
+    int max_seq_len,
+    int head_dim,
+    float base               // Usually 10000.0
+);
+
+// Forward: apply rotation in-place
+void rope_forward_qk(
+    float *q,                 // Modified in-place
+    float *k,                 // Modified in-place
+    const float *cos_cache,
+    const float *sin_cache,
+    int num_heads,
+    int num_kv_heads,
+    int num_tokens,
+    int head_dim,
+    int pos_offset           // For KV-cache scenarios
+);
+
+// Backward: inverse rotation
+void rope_backward_qk(...);</pre>
+    <p><strong>Features:</strong> Precomputed cache, position offset support, combined Q/K application</p>
+</div>
+
+<h2>Normalization Kernels</h2>
+
+<div class="img-container">
+    <img src="assets/kernel-rmsnorm.svg" alt="RMSNorm Diagram">
+</div>
+
+<div class="img-container" style="margin-top: 20px;">
+    <img src="assets/kernel-layernorm.svg" alt="LayerNorm Diagram">
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">RMSNorm</h3>
+        <p>Root Mean Square Layer Normalization (used in Llama, SmolLM).</p>
+        <pre>void rmsnorm_forward(
+    const float *input,
+    const float *gamma,
+    float *output,
+    float *rstd_cache,  // Save for backward
+    int tokens,
+    int d_model,
+    int aligned_embed_dim,
+    float eps
+);
+
+void rmsnorm_backward(
+    const float *d_output,
+    const float *input,
+    const float *gamma,
+    const float *rstd_cache,
+    float *d_input,
+    float *d_gamma,
+    ...
+);</pre>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">LayerNorm</h3>
+        <p>Standard Layer Normalization with mean and variance.</p>
+        <pre>void layernorm_naive_serial(
+    const float *input,
+    const float *gamma,
+    const float *beta,
+    float *output,
+    float *mean_cache,
+    float *rstd_cache,
+    int tokens,
+    int d_model,
+    int aligned_embed_dim,
+    float eps
+);
+
+void layernorm_backward_kernel(
+    ...
+    float *d_input,
+    float *d_gamma,
+    float *d_beta,
+    ...
+);</pre>
+    </div>
+</div>
+
+<h2>Activation Kernels</h2>
+
+<div class="img-container">
+    <img src="assets/kernel-swiglu.svg" alt="SwiGLU Activation Diagram">
+</div>
+
+<div class="img-container" style="margin-top: 20px;">
+    <img src="assets/kernel-activations.svg" alt="Activation Functions Comparison">
+</div>
+
+<div class="grid grid-2">
+    <div class="card card-accent">
+        <h3 style="margin-top: 0;">SwiGLU</h3>
+        <p>Swish-Gated Linear Unit (used in Llama MLP).</p>
+        <pre>// Input: [gate, value] interleaved
+// gate_out = swish(gate) * value
+void swiglu_forward(
+    const float *input,  // [tokens, 2*dim]
+    float *output,       // [tokens, dim]
+    int tokens,
+    int dim
+);
+
+void swiglu_backward(
+    const float *input,
+    const float *d_output,
+    float *d_input,
+    int tokens,
+    int dim
+);</pre>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">GELU</h3>
+        <p>Gaussian Error Linear Unit.</p>
+        <pre>// Fast approximation (in-place)
+void gelu_fast_inplace(
+    float *data,
+    size_t n
+);
+
+// Exact backward
+void gelu_backward_exact(
+    const float *input,
+    const float *d_output,
+    float *d_input,
+    size_t n
+);
+
+// Fast backward
+void gelu_backward_fast(...);</pre>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">Sigmoid</h3>
+        <pre>float sigmoid_scalar(float x);
+
+void sigmoid_forward(
+    const float *input,
+    float *output,
+    size_t n
+);
+
+void sigmoid_backward(
+    const float *input,
+    const float *d_output,
+    float *d_input,
+    size_t n
+);</pre>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Softmax</h3>
+        <p>Causal row-wise softmax for attention scores.</p>
+        <pre>void causal_softmax_head_major(
+    float *scores,
+    int num_heads,
+    int num_tokens,
+    int aligned_context_window
+);
+
+void backward_causal_softmax_head_major(
+    float *d_scores,
+    const float *weights,
+    ...
+);</pre>
+    </div>
+</div>
+
+<h2>Linear Kernels</h2>
+
+<div class="card">
+    <h3 style="margin-top: 0;">GEMM (Matrix Multiplication)</h3>
+    <p>Multiple implementations optimized for different scenarios.</p>
+    <table>
+        <tr>
+            <th>Variant</th>
+            <th>Description</th>
+            <th>Best For</th>
+        </tr>
+        <tr>
+            <td><code>gemm_blocked_serial</code></td>
+            <td>Cache-blocked, single-threaded</td>
+            <td>Small matrices, debugging</td>
+        </tr>
+        <tr>
+            <td><code>gemm_naive_parallel</code></td>
+            <td>Simple parallelization</td>
+            <td>Medium matrices</td>
+        </tr>
+        <tr>
+            <td><code>gemm_avx512_parallel</code></td>
+            <td>AVX-512 vectorized</td>
+            <td>Large matrices on supported CPUs</td>
+        </tr>
+        <tr>
+            <td><code>gemm_fine_grained_parallel</code></td>
+            <td>Fine-grained work distribution</td>
+            <td>Very large matrices</td>
+        </tr>
+    </table>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">MLP (Feed-Forward)</h3>
+    <p>Complete MLP forward/backward with token parallelism.</p>
+    <pre>void mlp_token_parallel(
+    const float *input,
+    const float *W_fc1, const float *b_fc1,
+    const float *W_fc2, const float *b_fc2,
+    float *fc1_output,
+    float *output,
+    int T,              // num tokens
+    int aligned_dim,
+    int num_threads
+);
+
+void fc1_backward_kernel(...);
+void fc2_backward_kernel(...);</pre>
+</div>
+
+<h2>Mathematical Formulas Summary</h2>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Forward & Backward Pass Formulas</h3>
+    <table>
+        <tr>
+            <th>Kernel</th>
+            <th>Forward</th>
+            <th>Backward (Derivative)</th>
+        </tr>
+        <tr>
+            <td><strong>Attention</strong></td>
+            <td><code>softmax(QK&#x1D40;/&#x221A;d&#x2096;) &#xB7; V</code></td>
+            <td>Chain rule through softmax &#x2192; QK&#x1D40; &#x2192; Q,K,V</td>
+        </tr>
+        <tr>
+            <td><strong>RoPE</strong></td>
+            <td><code>x' = x&#xB7;cos(m&#x3B8;) - y&#xB7;sin(m&#x3B8;)</code></td>
+            <td>Rotate by -&#x3B8;: same formula with negated angle</td>
+        </tr>
+        <tr>
+            <td><strong>RMSNorm</strong></td>
+            <td><code>&#x3B3; &#xB7; x / &#x221A;(mean(x&#xB2;) + &#x3B5;)</code></td>
+            <td><code>&#x2202;L/&#x2202;x = &#x3B3;/RMS &#xB7; (&#x2202;L/&#x2202;y - x&#xB7;mean(x&#xB7;&#x2202;L/&#x2202;y)/RMS&#xB2;)</code></td>
+        </tr>
+        <tr>
+            <td><strong>LayerNorm</strong></td>
+            <td><code>&#x3B3; &#xB7; (x - &#x3BC;) / &#x221A;(&#x3C3;&#xB2; + &#x3B5;) + &#x3B2;</code></td>
+            <td>Similar to RMSNorm with mean subtraction</td>
+        </tr>
+        <tr>
+            <td><strong>SwiGLU</strong></td>
+            <td><code>Swish(xW) &#x2299; (xV)</code></td>
+            <td><code>&#x2202;L/&#x2202;gate = &#x2202;L/&#x2202;y &#xB7; value &#xB7; swish'(gate)</code></td>
+        </tr>
+        <tr>
+            <td><strong>Swish</strong></td>
+            <td><code>x &#xB7; &#x3C3;(x)</code></td>
+            <td><code>&#x3C3;(x) + x &#xB7; &#x3C3;(x) &#xB7; (1 - &#x3C3;(x))</code></td>
+        </tr>
+        <tr>
+            <td><strong>Sigmoid</strong></td>
+            <td><code>1 / (1 + e&#x207B;&#x02E3;)</code></td>
+            <td><code>&#x3C3;(x) &#xB7; (1 - &#x3C3;(x))</code></td>
+        </tr>
+        <tr>
+            <td><strong>GELU</strong></td>
+            <td><code>x &#xB7; &#x3A6;(x)</code></td>
+            <td><code>&#x3A6;(x) + x &#xB7; &#x3C6;(x)</code></td>
+        </tr>
+        <tr>
+            <td><strong>Softmax</strong></td>
+            <td><code>e&#x02E3;&#x1D62; / &#x3A3;&#x2C7C;e&#x02E3;&#x02B2;</code></td>
+            <td><code>s&#x1D62;(&#x3B4;&#x1D62;&#x2C7C; - s&#x2C7C;)</code></td>
+        </tr>
+    </table>
+</div>
+
+<h2>Kernel Files</h2>
+
+<table>
+    <tr>
+        <th>File</th>
+        <th>Kernels</th>
+        <th>Lines</th>
+    </tr>
+    <tr>
+        <td><code>attention_kernels.c</code></td>
+        <td>attention_forward, attention_backward, softmax</td>
+        <td><a href="doxygen/attention__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>rope_kernels.c</code></td>
+        <td>rope_precompute, rope_forward, rope_backward</td>
+        <td><a href="doxygen/rope__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>rmsnorm_kernels.c</code></td>
+        <td>rmsnorm_forward, rmsnorm_backward</td>
+        <td><a href="doxygen/rmsnorm__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>swiglu_kernels.c</code></td>
+        <td>swiglu_forward, swiglu_backward</td>
+        <td><a href="doxygen/swiglu__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>gelu_kernels.c</code></td>
+        <td>gelu_fast, gelu_backward_exact/fast</td>
+        <td><a href="doxygen/gelu__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>gemm_kernels.c</code></td>
+        <td>gemm_blocked, gemm_avx512, gemm_parallel</td>
+        <td><a href="doxygen/gemm__kernels_8c_source.html">View Source</a></td>
+    </tr>
+    <tr>
+        <td><code>layernorm_kernels.c</code></td>
+        <td>layernorm_forward, layernorm_backward</td>
+        <td><a href="doxygen/layernorm__kernels_8c_source.html">View Source</a></td>
+    </tr>
+</table>

@@ -18,5 +18,11 @@ void ck_codegen_c_skeleton(const CKIRGraph *forward,
                            const CKIRGraph *backward,
                            FILE *out);
 
-#endif /* CKERNEL_CODEGEN_H */
+/**
+ * Emit a C runtime file that stitches kernels for the given forward IR.
+ *
+ * Returns 0 on success, non-zero on failure.
+ */
+int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path);
 
+#endif /* CKERNEL_CODEGEN_H */

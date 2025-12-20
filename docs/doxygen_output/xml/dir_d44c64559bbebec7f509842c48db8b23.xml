@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_d44c64559bbebec7f509842c48db8b23" kind="dir">
+    <compoundname>include</compoundname>
+    <innerfile refid="ckernel__alloc_8h">ckernel_alloc.h</innerfile>
+    <innerfile refid="ckernel__codegen_8h">ckernel_codegen.h</innerfile>
+    <innerfile refid="ckernel__engine_8h">ckernel_engine.h</innerfile>
+    <innerfile refid="ckernel__ir_8h">ckernel_ir.h</innerfile>
+    <innerfile refid="ckernel__model_8h">ckernel_model.h</innerfile>
+    <innerfile refid="ckernel__orchestration_8h">ckernel_orchestration.h</innerfile>
+    <innerfile refid="ckernel__registry_8h">ckernel_registry.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/"/>
+  </compounddef>
+</doxygen>

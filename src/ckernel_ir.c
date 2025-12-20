@@ -66,7 +66,8 @@ int ck_model_config_from_hf_json(const char *path, CKModelConfig *cfg)
     fclose(f);
     buf[nread] = '\0';
 
-    CKModelConfig tmp = {0};
+    CKModelConfig tmp;
+    memset(&tmp, 0, sizeof(tmp));
 
     if (parse_int_field(buf, "\"num_hidden_layers\"", &tmp.num_layers) != 0) {
         fprintf(stderr, "Warning: num_hidden_layers not found in %s\n", path);
@@ -84,6 +85,18 @@ int ck_model_config_from_hf_json(const char *path, CKModelConfig *cfg)
     // num_key_value_heads is optional; default to num_heads if missing.
     if (parse_int_field(buf, "\"num_key_value_heads\"", &tmp.num_kv_heads) != 0) {
         tmp.num_kv_heads = tmp.num_heads;
+    }
+
+    // Optional: vocab_size
+    if (parse_int_field(buf, "\"vocab_size\"", &tmp.vocab_size) != 0) {
+        tmp.vocab_size = 0;
+    }
+
+    // Optional: context length (try max_position_embeddings, then n_positions)
+    if (parse_int_field(buf, "\"max_position_embeddings\"", &tmp.context_window) != 0) {
+        if (parse_int_field(buf, "\"n_positions\"", &tmp.context_window) != 0) {
+            tmp.context_window = 0;
+        }
     }
 
     free(buf);
@@ -317,12 +330,14 @@ void ck_ir_dump(const CKIRGraph *graph, FILE *out)
     }
 
     fprintf(out,
-            "CKIRGraph: layers=%d, hidden_size=%d, intermediate_size=%d, heads=%d, kv_heads=%d\n",
+            "CKIRGraph: layers=%d, hidden_size=%d, intermediate_size=%d, heads=%d, kv_heads=%d, vocab=%d, ctx=%d\n",
             graph->config.num_layers,
             graph->config.hidden_size,
             graph->config.intermediate_size,
             graph->config.num_heads,
-            graph->config.num_kv_heads);
+            graph->config.num_kv_heads,
+            graph->config.vocab_size,
+            graph->config.context_window);
 
     for (int i = 0; i < graph->num_nodes; ++i) {
         const CKIRNode *n = &graph->nodes[i];
@@ -375,7 +390,9 @@ int ck_ir_serialize_json(const CKIRGraph *graph, const char *path)
     fprintf(f, "    \"hidden_size\": %d,\n", graph->config.hidden_size);
     fprintf(f, "    \"intermediate_size\": %d,\n", graph->config.intermediate_size);
     fprintf(f, "    \"num_attention_heads\": %d,\n", graph->config.num_heads);
-    fprintf(f, "    \"num_key_value_heads\": %d\n", graph->config.num_kv_heads);
+    fprintf(f, "    \"num_key_value_heads\": %d,\n", graph->config.num_kv_heads);
+    fprintf(f, "    \"vocab_size\": %d,\n", graph->config.vocab_size);
+    fprintf(f, "    \"context_window\": %d\n", graph->config.context_window);
     fprintf(f, "  },\n");
 
     // For now we only emit a flat "nodes" array. Higher-level tools can
@@ -421,5 +438,206 @@ int ck_ir_serialize_json(const CKIRGraph *graph, const char *path)
     fprintf(f, "}\n");
 
     fclose(f);
+    return 0;
+}
+
+static CKOpType parse_op(const char *s)
+{
+    if (strcmp(s, "RMSNORM") == 0)        return CK_OP_RMSNORM;
+    if (strcmp(s, "LINEAR_QKV") == 0)     return CK_OP_LINEAR_QKV;
+    if (strcmp(s, "ATTENTION") == 0)      return CK_OP_ATTENTION;
+    if (strcmp(s, "ADD") == 0)            return CK_OP_ADD;
+    if (strcmp(s, "LINEAR") == 0)         return CK_OP_LINEAR;
+    if (strcmp(s, "SPLIT") == 0)          return CK_OP_SPLIT;
+    if (strcmp(s, "SWIGLU") == 0)         return CK_OP_SWIGLU;
+    if (strcmp(s, "RMSNORM_BWD") == 0)    return CK_OP_RMSNORM_BWD;
+    if (strcmp(s, "LINEAR_QKV_BWD") == 0) return CK_OP_LINEAR_QKV_BWD;
+    if (strcmp(s, "ATTENTION_BWD") == 0)  return CK_OP_ATTENTION_BWD;
+    if (strcmp(s, "ADD_BWD") == 0)        return CK_OP_ADD_BWD;
+    if (strcmp(s, "LINEAR_BWD") == 0)     return CK_OP_LINEAR_BWD;
+    if (strcmp(s, "SPLIT_BWD") == 0)      return CK_OP_SPLIT_BWD;
+    if (strcmp(s, "SWIGLU_BWD") == 0)     return CK_OP_SWIGLU_BWD;
+    return CK_OP_RMSNORM; // default fallback
+}
+
+int ck_ir_parse_json(const char *path, CKIRGraph *graph)
+{
+    if (!path || !graph) {
+        return -1;
+    }
+
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        perror("ck_ir_parse_json: fopen");
+        return -1;
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        return -1;
+    }
+    long len = ftell(f);
+    if (len < 0) {
+        fclose(f);
+        return -1;
+    }
+    if (fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        return -1;
+    }
+
+    char *buf = (char *)malloc((size_t)len + 1);
+    if (!buf) {
+        fclose(f);
+        return -1;
+    }
+    size_t nread = fread(buf, 1, (size_t)len, f);
+    fclose(f);
+    buf[nread] = '\0';
+
+    CKIRGraph tmp;
+    memset(&tmp, 0, sizeof(tmp));
+
+    // Parse config using the same helper as HF-style JSON.
+    if (parse_int_field(buf, "\"num_layers\"", &tmp.config.num_layers) != 0) {
+        fprintf(stderr, "ck_ir_parse_json: missing num_layers\n");
+    }
+    if (parse_int_field(buf, "\"hidden_size\"", &tmp.config.hidden_size) != 0) {
+        fprintf(stderr, "ck_ir_parse_json: missing hidden_size\n");
+    }
+    if (parse_int_field(buf, "\"intermediate_size\"", &tmp.config.intermediate_size) != 0) {
+        fprintf(stderr, "ck_ir_parse_json: missing intermediate_size\n");
+    }
+    if (parse_int_field(buf, "\"num_attention_heads\"", &tmp.config.num_heads) != 0) {
+        fprintf(stderr, "ck_ir_parse_json: missing num_attention_heads\n");
+    }
+    if (parse_int_field(buf, "\"num_key_value_heads\"", &tmp.config.num_kv_heads) != 0) {
+        tmp.config.num_kv_heads = tmp.config.num_heads;
+    }
+
+    // Optional: vocab_size / context_window may be present
+    if (parse_int_field(buf, "\"vocab_size\"", &tmp.config.vocab_size) != 0) {
+        tmp.config.vocab_size = 0;
+    }
+    if (parse_int_field(buf, "\"context_window\"", &tmp.config.context_window) != 0) {
+        tmp.config.context_window = 0;
+    }
+
+    // Count nodes by scanning for "layer" keys in the nodes array.
+    char *nodes_begin = strstr(buf, "\"nodes\"");
+    if (!nodes_begin) {
+        free(buf);
+        return -1;
+    }
+    char *p = nodes_begin;
+    int count = 0;
+    while ((p = strstr(p, "\"layer\"")) != NULL) {
+        count++;
+        p += 7;
+    }
+    if (count <= 0) {
+        free(buf);
+        return -1;
+    }
+
+    CKIRNode *nodes = (CKIRNode *)calloc((size_t)count, sizeof(CKIRNode));
+    if (!nodes) {
+        free(buf);
+        return -1;
+    }
+
+    // Parse each node sequentially.
+    p = nodes_begin;
+    for (int i = 0; i < count; ++i) {
+        // layer
+        char *pl = strstr(p, "\"layer\"");
+        if (!pl) { free(nodes); free(buf); return -1; }
+        int layer = 0;
+        if (sscanf(strchr(pl, ':'), " : %d", &layer) != 1) {
+            free(nodes); free(buf); return -1;
+        }
+
+        // node
+        char *pn = strstr(pl, "\"node\"");
+        if (!pn) { free(nodes); free(buf); return -1; }
+        int node = 0;
+        if (sscanf(strchr(pn, ':'), " : %d", &node) != 1) {
+            free(nodes); free(buf); return -1;
+        }
+
+        // op string
+        char *po = strstr(pn, "\"op\"");
+        if (!po) { free(nodes); free(buf); return -1; }
+        char op_str[64] = {0};
+        if (sscanf(strchr(po, ':'), " : \"%63[^\"]\"", op_str) != 1) {
+            free(nodes); free(buf); return -1;
+        }
+
+        CKIRNode *n = &nodes[i];
+        n->id.layer = (uint16_t)layer;
+        n->id.node  = (uint16_t)node;
+        n->op       = parse_op(op_str);
+
+        // outputs: count entries between [ ... ]
+        char *pout = strstr(po, "\"outputs\"");
+        if (!pout) { free(nodes); free(buf); return -1; }
+        char *bo = strchr(pout, '[');
+        char *eo = strchr(pout, ']');
+        int out_count = 0;
+        if (bo && eo && eo > bo) {
+            char *q = bo;
+            while ((q = strchr(q, '"')) && q < eo) {
+                out_count++;
+                q = strchr(q + 1, '"');
+                if (!q || q >= eo) break;
+                // Skip closing quote
+                q++;
+            }
+        }
+        n->n_outputs = (uint8_t)out_count;
+
+        // inputs
+        char *pin = strstr(po, "\"inputs\"");
+        if (!pin) { free(nodes); free(buf); return -1; }
+        char *bi = strchr(pin, '[');
+        char *ei = strchr(pin, ']');
+        int in_count = 0;
+        if (bi && ei && ei > bi) {
+            // Simple scan for tokens "IN" or "Lx:Nx:s"
+            char *q = bi;
+            while ((q = strchr(q, '"')) && q < ei) {
+                char tok[64] = {0};
+                if (sscanf(q, "\"%63[^\"]\"", tok) != 1) {
+                    break;
+                }
+                if (strcmp(tok, "IN") == 0) {
+                    n->inputs[in_count].producer.layer = (uint16_t)layer;
+                    n->inputs[in_count].producer.node  = 0xFFFFu;
+                    n->inputs[in_count].out_index      = 0;
+                } else {
+                    unsigned plh = 0, pnn = 0, slot = 0;
+                    if (sscanf(tok, "L%u:N%u:%u", &plh, &pnn, &slot) == 3) {
+                        n->inputs[in_count].producer.layer = (uint16_t)plh;
+                        n->inputs[in_count].producer.node  = (uint16_t)pnn;
+                        n->inputs[in_count].out_index      = (uint8_t)slot;
+                    }
+                }
+                in_count++;
+                // Move q past this token
+                q = strchr(q + 1, '"');
+                if (!q || q >= ei) break;
+                q++;
+            }
+        }
+        n->n_inputs = (uint8_t)in_count;
+
+        // Move p forward for the next iteration
+        p = pin + 7;
+    }
+
+    free(buf);
+    graph->config    = tmp.config;
+    graph->num_nodes = count;
+    graph->nodes     = nodes;
     return 0;
 }

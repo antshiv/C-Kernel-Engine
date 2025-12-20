@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_40856f0cdd4bcafd28810d9265a200f7" kind="dir">
+    <compoundname>kernels</compoundname>
+    <innerfile refid="attention__kernels_8c">attention_kernels.c</innerfile>
+    <innerfile refid="gelu__kernels_8c">gelu_kernels.c</innerfile>
+    <innerfile refid="gemm__kernels_8c">gemm_kernels.c</innerfile>
+    <innerfile refid="layernorm__kernels_8c">layernorm_kernels.c</innerfile>
+    <innerfile refid="mlp__kernels_8c">mlp_kernels.c</innerfile>
+    <innerfile refid="rmsnorm__kernels_8c">rmsnorm_kernels.c</innerfile>
+    <innerfile refid="rope__kernels_8c">rope_kernels.c</innerfile>
+    <innerfile refid="sigmoid__kernels_8c">sigmoid_kernels.c</innerfile>
+    <innerfile refid="softmax__kernels_8c">softmax_kernels.c</innerfile>
+    <innerfile refid="swiglu__kernels_8c">swiglu_kernels.c</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/"/>
+  </compounddef>
+</doxygen>

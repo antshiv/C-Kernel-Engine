@@ -26,6 +26,8 @@ typedef struct {
     int intermediate_size;  // intermediate_size (MLP)
     int num_heads;          // num_attention_heads
     int num_kv_heads;       // num_key_value_heads (GQA)
+    int vocab_size;         // vocab_size (if available)
+    int context_window;     // max positions / context length (if available)
 } CKModelConfig;
 
 typedef enum {
@@ -128,5 +130,16 @@ void ck_ir_dump(const CKIRGraph *graph, FILE *out);
  * Returns 0 on success, non-zero on failure.
  */
 int ck_ir_serialize_json(const CKIRGraph *graph, const char *path);
+
+/**
+ * Parse a JSON IR map file (as produced by ck_ir_serialize_json) back into
+ * a CKIRGraph. This enables a two-stage pipeline:
+ *
+ *   config.json -> CKIRGraph -> ir.json
+ *   ir.json     -> CKIRGraph -> codegen / analysis
+ *
+ * Returns 0 on success, non-zero on failure.
+ */
+int ck_ir_parse_json(const char *path, CKIRGraph *graph);
 
 #endif /* CKERNEL_IR_H */

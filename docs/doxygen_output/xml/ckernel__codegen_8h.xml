@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="ckernel__codegen_8h" kind="file" language="C++">
+    <compoundname>ckernel_codegen.h</compoundname>
+    <includes refid="ckernel__ir_8h" local="yes">ckernel_ir.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includedby refid="ckernel__codegen_8c" local="yes">ckernel_codegen.c</includedby>
+    <includedby refid="ckernel__ir__demo_8c" local="yes">ckernel_ir_demo.c</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="2">
+        <label>ckernel_ir.h</label>
+        <link refid="ckernel__ir_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ckernel_codegen.h</label>
+        <link refid="ckernel__codegen_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>ckernel_ir_demo.c</label>
+        <link refid="ckernel__ir__demo_8c"/>
+      </node>
+      <node id="1">
+        <label>ckernel_codegen.h</label>
+        <link refid="ckernel__codegen_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ckernel_codegen.c</label>
+        <link refid="ckernel__codegen_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ck_codegen_c_skeleton</definition>
+        <argsstring>(const CKIRGraph *forward, const CKIRGraph *backward, FILE *out)</argsstring>
+        <name>ck_codegen_c_skeleton</name>
+        <param>
+          <type>const <ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref> *</type>
+          <declname>forward</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref> *</type>
+          <declname>backward</declname>
+        </param>
+        <param>
+          <type>FILE *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Emit a C skeleton for forward + backward execution based on the IR.</para>
+<para>This does not yet generate full pointer arithmetic or memory planning. It is intended as a starting point that:<itemizedlist>
+<listitem><para>Defines a model config / runtime context</para>
+</listitem><listitem><para>Shows a per-layer forward loop over IR nodes</para>
+</listitem><listitem><para>Sketches a backward loop over the backward IR </para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="17" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="28" bodyend="167" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="17" declcolumn="6"/>
+        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="71">CKIRGraph::config</references>
+        <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
+        <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
+        <references refid="structCKIRNode_1a5a7a5149c743e17aad1e63791b44ce49" compoundref="ckernel__ir_8h" startline="62">CKIRNode::id</references>
+        <references refid="structCKIRNode_1a595fda2c0bbc4073e1f28af4495ec8ac" compoundref="ckernel__ir_8h" startline="64">CKIRNode::inputs</references>
+        <references refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" compoundref="ckernel__ir_8h" startline="26">CKModelConfig::intermediate_size</references>
+        <references refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" compoundref="ckernel__ir_8h" startline="52">CKKernelId::layer</references>
+        <references refid="structCKIRNode_1abf6244a44982d225b1f19abfa2906e8c" compoundref="ckernel__ir_8h" startline="65">CKIRNode::n_inputs</references>
+        <references refid="structCKIRNode_1ac80c87853b9a0b35958d643481e95fc7" compoundref="ckernel__ir_8h" startline="66">CKIRNode::n_outputs</references>
+        <references refid="structCKKernelId_1aaa58279e743ef1ec7a4c9cce3dc67c79" compoundref="ckernel__ir_8h" startline="53">CKKernelId::node</references>
+        <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::nodes</references>
+        <references refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" compoundref="ckernel__ir_8h" startline="27">CKModelConfig::num_heads</references>
+        <references refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" compoundref="ckernel__ir_8h" startline="28">CKModelConfig::num_kv_heads</references>
+        <references refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" compoundref="ckernel__ir_8h" startline="24">CKModelConfig::num_layers</references>
+        <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="72">CKIRGraph::num_nodes</references>
+        <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="63">CKIRNode::op</references>
+        <references refid="ckernel__codegen_8c_1a2b6e6d4584a3004711ed6950fd8e72f4" compoundref="ckernel__codegen_8c" startline="7" endline="26">op_name</references>
+        <references refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" compoundref="ckernel__ir_8h" startline="58">CKInputRef::out_index</references>
+        <references refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" compoundref="ckernel__ir_8h" startline="57">CKInputRef::producer</references>
+        <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ck_codegen_emit_runtime</definition>
+        <argsstring>(const CKIRGraph *forward, const char *path)</argsstring>
+        <name>ck_codegen_emit_runtime</name>
+        <param>
+          <type>const <ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref> *</type>
+          <declname>forward</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Emit a C runtime file that stitches kernels for the given forward IR.</para>
+<para>Returns 0 on success, non-zero on failure. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="26" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="395" bodyend="1107" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="26" declcolumn="5"/>
+        <references refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" compoundref="ckernel__registry_8c" startline="42" endline="60">ck_ir_validate_supported</references>
+        <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="71">CKIRGraph::config</references>
+        <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
+        <references refid="ckernel__codegen_8c_1a11930dff28761c36379a2fb510f9ee9b" compoundref="ckernel__codegen_8c" startline="277" endline="393">emit_runtime_preamble</references>
+        <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
+        <references refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" compoundref="ckernel__ir_8h" startline="26">CKModelConfig::intermediate_size</references>
+        <references refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" compoundref="ckernel__ir_8h" startline="27">CKModelConfig::num_heads</references>
+        <references refid="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" compoundref="ckernel__ir_8h" startline="28">CKModelConfig::num_kv_heads</references>
+        <references refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" compoundref="ckernel__ir_8h" startline="24">CKModelConfig::num_layers</references>
+        <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>CKERNEL_CODEGEN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CKERNEL_CODEGEN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="ckernel__ir_8h" kindref="compound">ckernel_ir.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="8"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>Emit<sp/>a<sp/>C<sp/>skeleton<sp/>for<sp/>forward<sp/>+<sp/>backward<sp/>execution<sp/>based<sp/>on<sp/>the<sp/>IR.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>This<sp/>does<sp/>not<sp/>yet<sp/>generate<sp/>full<sp/>pointer<sp/>arithmetic<sp/>or<sp/>memory<sp/>planning.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>It<sp/>is<sp/>intended<sp/>as<sp/>a<sp/>starting<sp/>point<sp/>that:</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>Defines<sp/>a<sp/>model<sp/>config<sp/>/<sp/>runtime<sp/>context</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>Shows<sp/>a<sp/>per-layer<sp/>forward<sp/>loop<sp/>over<sp/>IR<sp/>nodes</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>Sketches<sp/>a<sp/>backward<sp/>loop<sp/>over<sp/>the<sp/>backward<sp/>IR</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" kindref="member">ck_codegen_c_skeleton</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref><sp/>*forward,</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref><sp/>*backward,</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FILE<sp/>*out);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="21"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>Emit<sp/>a<sp/>C<sp/>runtime<sp/>file<sp/>that<sp/>stitches<sp/>kernels<sp/>for<sp/>the<sp/>given<sp/>forward<sp/>IR.</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>Returns<sp/>0<sp/>on<sp/>success,<sp/>non-zero<sp/>on<sp/>failure.</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="ckernel__codegen_8h_1a4af02cd36b0905c3e8db815bf7d1f772" kindref="member">ck_codegen_emit_runtime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structCKIRGraph" kindref="compound">CKIRGraph</ref><sp/>*forward,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>CKERNEL_CODEGEN_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h"/>
+  </compounddef>
+</doxygen>

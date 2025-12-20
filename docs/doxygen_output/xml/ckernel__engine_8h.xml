@@ -1,0 +1,1944 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="ckernel__engine_8h" kind="file" language="C++">
+    <compoundname>ckernel_engine.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="backend__native_8c" local="yes">backend_native.c</includedby>
+    <includedby refid="ckernel__orchestration_8c" local="yes">ckernel_orchestration.c</includedby>
+    <includedby refid="attention__kernels_8c" local="yes">attention_kernels.c</includedby>
+    <includedby refid="gemm__kernels_8c" local="yes">gemm_kernels.c</includedby>
+    <includedby refid="mlp__kernels_8c" local="yes">mlp_kernels.c</includedby>
+    <includedby refid="swiglu__kernels_8c" local="yes">swiglu_kernels.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>ckernel_engine.h</label>
+        <link refid="ckernel__engine_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stddef.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>backend_native.c</label>
+        <link refid="backend__native_8c"/>
+      </node>
+      <node id="7">
+        <label>swiglu_kernels.c</label>
+        <link refid="swiglu__kernels_8c"/>
+      </node>
+      <node id="5">
+        <label>gemm_kernels.c</label>
+        <link refid="gemm__kernels_8c"/>
+      </node>
+      <node id="4">
+        <label>attention_kernels.c</label>
+        <link refid="attention__kernels_8c"/>
+      </node>
+      <node id="1">
+        <label>ckernel_engine.h</label>
+        <link refid="ckernel__engine_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>mlp_kernels.c</label>
+        <link refid="mlp__kernels_8c"/>
+      </node>
+      <node id="3">
+        <label>ckernel_orchestration.c</label>
+        <link refid="ckernel__orchestration_8c"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structCKMathBackend" prot="public">CKMathBackend</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void attention_backward_causal_head_major</definition>
+        <argsstring>(const float *d_output, const float *q, const float *k, const float *v, const float *attn_weights, float *d_q, float *d_k, float *d_v, float *d_scores, int num_heads, int num_tokens, int head_dim, int aligned_head_dim, int aligned_context_window)</argsstring>
+        <name>attention_backward_causal_head_major</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>attn_weights</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_q</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_k</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_v</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_scores</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="262" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="335" bodyend="356" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="262" declcolumn="6"/>
+        <references refid="attention__kernels_8c_1adbd2b55fbc53b6e288c98813b61cd6e3" compoundref="attention__kernels_8c" startline="205" endline="332">attention_backward_causal_head_major_gqa</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1adbd2b55fbc53b6e288c98813b61cd6e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void attention_backward_causal_head_major_gqa</definition>
+        <argsstring>(const float *d_output, const float *q, const float *k, const float *v, const float *attn_weights, float *d_q, float *d_k, float *d_v, float *d_scores, int num_heads, int num_kv_heads, int num_tokens, int head_dim, int aligned_head_dim, int aligned_context_window)</argsstring>
+        <name>attention_backward_causal_head_major_gqa</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>attn_weights</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_q</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_k</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_v</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_scores</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_kv_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="244" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="205" bodyend="332" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="244" declcolumn="6"/>
+        <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="6" endline="14">qkv_index</references>
+        <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="18" endline="26">score_index</references>
+        <referencedby refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" compoundref="attention__kernels_8c" startline="335" endline="356">attention_backward_causal_head_major</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void attention_forward_causal_head_major</definition>
+        <argsstring>(const float *q, const float *k, const float *v, float *scores, float *output, int num_heads, int num_tokens, int head_dim, int aligned_head_dim, int aligned_context_window)</argsstring>
+        <name>attention_forward_causal_head_major</name>
+        <param>
+          <type>const float *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>scores</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="158" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="42" bodyend="106" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="158" declcolumn="6"/>
+        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="10" endline="46">causal_softmax_head_major</references>
+        <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="6" endline="14">qkv_index</references>
+        <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="18" endline="26">score_index</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void attention_forward_causal_head_major_gqa</definition>
+        <argsstring>(const float *q, const float *k, const float *v, float *scores, float *output, int num_heads, int num_kv_heads, int num_tokens, int head_dim, int aligned_head_dim, int aligned_context_window)</argsstring>
+        <name>attention_forward_causal_head_major_gqa</name>
+        <param>
+          <type>const float *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>scores</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_kv_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="170" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="110" bodyend="168" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="170" declcolumn="6"/>
+        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="10" endline="46">causal_softmax_head_major</references>
+        <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="6" endline="14">qkv_index</references>
+        <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="18" endline="26">score_index</references>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="131" endline="211">ck_layer_forward_rmsnorm_swiglu</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void backward_causal_softmax_head_major</definition>
+        <argsstring>(float *d_scores, const float *weights, int num_heads, int num_tokens, int aligned_context_window)</argsstring>
+        <name>backward_causal_softmax_head_major</name>
+        <param>
+          <type>float *</type>
+          <declname>d_scores</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="148" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="51" bodyend="83" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="148" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void causal_softmax_head_major</definition>
+        <argsstring>(float *scores, int num_heads, int num_tokens, int aligned_context_window)</argsstring>
+        <name>causal_softmax_head_major</name>
+        <param>
+          <type>float *</type>
+          <declname>scores</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_context_window</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="143" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="10" bodyend="46" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="143" declcolumn="6"/>
+        <referencedby refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" compoundref="attention__kernels_8c" startline="42" endline="106">attention_forward_causal_head_major</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" compoundref="attention__kernels_8c" startline="110" endline="168">attention_forward_causal_head_major_gqa</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structCKMathBackend" kindref="compound">CKMathBackend</ref></type>
+        <definition>CKMathBackend ckernel_backend_native</definition>
+        <argsstring>(void)</argsstring>
+        <name>ckernel_backend_native</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Obtain the built-in native backend (single-node CPU, C + intrinsics). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="33" column="15" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/backend_native.c" bodystart="30" bodyend="35" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="33" declcolumn="15"/>
+        <references refid="backend__native_8c_1a9008610196b2d6750454c58f87a6cc78" compoundref="backend__native_8c" startline="18" endline="28">ckernel_sgemm_native</references>
+        <references refid="structCKMathBackend_1a7e59ba4baa9c776241287338a219d9c4" compoundref="ckernel__engine_8h" startline="23">CKMathBackend::sgemm</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a73e088d0e2388c78920e8fc99b0c3846" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fc1_backward_kernel</definition>
+        <argsstring>(const float *d_output, const float *fc1_input, const float *W_fc1, float *d_input, float *d_W_fc1, float *d_b_fc1, int T, int aligned_in, int aligned_out, int num_threads)</argsstring>
+        <name>fc1_backward_kernel</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>fc1_input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>W_fc1</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_W_fc1</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_b_fc1</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>T</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_in</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_threads</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="206" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="125" bodyend="178" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="206" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a89a29fc853aae0baf9f6094fee52562a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fc2_backward_kernel</definition>
+        <argsstring>(const float *d_output, const float *fc2_input, const float *W_fc2, float *d_input, float *d_W_fc2, float *d_b_fc2, int T, int aligned_in, int aligned_out, int num_threads)</argsstring>
+        <name>fc2_backward_kernel</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>fc2_input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>W_fc2</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_W_fc2</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_b_fc2</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>T</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_in</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_threads</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="195" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="60" bodyend="115" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="195" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3075b77764b4b408e3c1c9b89a2822ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_backward_exact</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>gelu_backward_exact</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="132" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="22" bodyend="46" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="132" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1aeaf518a5239f4588f8c28b05b96d5478" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_backward_fast</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>gelu_backward_fast</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="137" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="49" bodyend="60" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="137" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gelu_fast_inplace</definition>
+        <argsstring>(float *data, size_t n)</argsstring>
+        <name>gelu_fast_inplace</name>
+        <param>
+          <type>float *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="130" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="6" bodyend="17" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="130" declcolumn="6"/>
+        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="19" endline="50">mlp_token_parallel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gemm_avx512_parallel</definition>
+        <argsstring>(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</argsstring>
+        <name>gemm_avx512_parallel</name>
+        <param>
+          <type>const float *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>B</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>bias</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>C</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>M</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>K</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="42" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels.c" bodystart="28" bodyend="52" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="42" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gemm_blocked_serial</definition>
+        <argsstring>(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</argsstring>
+        <name>gemm_blocked_serial</name>
+        <param>
+          <type>const float *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>B</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>bias</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>C</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>M</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>K</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="54" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels.c" bodystart="99" bodyend="137" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="54" declcolumn="6"/>
+        <references refid="gemm__kernels_8c_1a19bd64cbde3f643580eb69b050c8e61d" compoundref="gemm__kernels_8c" startline="5" endline="5">ck_min</references>
+        <referencedby refid="ckernel__orchestration_8h_1a2afc01d06448f40b94c48a51a6951dc5" compoundref="ckernel__orchestration_8c" startline="74" endline="107">ck_attention_project_head_major</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a2e894b79792aaf694427446c1d89fab8" compoundref="ckernel__orchestration_8c" startline="109" endline="129">ck_mlp_swiglu_forward</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae1c428e05f8ea7795136ae8b160b8a0a" compoundref="ckernel__orchestration_8c" startline="19" endline="61">ck_qkv_project_head_major</referencedby>
+        <referencedby refid="backend__native_8c_1a9008610196b2d6750454c58f87a6cc78" compoundref="backend__native_8c" startline="18" endline="28">ckernel_sgemm_native</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="19" endline="50">mlp_token_parallel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1abab2d2aaed47f4c682c019bd77fab1ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gemm_fine_grained_parallel</definition>
+        <argsstring>(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</argsstring>
+        <name>gemm_fine_grained_parallel</name>
+        <param>
+          <type>const float *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>B</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>bias</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>C</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>M</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>K</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="48" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels.c" bodystart="55" bodyend="96" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="48" declcolumn="6"/>
+        <references refid="gemm__kernels_8c_1a19bd64cbde3f643580eb69b050c8e61d" compoundref="gemm__kernels_8c" startline="5" endline="5">ck_min</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gemm_naive_parallel</definition>
+        <argsstring>(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</argsstring>
+        <name>gemm_naive_parallel</name>
+        <param>
+          <type>const float *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>B</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>bias</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>C</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>M</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>K</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="36" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels.c" bodystart="8" bodyend="25" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="36" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a8d349f047d6654b3a351fb62e0b20e87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void layernorm_backward_kernel</definition>
+        <argsstring>(const float *d_output, const float *input, const float *gamma, const float *mean, const float *rstd, float *d_input, float *d_gamma, float *d_beta, int tokens, int d_model, int aligned_embed_dim)</argsstring>
+        <name>layernorm_backward_kernel</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>mean</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>rstd</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_gamma</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_beta</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="99" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels.c" bodystart="303" bodyend="370" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="99" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1ace47573bf5278260d2652f4fb069bb9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void layernorm_forward_rolled_slice</definition>
+        <argsstring>(const float *__restrict input_slice_base, const float *__restrict gamma, const float *__restrict beta, float *__restrict output_slice_base, float *__restrict mean_cache_slice, float *__restrict rstd_cache_slice, int num_tokens_in_slice, int d_model, int aligned_embed_dim, float eps)</argsstring>
+        <name>layernorm_forward_rolled_slice</name>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>input_slice_base</declname>
+        </param>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>beta</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>output_slice_base</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>mean_cache_slice</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>rstd_cache_slice</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens_in_slice</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>eps</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="70" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels.c" bodystart="49" bodyend="123" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="70" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1afd2e784d7b2b3ac7eb93e6f87c091fae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void layernorm_forward_unrolled_slice</definition>
+        <argsstring>(const float *__restrict input_slice_base, const float *__restrict gamma, const float *__restrict beta, float *__restrict output_slice_base, float *__restrict mean_cache_slice, float *__restrict rstd_cache_slice, int num_tokens_in_slice, int d_model, float eps)</argsstring>
+        <name>layernorm_forward_unrolled_slice</name>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>input_slice_base</declname>
+        </param>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *__restrict</type>
+          <declname>beta</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>output_slice_base</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>mean_cache_slice</declname>
+        </param>
+        <param>
+          <type>float *__restrict</type>
+          <declname>rstd_cache_slice</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens_in_slice</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>eps</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="81" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels.c" bodystart="126" bodyend="256" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="81" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a72f2038f01b5790f7235b5371d1f4d72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void layernorm_naive_serial</definition>
+        <argsstring>(const float *input, const float *gamma, const float *beta, float *output, float *mean_cache, float *rstd_cache, int tokens, int d_model, int aligned_embed_dim, float eps)</argsstring>
+        <name>layernorm_naive_serial</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>beta</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>mean_cache</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>rstd_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>eps</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="61" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels.c" bodystart="5" bodyend="46" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="61" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3c0c758ac557839bfc06d1037d15b91e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void layernorm_naive_serial_matched_precision</definition>
+        <argsstring>(const float *input, const float *gamma, const float *beta, float *output, float *mean_cache, float *rstd_cache, int tokens, int d_model, float eps)</argsstring>
+        <name>layernorm_naive_serial_matched_precision</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>beta</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>mean_cache</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>rstd_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>eps</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="91" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels.c" bodystart="259" bodyend="299" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="91" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mlp_token_parallel</definition>
+        <argsstring>(const float *input, const float *W_fc1, const float *b_fc1, const float *W_fc2, const float *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads)</argsstring>
+        <name>mlp_token_parallel</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>W_fc1</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>b_fc1</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>W_fc2</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>b_fc2</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>fc1_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>T</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_threads</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="183" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="19" bodyend="50" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="183" declcolumn="6"/>
+        <references refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" compoundref="gelu__kernels_8c" startline="6" endline="17">gelu_fast_inplace</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="99" endline="137">gemm_blocked_serial</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1aca68d7dda1a7de9ff926920804751db0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rmsnorm_backward</definition>
+        <argsstring>(const float *d_output, const float *input, const float *gamma, const float *rstd_cache, float *d_input, float *d_gamma, int tokens, int d_model, int aligned_embed_dim)</argsstring>
+        <name>rmsnorm_backward</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>rstd_cache</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_gamma</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="119" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" bodystart="64" bodyend="111" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="119" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a9a068ed02d809a81a23f09e61b820baf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rmsnorm_forward</definition>
+        <argsstring>(const float *input, const float *gamma, float *output, float *rstd_cache, int tokens, int d_model, int aligned_embed_dim, float eps)</argsstring>
+        <name>rmsnorm_forward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>gamma</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>rstd_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>d_model</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>eps</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="110" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" bodystart="12" bodyend="51" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="110" declcolumn="6"/>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="131" endline="211">ck_layer_forward_rmsnorm_swiglu</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a1598d5a809a361ec7061d105aa092429" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_backward</definition>
+        <argsstring>(const float *d_out, float *d_x, const float *cos_cache, const float *sin_cache, int num_heads, int num_tokens, int head_dim, int pos_offset)</argsstring>
+        <name>rope_backward</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_out</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos_offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="296" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="106" bodyend="140" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="296" declcolumn="6"/>
+        <referencedby refid="ckernel__engine_8h_1a8cd45e51db9f2a0285c40d38549e79ed" compoundref="rope__kernels_8c" startline="195" endline="209">rope_backward_qk</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1af1398d149aa631176837e426b37bdcd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_backward_inplace</definition>
+        <argsstring>(float *d_x, const float *cos_cache, const float *sin_cache, int num_heads, int num_tokens, int head_dim, int pos_offset)</argsstring>
+        <name>rope_backward_inplace</name>
+        <param>
+          <type>float *</type>
+          <declname>d_x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos_offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="306" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="144" bodyend="175" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="306" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a8cd45e51db9f2a0285c40d38549e79ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_backward_qk</definition>
+        <argsstring>(const float *d_q_out, const float *d_k_out, float *d_q, float *d_k, const float *cos_cache, const float *sin_cache, int num_heads, int num_kv_heads, int num_tokens, int head_dim, int pos_offset)</argsstring>
+        <name>rope_backward_qk</name>
+        <param>
+          <type>const float *</type>
+          <declname>d_q_out</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_k_out</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_q</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_kv_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos_offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="325" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="195" bodyend="209" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="325" declcolumn="6"/>
+        <references refid="rope__kernels_8c_1a1598d5a809a361ec7061d105aa092429" compoundref="rope__kernels_8c" startline="106" endline="140">rope_backward</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1af57337d51fd945de2ffec609bbb6866d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_forward</definition>
+        <argsstring>(float *x, const float *cos_cache, const float *sin_cache, int num_heads, int num_tokens, int head_dim, int pos_offset)</argsstring>
+        <name>rope_forward</name>
+        <param>
+          <type>float *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos_offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="287" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="81" bodyend="96" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="287" declcolumn="6"/>
+        <references refid="rope__kernels_8c_1a00d875ea69beeaa9a236a4e2dbaa7323" compoundref="rope__kernels_8c" startline="50" endline="75">rope_apply_head</references>
+        <referencedby refid="ckernel__engine_8h_1a42360ed62a9c4f5d3c40ff64c03db6c1" compoundref="rope__kernels_8c" startline="180" endline="192">rope_forward_qk</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a42360ed62a9c4f5d3c40ff64c03db6c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_forward_qk</definition>
+        <argsstring>(float *q, float *k, const float *cos_cache, const float *sin_cache, int num_heads, int num_kv_heads, int num_tokens, int head_dim, int pos_offset)</argsstring>
+        <name>rope_forward_qk</name>
+        <param>
+          <type>float *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_kv_heads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos_offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="315" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="180" bodyend="192" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="315" declcolumn="6"/>
+        <references refid="rope__kernels_8c_1af57337d51fd945de2ffec609bbb6866d" compoundref="rope__kernels_8c" startline="81" endline="96">rope_forward</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a3c55e1a13ca92346f9cf41bc4453f3df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rope_precompute_cache</definition>
+        <argsstring>(float *cos_cache, float *sin_cache, int max_seq_len, int head_dim, float base)</argsstring>
+        <name>rope_precompute_cache</name>
+        <param>
+          <type>float *</type>
+          <declname>cos_cache</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>sin_cache</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_seq_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>head_dim</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>base</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="280" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="28" bodyend="44" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="280" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sigmoid_backward</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, size_t n)</argsstring>
+        <name>sigmoid_backward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="224" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="23" bodyend="34" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="224" declcolumn="6"/>
+        <references refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sigmoid_forward</definition>
+        <argsstring>(const float *input, float *output, size_t n)</argsstring>
+        <name>sigmoid_forward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="220" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="11" bodyend="18" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="220" declcolumn="6"/>
+        <references refid="sigmoid__kernels_8c_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float sigmoid_scalar</definition>
+        <argsstring>(float x)</argsstring>
+        <name>sigmoid_scalar</name>
+        <param>
+          <type>float</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="218" column="7" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="5" bodyend="8" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="218" declcolumn="7"/>
+        <referencedby refid="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" compoundref="sigmoid__kernels_8c" startline="23" endline="34">sigmoid_backward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" compoundref="sigmoid__kernels_8c" startline="11" endline="18">sigmoid_forward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" compoundref="swiglu__kernels_8c" startline="45" endline="76">swiglu_backward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swiglu_backward</definition>
+        <argsstring>(const float *input, const float *d_output, float *d_input, int tokens, int dim)</argsstring>
+        <name>swiglu_backward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>d_output</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>d_input</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dim</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="237" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/swiglu_kernels.c" bodystart="45" bodyend="76" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="237" declcolumn="6"/>
+        <references refid="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swiglu_forward</definition>
+        <argsstring>(const float *input, float *output, int tokens, int dim)</argsstring>
+        <name>swiglu_forward</name>
+        <param>
+          <type>const float *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tokens</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dim</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="232" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/swiglu_kernels.c" bodystart="13" bodyend="35" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="232" declcolumn="6"/>
+        <references refid="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="5" endline="8">sigmoid_scalar</references>
+        <referencedby refid="ckernel__orchestration_8h_1a2e894b79792aaf694427446c1d89fab8" compoundref="ckernel__orchestration_8c" startline="109" endline="129">ck_mlp_swiglu_forward</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>CKERNEL_ENGINE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CKERNEL_ENGINE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="10"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>Core<sp/>math<sp/>backend<sp/>interface<sp/>for<sp/>C-Kernel-Engine.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>This<sp/>is<sp/>intentionally<sp/>minimal<sp/>and<sp/>matches<sp/>the<sp/>conventions<sp/>already<sp/>used</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>in<sp/>C-Transformer<sp/>for<sp/>GEMM<sp/>kernels.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/>Layout<sp/>assumptions<sp/>(LLM-style<sp/>shapes):</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>A:<sp/>[M<sp/>x<sp/>K],<sp/>row-major,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>A(i,k)<sp/>=<sp/>A[i*K<sp/>+<sp/>k]</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>B:<sp/>[N<sp/>x<sp/>K],<sp/>row-major,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>B(j,k)<sp/>=<sp/>B[j*K<sp/>+<sp/>k]</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>C:<sp/>[M<sp/>x<sp/>N],<sp/>row-major,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>C(i,j)<sp/>=<sp/>C[i*N<sp/>+<sp/>j]</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>-<sp/>bias:<sp/>optional<sp/>[N],<sp/>added<sp/>per<sp/>output<sp/>column<sp/>j</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="structCKMathBackend" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23" refid="structCKMathBackend_1a7e59ba4baa9c776241287338a219d9c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>void<sp/>(*sgemm)(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lda,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*B,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ldb,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ldc);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}<sp/><ref refid="structCKMathBackend" kindref="compound">CKMathBackend</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="30"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>Obtain<sp/>the<sp/>built-in<sp/>native<sp/>backend<sp/>(single-node<sp/>CPU,<sp/>C<sp/>+<sp/>intrinsics).</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="structCKMathBackend" kindref="compound">CKMathBackend</ref><sp/><ref refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" kindref="member">ckernel_backend_native</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Expose<sp/>the<sp/>individual<sp/>GEMM<sp/>kernels<sp/>copied<sp/>from<sp/>C-Transformer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" kindref="member">gemm_naive_parallel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*B,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" kindref="member">gemm_avx512_parallel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*B,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1abab2d2aaed47f4c682c019bd77fab1ed" kindref="member">gemm_fine_grained_parallel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*B,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" kindref="member">gemm_blocked_serial</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*B,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LayerNorm<sp/>forward<sp/>kernels,<sp/>copied<sp/>from<sp/>C-Transformer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a72f2038f01b5790f7235b5371d1f4d72" kindref="member">layernorm_naive_serial</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*gamma,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*beta,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*mean_cache,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*rstd_cache,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>eps);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1ace47573bf5278260d2652f4fb069bb9e" kindref="member">layernorm_forward_rolled_slice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>input_slice_base,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>gamma,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>beta,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>output_slice_base,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>mean_cache_slice,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>rstd_cache_slice,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens_in_slice,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>eps);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1afd2e784d7b2b3ac7eb93e6f87c091fae" kindref="member">layernorm_forward_unrolled_slice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>input_slice_base,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>gamma,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>beta,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>output_slice_base,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>mean_cache_slice,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*__restrict<sp/>rstd_cache_slice,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens_in_slice,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>eps);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3c0c758ac557839bfc06d1037d15b91e" kindref="member">layernorm_naive_serial_matched_precision</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*gamma,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*beta,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*mean_cache,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*rstd_cache,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>eps);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a8d349f047d6654b3a351fb62e0b20e87" kindref="member">layernorm_backward_kernel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*gamma,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*mean,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*rstd,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_gamma,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_beta,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="comment">//<sp/>RMSNorm<sp/>forward/backward<sp/>kernels.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a9a068ed02d809a81a23f09e61b820baf" kindref="member">rmsnorm_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*gamma,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*rstd_cache,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>eps);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aca68d7dda1a7de9ff926920804751db0" kindref="member">rmsnorm_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*gamma,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*rstd_cache,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_gamma,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d_model,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">//<sp/>GELU<sp/>forward<sp/>kernel<sp/>(fast<sp/>approximation),<sp/>copied<sp/>from<sp/>C-Transformer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" kindref="member">gelu_fast_inplace</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3075b77764b4b408e3c1c9b89a2822ad" kindref="member">gelu_backward_exact</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aeaf518a5239f4588f8c28b05b96d5478" kindref="member">gelu_backward_fast</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Causal<sp/>softmax<sp/>kernel<sp/>on<sp/>head-major<sp/>attention<sp/>scores,<sp/>copied<sp/>from<sp/>C-Transformer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" kindref="member">causal_softmax_head_major</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*scores,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" kindref="member">backward_causal_softmax_head_major</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_scores,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*weights,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Scaled<sp/>dot-product<sp/>attention<sp/>(causal)<sp/>in<sp/>head-major<sp/>layout.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Q/K/V<sp/>layout:<sp/>[head][token][head_dim]<sp/>with<sp/>stride<sp/>aligned_head_dim.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="comment">//<sp/>scores:<sp/>[head][query_token][key_token]<sp/>with<sp/>stride<sp/>aligned_context_window.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">//<sp/>output:<sp/>same<sp/>layout<sp/>as<sp/>Q/V.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" kindref="member">attention_forward_causal_head_major</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*q,</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*k,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*v,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*scores,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_head_dim,</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="comment">//<sp/>GQA-aware<sp/>attention:<sp/>Q<sp/>has<sp/>num_heads,<sp/>K/V<sp/>have<sp/>num_kv_heads.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" kindref="member">attention_forward_causal_head_major_gqa</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*q,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*k,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*v,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*scores,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_kv_heads,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_head_dim,</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="comment">//<sp/>MLP<sp/>forward<sp/>kernel<sp/>(FC1<sp/>-&gt;<sp/>GELU<sp/>-&gt;<sp/>FC2),<sp/>generic<sp/>token-parallel<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" kindref="member">mlp_token_parallel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*W_fc1,</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*b_fc1,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*W_fc2,</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*b_fc2,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*fc1_output,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>T,</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_dim,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_threads);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="comment">//<sp/>MLP<sp/>FC1/FC2<sp/>backward<sp/>kernels<sp/>(generic),<sp/>adapted<sp/>from<sp/>C-Transformer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a89a29fc853aae0baf9f6094fee52562a" kindref="member">fc2_backward_kernel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*fc2_input,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*W_fc2,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_W_fc2,</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_b_fc2,</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>T,</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_in,</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_out,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_threads);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a73e088d0e2388c78920e8fc99b0c3846" kindref="member">fc1_backward_kernel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*fc1_input,</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*W_fc1,</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_W_fc1,</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_b_fc1,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>T,</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_in,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_out,</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_threads);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Sigmoid<sp/>kernels<sp/>(scalar<sp/>+<sp/>vector<sp/>forms).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" kindref="member">sigmoid_scalar</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>x);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" kindref="member">sigmoid_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" kindref="member">sigmoid_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SwiGLU<sp/>activation<sp/>kernels<sp/>(forward<sp/>+<sp/>backward).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Input<sp/>layout<sp/>per<sp/>token:<sp/>[gate[0..D-1],<sp/>value[0..D-1]],<sp/>size<sp/>2*D.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Output:<sp/>[D].</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" kindref="member">swiglu_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dim);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" kindref="member">swiglu_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*input,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_input,</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dim);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Attention<sp/>backward<sp/>(GQA-aware):<sp/>computes<sp/>d_q,<sp/>d_k,<sp/>d_v.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1adbd2b55fbc53b6e288c98813b61cd6e3" kindref="member">attention_backward_causal_head_major_gqa</ref>(</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*q,</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*k,</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*v,</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*attn_weights,</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_q,</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_k,</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_v,</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_scores,</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_kv_heads,</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_head_dim,</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Attention<sp/>backward<sp/>(non-GQA):<sp/>num_kv_heads<sp/>==<sp/>num_heads.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" kindref="member">attention_backward_causal_head_major</ref>(</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*q,</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*k,</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*v,</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*attn_weights,</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_q,</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_k,</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_v,</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_scores,</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_head_dim,</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_context_window);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight><highlight class="comment">//<sp/>RoPE<sp/>(Rotary<sp/>Position<sp/>Embedding)<sp/>kernels.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Precompute<sp/>cos/sin<sp/>cache:<sp/>[max_seq_len,<sp/>head_dim/2].</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3c55e1a13ca92346f9cf41bc4453f3df" kindref="member">rope_precompute_cache</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>max_seq_len,</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>base);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Apply<sp/>RoPE<sp/>forward<sp/>in-place:<sp/>x[num_heads,<sp/>num_tokens,<sp/>head_dim].</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1af57337d51fd945de2ffec609bbb6866d" kindref="member">rope_forward</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*x,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos_offset);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="comment">//<sp/>RoPE<sp/>backward:<sp/>inverse<sp/>rotation.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a1598d5a809a361ec7061d105aa092429" kindref="member">rope_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_out,</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_x,</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos_offset);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight><highlight class="comment">//<sp/>RoPE<sp/>backward<sp/>in-place.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1af1398d149aa631176837e426b37bdcd4" kindref="member">rope_backward_inplace</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_x,</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos_offset);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Combined<sp/>RoPE<sp/>for<sp/>Q<sp/>and<sp/>K.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a42360ed62a9c4f5d3c40ff64c03db6c1" kindref="member">rope_forward_qk</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*q,</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*k,</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_kv_heads,</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos_offset);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a8cd45e51db9f2a0285c40d38549e79ed" kindref="member">rope_backward_qk</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_q_out,</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_k_out,</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_q,</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_k,</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*cos_cache,</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*sin_cache,</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads,</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_kv_heads,</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tokens,</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>head_dim,</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos_offset);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>CKERNEL_ENGINE_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h"/>
+  </compounddef>
+</doxygen>
