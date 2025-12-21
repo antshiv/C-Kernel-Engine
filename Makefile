@@ -56,6 +56,9 @@ TINY_CONFIG ?= tiny.config.json
 SMALL_CONFIG ?= small10mb.config.json
 TINY_TRAIN_LR ?= 1e-3
 TINY_TRAIN_ARGS ?= --dump
+TINY_PARITY_ARGS ?=
+ALL_TEST_LAYER_ARGS ?= --tokens 256 --embed 64 --heads 4 --kv-heads 2 --intermediate 128 --rope --strict-ref
+ALL_TEST_LAYER_TOL ?= 2e-3
 
 PYTHON  ?= python3
 PYTHONFLAGS ?= -B
@@ -200,7 +203,76 @@ tiny-train: $(IR_DEMO) $(LIB)
 	  --backward --lr $(TINY_TRAIN_LR) $(TINY_TRAIN_ARGS)
 
 tiny-parity: $(IR_DEMO)
-	$(PYTHON) $(PYTHONFLAGS) scripts/tiny_train_parity.py --config $(TINY_CONFIG)
+	$(PYTHON) $(PYTHONFLAGS) scripts/tiny_train_parity.py --config $(TINY_CONFIG) $(TINY_PARITY_ARGS)
+
+all-tests: $(LIB)
+	$(MAKE) test
+	$(MAKE) layer-parity-scalar TOL=$(ALL_TEST_LAYER_TOL) ARGS="$(ALL_TEST_LAYER_ARGS)"
+	$(MAKE) tiny-parity
+
+# Comprehensive test suite (scripts/run_all_tests.sh)
+test-quick: $(LIB)
+	@./scripts/run_all_tests.sh quick
+
+test-full: $(LIB)
+	@./scripts/run_all_tests.sh full
+
+test-stress: $(LIB)
+	@./scripts/run_all_tests.sh stress
+
+# Profiling targets
+PROFILE_CFLAGS := -O0 -g
+PROFILE_PERF_CFLAGS := -O3 -fno-omit-frame-pointer -g
+
+profile-memory: $(BUILD_DIR)
+	@echo "Building with debug symbols..."
+	$(MAKE) -B $(LIB) CFLAGS="$(PROFILE_CFLAGS) -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)"
+	$(MAKE) tiny-e2e
+	@echo "Running Valgrind memcheck..."
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+		--suppressions=valgrind.supp \
+		./build/tiny_model --model-weights build/tiny_weights.bin \
+		--tokens build/tiny_tokens.bin --out-logits build/tiny_logits.bin
+
+profile-heap: $(BUILD_DIR)
+	@echo "Building with debug symbols..."
+	$(MAKE) -B $(LIB) CFLAGS="$(PROFILE_CFLAGS) -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)"
+	$(MAKE) tiny-e2e
+	@echo "Running Valgrind massif..."
+	valgrind --tool=massif --pages-as-heap=yes --massif-out-file=$(BUILD_DIR)/massif.out \
+		./build/tiny_model --model-weights build/tiny_weights.bin \
+		--tokens build/tiny_tokens.bin --out-logits build/tiny_logits.bin
+	@echo "Heap profile saved to $(BUILD_DIR)/massif.out"
+	@echo "View with: ms_print $(BUILD_DIR)/massif.out"
+
+profile-cpu: $(BUILD_DIR)
+	@echo "Building with frame pointers..."
+	$(MAKE) -B $(LIB) CFLAGS="$(PROFILE_PERF_CFLAGS) -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)"
+	$(MAKE) tiny-e2e
+	@echo "Recording with perf..."
+	perf record -g -F 99 -o $(BUILD_DIR)/perf.data \
+		./build/tiny_model --model-weights build/tiny_weights.bin \
+		--tokens build/tiny_tokens.bin --out-logits build/tiny_logits.bin
+	@echo "Profile saved to $(BUILD_DIR)/perf.data"
+	perf report -i $(BUILD_DIR)/perf.data --stdio --sort=overhead | head -30
+
+FLAMEGRAPH_DIR ?= $(HOME)/Programs/FlameGraph
+
+flamegraph: $(BUILD_DIR)/perf.data
+	@echo "Generating flamegraph..."
+	perf script -i $(BUILD_DIR)/perf.data | $(FLAMEGRAPH_DIR)/stackcollapse-perf.pl | $(FLAMEGRAPH_DIR)/flamegraph.pl > $(BUILD_DIR)/flamegraph.svg
+	@echo "Flamegraph saved to $(BUILD_DIR)/flamegraph.svg"
+
+profile-cache: $(BUILD_DIR)
+	@echo "Building with debug symbols..."
+	$(MAKE) -B $(LIB) CFLAGS="$(PROFILE_CFLAGS) -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)"
+	$(MAKE) tiny-e2e
+	@echo "Running Valgrind cachegrind..."
+	valgrind --tool=cachegrind --cachegrind-out-file=$(BUILD_DIR)/cachegrind.out \
+		./build/tiny_model --model-weights build/tiny_weights.bin \
+		--tokens build/tiny_tokens.bin --out-logits build/tiny_logits.bin
+	@echo "Cache profile saved to $(BUILD_DIR)/cachegrind.out"
+	@echo "View with: cg_annotate $(BUILD_DIR)/cachegrind.out"
 
 small-e2e: $(IR_DEMO) $(LIB)
 	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(SMALL_CONFIG) --output $(BUILD_DIR)/small_weights.bin
@@ -229,6 +301,15 @@ help:
 	@echo "  make tiny-e2e        Generate random weights/tokens and run tiny end-to-end forward"
 	@echo "  make tiny-train      Generate random weights/tokens/targets and run tiny forward+backward+SGD"
 	@echo "  make tiny-parity     Run tiny end-to-end training parity vs PyTorch (1 step)"
+	@echo "  make all-tests       Run kernel tests + layer parity + tiny parity (safe defaults)"
+	@echo "  make test-quick      Comprehensive quick tests (<1 min) - tiny models, basic configs"
+	@echo "  make test-full       Comprehensive full tests (5-10 min) - GQA, medium, deep, wide models"
+	@echo "  make test-stress     Comprehensive stress tests (10+ min) - convergence, overfit tests"
+	@echo "  make profile-memory  Run Valgrind memcheck on tiny model"
+	@echo "  make profile-heap    Run Valgrind massif heap profiler"
+	@echo "  make profile-cpu     Run perf CPU profiler"
+	@echo "  make profile-cache   Run Valgrind cachegrind"
+	@echo "  make flamegraph      Generate SVG flamegraph (requires FlameGraph tools)"
 	@echo "  make small-e2e       Same as tiny-e2e but ~10MB weights"
 	@echo "  make libckernel_gelu.so      Build GELU-only shared library (outputs to $(LIB_GELU))"
 	@echo "  make libckernel_rmsnorm.so   Build RMSNorm-only shared library (outputs to $(LIB_RMSNORM))"
@@ -288,4 +369,4 @@ litmus-test:
 	@echo "\n--- [Step 5] Comparing C output with PyTorch reference ---"
 	$(PYTHON) $(PYTHONFLAGS) unittest/compare_outputs.py
 
-.PHONY: all clean test test-libs help litmus litmus-test
+.PHONY: all clean test test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph

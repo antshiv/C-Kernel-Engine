@@ -60,6 +60,20 @@ def align_up_elems(elems, elem_bytes=4, align_bytes=64):
     return aligned // elem_bytes
 
 
+def override_context(cfg, context_len):
+    if context_len is None:
+        return cfg
+    cfg = dict(cfg)
+    cfg["max_position_embeddings"] = int(context_len)
+    cfg["context_window"] = int(context_len)
+    return cfg
+
+
+def write_cfg(path, cfg):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2, sort_keys=True)
+
+
 def detect_avx_flags():
     try:
         with open("/proc/cpuinfo", "r", encoding="utf-8") as f:
@@ -321,6 +335,9 @@ def torch_step(weights, cfg, tokens, targets, lr, rope_cos, rope_sin):
 def main():
     parser = argparse.ArgumentParser(description="End-to-end tiny training parity vs PyTorch")
     parser.add_argument("--config", default="tiny.config.json", help="Model config JSON")
+    parser.add_argument("--checkpoint", help="HF checkpoint dir (optional, converts to bump)")
+    parser.add_argument("--weights-bin", help="Use existing bump weights file")
+    parser.add_argument("--context", type=int, help="Override context length for small tests")
     parser.add_argument("--steps", type=int, default=1, help="Training steps")
     parser.add_argument("--lr", type=float, default=1e-3, help="SGD learning rate")
     parser.add_argument("--seed", type=int, default=1234, help="RNG seed")
@@ -329,6 +346,7 @@ def main():
     args = parser.parse_args()
 
     cfg = load_cfg(args.config)
+    cfg = override_context(cfg, args.context)
     vocab_size = pick(cfg, ["vocab_size"])
     context_len = pick(cfg, ["max_position_embeddings", "context_window", "ctx"], 0)
     rope_theta = pick(cfg, ["rope_theta"], 0.0)
@@ -336,8 +354,16 @@ def main():
     num_heads = pick(cfg, ["num_attention_heads", "num_heads"])
     head_dim = embed_dim // num_heads
 
+    if not vocab_size or not context_len:
+        raise SystemExit("config missing vocab_size/context length; set --context if needed")
+
     os.makedirs(args.build_dir, exist_ok=True)
-    weights_bin = os.path.join(args.build_dir, "tiny_weights.bin")
+    config_path = args.config
+    if args.context is not None:
+        config_path = os.path.join(args.build_dir, "runtime.config.json")
+        write_cfg(config_path, cfg)
+
+    weights_bin = args.weights_bin or os.path.join(args.build_dir, "tiny_weights.bin")
     weights_npz = os.path.join(args.build_dir, "tiny_weights.npz")
     tokens_bin = os.path.join(args.build_dir, "tiny_tokens.bin")
     targets_bin = os.path.join(args.build_dir, "tiny_targets.bin")
@@ -347,15 +373,31 @@ def main():
     kernel_manifest = gen_c + ".kernels"
     model_bin = os.path.join(args.build_dir, "tiny_model")
 
-    run([
-        sys.executable,
-        "scripts/gen_random_bump.py",
-        "--config", args.config,
-        "--output", weights_bin,
-        "--npz", weights_npz,
-        "--seed", str(args.seed),
-        "--std", str(args.std),
-    ])
+    if args.checkpoint:
+        convert_cmd = [
+            sys.executable,
+            "scripts/convert_hf_to_bump.py",
+            "--checkpoint", args.checkpoint,
+            "--output", weights_bin,
+        ]
+        if args.config:
+            convert_cmd += ["--config", config_path]
+        if args.context is not None:
+            convert_cmd += ["--context", str(context_len)]
+        run(convert_cmd)
+    elif args.weights_bin:
+        if not os.path.exists(weights_bin):
+            raise SystemExit(f"weights file not found: {weights_bin}")
+    else:
+        run([
+            sys.executable,
+            "scripts/gen_random_bump.py",
+            "--config", config_path,
+            "--output", weights_bin,
+            "--npz", weights_npz,
+            "--seed", str(args.seed),
+            "--std", str(args.std),
+        ])
 
     rng = np.random.default_rng(args.seed)
     tokens = rng.integers(0, vocab_size, size=(context_len,), dtype=np.int32)
@@ -365,7 +407,7 @@ def main():
     targets.tofile(targets_bin)
 
     run(["make", "build/ck_ir_demo"])
-    run(["./build/ck_ir_demo", args.config, "--emit", gen_c])
+    run(["./build/ck_ir_demo", config_path, "--emit", gen_c])
 
     with open(kernel_manifest, "r", encoding="utf-8") as f:
         kernels = f.read().split()
@@ -386,13 +428,18 @@ def main():
         "--out-weights", out_weights,
     ])
 
-    npz = np.load(weights_npz)
     torch_weights = {}
-    for name in npz.files:
-        if name == "config_json":
-            continue
-        arr = npz[name]
-        torch_weights[name] = torch.tensor(arr, dtype=torch.float32, requires_grad=True)
+    if args.checkpoint or args.weights_bin:
+        bump_weights = read_bump_weights(weights_bin, cfg)
+        for name, arr in bump_weights.items():
+            torch_weights[name] = torch.tensor(arr, dtype=torch.float32, requires_grad=True)
+    else:
+        npz = np.load(weights_npz)
+        for name in npz.files:
+            if name == "config_json":
+                continue
+            arr = npz[name]
+            torch_weights[name] = torch.tensor(arr, dtype=torch.float32, requires_grad=True)
 
     torch_tokens = torch.tensor(tokens, dtype=torch.long)
     torch_targets = torch.tensor(targets, dtype=torch.long)

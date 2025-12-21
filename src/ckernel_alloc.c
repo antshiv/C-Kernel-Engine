@@ -14,6 +14,11 @@
 #define HUGE_PAGE_SIZE (2UL * 1024UL * 1024UL)
 #endif
 
+/* Track whether last allocation was mmap or aligned_alloc.
+ * Simple approach: store a flag. For multi-buffer support, would need a map.
+ */
+static int g_last_alloc_was_mmap = 0;
+
 static size_t align_up_bytes(size_t n, size_t align)
 {
     if (align == 0) return n;
@@ -30,6 +35,7 @@ void *ck_huge_alloc(size_t bytes)
                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,
                    -1, 0);
     if (p != MAP_FAILED) {
+        g_last_alloc_was_mmap = 1;
         return p;
     }
 
@@ -43,6 +49,7 @@ void *ck_huge_alloc(size_t bytes)
 
     /* Best-effort hint; ignore errors. */
     (void)madvise(q, len, MADV_HUGEPAGE);
+    g_last_alloc_was_mmap = 0;
     return q;
 }
 
@@ -54,10 +61,9 @@ void ck_huge_free(void *ptr, size_t bytes)
 
     size_t len = align_up_bytes(bytes, HUGE_PAGE_SIZE);
 
-    /* Try to detect whether this looks like an mmap'ed region. If munmap
-     * fails, fall back to free().
-     */
-    if (munmap(ptr, len) != 0) {
+    if (g_last_alloc_was_mmap) {
+        munmap(ptr, len);
+    } else {
         free(ptr);
     }
 }

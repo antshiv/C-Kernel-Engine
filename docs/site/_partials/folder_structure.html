@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-21 11:22</span>
+        <span class="folder-updated">Updated: 2025-12-21 14:45</span>
     </div>
     <pre class="tree-output">
 .
@@ -20,9 +20,11 @@
 |   |   |-- codegen.html
 |   |   |-- concepts.html
 |   |   |-- contributing.html
+|   |   |-- developer-guide.html
 |   |   |-- index.html
 |   |   |-- kernels.html
 |   |   |-- memory-safety.html
+|   |   |-- profiling.html
 |   |   |-- pytorch-parity.html
 |   |   |-- quickstart.html
 |   |   |-- research.html
@@ -79,11 +81,15 @@
 |   `-- kernel_testing_workflow.ipynb
 |-- Screenshots
 |-- scripts
+|   |-- convert_hf_to_bump.py
+|   |-- download_smollm.py
 |   |-- export_hf_llama_to_ckernel.py
 |   |-- gen_kernel_specs.py
 |   |-- gen_random_bump.py
 |   |-- gen_random_tokens.py
-|   `-- run_litmus_demo.sh
+|   |-- run_all_tests.sh
+|   |-- run_litmus_demo.sh
+|   `-- tiny_train_parity.py
 |-- src
 |   |-- kernels
 |   |   |-- attention_kernels.c
@@ -137,9 +143,10 @@
 |-- small10mb.config.json
 |-- smolLM-135.json
 |-- TESTING.md
-`-- tiny.config.json
+|-- tiny.config.json
+`-- valgrind.supp
 
-21 directories, 112 files
+21 directories, 119 files
 </pre>
 </div>
 

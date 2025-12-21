@@ -50,8 +50,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" line="16" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_alloc.c" bodystart="23" bodyend="47" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" declline="16" declcolumn="6"/>
-        <references refid="ckernel__alloc_8c_1a19108c1ddea653d46840daefcf542bb5" compoundref="ckernel__alloc_8c" startline="17" endline="21">align_up_bytes</references>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" line="16" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_alloc.c" bodystart="28" bodyend="54" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" declline="16" declcolumn="6"/>
+        <references refid="ckernel__alloc_8c_1a19108c1ddea653d46840daefcf542bb5" compoundref="ckernel__alloc_8c" startline="22" endline="26">align_up_bytes</references>
+        <references refid="ckernel__alloc_8c_1ad75f56978de71c0dc92d4582ff5d8aef" compoundref="ckernel__alloc_8c" startline="20">g_last_alloc_was_mmap</references>
         <references refid="ckernel__alloc_8c_1af40ff2d14fdebba00915237c11b490c8" compoundref="ckernel__alloc_8c" startline="14">HUGE_PAGE_SIZE</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__alloc_8h_1af814a916b578d2824aa0e9ec230ea166" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -75,8 +76,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" line="23" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_alloc.c" bodystart="49" bodyend="63" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" declline="23" declcolumn="6"/>
-        <references refid="ckernel__alloc_8c_1a19108c1ddea653d46840daefcf542bb5" compoundref="ckernel__alloc_8c" startline="17" endline="21">align_up_bytes</references>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" line="23" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_alloc.c" bodystart="56" bodyend="69" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_alloc.h" declline="23" declcolumn="6"/>
+        <references refid="ckernel__alloc_8c_1a19108c1ddea653d46840daefcf542bb5" compoundref="ckernel__alloc_8c" startline="22" endline="26">align_up_bytes</references>
+        <references refid="ckernel__alloc_8c_1ad75f56978de71c0dc92d4582ff5d8aef" compoundref="ckernel__alloc_8c" startline="20">g_last_alloc_was_mmap</references>
         <references refid="ckernel__alloc_8c_1af40ff2d14fdebba00915237c11b490c8" compoundref="ckernel__alloc_8c" startline="14">HUGE_PAGE_SIZE</references>
       </memberdef>
       </sectiondef>

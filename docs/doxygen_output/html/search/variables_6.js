@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['head_5fdim_553',['head_dim',['../structCKLayerForwardParams.html#a5aac19a779c176623a55fd48bb9502cf',1,'CKLayerForwardParams::head_dim()'],['../structCKLayerBackwardParams.html#ace4e73b166d2b71dba81099ff55f9c5f',1,'CKLayerBackwardParams::head_dim()']]],
-  ['hidden_5fsize_554',['hidden_size',['../structCKModelConfig.html#afd04ffe4db48600b90f32904c49d73af',1,'CKModelConfig']]]
+  ['g_5flast_5falloc_5fwas_5fmmap_554',['g_last_alloc_was_mmap',['../ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef',1,'ckernel_alloc.c']]]
 ];

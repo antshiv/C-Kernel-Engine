@@ -208,7 +208,50 @@ do not use AVX-512 (GELU, RMSNorm), as shown above.
 
 ---
 
-## 4. Notes
+## 4. End-to-End / Orchestration Tests
+
+These test the full decoder layer orchestration and the tiny training loop.
+
+### 4.1 Layer Parity (strict C ref)
+
+Runs the decoder layer against the strict C reference path (naive GEMM),
+which is tight enough for AVX-only CPUs:
+
+```bash
+make layer-parity-scalar TOL=2e-3 ARGS="--tokens 256 --embed 64 --heads 4 --kv-heads 2 --intermediate 128 --rope --strict-ref"
+```
+
+### 4.2 Tiny End-to-End Training Parity (C vs PyTorch)
+
+Runs a tiny model for 1 step and compares loss + final weights vs PyTorch:
+
+```bash
+make tiny-parity
+```
+
+Multi-step:
+
+```bash
+python3 scripts/tiny_train_parity.py --config tiny.config.json --steps 5 --lr 1e-3
+```
+
+### 4.3 One-Command Test Sweep
+
+Runs kernel tests, layer parity, and tiny training parity:
+
+```bash
+make all-tests
+```
+
+You can tune the layer parity args with:
+
+```bash
+make all-tests ALL_TEST_LAYER_ARGS="--tokens 256 --embed 64 --heads 4 --kv-heads 2 --intermediate 128 --rope --strict-ref" ALL_TEST_LAYER_TOL=1e-3
+```
+
+---
+
+## 5. Notes
 
 - All tests print max differences and sample tensor entries when mismatches
   exceed tight tolerances (~1e-6).

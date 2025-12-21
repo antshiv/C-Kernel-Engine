@@ -122,7 +122,8 @@ $(document).ready(function(){initNavTree('ckernel__alloc_8c.html',''); initResiz
 <div class="header">
   <div class="summary">
 <a href="#define-members">Macros</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">ckernel_alloc.c File Reference</div>  </div>
 </div><!--header-->
@@ -153,6 +154,11 @@ Functions</h2></td></tr>
 <tr class="separator:a11a682ae32301dd05465e77d7dd4e37e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af814a916b578d2824aa0e9ec230ea166"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ckernel__alloc_8c.html#af814a916b578d2824aa0e9ec230ea166">ck_huge_free</a> (void *ptr, size_t bytes)</td></tr>
 <tr class="separator:af814a916b578d2824aa0e9ec230ea166"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ad75f56978de71c0dc92d4582ff5d8aef"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef">g_last_alloc_was_mmap</a> = 0</td></tr>
+<tr class="separator:ad75f56978de71c0dc92d4582ff5d8aef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a369266c24eacffb87046522897a570d5"></a>
@@ -222,13 +228,13 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00017">17</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;{</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordflow">if</span> (align == 0) <span class="keywordflow">return</span> n;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordflow">return</span> (n + align - 1) &amp; ~(align - 1);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00022">22</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordflow">if</span> (align == 0) <span class="keywordflow">return</span> n;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">return</span> (n + align - 1) &amp; ~(align - 1);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">Referenced by <a class="el" href="ckernel__alloc_8c_source.html#l00023">ck_huge_alloc()</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00049">ck_huge_free()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__alloc_8c_source.html#l00028">ck_huge_alloc()</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00056">ck_huge_free()</a>.</p>
 
 </div>
 </div>
@@ -254,35 +260,38 @@ Functions</h2></td></tr>
 </ul>
 <p>Returns NULL on failure. </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00023">23</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;{</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">size_t</span> len = <a class="code" href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a>(bytes, <a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="comment">/* First, try explicit huge pages via mmap + MAP_HUGETLB. */</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">void</span> *p = mmap(NULL, len,</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                   PROT_READ | PROT_WRITE,</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                   MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                   -1, 0);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordflow">if</span> (p != MAP_FAILED) {</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <span class="keywordflow">return</span> p;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    }</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="comment">/* Fallback: aligned_alloc with transparent hugepage hint. */</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">void</span> *q = aligned_alloc(<a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>, len);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordflow">if</span> (!q) {</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        fprintf(stderr, <span class="stringliteral">&quot;ck_huge_alloc: aligned_alloc failed for %zu bytes: %s\n&quot;</span>,</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                len, strerror(errno));</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    }</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="comment">/* Best-effort hint; ignore errors. */</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    (void)madvise(q, len, MADV_HUGEPAGE);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordflow">return</span> q;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
-<div class="ttc" id="ackernel__alloc_8c_html_a19108c1ddea653d46840daefcf542bb5"><div class="ttname"><a href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a></div><div class="ttdeci">static size_t align_up_bytes(size_t n, size_t align)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__alloc_8c_source.html#l00017">ckernel_alloc.c:17</a></div></div>
+<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00028">28</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;{</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">size_t</span> len = <a class="code" href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a>(bytes, <a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="comment">/* First, try explicit huge pages via mmap + MAP_HUGETLB. */</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">void</span> *p = mmap(NULL, len,</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                   PROT_READ | PROT_WRITE,</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                   MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB,</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                   -1, 0);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">if</span> (p != MAP_FAILED) {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <a class="code" href="ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef">g_last_alloc_was_mmap</a> = 1;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <span class="keywordflow">return</span> p;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    }</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">/* Fallback: aligned_alloc with transparent hugepage hint. */</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">void</span> *q = aligned_alloc(<a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>, len);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordflow">if</span> (!q) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        fprintf(stderr, <span class="stringliteral">&quot;ck_huge_alloc: aligned_alloc failed for %zu bytes: %s\n&quot;</span>,</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                len, strerror(errno));</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    }</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="comment">/* Best-effort hint; ignore errors. */</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    (void)madvise(q, len, MADV_HUGEPAGE);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <a class="code" href="ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef">g_last_alloc_was_mmap</a> = 0;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">return</span> q;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<div class="ttc" id="ackernel__alloc_8c_html_a19108c1ddea653d46840daefcf542bb5"><div class="ttname"><a href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a></div><div class="ttdeci">static size_t align_up_bytes(size_t n, size_t align)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__alloc_8c_source.html#l00022">ckernel_alloc.c:22</a></div></div>
+<div class="ttc" id="ackernel__alloc_8c_html_ad75f56978de71c0dc92d4582ff5d8aef"><div class="ttname"><a href="ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef">g_last_alloc_was_mmap</a></div><div class="ttdeci">static int g_last_alloc_was_mmap</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__alloc_8c_source.html#l00020">ckernel_alloc.c:20</a></div></div>
 <div class="ttc" id="ackernel__alloc_8c_html_af40ff2d14fdebba00915237c11b490c8"><div class="ttname"><a href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a></div><div class="ttdeci">#define HUGE_PAGE_SIZE</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__alloc_8c_source.html#l00014">ckernel_alloc.c:14</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__alloc_8c_source.html#l00017">align_up_bytes()</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00014">HUGE_PAGE_SIZE</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__alloc_8c_source.html#l00022">align_up_bytes()</a>, <a class="el" href="ckernel__alloc_8c_source.html#l00020">g_last_alloc_was_mmap</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00014">HUGE_PAGE_SIZE</a>.</p>
 
 </div>
 </div>
@@ -314,23 +323,49 @@ Functions</h2></td></tr>
 <p>Free memory allocated by ck_huge_alloc.</p>
 <p>The bytes parameter should be the same size passed to ck_huge_alloc. </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00049">49</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;{</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">if</span> (!ptr || bytes == 0) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">size_t</span> len = <a class="code" href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a>(bytes, <a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="comment">/* Try to detect whether this looks like an mmap&#39;ed region. If munmap</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">     * fails, fall back to free().</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">if</span> (munmap(ptr, len) != 0) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        free(ptr);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00056">56</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;{</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordflow">if</span> (!ptr || bytes == 0) {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">size_t</span> len = <a class="code" href="ckernel__alloc_8c.html#a19108c1ddea653d46840daefcf542bb5">align_up_bytes</a>(bytes, <a class="code" href="ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8">HUGE_PAGE_SIZE</a>);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="ckernel__alloc_8c.html#ad75f56978de71c0dc92d4582ff5d8aef">g_last_alloc_was_mmap</a>) {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        munmap(ptr, len);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        free(ptr);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__alloc_8c_source.html#l00017">align_up_bytes()</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00014">HUGE_PAGE_SIZE</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__alloc_8c_source.html#l00022">align_up_bytes()</a>, <a class="el" href="ckernel__alloc_8c_source.html#l00020">g_last_alloc_was_mmap</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00014">HUGE_PAGE_SIZE</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ad75f56978de71c0dc92d4582ff5d8aef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad75f56978de71c0dc92d4582ff5d8aef">&#9670;&nbsp;</a></span>g_last_alloc_was_mmap</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int g_last_alloc_was_mmap = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ckernel__alloc_8c_source.html#l00020">20</a> of file <a class="el" href="ckernel__alloc_8c_source.html">ckernel_alloc.c</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="ckernel__alloc_8c_source.html#l00028">ck_huge_alloc()</a>, and <a class="el" href="ckernel__alloc_8c_source.html#l00056">ck_huge_free()</a>.</p>
 
 </div>
 </div>

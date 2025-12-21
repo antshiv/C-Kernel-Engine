@@ -220,6 +220,7 @@
   <compound refid="ckernel__alloc_8c" kind="file"><name>ckernel_alloc.c</name>
     <member refid="ckernel__alloc_8c_1a369266c24eacffb87046522897a570d5" kind="define"><name>_GNU_SOURCE</name></member>
     <member refid="ckernel__alloc_8c_1af40ff2d14fdebba00915237c11b490c8" kind="define"><name>HUGE_PAGE_SIZE</name></member>
+    <member refid="ckernel__alloc_8c_1ad75f56978de71c0dc92d4582ff5d8aef" kind="variable"><name>g_last_alloc_was_mmap</name></member>
     <member refid="ckernel__alloc_8c_1a19108c1ddea653d46840daefcf542bb5" kind="function"><name>align_up_bytes</name></member>
     <member refid="ckernel__alloc_8c_1a11a682ae32301dd05465e77d7dd4e37e" kind="function"><name>ck_huge_alloc</name></member>
     <member refid="ckernel__alloc_8c_1af814a916b578d2824aa0e9ec230ea166" kind="function"><name>ck_huge_free</name></member>
