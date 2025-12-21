@@ -48,16 +48,18 @@ int ck_model_load_weights_flat(TransformerModel *m, const char *path)
         return -1;
     }
 
-    float *base = m->memory_base;
+    uint8_t *base = m->memory_base;
 
     /* 1) Token embeddings [V × H] */
-    if (read_floats(f, base + m->token_emb_offset, (size_t)V * (size_t)H) != 0) {
+    if (read_floats(f, (float *)(base + m->token_emb_offset),
+                    (size_t)V * (size_t)H) != 0) {
         fclose(f);
         return -1;
     }
 
     /* 2) Positional embeddings [T × H] */
-    if (read_floats(f, base + m->pos_emb_offset, (size_t)T * (size_t)H) != 0) {
+    if (read_floats(f, (float *)(base + m->pos_emb_offset),
+                    (size_t)T * (size_t)H) != 0) {
         fclose(f);
         return -1;
     }
@@ -67,84 +69,84 @@ int ck_model_load_weights_flat(TransformerModel *m, const char *path)
         CKLayerLayout *Lyt = &m->layers[layer];
 
         /* LN1 gamma [H] */
-        if (read_floats(f, base + Lyt->ln1_weight_offset, (size_t)H) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->ln1_weight_offset), (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
 
         /* LN1 beta [H] */
-        if (read_floats(f, base + Lyt->ln1_bias_offset, (size_t)H) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->ln1_bias_offset), (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
 
         /* QKV weight [H × 3H] */
-        if (read_floats(f, base + Lyt->qkv_weight_offset,
+        if (read_floats(f, (float *)(base + Lyt->qkv_weight_offset),
                         (size_t)H * (size_t)(3 * H)) != 0) {
             fclose(f);
             return -1;
         }
 
         /* QKV bias [3H] */
-        if (read_floats(f, base + Lyt->qkv_bias_offset, (size_t)(3 * H)) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->qkv_bias_offset), (size_t)(3 * H)) != 0) {
             fclose(f);
             return -1;
         }
 
         /* Attention proj weight [H × H] */
-        if (read_floats(f, base + Lyt->attn_proj_weight_offset,
+        if (read_floats(f, (float *)(base + Lyt->attn_proj_weight_offset),
                         (size_t)H * (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
 
         /* Attention proj bias [H] */
-        if (read_floats(f, base + Lyt->attn_proj_bias_offset, (size_t)H) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->attn_proj_bias_offset), (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
 
         /* FC1 weight [H × Hff] */
-        if (read_floats(f, base + Lyt->fc1_weight_offset,
+        if (read_floats(f, (float *)(base + Lyt->fc1_weight_offset),
                         (size_t)H * (size_t)Hff) != 0) {
             fclose(f);
             return -1;
         }
 
         /* FC1 bias [Hff] */
-        if (read_floats(f, base + Lyt->fc1_bias_offset, (size_t)Hff) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->fc1_bias_offset), (size_t)Hff) != 0) {
             fclose(f);
             return -1;
         }
 
         /* FC2 weight [Hff × H] */
-        if (read_floats(f, base + Lyt->fc2_weight_offset,
+        if (read_floats(f, (float *)(base + Lyt->fc2_weight_offset),
                         (size_t)Hff * (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
 
         /* FC2 bias [H] */
-        if (read_floats(f, base + Lyt->fc2_bias_offset, (size_t)H) != 0) {
+        if (read_floats(f, (float *)(base + Lyt->fc2_bias_offset), (size_t)H) != 0) {
             fclose(f);
             return -1;
         }
     }
 
     /* 4) Final LN gamma [H] */
-    if (read_floats(f, base + m->final_ln_weight_offset, (size_t)H) != 0) {
+    if (read_floats(f, (float *)(base + m->final_ln_weight_offset), (size_t)H) != 0) {
         fclose(f);
         return -1;
     }
 
     /* 5) Final LN beta [H] */
-    if (read_floats(f, base + m->final_ln_bias_offset, (size_t)H) != 0) {
+    if (read_floats(f, (float *)(base + m->final_ln_bias_offset), (size_t)H) != 0) {
         fclose(f);
         return -1;
     }
 
     /* 6) LM head weight [V × H] */
-    if (read_floats(f, base + m->lm_head_weight_offset,
+    if (read_floats(f, (float *)(base + m->lm_head_weight_offset),
                     (size_t)V * (size_t)H) != 0) {
         fclose(f);
         return -1;
@@ -153,4 +155,3 @@ int ck_model_load_weights_flat(TransformerModel *m, const char *path)
     fclose(f);
     return 0;
 }
-

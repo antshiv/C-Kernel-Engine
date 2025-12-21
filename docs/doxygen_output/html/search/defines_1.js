@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['huge_5fpage_5fsize_436',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
+  ['cacheline_5fbytes_662',['CACHELINE_BYTES',['../ckernel__model__layout_8c.html#a4538b5ec4a295a2b8a52560e61575041',1,'ckernel_model_layout.c']]],
+  ['ckernel_5fmax_5fkernel_5fsources_663',['CKERNEL_MAX_KERNEL_SOURCES',['../ckernel__kernel__specs_8h.html#a072f487d7dacdd66b7e3c7893cf1a146',1,'ckernel_kernel_specs.h']]]
 ];

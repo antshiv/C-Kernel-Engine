@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['layernorm_5fkernels_2ec_247',['layernorm_kernels.c',['../layernorm__kernels_8c.html',1,'']]]
+  ['gelu_5fkernels_2ec_367',['gelu_kernels.c',['../gelu__kernels_8c.html',1,'']]],
+  ['gemm_5fkernels_2ec_368',['gemm_kernels.c',['../gemm__kernels_8c.html',1,'']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['sigmoid_5fkernels_2ec_251',['sigmoid_kernels.c',['../sigmoid__kernels_8c.html',1,'']]],
-  ['softmax_5fkernels_2ec_252',['softmax_kernels.c',['../softmax__kernels_8c.html',1,'']]],
-  ['swiglu_5fkernels_2ec_253',['swiglu_kernels.c',['../swiglu__kernels_8c.html',1,'']]]
+  ['rmsnorm_5fkernels_2ec_372',['rmsnorm_kernels.c',['../rmsnorm__kernels_8c.html',1,'']]],
+  ['rope_5fkernels_2ec_373',['rope_kernels.c',['../rope__kernels_8c.html',1,'']]]
 ];

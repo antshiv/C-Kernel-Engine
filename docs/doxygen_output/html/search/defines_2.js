@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['m_5fpi_437',['M_PI',['../rope__kernels_8c.html#ae71449b1cc6e6250b91f539153a7a0d3',1,'rope_kernels.c']]]
+  ['huge_5fpage_5fsize_664',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
 ];

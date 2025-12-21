@@ -79,7 +79,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="17" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="28" bodyend="171" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="17" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="17" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="502" bodyend="645" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="17" declcolumn="6"/>
         <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::config</references>
         <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
         <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
@@ -96,7 +96,7 @@
         <references refid="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" compoundref="ckernel__ir_8h" startline="24">CKModelConfig::num_layers</references>
         <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="74">CKIRGraph::num_nodes</references>
         <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="65">CKIRNode::op</references>
-        <references refid="ckernel__codegen_8c_1a2b6e6d4584a3004711ed6950fd8e72f4" compoundref="ckernel__codegen_8c" startline="7" endline="26">op_name</references>
+        <references refid="ckernel__codegen_8c_1a2b6e6d4584a3004711ed6950fd8e72f4" compoundref="ckernel__codegen_8c" startline="10" endline="29">op_name</references>
         <references refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" compoundref="ckernel__ir_8h" startline="60">CKInputRef::out_index</references>
         <references refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" compoundref="ckernel__ir_8h" startline="59">CKInputRef::producer</references>
         <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
@@ -125,11 +125,20 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="26" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="405" bodyend="1148" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="26" declcolumn="5"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" line="26" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_codegen.c" bodystart="766" bodyend="1729" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_codegen.h" declline="26" declcolumn="5"/>
+        <references refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" compoundref="ckernel__codegen_8c" startline="487" endline="500">ck_first_layer_buffer_name</references>
         <references refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" compoundref="ckernel__registry_8c" startline="42" endline="60">ck_ir_validate_supported</references>
         <references refid="structCKIRGraph_1af12e4b320dee98416c63539b743801f2" compoundref="ckernel__ir_8h" startline="73">CKIRGraph::config</references>
         <references refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" compoundref="ckernel__ir_8h" startline="30">CKModelConfig::context_window</references>
-        <references refid="ckernel__codegen_8c_1a11930dff28761c36379a2fb510f9ee9b" compoundref="ckernel__codegen_8c" startline="281" endline="403">emit_runtime_preamble</references>
+        <references refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" compoundref="ckernel__codegen_8c" startline="287" endline="306">emit_global_aliases_to_layer</references>
+        <references refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" compoundref="ckernel__codegen_8c" startline="218" endline="259">emit_global_allocations</references>
+        <references refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="700" endline="764">emit_kernel_manifest</references>
+        <references refid="ckernel__codegen_8c_1a4c46961fca73555c03f910795fba04c1" compoundref="ckernel__codegen_8c" startline="261" endline="285">emit_layer_allocations</references>
+        <references refid="ckernel__codegen_8c_1ad3379f6a59f22753041f8ed2959573a9" compoundref="ckernel__codegen_8c" startline="67" endline="81">emit_layer_offsets_struct</references>
+        <references refid="ckernel__codegen_8c_1a89aa921faab169f04b41afbf9b670a19" compoundref="ckernel__codegen_8c" startline="97" endline="172">emit_model_struct</references>
+        <references refid="ckernel__codegen_8c_1a11930dff28761c36379a2fb510f9ee9b" compoundref="ckernel__codegen_8c" startline="647" endline="698">emit_runtime_preamble</references>
+        <references refid="ckernel__codegen_8c_1a4e189806b5b6eab5d516f362d2cf55b5" compoundref="ckernel__codegen_8c" startline="348" endline="417">emit_sgd_update</references>
+        <references refid="ckernel__codegen_8c_1aa4fbf6c78963864659b31924249cb09e" compoundref="ckernel__codegen_8c" startline="308" endline="346">emit_zero_grad</references>
         <references refid="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" compoundref="ckernel__ir_8h" startline="25">CKModelConfig::hidden_size</references>
         <references refid="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" compoundref="ckernel__ir_8h" startline="26">CKModelConfig::intermediate_size</references>
         <references refid="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" compoundref="ckernel__ir_8h" startline="27">CKModelConfig::num_heads</references>

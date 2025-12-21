@@ -95,6 +95,7 @@ for page in "$PAGES_DIR"/*.html; do
         header="${header//\{\{NAV_CODEGEN\}\}/}"
         header="${header//\{\{NAV_BENCHMARKS\}\}/}"
         header="${header//\{\{NAV_PARITY\}\}/}"
+        header="${header//\{\{NAV_RESEARCH\}\}/}"
         header="${header//\{\{NAV_API\}\}/}"
 
         if [ -n "$nav_active" ]; then

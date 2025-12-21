@@ -1,25 +1,46 @@
+import argparse
 import ctypes
 import math
 import os
 
 import numpy as np
+
+
+def _cpu_flags():
+    try:
+        with open("/proc/cpuinfo", "r", encoding="utf-8") as handle:
+            for line in handle:
+                if line.lower().startswith("flags"):
+                    return set(line.split(":")[1].strip().split())
+    except OSError:
+        return set()
+    return set()
+
+
+def _maybe_force_safe_torch():
+    # Force conservative ISA for PyTorch reference on older CPUs to avoid SIGILL.
+    if os.environ.get("CK_TORCH_SAFE") == "0":
+        return
+
+    flags = _cpu_flags()
+    if os.environ.get("CK_TORCH_SAFE") == "1" or "avx2" not in flags:
+        isa = "AVX" if "avx" in flags else "SSE4_2"
+        os.environ.setdefault("ATEN_CPU_CAPABILITY", "default")
+        os.environ.setdefault("DNNL_MAX_CPU_ISA", isa)
+        os.environ.setdefault("ONEDNN_MAX_CPU_ISA", isa)
+        os.environ.setdefault("MKL_ENABLE_INSTRUCTIONS", isa)
+        os.environ.setdefault("MKL_DEBUG_CPU_TYPE", "5")
+        os.environ.setdefault("MKL_DISABLE_FAST_MM", "1")
+
+
+_maybe_force_safe_torch()
+
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    candidates = [
-        os.path.join(root, "libckernel_engine.so"),
-        os.path.join(root, "build", "libckernel_engine.so"),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            return ctypes.cdll.LoadLibrary(path)
-    raise FileNotFoundError("libckernel_engine.so not found")
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_engine.so")
 
 
 class CKLayerForwardParams(ctypes.Structure):
@@ -76,6 +97,10 @@ lib.ck_layer_forward_rmsnorm_swiglu.argtypes = [
     ctypes.POINTER(CKLayerForwardParams)
 ]
 lib.ck_layer_forward_rmsnorm_swiglu.restype = None
+lib.ck_layer_forward_rmsnorm_swiglu_ref.argtypes = [
+    ctypes.POINTER(CKLayerForwardParams)
+]
+lib.ck_layer_forward_rmsnorm_swiglu_ref.restype = None
 
 
 def aligned_empty(shape, dtype=np.float32, align=64):
@@ -98,6 +123,11 @@ def rmsnorm_ref(x, gamma, eps):
     var = x.pow(2).mean(dim=-1, keepdim=True)
     rstd = (var + eps).rsqrt()
     return x * rstd * gamma
+
+
+def rmsnorm_rstd_ref(x, eps):
+    var = x.pow(2).mean(dim=-1)
+    return (var + eps).rsqrt()
 
 
 def rope_cache(head_dim, max_seq_len, base=10000.0):
@@ -127,14 +157,41 @@ def rope_apply(x, cos_cache, sin_cache, pos_offset=0):
     return out
 
 
-def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
-    torch.manual_seed(0)
-    T = 8
-    D = 32
-    num_heads = 4
+def stage_diff(name, c_val, ref_val):
+    diff = (c_val - ref_val).abs()
+    max_abs = diff.max().item() if diff.numel() else 0.0
+    mean_abs = diff.mean().item() if diff.numel() else 0.0
+    max_rel = (diff / (ref_val.abs() + 1e-9)).max().item() if diff.numel() else 0.0
+    print(f"  {name:12s} max_abs={max_abs:.2e} mean_abs={mean_abs:.2e} max_rel={max_rel:.2e}")
+    return max_abs
+
+
+def maybe_dump_stages(dump_stages, stages):
+    if not dump_stages:
+        return
+    print("Stage diffs:")
+    for name, c_val, ref_val in stages:
+        stage_diff(name, c_val, ref_val)
+
+
+def run_layer_test(num_kv_heads,
+                   use_rope=False,
+                   rope_theta=10000.0,
+                   dump_stages=False,
+                   tokens=8,
+                   embed_dim=32,
+                   num_heads=4,
+                   intermediate_dim=64,
+                   eps=1e-5,
+                   seed=0,
+                   skip_c=False,
+                   skip_ref=False,
+                   strict_ref=False,
+                   tol=1e-3):
+    torch.manual_seed(seed)
+    T = tokens
+    D = embed_dim
     head_dim = D // num_heads
-    intermediate_dim = 64
-    eps = 1e-5
 
     aligned_embed_dim = align_up(D, 16)
     aligned_head_dim = align_up(head_dim, 16)
@@ -224,6 +281,24 @@ def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
     mlp_out = aligned_empty((T, aligned_embed_dim))
     output = aligned_empty((T, aligned_embed_dim))
 
+    if strict_ref:
+        ln1_out_ref = aligned_empty((T, aligned_embed_dim))
+        ln1_rstd_ref = aligned_empty((T,))
+        q_ref = aligned_empty((num_heads, T, aligned_head_dim))
+        k_ref = aligned_empty((num_kv_heads, T, aligned_head_dim))
+        v_ref = aligned_empty((num_kv_heads, T, aligned_head_dim))
+        scores_ref = aligned_empty((num_heads, aligned_context_window, aligned_context_window))
+        attn_out_ref = aligned_empty((num_heads, T, aligned_head_dim))
+        proj_tmp_ref = aligned_empty((T, aligned_embed_dim))
+        proj_scratch_ref = aligned_empty((T, aligned_embed_dim))
+        residual1_ref = aligned_empty((T, aligned_embed_dim))
+        ln2_out_ref = aligned_empty((T, aligned_embed_dim))
+        ln2_rstd_ref = aligned_empty((T,))
+        fc1_out_ref = aligned_empty((T, 2 * aligned_intermediate_dim))
+        swiglu_out_ref = aligned_empty((T, aligned_intermediate_dim))
+        mlp_out_ref = aligned_empty((T, aligned_embed_dim))
+        output_ref = aligned_empty((T, aligned_embed_dim))
+
     rope_cos_ptr = ctypes.POINTER(ctypes.c_float)()
     rope_sin_ptr = ctypes.POINTER(ctypes.c_float)()
     rope_offset = 0
@@ -236,55 +311,147 @@ def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
         rope_cos_ptr = cos_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
         rope_sin_ptr = sin_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
-    params = CKLayerForwardParams(
-        tokens=T,
-        embed_dim=D,
-        aligned_embed_dim=aligned_embed_dim,
-        num_heads=num_heads,
-        num_kv_heads=num_kv_heads,
-        head_dim=head_dim,
-        aligned_head_dim=aligned_head_dim,
-        aligned_context_window=aligned_context_window,
-        intermediate_dim=intermediate_dim,
-        aligned_intermediate_dim=aligned_intermediate_dim,
-        eps=eps,
-        rope_pos_offset=rope_offset,
-        input=ptr(x),
-        ln1_gamma=ptr(ln1_gamma),
-        ln2_gamma=ptr(ln2_gamma),
-        rope_cos=rope_cos_ptr,
-        rope_sin=rope_sin_ptr,
-        wq=ptr(wq),
-        bq=ptr(bq),
-        wk=ptr(wk),
-        bk=ptr(bk),
-        wv=ptr(wv),
-        bv=ptr(bv),
-        wo=ptr(wo),
-        bo=ptr(bo),
-        w1=ptr(w1),
-        b1=ptr(b1),
-        w2=ptr(w2),
-        b2=ptr(b2),
-        ln1_out=ptr(ln1_out),
-        ln1_rstd=ptr(ln1_rstd),
-        q=ptr(q),
-        k=ptr(k),
-        v=ptr(v),
-        scores=ptr(scores),
-        attn_out=ptr(attn_out),
-        proj_tmp=ptr(proj_tmp),
-        proj_scratch=ptr(proj_scratch),
-        residual1=ptr(residual1),
-        ln2_out=ptr(ln2_out),
-        ln2_rstd=ptr(ln2_rstd),
-        fc1_out=ptr(fc1_out),
-        swiglu_out=ptr(swiglu_out),
-        mlp_out=ptr(mlp_out),
-        output=ptr(output),
-    )
+    if not skip_c:
+        params = CKLayerForwardParams(
+            tokens=T,
+            embed_dim=D,
+            aligned_embed_dim=aligned_embed_dim,
+            num_heads=num_heads,
+            num_kv_heads=num_kv_heads,
+            head_dim=head_dim,
+            aligned_head_dim=aligned_head_dim,
+            aligned_context_window=aligned_context_window,
+            intermediate_dim=intermediate_dim,
+            aligned_intermediate_dim=aligned_intermediate_dim,
+            eps=eps,
+            rope_pos_offset=rope_offset,
+            input=ptr(x),
+            ln1_gamma=ptr(ln1_gamma),
+            ln2_gamma=ptr(ln2_gamma),
+            rope_cos=rope_cos_ptr,
+            rope_sin=rope_sin_ptr,
+            wq=ptr(wq),
+            bq=ptr(bq),
+            wk=ptr(wk),
+            bk=ptr(bk),
+            wv=ptr(wv),
+            bv=ptr(bv),
+            wo=ptr(wo),
+            bo=ptr(bo),
+            w1=ptr(w1),
+            b1=ptr(b1),
+            w2=ptr(w2),
+            b2=ptr(b2),
+            ln1_out=ptr(ln1_out),
+            ln1_rstd=ptr(ln1_rstd),
+            q=ptr(q),
+            k=ptr(k),
+            v=ptr(v),
+            scores=ptr(scores),
+            attn_out=ptr(attn_out),
+            proj_tmp=ptr(proj_tmp),
+            proj_scratch=ptr(proj_scratch),
+            residual1=ptr(residual1),
+            ln2_out=ptr(ln2_out),
+            ln2_rstd=ptr(ln2_rstd),
+            fc1_out=ptr(fc1_out),
+            swiglu_out=ptr(swiglu_out),
+            mlp_out=ptr(mlp_out),
+            output=ptr(output),
+        )
 
-    lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(params))
+        lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(params))
+
+    if skip_ref:
+        out_c = torch.from_numpy(output[:, :D]).float()
+        print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}) C-only stats: max={out_c.abs().max().item():.2e}")
+        return
+
+    if strict_ref:
+        params_ref = CKLayerForwardParams(
+            tokens=T,
+            embed_dim=D,
+            aligned_embed_dim=aligned_embed_dim,
+            num_heads=num_heads,
+            num_kv_heads=num_kv_heads,
+            head_dim=head_dim,
+            aligned_head_dim=aligned_head_dim,
+            aligned_context_window=aligned_context_window,
+            intermediate_dim=intermediate_dim,
+            aligned_intermediate_dim=aligned_intermediate_dim,
+            eps=eps,
+            rope_pos_offset=rope_offset,
+            input=ptr(x),
+            ln1_gamma=ptr(ln1_gamma),
+            ln2_gamma=ptr(ln2_gamma),
+            rope_cos=rope_cos_ptr,
+            rope_sin=rope_sin_ptr,
+            wq=ptr(wq),
+            bq=ptr(bq),
+            wk=ptr(wk),
+            bk=ptr(bk),
+            wv=ptr(wv),
+            bv=ptr(bv),
+            wo=ptr(wo),
+            bo=ptr(bo),
+            w1=ptr(w1),
+            b1=ptr(b1),
+            w2=ptr(w2),
+            b2=ptr(b2),
+            ln1_out=ptr(ln1_out_ref),
+            ln1_rstd=ptr(ln1_rstd_ref),
+            q=ptr(q_ref),
+            k=ptr(k_ref),
+            v=ptr(v_ref),
+            scores=ptr(scores_ref),
+            attn_out=ptr(attn_out_ref),
+            proj_tmp=ptr(proj_tmp_ref),
+            proj_scratch=ptr(proj_scratch_ref),
+            residual1=ptr(residual1_ref),
+            ln2_out=ptr(ln2_out_ref),
+            ln2_rstd=ptr(ln2_rstd_ref),
+            fc1_out=ptr(fc1_out_ref),
+            swiglu_out=ptr(swiglu_out_ref),
+            mlp_out=ptr(mlp_out_ref),
+            output=ptr(output_ref),
+        )
+
+        lib.ck_layer_forward_rmsnorm_swiglu_ref(ctypes.byref(params_ref))
+
+        if skip_c:
+            out_ref = torch.from_numpy(output_ref[:, :D]).float()
+            print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}) ref-only stats: max={out_ref.abs().max().item():.2e}")
+            return
+
+        ref_out = torch.from_numpy(output_ref[:, :D]).float()
+        out_c = torch.from_numpy(output[:, :D]).float()
+        diff = (out_c - ref_out).abs().max().item()
+
+        stages = [
+            ("ln1_out", torch.from_numpy(ln1_out[:, :D]).float(), torch.from_numpy(ln1_out_ref[:, :D]).float()),
+            ("ln1_rstd", torch.from_numpy(ln1_rstd[:T]).float(), torch.from_numpy(ln1_rstd_ref[:T]).float()),
+            ("q", torch.from_numpy(q[:, :, :head_dim]).float(), torch.from_numpy(q_ref[:, :, :head_dim]).float()),
+            ("k", torch.from_numpy(k[:, :, :head_dim]).float(), torch.from_numpy(k_ref[:, :, :head_dim]).float()),
+            ("v", torch.from_numpy(v[:, :, :head_dim]).float(), torch.from_numpy(v_ref[:, :, :head_dim]).float()),
+            ("scores", torch.from_numpy(scores[:, :T, :T]).float(), torch.from_numpy(scores_ref[:, :T, :T]).float()),
+            ("attn_out", torch.from_numpy(attn_out[:, :, :head_dim]).float(), torch.from_numpy(attn_out_ref[:, :, :head_dim]).float()),
+            ("proj", torch.from_numpy(proj_tmp[:, :D]).float(), torch.from_numpy(proj_tmp_ref[:, :D]).float()),
+            ("residual1", torch.from_numpy(residual1[:, :D]).float(), torch.from_numpy(residual1_ref[:, :D]).float()),
+            ("ln2_out", torch.from_numpy(ln2_out[:, :D]).float(), torch.from_numpy(ln2_out_ref[:, :D]).float()),
+            ("ln2_rstd", torch.from_numpy(ln2_rstd[:T]).float(), torch.from_numpy(ln2_rstd_ref[:T]).float()),
+            ("fc1_out", torch.from_numpy(fc1_out[:, : 2 * intermediate_dim]).float(),
+             torch.from_numpy(fc1_out_ref[:, : 2 * intermediate_dim]).float()),
+            ("swiglu_out", torch.from_numpy(swiglu_out[:, :intermediate_dim]).float(),
+             torch.from_numpy(swiglu_out_ref[:, :intermediate_dim]).float()),
+            ("mlp_out", torch.from_numpy(mlp_out[:, :D]).float(), torch.from_numpy(mlp_out_ref[:, :D]).float()),
+            ("output", out_c, ref_out),
+        ]
+
+        print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}, ref=c) max diff: {diff:.2e}")
+        maybe_dump_stages(dump_stages, stages)
+        if diff > tol:
+            raise AssertionError(f"Layer forward mismatch: max diff {diff}")
+        return
 
     x_ref = torch.from_numpy(x[:, :D]).float()
     ln1_gamma_ref = torch.from_numpy(ln1_gamma[:D]).float()
@@ -295,7 +462,12 @@ def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
 
     h1 = rmsnorm_ref(x_ref, ln1_gamma_ref, eps)
 
-    attn_heads = []
+    q_ref = torch.zeros(num_heads, T, head_dim, dtype=torch.float32)
+    k_ref = torch.zeros(num_kv_heads, T, head_dim, dtype=torch.float32)
+    v_ref = torch.zeros(num_kv_heads, T, head_dim, dtype=torch.float32)
+    weights_ref = torch.zeros(num_heads, T, T, dtype=torch.float32)
+    attn_ref = torch.zeros(num_heads, T, head_dim, dtype=torch.float32)
+
     for h in range(num_heads):
         kv_head = (h * num_kv_heads) // num_heads
         wq_h = torch.from_numpy(wq[h, :head_dim, :D]).float()
@@ -313,17 +485,21 @@ def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
             q_h = rope_apply(q_h, cos_cache, sin_cache, pos_offset=rope_offset)
             k_h = rope_apply(k_h, cos_cache, sin_cache, pos_offset=rope_offset)
 
+        q_ref[h] = q_h
+        k_ref[kv_head] = k_h
+        v_ref[kv_head] = v_h
+
         scores_h = (q_h @ k_h.t()) / math.sqrt(head_dim)
         mask = torch.triu(torch.ones_like(scores_h), diagonal=1).bool()
         scores_h = scores_h.masked_fill(mask, float("-inf"))
         weights = torch.softmax(scores_h, dim=-1)
-        attn_h = weights @ v_h
-        attn_heads.append(attn_h)
+        weights_ref[h] = weights
+        attn_ref[h] = weights @ v_h
 
     proj = torch.zeros(T, D, dtype=torch.float32)
     for h in range(num_heads):
         wo_h = torch.from_numpy(wo[h, :D, :head_dim]).float()
-        proj += attn_heads[h] @ wo_h.t()
+        proj += attn_ref[h] @ wo_h.t()
     proj += bo_ref
 
     res1 = x_ref + proj
@@ -337,16 +513,119 @@ def run_layer_test(num_kv_heads, use_rope=False, rope_theta=10000.0):
     mlp = swiglu @ w2_ref.t() + b2_ref
     ref_out = res1 + mlp
 
+    if skip_c:
+        print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}) ref-only stats: max={ref_out.abs().max().item():.2e}")
+        return
+
     out_c = torch.from_numpy(output[:, :D]).float()
     diff = (out_c - ref_out).abs().max().item()
+
+    stages = [
+        ("ln1_out", torch.from_numpy(ln1_out[:, :D]).float(), h1),
+        ("ln1_rstd", torch.from_numpy(ln1_rstd[:T]).float(), rmsnorm_rstd_ref(x_ref, eps)),
+        ("q", torch.from_numpy(q[:, :, :head_dim]).float(), q_ref),
+        ("k", torch.from_numpy(k[:, :, :head_dim]).float(), k_ref),
+        ("v", torch.from_numpy(v[:, :, :head_dim]).float(), v_ref),
+        ("scores", torch.from_numpy(scores[:, :T, :T]).float(), weights_ref),
+        ("attn_out", torch.from_numpy(attn_out[:, :, :head_dim]).float(), attn_ref),
+        ("proj", torch.from_numpy(proj_tmp[:, :D]).float(), proj),
+        ("residual1", torch.from_numpy(residual1[:, :D]).float(), res1),
+        ("ln2_out", torch.from_numpy(ln2_out[:, :D]).float(), h2),
+        ("ln2_rstd", torch.from_numpy(ln2_rstd[:T]).float(), rmsnorm_rstd_ref(res1, eps)),
+        ("fc1_out", torch.from_numpy(fc1_out[:, : 2 * intermediate_dim]).float(), up),
+        ("swiglu_out", torch.from_numpy(swiglu_out[:, :intermediate_dim]).float(), swiglu),
+        ("mlp_out", torch.from_numpy(mlp_out[:, :D]).float(), mlp),
+        ("output", out_c, ref_out),
+    ]
+
     print(f"Layer forward (kv_heads={num_kv_heads}, rope={use_rope}) max diff: {diff:.2e}")
-    tol = 1e-3  # Blocked GEMM + GQA accumulation order introduces small float32 drift.
+    maybe_dump_stages(dump_stages, stages)
+    # Blocked GEMM + GQA accumulation order introduces small float32 drift.
     if diff > tol:
         raise AssertionError(f"Layer forward mismatch: max diff {diff}")
 
 
 if __name__ == "__main__":
-    run_layer_test(num_kv_heads=4)
-    run_layer_test(num_kv_heads=2)
-    run_layer_test(num_kv_heads=4, use_rope=True)
-    run_layer_test(num_kv_heads=2, use_rope=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dump-stages", action="store_true", help="Print per-stage diffs.")
+    parser.add_argument("--tokens", type=int, default=8, help="Context length (T).")
+    parser.add_argument("--embed", type=int, default=32, help="Embedding dimension (D).")
+    parser.add_argument("--heads", type=int, default=4, help="Attention heads (H).")
+    parser.add_argument("--kv-heads", type=int, default=None, help="KV heads (defaults to --heads).")
+    parser.add_argument("--intermediate", type=int, default=64, help="MLP intermediate dimension.")
+    parser.add_argument("--eps", type=float, default=1e-5, help="RMSNorm epsilon.")
+    parser.add_argument("--rope", action=argparse.BooleanOptionalAction, default=None,
+                        help="Enable or disable RoPE (default: off).")
+    parser.add_argument("--rope-theta", type=float, default=10000.0, help="RoPE theta/base.")
+    parser.add_argument("--seed", type=int, default=0, help="RNG seed.")
+    parser.add_argument("--tol", type=float, default=1e-3,
+                        help="Absolute tolerance for max diff.")
+    parser.add_argument("--skip-c", action="store_true", help="Skip C kernel call (ref-only).")
+    parser.add_argument("--skip-ref", action="store_true", help="Skip reference path (C-only).")
+    parser.add_argument("--strict-ref", action="store_true",
+                        help="Use C reference path (naive GEMM) instead of PyTorch.")
+    parser.add_argument("--all", action="store_true",
+                        help="Run both RoPE on/off and KV head variants for the given dims.")
+    args = parser.parse_args()
+    dump = args.dump_stages or os.environ.get("CK_DUMP_STAGES") == "1"
+
+    if args.skip_c and args.skip_ref:
+        raise SystemExit("Choose only one of --skip-c or --skip-ref.")
+    if args.strict_ref and args.skip_ref:
+        raise SystemExit("Cannot combine --strict-ref with --skip-ref.")
+
+    if args.embed % args.heads != 0:
+        raise SystemExit("embed must be divisible by heads")
+
+    if args.all:
+        kv_variants = [args.heads, max(1, args.heads // 2)]
+        for kv in kv_variants:
+            if args.heads % kv != 0:
+                continue
+            run_layer_test(num_kv_heads=kv,
+                           use_rope=False,
+                           rope_theta=args.rope_theta,
+                           dump_stages=dump,
+                           tokens=args.tokens,
+                           embed_dim=args.embed,
+                           num_heads=args.heads,
+                           intermediate_dim=args.intermediate,
+                           eps=args.eps,
+                           seed=args.seed,
+                           skip_c=args.skip_c,
+                           skip_ref=args.skip_ref,
+                           strict_ref=args.strict_ref,
+                           tol=args.tol)
+            run_layer_test(num_kv_heads=kv,
+                           use_rope=True,
+                           rope_theta=args.rope_theta,
+                           dump_stages=dump,
+                           tokens=args.tokens,
+                           embed_dim=args.embed,
+                           num_heads=args.heads,
+                           intermediate_dim=args.intermediate,
+                           eps=args.eps,
+                           seed=args.seed,
+                           skip_c=args.skip_c,
+                           skip_ref=args.skip_ref,
+                           strict_ref=args.strict_ref,
+                           tol=args.tol)
+    else:
+        kv_heads = args.kv_heads if args.kv_heads is not None else args.heads
+        if args.heads % kv_heads != 0:
+            raise SystemExit("heads must be divisible by kv-heads")
+        use_rope = args.rope if args.rope is not None else False
+        run_layer_test(num_kv_heads=kv_heads,
+                       use_rope=use_rope,
+                       rope_theta=args.rope_theta,
+                       dump_stages=dump,
+                       tokens=args.tokens,
+                       embed_dim=args.embed,
+                       num_heads=args.heads,
+                       intermediate_dim=args.intermediate,
+                       eps=args.eps,
+                       seed=args.seed,
+                       skip_c=args.skip_c,
+                       skip_ref=args.skip_ref,
+                       strict_ref=args.strict_ref,
+                       tol=args.tol)

@@ -1,19 +1,13 @@
 # GEMM correctness tests against PyTorch for the LLM-specific shapes.
 
 import ctypes
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "libckernel_engine.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_engine.so")
 
 _gemm_sig = [
     ctypes.POINTER(ctypes.c_float),  # A
@@ -96,4 +90,3 @@ def run_all():
 
 if __name__ == "__main__":
     run_all()
-

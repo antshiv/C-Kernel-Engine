@@ -90,6 +90,188 @@ make ck-emit CONFIG=path/to/config.json OUT=build/model.c</pre>
 } CKModelConfig;</pre>
 </div>
 
+<h2>Kernel Map: Single Source of Truth</h2>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Why a Kernel Map?</strong><br>
+        Every kernel is tested individually with PyTorch parity. The codegen uses the <em>exact same kernels</em> that passed tests. No drift, no duplication.
+    </div>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">CKKernelSpec: Kernel Registry</h3>
+    <p>Each kernel maps to its tested C implementation:</p>
+    <pre>const CKKernelSpec ck_kernel_specs[] = {
+    {"rmsnorm",   "rmsnorm_forward",   "rmsnorm_backward",
+     {"src/kernels/rmsnorm_kernels.c", NULL, ...}},
+
+    {"attention", "attention_forward_causal_head_major_gqa",
+                  "attention_backward_causal_head_major_gqa",
+     {"src/kernels/attention_kernels.c",
+      "src/kernels/softmax_kernels.c", NULL, ...}},
+
+    {"swiglu",    "swiglu_forward",    "swiglu_backward",
+     {"src/kernels/swiglu_kernels.c",
+      "src/kernels/sigmoid_kernels.c", NULL, ...}},
+};</pre>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">CKBufferSpec: Buffer Definitions</h3>
+    <p>All buffers with symbolic dimensions, roles, and conditions:</p>
+    <pre>const CKBufferSpec ck_decoder_buffers[] = {
+    // Global buffers
+    {"token_emb", CK_SCOPE_GLOBAL, CK_ROLE_WEIGHT,
+     {{CK_DIM_VOCAB, 1, 1}, {CK_DIM_ALIGNED_EMBED, 1, 1}, ...}},
+
+    {"lm_head_weight", CK_SCOPE_GLOBAL, CK_ROLE_WEIGHT,
+     {{CK_DIM_VOCAB, 1, 1}, {CK_DIM_ALIGNED_EMBED, 1, 1}, ...},
+     .alias_of = "token_emb"},  // tied embeddings
+
+    {"rope_cos_cache", CK_SCOPE_GLOBAL, CK_ROLE_ACTIVATION,
+     {{CK_DIM_TOKENS, 1, 1}, {CK_DIM_HEAD_DIM, 1, 2}, ...},
+     .condition = "rope_theta"},  // only if RoPE enabled
+
+    // Per-layer buffers
+    {"q", CK_SCOPE_LAYER, CK_ROLE_OUTPUT,
+     {{CK_DIM_NUM_HEADS, 1, 1}, {CK_DIM_TOKENS, 1, 1},
+      {CK_DIM_ALIGNED_HEAD, 1, 1}, ...}},
+};</pre>
+</div>
+
+<div class="card card-green">
+    <h3 style="margin-top: 0;">CKPlanStep: Execution Plan</h3>
+    <p>Forward pass as a sequence of kernel invocations:</p>
+    <pre>const CKPlanStep ck_decoder_forward_plan[] = {
+    {"rmsnorm",      NULL},           // LN1
+    {"qkv_project",  NULL},           // Q, K, V projections
+    {"rope",         "rope_theta>0"}, // RoPE (conditional)
+    {"attention",    NULL},           // Self-attention
+    {"attn_proj",    NULL},           // Output projection
+    {"residual_add", NULL},           // Residual connection
+    {"rmsnorm",      NULL},           // LN2
+    {"mlp_up",       NULL},           // FC1: hidden → 2×intermediate
+    {"swiglu",       NULL},           // SwiGLU activation
+    {"mlp_down",     NULL},           // FC2: intermediate → hidden
+    {"residual_add", NULL},           // Residual connection
+};</pre>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">How Codegen Uses This</h3>
+        <ol>
+            <li>Read execution plan (<code>ck_decoder_forward_plan</code>)</li>
+            <li>For each step, lookup kernel in <code>ck_kernel_specs</code></li>
+            <li>Emit source files from <code>sources[]</code></li>
+            <li>Emit function call using <code>forward</code>/<code>backward</code></li>
+            <li>Bind buffers from <code>ck_decoder_buffers</code></li>
+        </ol>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Why This Matters</h3>
+        <ul>
+            <li><strong>No duplication</strong>: codegen uses tested kernels</li>
+            <li><strong>No drift</strong>: one source of truth</li>
+            <li><strong>Composable</strong>: add new kernels to registry</li>
+            <li><strong>Conditional</strong>: RoPE, bias, etc. are optional</li>
+            <li><strong>Typed</strong>: symbolic dims, roles, conditions</li>
+        </ul>
+    </div>
+</div>
+
+<h2>Registry Flow: How It All Fits Together</h2>
+
+<div class="img-container svg-viewer" data-title="Kernel Registry Flow">
+    <img src="assets/kernel-registry-flow.svg" alt="Kernel Registry Flow Diagram">
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">The Complete Pipeline</h3>
+    <table>
+        <tr>
+            <th>Step</th>
+            <th>Component</th>
+            <th>What It Does</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td><code>config.json</code></td>
+            <td>HuggingFace model config with dimensions (hidden_size, num_heads, etc.)</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td><code>CKIRGraph</code></td>
+            <td>Parse config into IR with operations and tensor shapes</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td><code>CKKernelSpec[]</code></td>
+            <td>Lookup kernel name → get forward/backward function + source files</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td><code>CKBufferSpec[]</code></td>
+            <td>Get buffer shapes, roles, dtypes → compute memory layout</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td><code>CKPlanStep[]</code></td>
+            <td>Execute kernels in order, respecting conditions</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td><code>Bump Allocator</code></td>
+            <td>Resolve symbolic dims → concrete byte offsets (dtype-aware)</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td><code>Source Emitter</code></td>
+            <td>Emit tested kernel sources + function call wiring</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td><code>generated_model.c</code></td>
+            <td>Standalone C file: <code>gcc -O3 model.c -o model</code></td>
+        </tr>
+    </table>
+</div>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Key Insight</strong><br>
+        The generated <code>model.c</code> contains the <em>exact same kernel code</em> that passed PyTorch parity tests. The registry ensures no code is written twice.
+    </div>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Adding a New Kernel</h3>
+    <p>To add a new kernel (e.g., GeLU activation):</p>
+    <pre>// 1. Write and test the kernel
+// src/kernels/gelu_kernels.c
+void gelu_forward(const float *in, float *out, int n);
+void gelu_backward(const float *in, const float *d_out, float *d_in, int n);
+
+// 2. Add to kernel specs
+{"gelu", "gelu_forward", "gelu_backward",
+ {"src/kernels/gelu_kernels.c", NULL, ...}},
+
+// 3. Add buffers if needed
+{"gelu_out", CK_SCOPE_LAYER, CK_ROLE_OUTPUT,
+ {{CK_DIM_TOKENS, 1, 1}, {CK_DIM_ALIGNED_EMBED, 1, 1}, ...}},
+
+// 4. Add to execution plan (for models that use GeLU)
+{"gelu", "activation_type==gelu"},</pre>
+    <p>Codegen automatically picks up the new kernel. No other changes needed.</p>
+</div>
+
 <h2>Intermediate Representation</h2>
 
 <div class="alert alert-info">
@@ -296,6 +478,76 @@ typedef struct {
     </tr>
 </table>
 
+<h2>Bump Allocator: Dtype-Aware Layout</h2>
+
+<div class="alert alert-info">
+    <div class="alert-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div>
+        <strong>Why Bump Allocation?</strong><br>
+        All memory is allocated in one contiguous block. Offsets are computed at codegen time based on dtype. No runtime malloc, clean strides, cache-friendly.
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Mixed Precision Layout</h3>
+    <p>Weights can be bf16/int8 while activations stay fp32:</p>
+    <pre>// Generated at codegen time - dtype-aware
+size_t off = 0;
+
+// Weights: bf16 (2 bytes each)
+m->token_emb_offset = off;
+off += align64(V * aligned_embed * 2);     // bf16
+
+m->wq_offset = off;
+off += align64(num_heads * head_dim * embed * 2);  // bf16
+
+// Activations: fp32 (4 bytes each)
+m->embedded_input_offset = off;
+off += align64(T * aligned_embed * 4);     // fp32
+
+m->q_offset = off;
+off += align64(num_heads * T * head_dim * 4);  // fp32</pre>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">Dtype Enum</h3>
+        <pre>typedef enum {
+    CK_DTYPE_F32 = 0,  // 4 bytes
+    CK_DTYPE_F16,      // 2 bytes
+    CK_DTYPE_BF16,     // 2 bytes
+    CK_DTYPE_I8,       // 1 byte
+    CK_DTYPE_I4,       // 0.5 bytes (packed)
+} CKDType;</pre>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Per-Buffer Dtype</h3>
+        <pre>{"wq", CK_SCOPE_LAYER, CK_ROLE_WEIGHT,
+ CK_DTYPE_BF16,  // weights in bf16
+ {{CK_DIM_NUM_HEADS, ...}}},
+
+{"q", CK_SCOPE_LAYER, CK_ROLE_OUTPUT,
+ CK_DTYPE_F32,   // activations in fp32
+ {{CK_DIM_NUM_HEADS, ...}}},</pre>
+    </div>
+</div>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">All Offsets Cacheline-Aligned</h3>
+    <p>Every buffer starts at a 64-byte boundary for optimal SIMD access:</p>
+    <pre>static size_t align64(size_t n) {
+    return (n + 63) & ~63;
+}
+
+static size_t bump(size_t *off, size_t bytes) {
+    size_t start = align64(*off);
+    *off = start + bytes;
+    return start;
+}</pre>
+</div>
+
 <h2>Source Files</h2>
 
 <table>
@@ -312,12 +564,20 @@ typedef struct {
         <td>C code emission from IR</td>
     </tr>
     <tr>
-        <td><code>ckernel_alloc.c</code></td>
-        <td>Memory layout computation</td>
+        <td><code>ckernel_kernel_specs.c</code></td>
+        <td>Kernel map: specs, buffers, execution plan</td>
     </tr>
     <tr>
-        <td><code>ckernel_ir.h</code></td>
-        <td>IR data structures</td>
+        <td><code>ckernel_model_layout.c</code></td>
+        <td>Bump allocator, memory layout</td>
+    </tr>
+    <tr>
+        <td><code>ckernel_model_load.c</code></td>
+        <td>Weight loading from files</td>
+    </tr>
+    <tr>
+        <td><code>ckernel_registry.c</code></td>
+        <td>Op validation, kernel lookup</td>
     </tr>
 </table>
 

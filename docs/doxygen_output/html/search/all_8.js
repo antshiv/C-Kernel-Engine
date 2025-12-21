@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['id_118',['id',['../structCKIRNode.html#a5a7a5149c743e17aad1e63791b44ce49',1,'CKIRNode']]],
-  ['input_119',['input',['../structCKLayerForwardParams.html#ad678ed659e2a04e07062a4aff3fe50a7',1,'CKLayerForwardParams']]],
-  ['inputs_120',['inputs',['../structCKIRNode.html#a595fda2c0bbc4073e1f28af4495ec8ac',1,'CKIRNode']]],
-  ['intermediate_5fdim_121',['intermediate_dim',['../structCKLayerForwardParams.html#ac1ce35724d91ff94c95707a6d879d0a9',1,'CKLayerForwardParams']]],
-  ['intermediate_5fsize_122',['intermediate_size',['../structCKModelConfig.html#a2da9b0b988ccf3b7117a611da5984d34',1,'CKModelConfig']]]
+  ['head_5fdim_218',['head_dim',['../structCKLayerForwardParams.html#a5aac19a779c176623a55fd48bb9502cf',1,'CKLayerForwardParams::head_dim()'],['../structCKLayerBackwardParams.html#ace4e73b166d2b71dba81099ff55f9c5f',1,'CKLayerBackwardParams::head_dim()']]],
+  ['hidden_5fsize_219',['hidden_size',['../structCKModelConfig.html#afd04ffe4db48600b90f32904c49d73af',1,'CKModelConfig']]],
+  ['huge_5fpage_5fsize_220',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
 ];

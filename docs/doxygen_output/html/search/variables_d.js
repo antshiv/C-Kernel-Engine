@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['q_397',['q',['../structCKLayerForwardParams.html#a6d0ecfad1a74e3fe0583785851741e71',1,'CKLayerForwardParams']]],
-  ['qkv_5fbias_5foffset_398',['qkv_bias_offset',['../structCKLayerLayout.html#a284fb7cde23a33d443234aeb3d34f1aa',1,'CKLayerLayout']]],
-  ['qkv_5fweight_5foffset_399',['qkv_weight_offset',['../structCKLayerLayout.html#aa04c864979d24512fe185bd224f2e851',1,'CKLayerLayout']]]
+  ['pos_5femb_5foffset_591',['pos_emb_offset',['../structTransformerModel.html#a79f34fccbab0e1d127d521b03df5b327',1,'TransformerModel']]],
+  ['producer_592',['producer',['../structCKInputRef.html#a952a97cab88682ffb36027b353492e6f',1,'CKInputRef']]],
+  ['proj_5fscratch_593',['proj_scratch',['../structCKLayerForwardParams.html#a1d16cc6fe19fb9e3b934eccba86c35b0',1,'CKLayerForwardParams']]],
+  ['proj_5ftmp_594',['proj_tmp',['../structCKLayerForwardParams.html#a1fa5c8ae6f1c35f1edd9041c6007731d',1,'CKLayerForwardParams']]]
 ];

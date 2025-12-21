@@ -20,6 +20,7 @@ BUILD_DIR := build
 SRCS    := src/backend_native.c \
            src/ckernel_ir.c \
            src/ckernel_codegen.c \
+           src/ckernel_kernel_specs.c \
            src/ckernel_alloc.c \
            src/ckernel_registry.c \
            src/ckernel_orchestration.c \
@@ -30,6 +31,8 @@ SRCS    := src/backend_native.c \
            src/kernels/gelu_kernels.c \
            src/kernels/softmax_kernels.c \
            src/kernels/attention_kernels.c \
+           src/kernels/embedding_kernels.c \
+           src/kernels/loss_kernels.c \
            src/kernels/mlp_kernels.c \
            src/kernels/rmsnorm_kernels.c \
            src/kernels/swiglu_kernels.c \
@@ -49,8 +52,13 @@ IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 DEFAULT_CONFIG := default.config.json
 CONFIG ?= $(DEFAULT_CONFIG)
 OUT ?= $(BUILD_DIR)/generated_model.c
+TINY_CONFIG ?= tiny.config.json
+SMALL_CONFIG ?= small10mb.config.json
+TINY_TRAIN_LR ?= 1e-3
+TINY_TRAIN_ARGS ?= --dump
 
 PYTHON  ?= python3
+PYTHONFLAGS ?= -B
 PY_TESTS := unittest/test_layernorm.py \
             unittest/test_gelu.py \
             unittest/test_softmax.py \
@@ -63,6 +71,8 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_attention.py \
             unittest/test_attention_backward.py \
             unittest/test_rope.py \
+            unittest/test_embedding.py \
+            unittest/test_cross_entropy.py \
             unittest/test_orchestration_layer.py \
             unittest/test_lm_head_litmus.py
 
@@ -78,8 +88,8 @@ $(BUILD_DIR):
 $(LIB): $(SRCS)
 	$(CC) $(CFLAGS) -shared -o $@ $(SRCS) -lm
 
-$(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h
-	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_codegen.c src/ckernel_registry.c src/ckernel_ir_demo.c
+$(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
+	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c src/ckernel_ir_demo.c
 
 ck: $(IR_DEMO)
 	@echo "Running $(IR_DEMO) with $(DEFAULT_CONFIG)..."
@@ -147,16 +157,60 @@ test: $(LIB) test-libs
 	@set -e; \
 	for t in $(PY_TESTS); do \
 	  echo "Running $$t"; \
-	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $$t; \
+	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) $$t; \
 	done; \
 	echo "All Python kernel tests completed."
 
 litmus:
-	$(PYTHON) unittest/test_lm_head_litmus.py $(ARGS)
+	$(PYTHON) $(PYTHONFLAGS) unittest/test_lm_head_litmus.py $(ARGS)
 
 litmus-demo: $(BUILD_DIR)
 	@echo "Running litmus demo: $(LITMUS_DEMO_ARGS)"
-	@$(PYTHON) unittest/test_lm_head_litmus.py $(LITMUS_DEMO_ARGS) --svg $(LITMUS_DEMO_SVG) | tee $(LITMUS_DEMO_LOG)
+	@$(PYTHON) $(PYTHONFLAGS) unittest/test_lm_head_litmus.py $(LITMUS_DEMO_ARGS) --svg $(LITMUS_DEMO_SVG) | tee $(LITMUS_DEMO_LOG)
+
+layer-parity: $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) unittest/test_orchestration_layer.py $(ARGS) $(if $(TOL),--tol $(TOL),)
+
+layer-parity-scalar:
+	$(MAKE) -B $(LIB) AVX_FLAGS=
+	$(PYTHON) $(PYTHONFLAGS) unittest/test_orchestration_layer.py $(ARGS) $(if $(TOL),--tol $(TOL),)
+
+gen-specs:
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_kernel_specs.py
+
+tiny-e2e: $(IR_DEMO) $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_weights.bin
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_tokens.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_tokens.bin
+	./$(IR_DEMO) $(TINY_CONFIG) --emit $(BUILD_DIR)/tiny_generated.c
+	$(CC) $(CFLAGS) -Iinclude $(BUILD_DIR)/tiny_generated.c $$(cat $(BUILD_DIR)/tiny_generated.c.kernels) -o $(BUILD_DIR)/tiny_model -lm
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(BUILD_DIR)/tiny_model \
+	  --model-weights $(BUILD_DIR)/tiny_weights.bin \
+	  --tokens $(BUILD_DIR)/tiny_tokens.bin \
+	  --out-logits $(BUILD_DIR)/tiny_logits.bin
+
+tiny-train: $(IR_DEMO) $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_weights.bin
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_tokens.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_tokens.bin --targets $(BUILD_DIR)/tiny_targets.bin
+	./$(IR_DEMO) $(TINY_CONFIG) --emit $(BUILD_DIR)/tiny_generated.c
+	$(CC) $(CFLAGS) -Iinclude $(BUILD_DIR)/tiny_generated.c $$(cat $(BUILD_DIR)/tiny_generated.c.kernels) -o $(BUILD_DIR)/tiny_model -lm
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(BUILD_DIR)/tiny_model \
+	  --model-weights $(BUILD_DIR)/tiny_weights.bin \
+	  --tokens $(BUILD_DIR)/tiny_tokens.bin \
+	  --targets $(BUILD_DIR)/tiny_targets.bin \
+	  --backward --lr $(TINY_TRAIN_LR) $(TINY_TRAIN_ARGS)
+
+tiny-parity: $(IR_DEMO)
+	$(PYTHON) $(PYTHONFLAGS) scripts/tiny_train_parity.py --config $(TINY_CONFIG)
+
+small-e2e: $(IR_DEMO) $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(SMALL_CONFIG) --output $(BUILD_DIR)/small_weights.bin
+	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_tokens.py --config $(SMALL_CONFIG) --output $(BUILD_DIR)/small_tokens.bin
+	./$(IR_DEMO) $(SMALL_CONFIG) --emit $(BUILD_DIR)/small_generated.c
+	$(CC) $(CFLAGS) -Iinclude $(BUILD_DIR)/small_generated.c $$(cat $(BUILD_DIR)/small_generated.c.kernels) -o $(BUILD_DIR)/small_model -lm
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(BUILD_DIR)/small_model \
+	  --model-weights $(BUILD_DIR)/small_weights.bin \
+	  --tokens $(BUILD_DIR)/small_tokens.bin \
+	  --out-logits $(BUILD_DIR)/small_logits.bin
 
 help:
 	@echo "C-Kernel-Engine Make targets:"
@@ -164,12 +218,18 @@ help:
 	@echo "  make test            Build engine + per-kernel libs, run all Python kernel tests"
 	@echo "  make $(IR_DEMO)      Build IR + codegen tool (HF config.json -> IR + C skeleton) into $(BUILD_DIR)"
 	@echo "  make ck              Build IR tool and run it with $(DEFAULT_CONFIG) (prints forward/backward IR and C skeleton)"
-	@echo "  make emit CONFIG=path OUT=path  Emit stitched runtime C file from config/IR"
+	@echo "  make emit CONFIG=path OUT=path  Emit stitched runtime C file from config/IR (writes OUT.kernels manifest)"
 	@echo "  make ck-emit CONFIG=path OUT=path  Alias for emit"
-	@echo "  ./$(IR_DEMO) <config> --emit out.c  Emit a stitched runtime C file from config/IR"
+	@echo "  ./$(IR_DEMO) <config> --emit out.c  Emit a stitched runtime C file from config/IR (writes out.c.kernels)"
 	@echo "  make test-libs       Build per-kernel shared libs in $(BUILD_DIR) ($(LIB_GELU), $(LIB_RMSNORM), $(LIB_LN), $(LIB_SOFT), $(LIB_SWIGLU), $(LIB_SIGMOID))"
 	@echo "  make litmus ARGS=\"--layers 1 --embed 64 --svg build/litmus.svg\"  Run LM head + CE backward parity litmus (PyTorch)"
 	@echo "  make litmus-demo     Run the 100x100 litmus demo and capture output + SVG"
+	@echo "  make layer-parity ARGS=\"--tokens 1024 --embed 64 --heads 4 --kv-heads 2 --rope\" TOL=5e-2  Run layer forward parity vs PyTorch"
+	@echo "  make layer-parity-scalar ARGS=\"--tokens 1024 --embed 64 --heads 4 --kv-heads 2 --rope --strict-ref\" TOL=1e-3  Run layer parity with scalar build (C ref)"
+	@echo "  make tiny-e2e        Generate random weights/tokens and run tiny end-to-end forward"
+	@echo "  make tiny-train      Generate random weights/tokens/targets and run tiny forward+backward+SGD"
+	@echo "  make tiny-parity     Run tiny end-to-end training parity vs PyTorch (1 step)"
+	@echo "  make small-e2e       Same as tiny-e2e but ~10MB weights"
 	@echo "  make libckernel_gelu.so      Build GELU-only shared library (outputs to $(LIB_GELU))"
 	@echo "  make libckernel_rmsnorm.so   Build RMSNorm-only shared library (outputs to $(LIB_RMSNORM))"
 	@echo "  make libckernel_layernorm.so Build LayerNorm-only shared library (AVX-512 if available, outputs to $(LIB_LN))"
@@ -177,6 +237,7 @@ help:
 	@echo "  make libckernel_swiglu.so     Build SwiGLU-only shared library (outputs to $(LIB_SWIGLU))"
 	@echo "  make libckernel_sigmoid.so    Build Sigmoid-only shared library (outputs to $(LIB_SIGMOID))"
 	@echo "  make libckernel_attention.so  Build attention-only shared library (scalar math + softmax kernel, outputs to $(LIB_ATTENTION))"
+	@echo "  make gen-specs        Regenerate C kernel spec registry from kernel_maps/*.json"
 	@echo "  make clean            Remove all built libraries"
 	@echo ""
 	@echo "Python unittest scripts (run with: python3 <script>):"
@@ -218,13 +279,13 @@ litmus-test:
 	@echo "--- [Step 1] Generating C Runtime Code ---"
 	@make emit OUT=build/generated_model.c
 	@echo "\n--- [Step 2] Generating PyTorch Reference Data ---"
-	$(PYTHON) unittest/generate_reference_data.py
+	$(PYTHON) $(PYTHONFLAGS) unittest/generate_reference_data.py
 	@echo "\n--- [Step 3] Compiling C Test Harness ---"
 	$(CC) $(CFLAGS) -Iinclude test_forward_pass.c build/generated_model.c $(TEST_HARNESS_SRCS) -o build/test_forward_pass -lm -lpthread -lrt
 	@echo "Compilation complete: build/test_forward_pass"
 	@echo "\n--- [Step 4] Running C Test Harness ---"
 	./build/test_forward_pass
 	@echo "\n--- [Step 5] Comparing C output with PyTorch reference ---"
-	$(PYTHON) unittest/compare_outputs.py
+	$(PYTHON) $(PYTHONFLAGS) unittest/compare_outputs.py
 
 .PHONY: all clean test test-libs help litmus litmus-test

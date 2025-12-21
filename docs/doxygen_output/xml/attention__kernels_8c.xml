@@ -5,12 +5,15 @@
     <includes refid="ckernel__engine_8h" local="yes">ckernel_engine.h</includes>
     <includes local="no">math.h</includes>
     <incdepgraph>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
       <node id="1">
         <label>attention_kernels.c</label>
         <link refid="attention__kernels_8c"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -18,11 +21,13 @@
         <link refid="ckernel__engine_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
       </node>
       <node id="3">
         <label>stddef.h</label>
       </node>
-      <node id="4">
+      <node id="5">
         <label>math.h</label>
       </node>
     </incdepgraph>
@@ -172,6 +177,7 @@
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="6" endline="14">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="18" endline="26">score_index</references>
         <referencedby refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" compoundref="attention__kernels_8c" startline="335" endline="356">attention_backward_causal_head_major</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="593" endline="733">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1a3d8664b9e0808546484af9ec7d4ddfe1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -288,7 +294,8 @@
         <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="10" endline="46">causal_softmax_head_major</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="6" endline="14">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="18" endline="26">score_index</references>
-        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="131" endline="223">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="496">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="498" endline="591">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>size_t</type>

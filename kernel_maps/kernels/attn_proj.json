@@ -1,0 +1,23 @@
+{
+  "name": "attn_proj",
+  "impl": {
+    "forward": "ck_attention_project_head_major",
+    "backward": "ck_attention_project_head_major_backward",
+    "sources": ["src/ckernel_orchestration.c", "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c"]
+  },
+  "buffers": [
+    {"id": "attn_out", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "wo", "role": "weight", "shape": [{"dim": "num_heads"}, {"dim": "aligned_embed"}, {"dim": "aligned_head"}]},
+    {"id": "bo", "role": "weight", "shape": [{"dim": "aligned_embed"}]},
+    {"id": "proj_tmp", "role": "output", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "proj_scratch", "role": "scratch", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]}
+  ],
+  "buffers_backward": [
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "attn_out", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "wo", "role": "weight", "shape": [{"dim": "num_heads"}, {"dim": "aligned_embed"}, {"dim": "aligned_head"}]},
+    {"id": "d_attn_out", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_wo", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "aligned_embed"}, {"dim": "aligned_head"}]},
+    {"id": "d_bo", "role": "grad", "shape": [{"dim": "aligned_embed"}]}
+  ]
+}

@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-20 10:20</span>
+        <span class="folder-updated">Updated: 2025-12-21 11:22</span>
     </div>
     <pre class="tree-output">
 .
@@ -22,8 +22,10 @@
 |   |   |-- contributing.html
 |   |   |-- index.html
 |   |   |-- kernels.html
+|   |   |-- memory-safety.html
 |   |   |-- pytorch-parity.html
 |   |   |-- quickstart.html
+|   |   |-- research.html
 |   |   `-- test-viewer.html
 |   |-- study-materials
 |   |   |-- profiling
@@ -45,6 +47,7 @@
 |   |-- Doxyfile
 |   |-- doxygen_header.html
 |   |-- gemm-in-transformers.md
+|   |-- index.html
 |   |-- kernel-catalog.md
 |   |-- kernel-design-pattern.md
 |   `-- threading-strategy.md
@@ -53,19 +56,42 @@
 |   |-- ckernel_codegen.h
 |   |-- ckernel_engine.h
 |   |-- ckernel_ir.h
+|   |-- ckernel_kernel_specs.h
 |   |-- ckernel_model.h
 |   |-- ckernel_orchestration.h
 |   `-- ckernel_registry.h
+|-- kernel_maps
+|   |-- kernels
+|   |   |-- attention.json
+|   |   |-- attn_proj.json
+|   |   |-- mlp_down.json
+|   |   |-- mlp_up.json
+|   |   |-- qkv_project.json
+|   |   |-- residual_add.json
+|   |   |-- rmsnorm.json
+|   |   |-- rope.json
+|   |   `-- swiglu.json
+|   |-- decoder_layer_plan_backward.json
+|   |-- decoder_layer_plan.json
+|   |-- global_buffers.json
+|   `-- README.md
 |-- notebooks
 |   `-- kernel_testing_workflow.ipynb
+|-- Screenshots
 |-- scripts
+|   |-- export_hf_llama_to_ckernel.py
+|   |-- gen_kernel_specs.py
+|   |-- gen_random_bump.py
+|   |-- gen_random_tokens.py
 |   `-- run_litmus_demo.sh
 |-- src
 |   |-- kernels
 |   |   |-- attention_kernels.c
+|   |   |-- embedding_kernels.c
 |   |   |-- gelu_kernels.c
 |   |   |-- gemm_kernels.c
 |   |   |-- layernorm_kernels.c
+|   |   |-- loss_kernels.c
 |   |   |-- mlp_kernels.c
 |   |   |-- rmsnorm_kernels.c
 |   |   |-- rope_kernels.c
@@ -77,6 +103,7 @@
 |   |-- ckernel_codegen.c
 |   |-- ckernel_ir.c
 |   |-- ckernel_ir_demo.c
+|   |-- ckernel_kernel_specs.c
 |   |-- ckernel_model_layout.c
 |   |-- ckernel_model_load.c
 |   |-- ckernel_orchestration.c
@@ -85,8 +112,11 @@
 |-- unittest
 |   |-- compare_outputs.py
 |   |-- generate_reference_data.py
+|   |-- lib_loader.py
 |   |-- test_attention_backward.py
 |   |-- test_attention.py
+|   |-- test_cross_entropy.py
+|   |-- test_embedding.py
 |   |-- test_gelu.py
 |   |-- test_gemm.py
 |   |-- test_layernorm.py
@@ -104,11 +134,12 @@
 |-- default.json
 |-- Makefile
 |-- README.md
+|-- small10mb.config.json
 |-- smolLM-135.json
-|-- test_forward_pass.c
-`-- TESTING.md
+|-- TESTING.md
+`-- tiny.config.json
 
-18 directories, 84 files
+21 directories, 112 files
 </pre>
 </div>
 

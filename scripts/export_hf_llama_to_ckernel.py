@@ -14,12 +14,16 @@ import numpy as np
 import torch
 from transformers import AutoConfig, AutoModelForCausalLM
 
-ALIGN_F = 16  # 16 floats = 64 bytes
-FLOAT_SIZE = 4
+ALIGN_BYTES = 64
+ELEM_BYTES = 4
 
 
-def align_up(n, alignment=ALIGN_F):
-    return ((n + alignment - 1) // alignment) * alignment
+def align_up_elems(elems, elem_bytes=ELEM_BYTES, align_bytes=ALIGN_BYTES):
+    if align_bytes == 0:
+        return elems
+    total_bytes = elems * elem_bytes
+    aligned = ((total_bytes + align_bytes - 1) // align_bytes) * align_bytes
+    return aligned // elem_bytes
 
 
 def write_zero_block(f, count):
@@ -104,9 +108,9 @@ def export_llama_checkpoint(checkpoint_dir, output_file):
     context_len = getattr(cfg, "max_position_embeddings", None) or cfg.n_positions
     head_dim = embed_dim // num_heads
 
-    aligned_embed_dim = align_up(embed_dim)
-    aligned_head_dim = align_up(head_dim)
-    aligned_intermediate = align_up(intermediate)
+    aligned_embed_dim = align_up_elems(embed_dim)
+    aligned_head_dim = align_up_elems(head_dim)
+    aligned_intermediate = align_up_elems(intermediate)
 
     print("Model config:")
     print(f"  layers={num_layers} embed={embed_dim} inter={intermediate}")
@@ -114,14 +118,14 @@ def export_llama_checkpoint(checkpoint_dir, output_file):
     print(f"  vocab={vocab_size} ctx={context_len}")
     print(f"  aligned: embed={aligned_embed_dim} head={aligned_head_dim} inter={aligned_intermediate}")
 
-    with open(output_file, "wb") as f:
+    with open(output_file, "w+b") as f:
         header_size = 128
         f.write(b"\x00" * header_size)
-        total_floats = 0
+        total_elems = 0
 
         def write_and_count(count):
-            nonlocal total_floats
-            total_floats += count
+            nonlocal total_elems
+            total_elems += count
 
         # 1) Token embeddings [V x aligned_embed_dim]
         write_and_count(
@@ -246,11 +250,11 @@ def export_llama_checkpoint(checkpoint_dir, output_file):
         f.write(struct.pack("I", head_dim))
         f.write(struct.pack("Q", aligned_embed_dim))
         f.write(struct.pack("Q", aligned_head_dim))
-        f.write(struct.pack("Q", align_up(context_len)))
+        f.write(struct.pack("Q", align_up_elems(context_len)))
         f.write(checksum)
         f.write(b"\x00" * 32)
 
-    mb = (header_size + total_floats * FLOAT_SIZE) / (1024 * 1024)
+    mb = (header_size + total_elems * ELEM_BYTES) / (1024 * 1024)
     print(f"✅ Wrote {output_file} ({mb:.2f} MB)")
     print(f"   checksum: {checksum.hex()[:16]}...")
 

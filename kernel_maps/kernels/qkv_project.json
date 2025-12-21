@@ -1,0 +1,36 @@
+{
+  "name": "qkv_project",
+  "impl": {
+    "forward": "ck_qkv_project_head_major",
+    "backward": "ck_qkv_project_head_major_backward",
+    "sources": ["src/ckernel_orchestration.c", "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c"]
+  },
+  "buffers": [
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "wq", "role": "weight", "shape": [{"dim": "num_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "bq", "role": "weight", "shape": [{"dim": "num_heads"}, {"dim": "aligned_head"}]},
+    {"id": "wk", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "bk", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}]},
+    {"id": "wv", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "bv", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}]},
+    {"id": "q", "role": "output", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "k", "role": "output", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "v", "role": "output", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]}
+  ],
+  "buffers_backward": [
+    {"id": "d_q", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_k", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_v", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "wq", "role": "weight", "shape": [{"dim": "num_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "wk", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "wv", "role": "weight", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "d_input", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "d_wq", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "d_bq", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "aligned_head"}]},
+    {"id": "d_wk", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "d_bk", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}]},
+    {"id": "d_wv", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}, {"dim": "aligned_embed"}]},
+    {"id": "d_bv", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "aligned_head"}]}
+  ]
+}

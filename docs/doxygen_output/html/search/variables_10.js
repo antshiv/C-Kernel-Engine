@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['token_5femb_5foffset_409',['token_emb_offset',['../structTransformerModel.html#a5e14c6be5365203ff62022d605db1672',1,'TransformerModel']]],
-  ['tokens_410',['tokens',['../structCKLayerForwardParams.html#a9b2e8d95ad724035dc4ef7d8f2aeb2b8',1,'CKLayerForwardParams']]],
-  ['total_5ffloats_411',['total_floats',['../structTransformerModel.html#aa1da3a055e1f53a6aa8aa54d380e04d1',1,'TransformerModel']]]
+  ['scope_605',['scope',['../structCKBufferSpec.html#a81f2619d250bfb5c7401070c0345353a',1,'CKBufferSpec']]],
+  ['scores_606',['scores',['../structCKLayerForwardParams.html#a9b1930ef9e3d94dae2f16bacd354dc2d',1,'CKLayerForwardParams::scores()'],['../structCKLayerBackwardParams.html#a9e4a1e13e1a03430dfb1d4c35137a0c3',1,'CKLayerBackwardParams::scores()']]],
+  ['sgemm_607',['sgemm',['../structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4',1,'CKMathBackend']]],
+  ['shape_608',['shape',['../structCKBufferSpec.html#ae34b00c892e6e3ffd7928a0a31924b59',1,'CKBufferSpec']]],
+  ['sources_609',['sources',['../structCKKernelSpec.html#a702e1368abaa202d24597a58f2f5c751',1,'CKKernelSpec']]],
+  ['swiglu_5fout_610',['swiglu_out',['../structCKLayerForwardParams.html#a64b3c9bf08573696fe23f773e0af3f4a',1,'CKLayerForwardParams::swiglu_out()'],['../structCKLayerBackwardParams.html#aa82d1124a56c3e119f2bb9336bfb364b',1,'CKLayerBackwardParams::swiglu_out()']]]
 ];

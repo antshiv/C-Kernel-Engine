@@ -10,22 +10,13 @@ Uses the standard Llama-style RoPE formulation.
 """
 import ctypes
 import math
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    # Try build directory first, then root
-    lib_path = os.path.join(root, "build", "libckernel_rope.so")
-    if not os.path.exists(lib_path):
-        lib_path = os.path.join(root, "build", "libckernel_engine.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_rope.so", "libckernel_engine.so")
 
 # Precompute cache
 lib.rope_precompute_cache.argtypes = [

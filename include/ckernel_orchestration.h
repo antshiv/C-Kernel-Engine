@@ -61,6 +61,86 @@ typedef struct {
     float *output;    /* [T x aligned_embed_dim] */
 } CKLayerForwardParams;
 
+typedef struct {
+    int tokens;
+    int embed_dim;
+    int aligned_embed_dim;
+    int num_heads;
+    int num_kv_heads;
+    int head_dim;
+    int aligned_head_dim;
+    int aligned_context_window;
+    int intermediate_dim;
+    int aligned_intermediate_dim;
+    float eps;
+    int rope_pos_offset;
+
+    const float *input;     /* [T x aligned_embed_dim] */
+    const float *ln1_gamma; /* [aligned_embed_dim] */
+    const float *ln2_gamma; /* [aligned_embed_dim] */
+    const float *ln1_out;   /* [T x aligned_embed_dim] */
+    const float *ln1_rstd;  /* [T] */
+    const float *ln2_out;   /* [T x aligned_embed_dim] */
+    const float *ln2_rstd;  /* [T] */
+
+    const float *rope_cos; /* [max_seq_len x head_dim/2] */
+    const float *rope_sin; /* [max_seq_len x head_dim/2] */
+
+    const float *wq; /* [num_heads x aligned_head_dim x aligned_embed_dim] */
+    const float *bq; /* [num_heads x aligned_head_dim] */
+    const float *wk; /* [num_kv_heads x aligned_head_dim x aligned_embed_dim] */
+    const float *bk; /* [num_kv_heads x aligned_head_dim] */
+    const float *wv; /* [num_kv_heads x aligned_head_dim x aligned_embed_dim] */
+    const float *bv; /* [num_kv_heads x aligned_head_dim] */
+
+    const float *wo; /* [H x aligned_embed_dim x aligned_head_dim] */
+    const float *bo; /* [aligned_embed_dim] */
+
+    const float *w1; /* [2*aligned_intermediate_dim x aligned_embed_dim] */
+    const float *b1; /* [2*aligned_intermediate_dim] */
+    const float *w2; /* [aligned_embed_dim x aligned_intermediate_dim] */
+    const float *b2; /* [aligned_embed_dim] */
+
+    const float *q;         /* [num_heads x T x aligned_head_dim] */
+    const float *k;         /* [num_kv_heads x T x aligned_head_dim] */
+    const float *v;         /* [num_kv_heads x T x aligned_head_dim] */
+    const float *scores;    /* [num_heads x aligned_context_window x aligned_context_window] */
+    const float *attn_out;  /* [num_heads x T x aligned_head_dim] */
+    const float *residual1; /* [T x aligned_embed_dim] */
+    const float *fc1_out;   /* [T x 2*aligned_intermediate_dim] */
+    const float *swiglu_out;/* [T x aligned_intermediate_dim] */
+
+    float *d_output;    /* [T x aligned_embed_dim] */
+    float *d_input;     /* [T x aligned_embed_dim] */
+    float *d_ln1_gamma; /* [aligned_embed_dim] */
+    float *d_ln2_gamma; /* [aligned_embed_dim] */
+    float *d_wq;        /* [num_heads x aligned_head_dim x aligned_embed_dim] */
+    float *d_bq;        /* [num_heads x aligned_head_dim] */
+    float *d_wk;        /* [num_kv_heads x aligned_head_dim x aligned_embed_dim] */
+    float *d_bk;        /* [num_kv_heads x aligned_head_dim] */
+    float *d_wv;        /* [num_kv_heads x aligned_head_dim x aligned_embed_dim] */
+    float *d_bv;        /* [num_kv_heads x aligned_head_dim] */
+    float *d_wo;        /* [H x aligned_embed_dim x aligned_head_dim] */
+    float *d_bo;        /* [aligned_embed_dim] */
+    float *d_w1;        /* [2*aligned_intermediate_dim x aligned_embed_dim] */
+    float *d_b1;        /* [2*aligned_intermediate_dim] */
+    float *d_w2;        /* [aligned_embed_dim x aligned_intermediate_dim] */
+    float *d_b2;        /* [aligned_embed_dim] */
+
+    float *d_ln1_out;    /* [T x aligned_embed_dim] */
+    float *d_q;          /* [num_heads x T x aligned_head_dim] */
+    float *d_k;          /* [num_kv_heads x T x aligned_head_dim] */
+    float *d_v;          /* [num_kv_heads x T x aligned_head_dim] */
+    float *d_scores;     /* [num_heads x aligned_context_window x aligned_context_window] */
+    float *d_attn_out;   /* [num_heads x T x aligned_head_dim] */
+    float *d_proj_tmp;   /* [T x aligned_embed_dim] */
+    float *d_residual1;  /* [T x aligned_embed_dim] */
+    float *d_ln2_out;    /* [T x aligned_embed_dim] */
+    float *d_fc1_out;    /* [T x 2*aligned_intermediate_dim] */
+    float *d_swiglu_out; /* [T x aligned_intermediate_dim] */
+    float *d_mlp_out;    /* [T x aligned_embed_dim] */
+} CKLayerBackwardParams;
+
 void ck_residual_add_token_major(const float *a,
                                  const float *b,
                                  float *out,
@@ -101,6 +181,51 @@ void ck_mlp_swiglu_forward(const float *input,
                            int aligned_intermediate_dim);
 
 void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p);
+void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p);
+
+void ck_residual_add_backward(const float *d_out,
+                              float *d_a,
+                              float *d_b,
+                              int tokens,
+                              int aligned_embed_dim);
+
+void ck_attention_project_head_major_backward(const float *d_out,
+                                              const float *attn_out,
+                                              const float *wo,
+                                              float *d_attn_out,
+                                              float *d_wo,
+                                              float *d_bo,
+                                              int tokens,
+                                              int aligned_embed_dim,
+                                              int num_heads,
+                                              int aligned_head_dim);
+
+void ck_qkv_project_head_major_backward(const float *d_q,
+                                        const float *d_k,
+                                        const float *d_v,
+                                        const float *input,
+                                        const float *wq,
+                                        const float *bq,
+                                        const float *wk,
+                                        const float *bk,
+                                        const float *wv,
+                                        const float *bv,
+                                        float *d_input,
+                                        float *d_wq,
+                                        float *d_bq,
+                                        float *d_wk,
+                                        float *d_bk,
+                                        float *d_wv,
+                                        float *d_bv,
+                                        float *scratch,
+                                        int tokens,
+                                        int aligned_embed_dim,
+                                        int num_heads,
+                                        int num_kv_heads,
+                                        int aligned_head_dim,
+                                        int num_threads);
+
+void ck_layer_backward_rmsnorm_swiglu(const CKLayerBackwardParams *p);
 
 #ifdef __cplusplus
 } // extern "C"

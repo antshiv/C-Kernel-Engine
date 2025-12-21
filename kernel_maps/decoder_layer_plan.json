@@ -1,0 +1,108 @@
+{
+  "steps": [
+    {
+      "kernel": "rmsnorm",
+      "bind": {
+        "input": "input",
+        "gamma": "ln1_gamma",
+        "out": "ln1_out",
+        "rstd": "ln1_rstd"
+      }
+    },
+    {
+      "kernel": "qkv_project",
+      "bind": {
+        "input": "ln1_out",
+        "wq": "wq",
+        "bq": "bq",
+        "wk": "wk",
+        "bk": "bk",
+        "wv": "wv",
+        "bv": "bv",
+        "q": "q",
+        "k": "k",
+        "v": "v"
+      }
+    },
+    {
+      "kernel": "rope",
+      "when": "rope_theta>0",
+      "bind": {
+        "q": "q",
+        "k": "k",
+        "cos_cache": "rope_cos_cache",
+        "sin_cache": "rope_sin_cache"
+      }
+    },
+    {
+      "kernel": "attention",
+      "bind": {
+        "q": "q",
+        "k": "k",
+        "v": "v",
+        "scores": "scores",
+        "attn_out": "attn_out"
+      }
+    },
+    {
+      "kernel": "attn_proj",
+      "bind": {
+        "attn_out": "attn_out",
+        "wo": "wo",
+        "bo": "bo",
+        "proj_tmp": "proj_tmp",
+        "proj_scratch": "proj_scratch"
+      }
+    },
+    {
+      "kernel": "residual_add",
+      "bind": {
+        "a": "input",
+        "b": "proj_tmp",
+        "out": "residual1"
+      }
+    },
+    {
+      "kernel": "rmsnorm",
+      "bind": {
+        "input": "residual1",
+        "gamma": "ln2_gamma",
+        "out": "ln2_out",
+        "rstd": "ln2_rstd"
+      }
+    },
+    {
+      "kernel": "mlp_up",
+      "bind": {
+        "input": "ln2_out",
+        "w1": "w1",
+        "b1": "b1",
+        "fc1_out": "fc1_out"
+      }
+    },
+    {
+      "kernel": "swiglu",
+      "bind": {
+        "fc1_out": "fc1_out",
+        "swiglu_out": "swiglu_out"
+      }
+    },
+    {
+      "kernel": "mlp_down",
+      "bind": {
+        "swiglu_out": "swiglu_out",
+        "w2": "w2",
+        "b2": "b2",
+        "mlp_out": "mlp_out"
+      }
+    },
+    {
+      "kernel": "residual_add",
+      "bind": {
+        "a": "residual1",
+        "b": "mlp_out",
+        "out": "output"
+      }
+    }
+  ]
+}

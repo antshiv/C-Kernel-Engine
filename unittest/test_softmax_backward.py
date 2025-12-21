@@ -1,18 +1,12 @@
 import ctypes
-import os
 
 import torch
 import torch.nn.functional as F
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "libckernel_engine.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_engine.so")
 
 lib.causal_softmax_head_major.argtypes = [
     ctypes.POINTER(ctypes.c_float),

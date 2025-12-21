@@ -69,6 +69,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" line="64" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" bodystart="64" bodyend="111"/>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="593" endline="733">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="rmsnorm__kernels_8c_1a9a068ed02d809a81a23f09e61b820baf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -114,7 +115,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" line="12" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" bodystart="12" bodyend="51"/>
-        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="131" endline="223">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="496">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="498" endline="591">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

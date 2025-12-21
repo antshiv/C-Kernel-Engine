@@ -8,6 +8,7 @@
     <innerfile refid="ckernel__codegen_8c">ckernel_codegen.c</innerfile>
     <innerfile refid="ckernel__ir_8c">ckernel_ir.c</innerfile>
     <innerfile refid="ckernel__ir__demo_8c">ckernel_ir_demo.c</innerfile>
+    <innerfile refid="ckernel__kernel__specs_8c">ckernel_kernel_specs.c</innerfile>
     <innerfile refid="ckernel__model__layout_8c">ckernel_model_layout.c</innerfile>
     <innerfile refid="ckernel__model__load_8c">ckernel_model_load.c</innerfile>
     <innerfile refid="ckernel__orchestration_8c">ckernel_orchestration.c</innerfile>

@@ -1,0 +1,26 @@
+{
+  "name": "attention",
+  "impl": {
+    "forward": "attention_forward_causal_head_major_gqa",
+    "backward": "attention_backward_causal_head_major_gqa",
+    "sources": ["src/kernels/attention_kernels.c", "src/kernels/softmax_kernels.c"]
+  },
+  "buffers": [
+    {"id": "q", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "k", "role": "input", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "v", "role": "input", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "scores", "role": "output", "shape": [{"dim": "num_heads"}, {"dim": "aligned_ctx"}, {"dim": "aligned_ctx"}]},
+    {"id": "attn_out", "role": "output", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]}
+  ],
+  "buffers_backward": [
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "q", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "k", "role": "input", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "v", "role": "input", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "scores", "role": "activation", "shape": [{"dim": "num_heads"}, {"dim": "aligned_ctx"}, {"dim": "aligned_ctx"}]},
+    {"id": "d_q", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_k", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_v", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_scores", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "aligned_ctx"}, {"dim": "aligned_ctx"}]}
+  ]
+}

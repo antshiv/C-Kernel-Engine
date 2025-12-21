@@ -1,7 +1,10 @@
 #include "ckernel_codegen.h"
 #include "ckernel_registry.h"
+#include "ckernel_kernel_specs.h"
 
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static const char *op_name(CKOpType op)
@@ -23,6 +26,477 @@ static const char *op_name(CKOpType op)
     case CK_OP_SWIGLU_BWD:     return "SWIGLU_BWD";
     default:                   return "UNKNOWN";
     }
+}
+
+static const CKBufferSpec *ck_find_buffer_spec(const char *name)
+{
+    if (!name) {
+        return NULL;
+    }
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        if (strcmp(ck_decoder_buffers[i].name, name) == 0) {
+            return &ck_decoder_buffers[i];
+        }
+    }
+    return NULL;
+}
+
+static const CKKernelSpec *ck_find_kernel_spec(const char *name)
+{
+    if (!name) {
+        return NULL;
+    }
+    for (size_t i = 0; i < ck_kernel_spec_count; ++i) {
+        if (strcmp(ck_kernel_specs[i].name, name) == 0) {
+            return &ck_kernel_specs[i];
+        }
+    }
+    return NULL;
+}
+
+static int ck_buffer_should_alloc(const CKBufferSpec *spec)
+{
+    return spec && spec->role != CK_ROLE_INPUT;
+}
+
+static void emit_offset_field(FILE *out, const char *name)
+{
+    fprintf(out, "    size_t %s_offset;\n", name);
+}
+
+static void emit_layer_offsets_struct(FILE *out)
+{
+    fprintf(out, "typedef struct {\n");
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        if (!ck_buffer_should_alloc(spec)) {
+            continue;
+        }
+        emit_offset_field(out, spec->name);
+    }
+    fprintf(out, "} LayerOffsets;\n\n");
+}
+
+static void emit_global_offset_fields(FILE *out)
+{
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_GLOBAL) {
+            continue;
+        }
+        if (!ck_buffer_should_alloc(spec)) {
+            continue;
+        }
+        emit_offset_field(out, spec->name);
+    }
+}
+
+static void emit_model_struct(FILE *out)
+{
+    fprintf(out,
+            "typedef LayerOffsets TrulyOptimalLayer;\n\n"
+            "typedef struct {\n"
+            "    char magic[8];\n"
+            "    uint32_t version;\n"
+            "    uint32_t model_type;\n"
+            "\n"
+            "    int num_layers;\n"
+            "    int vocab_size;\n"
+            "    int embed_dim;\n"
+            "    int context_window;\n"
+            "    int intermediate_size;\n"
+            "\n"
+            "    size_t aligned_embed_dim;\n"
+            "    size_t aligned_head_dim;\n"
+            "    size_t aligned_attn_context_window;\n"
+            "\n"
+            "    int num_cores;\n"
+            "    int tokens_per_core;\n"
+            "    int num_attention_heads;\n"
+            "    int num_kv_heads;\n"
+            "    int head_dim;\n"
+            "    float rms_norm_eps;\n"
+            "    float rope_theta;\n"
+            "\n"
+            "    uint8_t *memory_base;\n"
+            "    size_t total_bytes;\n"
+            "    size_t elem_bytes;\n"
+            "    size_t layer_stride;\n"
+            "\n"
+            "    size_t layers_start_offset;\n");
+
+    emit_global_offset_fields(out);
+
+    fprintf(out,
+            "\n"
+            "    TrulyOptimalLayer *layers;\n"
+            "\n"
+            "    GradientStorage gradients;\n"
+            "    bool training_enabled;\n"
+            "    float learning_rate;\n"
+            "    int lr_warmup_steps;\n"
+            "    float lr_warmup_init;\n"
+            "    float grad_clip;\n"
+            "    size_t training_cache_samples;\n"
+            "    int active_tokens;\n"
+            "    TaskType task_type;\n"
+            "    OptimizerType optimizer;\n"
+            "    uint64_t optimizer_step;\n"
+            "    float adam_beta1;\n"
+            "    float adam_beta2;\n"
+            "    float adam_eps;\n"
+            "    float weight_decay;\n"
+            "    bool ema_enabled;\n"
+            "    float ema_decay;\n"
+            "    bool optimizer_state_initialized;\n"
+            "\n"
+            "    bool seq_cls_enabled;\n"
+            "    int seq_cls_num_classes;\n"
+            "    int seq_cls_pooling;\n"
+            "    size_t seq_cls_weight_offset;\n"
+            "    size_t seq_cls_bias_offset;\n"
+            "\n"
+            "    bool kv_cache_enabled;\n"
+            "    int kv_cache_capacity;\n"
+            "    int kv_cache_tokens;\n"
+            "\n"
+            "    long *training_data_buffer;\n"
+            "    long num_training_tokens;\n"
+            "\n"
+            "    uint8_t checksum[32];\n"
+            "    uint8_t reserved[32];\n"
+            "} TransformerModel;\n\n");
+}
+
+static void emit_dim_expr(FILE *out, CKDimKind dim)
+{
+    switch (dim) {
+    case CK_DIM_TOKENS:              fprintf(out, "(size_t)m->context_window"); break;
+    case CK_DIM_EMBED:               fprintf(out, "(size_t)m->embed_dim"); break;
+    case CK_DIM_ALIGNED_EMBED:       fprintf(out, "m->aligned_embed_dim"); break;
+    case CK_DIM_HEAD_DIM:            fprintf(out, "(size_t)m->head_dim"); break;
+    case CK_DIM_ALIGNED_HEAD:        fprintf(out, "m->aligned_head_dim"); break;
+    case CK_DIM_NUM_HEADS:           fprintf(out, "(size_t)m->num_attention_heads"); break;
+    case CK_DIM_NUM_KV_HEADS:        fprintf(out, "(size_t)m->num_kv_heads"); break;
+    case CK_DIM_ALIGNED_CTX:         fprintf(out, "m->aligned_attn_context_window"); break;
+    case CK_DIM_INTERMEDIATE:        fprintf(out, "(size_t)m->intermediate_size"); break;
+    case CK_DIM_ALIGNED_INTERMEDIATE:fprintf(out, "aligned_intermediate_dim"); break;
+    case CK_DIM_VOCAB:               fprintf(out, "(size_t)m->vocab_size"); break;
+    case CK_DIM_END:                 fprintf(out, "0"); break;
+    }
+}
+
+static void emit_shape_expr(FILE *out, const CKDimToken *shape)
+{
+    int first = 1;
+    for (int i = 0; i < 4; ++i) {
+        if (shape[i].dim == CK_DIM_END) {
+            break;
+        }
+        if (!first) {
+            fprintf(out, " * ");
+        }
+        fprintf(out, "(");
+        emit_dim_expr(out, shape[i].dim);
+        if (shape[i].mult != 1) {
+            fprintf(out, " * %d", shape[i].mult);
+        }
+        if (shape[i].div != 1) {
+            fprintf(out, " / %d", shape[i].div);
+        }
+        fprintf(out, ")");
+        first = 0;
+    }
+    if (first) {
+        fprintf(out, "0");
+    }
+}
+
+static void emit_global_allocations(FILE *out)
+{
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_GLOBAL) {
+            continue;
+        }
+        if (!ck_buffer_should_alloc(spec)) {
+            continue;
+        }
+        if (spec->role == CK_ROLE_GRAD) {
+            fprintf(out, "    if (m->training_enabled) {\n");
+            fprintf(out, "        m->%s_offset = bump_bytes(&off, (", spec->name);
+            emit_shape_expr(out, spec->shape);
+            fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+            fprintf(out, "    } else {\n");
+            fprintf(out, "        m->%s_offset = 0;\n", spec->name);
+            fprintf(out, "    }\n");
+            continue;
+        }
+        if (spec->alias_of) {
+            const CKBufferSpec *alias = ck_find_buffer_spec(spec->alias_of);
+            if (alias && alias->scope == CK_SCOPE_GLOBAL) {
+                fprintf(out, "    m->%s_offset = m->%s_offset;\n", spec->name, spec->alias_of);
+            }
+            continue;
+        }
+        if (spec->condition && strcmp(spec->condition, "rope_theta") == 0) {
+            fprintf(out, "    if (m->rope_theta > 0.0f) {\n");
+            fprintf(out, "        m->%s_offset = bump_bytes(&off, (", spec->name);
+            emit_shape_expr(out, spec->shape);
+            fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+            fprintf(out, "    } else {\n");
+            fprintf(out, "        m->%s_offset = 0;\n", spec->name);
+            fprintf(out, "    }\n");
+            continue;
+        }
+        fprintf(out, "    m->%s_offset = bump_bytes(&off, (", spec->name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+    }
+}
+
+static void emit_layer_allocations(FILE *out)
+{
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        if (!ck_buffer_should_alloc(spec)) {
+            continue;
+        }
+        if (spec->role == CK_ROLE_GRAD) {
+            fprintf(out, "        if (m->training_enabled) {\n");
+            fprintf(out, "            L->%s_offset = bump_bytes(&off, (", spec->name);
+            emit_shape_expr(out, spec->shape);
+            fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+            fprintf(out, "        } else {\n");
+            fprintf(out, "            L->%s_offset = 0;\n", spec->name);
+            fprintf(out, "        }\n");
+            continue;
+        }
+        fprintf(out, "        L->%s_offset = bump_bytes(&off, (", spec->name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+    }
+}
+
+static void emit_global_aliases_to_layer(FILE *out)
+{
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_GLOBAL || !spec->alias_of) {
+            continue;
+        }
+        const CKBufferSpec *alias = ck_find_buffer_spec(spec->alias_of);
+        if (!alias || alias->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        fprintf(out,
+                "    if (m->num_layers > 0) {\n"
+                "        m->%s_offset = m->layers[m->num_layers - 1].%s_offset;\n"
+                "    } else {\n"
+                "        m->%s_offset = 0;\n"
+                "    }\n",
+                spec->name, spec->alias_of, spec->name);
+    }
+}
+
+static void emit_zero_grad(FILE *out)
+{
+    fprintf(out,
+            "static void zero_grad(TransformerModel *m)\n"
+            "{\n"
+            "    if (!m || !m->training_enabled) return;\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "    size_t aligned_intermediate_dim = align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n");
+
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->role != CK_ROLE_GRAD || spec->scope != CK_SCOPE_GLOBAL) {
+            continue;
+        }
+        fprintf(out, "    if (m->%s_offset) {\n", spec->name);
+        fprintf(out, "        memset(base + m->%s_offset, 0, (", spec->name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out, ") * m->elem_bytes);\n");
+        fprintf(out, "    }\n");
+    }
+
+    fprintf(out,
+            "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
+            "        TrulyOptimalLayer *L = &m->layers[layer];\n");
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->role != CK_ROLE_GRAD || spec->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        fprintf(out, "        if (L->%s_offset) {\n", spec->name);
+        fprintf(out, "            memset(base + L->%s_offset, 0, (", spec->name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out, ") * m->elem_bytes);\n");
+        fprintf(out, "        }\n");
+    }
+    fprintf(out,
+            "    }\n"
+            "}\n\n");
+}
+
+static void emit_sgd_update(FILE *out)
+{
+    fprintf(out,
+            "static void sgd_update(TransformerModel *m, float lr)\n"
+            "{\n"
+            "    if (!m || !m->training_enabled || lr == 0.0f) return;\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "    size_t aligned_intermediate_dim = align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n");
+
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->role != CK_ROLE_WEIGHT || spec->scope != CK_SCOPE_GLOBAL) {
+            continue;
+        }
+        if (spec->alias_of) {
+            continue;
+        }
+        char grad_name[128];
+        snprintf(grad_name, sizeof(grad_name), "d_%s", spec->name);
+        const CKBufferSpec *grad = ck_find_buffer_spec(grad_name);
+        if (!grad || grad->scope != CK_SCOPE_GLOBAL) {
+            continue;
+        }
+        fprintf(out,
+                "    if (m->%s_offset && m->%s_offset) {\n"
+                "        float *w = ptr_f32(base, m->%s_offset);\n"
+                "        float *g = ptr_f32(base, m->%s_offset);\n"
+                "        size_t count = (",
+                spec->name, grad_name, spec->name, grad_name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out,
+                ");\n"
+                "        for (size_t i = 0; i < count; ++i) {\n"
+                "            w[i] -= lr * g[i];\n"
+                "        }\n"
+                "    }\n");
+    }
+
+    fprintf(out,
+            "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
+            "        TrulyOptimalLayer *L = &m->layers[layer];\n");
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->role != CK_ROLE_WEIGHT || spec->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        char grad_name[128];
+        snprintf(grad_name, sizeof(grad_name), "d_%s", spec->name);
+        const CKBufferSpec *grad = ck_find_buffer_spec(grad_name);
+        if (!grad || grad->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        fprintf(out,
+                "        if (L->%s_offset && L->%s_offset) {\n"
+                "            float *w = ptr_f32(base, L->%s_offset);\n"
+                "            float *g = ptr_f32(base, L->%s_offset);\n"
+                "            size_t count = (",
+                spec->name, grad_name, spec->name, grad_name);
+        emit_shape_expr(out, spec->shape);
+        fprintf(out,
+                ");\n"
+                "            for (size_t i = 0; i < count; ++i) {\n"
+                "                w[i] -= lr * g[i];\n"
+                "            }\n"
+                "        }\n");
+    }
+    fprintf(out,
+            "    }\n"
+            "}\n\n");
+}
+
+static int emit_unique_source(FILE *f,
+                              const char *path,
+                              const char **seen,
+                              size_t *seen_count,
+                              size_t seen_cap)
+{
+    if (!path || !path[0]) {
+        return 0;
+    }
+    for (size_t i = 0; i < *seen_count; ++i) {
+        if (strcmp(seen[i], path) == 0) {
+            return 0;
+        }
+    }
+    if (*seen_count >= seen_cap) {
+        return -1;
+    }
+    fputs(path, f);
+    fputc('\n', f);
+    seen[*seen_count] = path;
+    (*seen_count)++;
+    return 0;
+}
+
+static int ck_plan_step_enabled(const CKPlanStep *step, const CKIRGraph *cfg)
+{
+    if (!step || !step->condition || !cfg) {
+        return 1;
+    }
+    if (strcmp(step->condition, "rope_theta") == 0) {
+        return cfg->config.rope_theta > 0.0f;
+    }
+    if (strcmp(step->condition, "rope_theta>0") == 0) {
+        return cfg->config.rope_theta > 0.0f;
+    }
+    return 1;
+}
+
+static int emit_plan_sources(FILE *f,
+                             const CKPlanStep *plan,
+                             size_t plan_count,
+                             const CKIRGraph *cfg,
+                             const char **seen,
+                             size_t *seen_count,
+                             size_t seen_cap)
+{
+    for (size_t i = 0; i < plan_count; ++i) {
+        const CKPlanStep *step = &plan[i];
+        if (!ck_plan_step_enabled(step, cfg)) {
+            continue;
+        }
+        const CKKernelSpec *spec = ck_find_kernel_spec(step->kernel);
+        if (!spec) {
+            continue;
+        }
+        for (size_t s = 0; s < CKERNEL_MAX_KERNEL_SOURCES; ++s) {
+            const char *src = spec->sources[s];
+            if (!src) {
+                continue;
+            }
+            if (emit_unique_source(f, src, seen, seen_count, seen_cap) != 0) {
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+static const char *ck_first_layer_buffer_name(void)
+{
+    for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
+        const CKBufferSpec *spec = &ck_decoder_buffers[i];
+        if (spec->scope != CK_SCOPE_LAYER) {
+            continue;
+        }
+        if (!ck_buffer_should_alloc(spec)) {
+            continue;
+        }
+        return spec->name;
+    }
+    return "ln1_gamma";
 }
 
 void ck_codegen_c_skeleton(const CKIRGraph *forward,
@@ -147,8 +621,8 @@ void ck_codegen_c_skeleton(const CKIRGraph *forward,
             "    model.cfg.rms_norm_eps      = %.9g;\n"
             "    model.cfg.rope_theta        = %.9g;\n"
             "    layout_transformer_from_ir(&model, NULL); /* TODO: pass IR if needed */\n"
-            "    size_t bytes = model.total_floats * sizeof(float);\n"
-            "    model.memory_base = (float *)ck_huge_alloc(bytes);\n"
+            "    size_t bytes = model.total_bytes;\n"
+            "    model.memory_base = (uint8_t *)ck_huge_alloc(bytes);\n"
             "    if (!model.memory_base) {\n"
             "        fprintf(stderr, \"Failed to allocate %%zu bytes for model\\n\", bytes);\n"
             "        return 1;\n"
@@ -170,114 +644,6 @@ void ck_codegen_c_skeleton(const CKIRGraph *forward,
             forward->config.rope_theta);
 }
 
-static int emit_source_filtered(FILE *out, const char *relpath)
-{
-    const char *prefixes[] = { "", "../", "../../", "../../../", NULL };
-    char fullpath[4096];
-    FILE *in = NULL;
-
-    for (int i = 0; prefixes[i]; ++i) {
-        if (snprintf(fullpath, sizeof(fullpath), "%s%s", prefixes[i], relpath) < 0) {
-            continue;
-        }
-        in = fopen(fullpath, "rb");
-        if (in) {
-            break;
-        }
-    }
-
-    if (!in) {
-        fprintf(stderr, "ck_codegen_emit_runtime: failed to open %s\n", relpath);
-        return -1;
-    }
-
-    char line[4096];
-    while (fgets(line, sizeof(line), in)) {
-        const char *p = line;
-        while (*p == ' ' || *p == '\t') {
-            ++p;
-        }
-        if (strncmp(p, "#include", 8) == 0) {
-            continue;
-        }
-        if (strncmp(p, "#define _GNU_SOURCE", 19) == 0) {
-            continue;
-        }
-        fputs(line, out);
-    }
-
-    fputs("\n", out);
-    fclose(in);
-    return 0;
-}
-
-static void emit_gemm_blocked_serial(FILE *out)
-{
-    fprintf(out,
-            "static inline int ck_min(int a, int b) { return a < b ? a : b; }\n\n"
-            "void gemm_blocked_serial(const float *A,\n"
-            "                         const float *B,\n"
-            "                         const float *bias,\n"
-            "                         float *C,\n"
-            "                         int M, int N, int K)\n"
-            "{\n"
-            "    const int block_size = 64;\n"
-            "    for (int i = 0; i < M; i++) {\n"
-            "        for (int j = 0; j < N; j++) {\n"
-            "            C[i * N + j] = bias ? bias[j] : 0.0f;\n"
-            "        }\n"
-            "    }\n"
-            "#if defined(__AVX512F__)\n"
-            "    for (int ii = 0; ii < M; ii += block_size) {\n"
-            "        for (int jj = 0; jj < N; jj += block_size) {\n"
-            "            for (int kk = 0; kk < K; kk += block_size) {\n"
-            "                int i_end = ck_min(ii + block_size, M);\n"
-            "                int j_end = ck_min(jj + block_size, N);\n"
-            "                int k_end = ck_min(kk + block_size, K);\n"
-            "\n"
-            "                for (int i = ii; i < i_end; i++) {\n"
-            "                    for (int j = jj; j < j_end; j++) {\n"
-            "                        __m512 sum_vec = _mm512_setzero_ps();\n"
-            "                        int k;\n"
-            "                        for (k = kk; k <= k_end - 16; k += 16) {\n"
-            "                            __m512 a_vec = _mm512_loadu_ps(&A[i * K + k]);\n"
-            "                            __m512 b_vec = _mm512_loadu_ps(&B[j * K + k]);\n"
-            "                            sum_vec = _mm512_fmadd_ps(a_vec, b_vec, sum_vec);\n"
-            "                        }\n"
-            "                        float partial_sum = _mm512_reduce_add_ps(sum_vec);\n"
-            "                        for (; k < k_end; k++) {\n"
-            "                            partial_sum += A[i * K + k] * B[j * K + k];\n"
-            "                        }\n"
-            "                        C[i * N + j] += partial_sum;\n"
-            "                    }\n"
-            "                }\n"
-            "            }\n"
-            "        }\n"
-            "    }\n"
-            "#else\n"
-            "    for (int ii = 0; ii < M; ii += block_size) {\n"
-            "        for (int jj = 0; jj < N; jj += block_size) {\n"
-            "            for (int kk = 0; kk < K; kk += block_size) {\n"
-            "                int i_end = ck_min(ii + block_size, M);\n"
-            "                int j_end = ck_min(jj + block_size, N);\n"
-            "                int k_end = ck_min(kk + block_size, K);\n"
-            "\n"
-            "                for (int i = ii; i < i_end; i++) {\n"
-            "                    for (int j = jj; j < j_end; j++) {\n"
-            "                        float partial_sum = 0.0f;\n"
-            "                        for (int k = kk; k < k_end; k++) {\n"
-            "                            partial_sum += A[i * K + k] * B[j * K + k];\n"
-            "                        }\n"
-            "                        C[i * N + j] += partial_sum;\n"
-            "                    }\n"
-            "                }\n"
-            "            }\n"
-            "        }\n"
-            "    }\n"
-            "#endif\n"
-            "}\n\n");
-}
-
 static int emit_runtime_preamble(FILE *out)
 {
     fprintf(out,
@@ -285,8 +651,8 @@ static int emit_runtime_preamble(FILE *out)
             " * This file wires the existing C-Kernel-Engine kernels into a\n"
             " * decoder-only transformer forward pass.\n"
             " *\n"
-            " * Compile (scalar): gcc -O2 generated_model.c -lm -o generated_model\n"
-            " * Compile (AVX-512): gcc -O3 -mavx512f -mfma generated_model.c -lm -o generated_model\n"
+            " * Compile (scalar): gcc -O2 generated_model.c $(cat generated_model.c.kernels) -Iinclude -lm -o generated_model\n"
+            " * Compile (AVX-512): gcc -O3 -mavx512f -mfma generated_model.c $(cat generated_model.c.kernels) -Iinclude -lm -o generated_model\n"
             " */\n\n");
 
     fprintf(out,
@@ -299,106 +665,101 @@ static int emit_runtime_preamble(FILE *out)
             "#include <string.h>\n"
             "#include <math.h>\n"
             "#include <errno.h>\n"
-            "#include <sys/mman.h>\n"
             "#include <sys/types.h>\n"
             "#include <unistd.h>\n"
-            "#if defined(__AVX512F__)\n"
-            "#include <immintrin.h>\n"
-            "#endif\n\n");
+            "#include \"ckernel_engine.h\"\n"
+            "#include \"ckernel_orchestration.h\"\n"
+            "#include \"ckernel_alloc.h\"\n\n");
 
     fprintf(out,
-            "#define ALIGN_F 16\n"
-            "static size_t align_up_size(size_t n, size_t align) {\n"
+            "#define CACHELINE_BYTES 64\n"
+            "static size_t align_up_bytes(size_t n, size_t align) {\n"
             "    if (align == 0) return n;\n"
             "    return (n + align - 1) & ~(align - 1);\n"
             "}\n\n"
-            "static size_t bump(size_t *off, size_t count, size_t align) {\n"
-            "    size_t start = align_up_size(*off, align);\n"
-            "    *off = start + count;\n"
+            "static size_t align_up_elems(size_t elems, size_t elem_bytes, size_t align) {\n"
+            "    size_t bytes = elems * elem_bytes;\n"
+            "    bytes = align_up_bytes(bytes, align);\n"
+            "    return bytes / elem_bytes;\n"
+            "}\n\n"
+            "static size_t bump_bytes(size_t *off, size_t bytes, size_t align) {\n"
+            "    size_t start = align_up_bytes(*off, align);\n"
+            "    *off = start + bytes;\n"
             "    return start;\n"
+            "}\n\n"
+            "static inline float *ptr_f32(uint8_t *base, size_t offset) {\n"
+            "    return (float *)(base + offset);\n"
+            "}\n"
+            "static inline const float *cptr_f32(const uint8_t *base, size_t offset) {\n"
+            "    return (const float *)(base + offset);\n"
             "}\n\n");
 
-    fprintf(out,
-            "typedef struct {\n"
-            "    int tokens;\n"
-            "    int embed_dim;\n"
-            "    int aligned_embed_dim;\n"
-            "    int num_heads;\n"
-            "    int num_kv_heads;\n"
-            "    int head_dim;\n"
-            "    int aligned_head_dim;\n"
-            "    int aligned_context_window;\n"
-            "    int intermediate_dim;\n"
-            "    int aligned_intermediate_dim;\n"
-            "    float eps;\n"
-            "    int rope_pos_offset;\n"
-            "\n"
-            "    const float *input;\n"
-            "    const float *ln1_gamma;\n"
-            "    const float *ln2_gamma;\n"
-            "    const float *rope_cos;\n"
-            "    const float *rope_sin;\n"
-            "\n"
-            "    const float *wq;\n"
-            "    const float *bq;\n"
-            "    const float *wk;\n"
-            "    const float *bk;\n"
-            "    const float *wv;\n"
-            "    const float *bv;\n"
-            "\n"
-            "    const float *wo;\n"
-            "    const float *bo;\n"
-            "\n"
-            "    const float *w1;\n"
-            "    const float *b1;\n"
-            "    const float *w2;\n"
-            "    const float *b2;\n"
-            "\n"
-            "    float *ln1_out;\n"
-            "    float *ln1_rstd;\n"
-            "    float *q;\n"
-            "    float *k;\n"
-            "    float *v;\n"
-            "    float *scores;\n"
-            "    float *attn_out;\n"
-            "    float *proj_tmp;\n"
-            "    float *proj_scratch;\n"
-            "    float *residual1;\n"
-            "    float *ln2_out;\n"
-            "    float *ln2_rstd;\n"
-            "    float *fc1_out;\n"
-            "    float *swiglu_out;\n"
-            "    float *mlp_out;\n"
-            "    float *output;\n"
-            "} CKLayerForwardParams;\n\n");
+    return 0;
+}
 
-    emit_gemm_blocked_serial(out);
-
-    if (emit_source_filtered(out, "src/ckernel_alloc.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/sigmoid_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/swiglu_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/rmsnorm_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/softmax_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/rope_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/kernels/attention_kernels.c") != 0) {
-        return -1;
-    }
-    if (emit_source_filtered(out, "src/ckernel_orchestration.c") != 0) {
+static int emit_kernel_manifest(const CKIRGraph *forward, const char *runtime_path)
+{
+    if (!forward || !runtime_path) {
         return -1;
     }
 
+    const char *suffix = ".kernels";
+    size_t len = strlen(runtime_path) + strlen(suffix) + 1;
+    char *path = (char *)malloc(len);
+    if (!path) {
+        return -1;
+    }
+    snprintf(path, len, "%s%s", runtime_path, suffix);
+
+    FILE *f = fopen(path, "wb");
+    if (!f) {
+        fprintf(stderr, "ck_codegen_emit_runtime: failed to open %s: %s\n",
+                path, strerror(errno));
+        free(path);
+        return -1;
+    }
+
+    size_t seen_cap = ck_kernel_spec_count * CKERNEL_MAX_KERNEL_SOURCES + 8;
+    const char **seen = (const char **)calloc(seen_cap, sizeof(char *));
+    if (!seen) {
+        fclose(f);
+        free(path);
+        return -1;
+    }
+    size_t seen_count = 0;
+
+    emit_unique_source(f, "src/ckernel_alloc.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/embedding_kernels.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/rope_kernels.c", seen, &seen_count, seen_cap);
+    if (emit_plan_sources(f,
+                          ck_decoder_forward_plan,
+                          ck_decoder_forward_plan_count,
+                          forward,
+                          seen,
+                          &seen_count,
+                          seen_cap) != 0) {
+        free(seen);
+        fclose(f);
+        free(path);
+        return -1;
+    }
+    if (emit_plan_sources(f,
+                          ck_decoder_backward_plan,
+                          ck_decoder_backward_plan_count,
+                          forward,
+                          seen,
+                          &seen_count,
+                          seen_cap) != 0) {
+        free(seen);
+        fclose(f);
+        free(path);
+        return -1;
+    }
+    free(seen);
+
+    fclose(f);
+    fprintf(stderr, "[ck_codegen] kernels manifest written to %s\n", path);
+    free(path);
     return 0;
 }
 
@@ -436,123 +797,8 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    size_t total_gradient_floats;\n"
             "} GradientStorage;\n\n");
 
-    fprintf(out,
-            "typedef struct {\n"
-            "    size_t ln1_gamma_offset;\n"
-            "    size_t ln2_gamma_offset;\n"
-            "    size_t wq_offset;\n"
-            "    size_t bq_offset;\n"
-            "    size_t wk_offset;\n"
-            "    size_t bk_offset;\n"
-            "    size_t wv_offset;\n"
-            "    size_t bv_offset;\n"
-            "    size_t wo_offset;\n"
-            "    size_t bo_offset;\n"
-            "    size_t w1_offset;\n"
-            "    size_t b1_offset;\n"
-            "    size_t w2_offset;\n"
-            "    size_t b2_offset;\n"
-            "\n"
-            "    size_t ln1_out_offset;\n"
-            "    size_t ln1_rstd_offset;\n"
-            "    size_t q_offset;\n"
-            "    size_t k_offset;\n"
-            "    size_t v_offset;\n"
-            "    size_t scores_offset;\n"
-            "    size_t attn_out_offset;\n"
-            "    size_t proj_tmp_offset;\n"
-            "    size_t proj_scratch_offset;\n"
-            "    size_t residual1_offset;\n"
-            "    size_t ln2_out_offset;\n"
-            "    size_t ln2_rstd_offset;\n"
-            "    size_t fc1_out_offset;\n"
-            "    size_t swiglu_out_offset;\n"
-            "    size_t mlp_out_offset;\n"
-            "    size_t output_offset;\n"
-            "} LayerOffsets;\n\n");
-
-    fprintf(out,
-            "typedef LayerOffsets TrulyOptimalLayer;\n\n"
-            "typedef struct {\n"
-            "    char magic[8];\n"
-            "    uint32_t version;\n"
-            "    uint32_t model_type;\n"
-            "\n"
-            "    int num_layers;\n"
-            "    int vocab_size;\n"
-            "    int embed_dim;\n"
-            "    int context_window;\n"
-            "    int intermediate_size;\n"
-            "\n"
-            "    size_t aligned_embed_dim;\n"
-            "    size_t aligned_head_dim;\n"
-            "    size_t aligned_attn_context_window;\n"
-            "\n"
-            "    int num_cores;\n"
-            "    int tokens_per_core;\n"
-            "    int num_attention_heads;\n"
-            "    int num_kv_heads;\n"
-            "    int head_dim;\n"
-            "    float rms_norm_eps;\n"
-            "    float rope_theta;\n"
-            "    size_t rope_cos_cache_offset;\n"
-            "    size_t rope_sin_cache_offset;\n"
-            "\n"
-            "    float *memory_base;\n"
-            "    size_t total_floats;\n"
-            "    size_t layer_stride;\n"
-            "\n"
-            "    size_t token_emb_offset;\n"
-            "    size_t pos_emb_offset;\n"
-            "    size_t embedded_input_offset;\n"
-            "    size_t layers_start_offset;\n"
-            "\n"
-            "    TrulyOptimalLayer *layers;\n"
-            "\n"
-            "    size_t final_ln_weight_offset;\n"
-            "    size_t final_ln_bias_offset;\n"
-            "    size_t final_ln_mean_offset;\n"
-            "    size_t final_ln_rstd_offset;\n"
-            "    size_t final_output_offset;\n"
-            "\n"
-            "    size_t lm_head_weight_offset;\n"
-            "    size_t logits_offset;\n"
-            "\n"
-            "    GradientStorage gradients;\n"
-            "    bool training_enabled;\n"
-            "    float learning_rate;\n"
-            "    int lr_warmup_steps;\n"
-            "    float lr_warmup_init;\n"
-            "    float grad_clip;\n"
-            "    size_t training_cache_samples;\n"
-            "    int active_tokens;\n"
-            "    TaskType task_type;\n"
-            "    OptimizerType optimizer;\n"
-            "    uint64_t optimizer_step;\n"
-            "    float adam_beta1;\n"
-            "    float adam_beta2;\n"
-            "    float adam_eps;\n"
-            "    float weight_decay;\n"
-            "    bool ema_enabled;\n"
-            "    float ema_decay;\n"
-            "    bool optimizer_state_initialized;\n"
-            "\n"
-            "    bool seq_cls_enabled;\n"
-            "    int seq_cls_num_classes;\n"
-            "    int seq_cls_pooling;\n"
-            "    size_t seq_cls_weight_offset;\n"
-            "    size_t seq_cls_bias_offset;\n"
-            "\n"
-            "    bool kv_cache_enabled;\n"
-            "    int kv_cache_capacity;\n"
-            "    int kv_cache_tokens;\n"
-            "\n"
-            "    long *training_data_buffer;\n"
-            "    long num_training_tokens;\n"
-            "\n"
-            "    uint8_t checksum[32];\n"
-            "    uint8_t reserved[32];\n"
-            "} TransformerModel;\n\n");
+    emit_layer_offsets_struct(out);
+    emit_model_struct(out);
 
     fprintf(out,
             "static int layout_model(TransformerModel *m)\n"
@@ -568,10 +814,12 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    if (m->rms_norm_eps <= 0.0f) m->rms_norm_eps = 1e-5f;\n"
             "    if (m->rope_theta < 0.0f) m->rope_theta = 0.0f;\n"
             "    if (m->rope_theta > 0.0f && (m->head_dim %% 2 != 0)) return -1;\n"
-            "    m->aligned_embed_dim = align_up_size((size_t)m->embed_dim, ALIGN_F);\n"
-            "    m->aligned_head_dim = align_up_size((size_t)m->head_dim, ALIGN_F);\n"
-            "    m->aligned_attn_context_window = align_up_size((size_t)m->context_window, ALIGN_F);\n"
-            "    size_t aligned_intermediate_dim = align_up_size((size_t)m->intermediate_size, ALIGN_F);\n"
+            "    if (m->elem_bytes == 0) m->elem_bytes = sizeof(float);\n"
+            "    size_t elem_bytes = m->elem_bytes;\n"
+            "    m->aligned_embed_dim = align_up_elems((size_t)m->embed_dim, elem_bytes, CACHELINE_BYTES);\n"
+            "    m->aligned_head_dim = align_up_elems((size_t)m->head_dim, elem_bytes, CACHELINE_BYTES);\n"
+            "    m->aligned_attn_context_window = align_up_elems((size_t)m->context_window, elem_bytes, CACHELINE_BYTES);\n"
+            "    size_t aligned_intermediate_dim = align_up_elems((size_t)m->intermediate_size, elem_bytes, CACHELINE_BYTES);\n"
             "\n"
             "    if (m->num_cores <= 0) m->num_cores = 1;\n"
             "    m->tokens_per_core = (m->context_window + m->num_cores - 1) / m->num_cores;\n"
@@ -579,83 +827,35 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    m->layers = (TrulyOptimalLayer *)calloc((size_t)m->num_layers, sizeof(TrulyOptimalLayer));\n"
             "    if (!m->layers) return -1;\n"
             "\n"
-            "    size_t off = 0;\n"
-            "    m->token_emb_offset = bump(&off, (size_t)m->vocab_size * m->aligned_embed_dim, ALIGN_F);\n"
-            "    m->pos_emb_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "    m->embedded_input_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "    if (m->rope_theta > 0.0f) {\n"
-            "        size_t rope_half = (size_t)m->head_dim / 2;\n"
-            "        size_t rope_count = (size_t)m->context_window * rope_half;\n"
-            "        m->rope_cos_cache_offset = bump(&off, rope_count, ALIGN_F);\n"
-            "        m->rope_sin_cache_offset = bump(&off, rope_count, ALIGN_F);\n"
-            "    } else {\n"
-            "        m->rope_cos_cache_offset = 0;\n"
-            "        m->rope_sin_cache_offset = 0;\n"
-            "    }\n"
+            "    size_t off = 0;\n");
+    emit_global_allocations(out);
+    fprintf(out,
             "    m->layers_start_offset = off;\n"
             "\n"
             "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
-            "        TrulyOptimalLayer *L = &m->layers[layer];\n"
-            "        size_t head_w_stride = m->aligned_head_dim * m->aligned_embed_dim;\n"
-            "        size_t q_w = (size_t)m->num_attention_heads * head_w_stride;\n"
-            "        size_t kv_w = (size_t)m->num_kv_heads * head_w_stride;\n"
-            "        size_t q_b = (size_t)m->num_attention_heads * m->aligned_head_dim;\n"
-            "        size_t kv_b = (size_t)m->num_kv_heads * m->aligned_head_dim;\n"
-            "        size_t wo_w = (size_t)m->num_attention_heads * m->aligned_embed_dim * m->aligned_head_dim;\n"
-            "        size_t w1_w = (size_t)(2 * aligned_intermediate_dim) * m->aligned_embed_dim;\n"
-            "        size_t w2_w = m->aligned_embed_dim * aligned_intermediate_dim;\n"
-            "\n"
-            "        L->ln1_gamma_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->ln2_gamma_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->wq_offset = bump(&off, q_w, ALIGN_F);\n"
-            "        L->bq_offset = bump(&off, q_b, ALIGN_F);\n"
-            "        L->wk_offset = bump(&off, kv_w, ALIGN_F);\n"
-            "        L->bk_offset = bump(&off, kv_b, ALIGN_F);\n"
-            "        L->wv_offset = bump(&off, kv_w, ALIGN_F);\n"
-            "        L->bv_offset = bump(&off, kv_b, ALIGN_F);\n"
-            "        L->wo_offset = bump(&off, wo_w, ALIGN_F);\n"
-            "        L->bo_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->w1_offset = bump(&off, w1_w, ALIGN_F);\n"
-            "        L->b1_offset = bump(&off, (size_t)(2 * aligned_intermediate_dim), ALIGN_F);\n"
-            "        L->w2_offset = bump(&off, w2_w, ALIGN_F);\n"
-            "        L->b2_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "\n"
-            "        L->ln1_out_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->ln1_rstd_offset = bump(&off, (size_t)m->context_window, ALIGN_F);\n"
-            "        L->q_offset = bump(&off, (size_t)m->num_attention_heads * (size_t)m->context_window * m->aligned_head_dim, ALIGN_F);\n"
-            "        L->k_offset = bump(&off, (size_t)m->num_kv_heads * (size_t)m->context_window * m->aligned_head_dim, ALIGN_F);\n"
-            "        L->v_offset = bump(&off, (size_t)m->num_kv_heads * (size_t)m->context_window * m->aligned_head_dim, ALIGN_F);\n"
-            "        L->scores_offset = bump(&off, (size_t)m->num_attention_heads * m->aligned_attn_context_window * m->aligned_attn_context_window, ALIGN_F);\n"
-            "        L->attn_out_offset = bump(&off, (size_t)m->num_attention_heads * (size_t)m->context_window * m->aligned_head_dim, ALIGN_F);\n"
-            "        L->proj_tmp_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->proj_scratch_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->residual1_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->ln2_out_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->ln2_rstd_offset = bump(&off, (size_t)m->context_window, ALIGN_F);\n"
-            "        L->fc1_out_offset = bump(&off, (size_t)m->context_window * (size_t)(2 * aligned_intermediate_dim), ALIGN_F);\n"
-            "        L->swiglu_out_offset = bump(&off, (size_t)m->context_window * aligned_intermediate_dim, ALIGN_F);\n"
-            "        L->mlp_out_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
-            "        L->output_offset = bump(&off, (size_t)m->context_window * m->aligned_embed_dim, ALIGN_F);\n"
+            "        TrulyOptimalLayer *L = &m->layers[layer];\n");
+    emit_layer_allocations(out);
+    fprintf(out,
             "    }\n"
-            "\n"
-            "    if (m->num_layers > 1) {\n"
-            "        m->layer_stride = m->layers[1].ln1_gamma_offset - m->layers[0].ln1_gamma_offset;\n"
-            "    } else {\n"
-            "        m->layer_stride = 0;\n"
-            "    }\n"
-            "    m->final_output_offset = m->layers[m->num_layers - 1].output_offset;\n"
-            "    m->final_ln_weight_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "    m->final_ln_bias_offset = bump(&off, m->aligned_embed_dim, ALIGN_F);\n"
-            "    m->final_ln_mean_offset = bump(&off, (size_t)m->context_window, ALIGN_F);\n"
-            "    m->final_ln_rstd_offset = bump(&off, (size_t)m->context_window, ALIGN_F);\n"
-            "    m->lm_head_weight_offset = m->token_emb_offset;\n"
-            "    m->logits_offset = bump(&off, (size_t)m->context_window * (size_t)m->vocab_size, ALIGN_F);\n"
-            "    m->total_floats = align_up_size(off, ALIGN_F);\n"
-            "    m->memory_base = (float *)ck_huge_alloc(m->total_floats * sizeof(float));\n"
+            "\n");
+    {
+        const char *stride_field = ck_first_layer_buffer_name();
+        fprintf(out,
+                "    if (m->num_layers > 1) {\n"
+                "        m->layer_stride = m->layers[1].%s_offset - m->layers[0].%s_offset;\n"
+                "    } else {\n"
+                "        m->layer_stride = 0;\n"
+                "    }\n",
+                stride_field, stride_field);
+    }
+    emit_global_aliases_to_layer(out);
+    fprintf(out,
+            "    m->total_bytes = align_up_bytes(off, CACHELINE_BYTES);\n"
+            "    m->memory_base = (uint8_t *)ck_huge_alloc(m->total_bytes);\n"
             "    if (!m->memory_base) return -1;\n"
             "    if (m->rope_theta > 0.0f) {\n"
-            "        rope_precompute_cache(m->memory_base + m->rope_cos_cache_offset,\n"
-            "                             m->memory_base + m->rope_sin_cache_offset,\n"
+            "        rope_precompute_cache(ptr_f32(m->memory_base, m->rope_cos_cache_offset),\n"
+            "                             ptr_f32(m->memory_base, m->rope_sin_cache_offset),\n"
             "                             m->context_window,\n"
             "                             m->head_dim,\n"
             "                             m->rope_theta);\n"
@@ -667,14 +867,25 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "static void lm_head_forward(const float *hidden,\n"
             "                            const float *weights,\n"
             "                            float *logits,\n"
-            "                            int T, int V, int D, int aligned_D);\n\n");
+            "                            int T, int V, int D, int aligned_D);\n"
+            "static void lm_head_backward(const float *hidden,\n"
+            "                             const float *weights,\n"
+            "                             const float *d_logits,\n"
+            "                             float *d_hidden,\n"
+            "                             float *d_weights,\n"
+            "                             int T, int V, int D, int aligned_D);\n"
+            "static void softmax_cross_entropy(const float *logits,\n"
+            "                                  const int32_t *targets,\n"
+            "                                  int T, int V,\n"
+            "                                  float *d_logits,\n"
+            "                                  float *loss_out);\n\n");
 
     fprintf(out,
             "static void run_model_forward(TransformerModel *m)\n"
             "{\n"
-            "    float *base = m->memory_base;\n"
-            "    float *current = base + m->embedded_input_offset;\n"
-            "    int aligned_intermediate_dim = (int)align_up_size((size_t)m->intermediate_size, ALIGN_F);\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "    float *current = ptr_f32(base, m->embedded_input_offset);\n"
+            "    int aligned_intermediate_dim = (int)align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n"
             "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
             "        TrulyOptimalLayer *L = &m->layers[layer];\n"
             "        CKLayerForwardParams p = {0};\n"
@@ -690,61 +901,205 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        p.aligned_intermediate_dim = aligned_intermediate_dim;\n"
             "        p.eps = m->rms_norm_eps;\n"
             "        p.rope_pos_offset = 0;\n"
-            "        p.rope_cos = (m->rope_theta > 0.0f) ? (base + m->rope_cos_cache_offset) : NULL;\n"
-            "        p.rope_sin = (m->rope_theta > 0.0f) ? (base + m->rope_sin_cache_offset) : NULL;\n"
+            "        p.rope_cos = (m->rope_theta > 0.0f) ? cptr_f32(base, m->rope_cos_cache_offset) : NULL;\n"
+            "        p.rope_sin = (m->rope_theta > 0.0f) ? cptr_f32(base, m->rope_sin_cache_offset) : NULL;\n"
             "        p.input = current;\n"
-            "        p.ln1_gamma = base + L->ln1_gamma_offset;\n"
-            "        p.ln2_gamma = base + L->ln2_gamma_offset;\n"
-            "        p.wq = base + L->wq_offset;\n"
-            "        p.bq = base + L->bq_offset;\n"
-            "        p.wk = base + L->wk_offset;\n"
-            "        p.bk = base + L->bk_offset;\n"
-            "        p.wv = base + L->wv_offset;\n"
-            "        p.bv = base + L->bv_offset;\n"
-            "        p.wo = base + L->wo_offset;\n"
-            "        p.bo = base + L->bo_offset;\n"
-            "        p.w1 = base + L->w1_offset;\n"
-            "        p.b1 = base + L->b1_offset;\n"
-            "        p.w2 = base + L->w2_offset;\n"
-            "        p.b2 = base + L->b2_offset;\n"
-            "        p.ln1_out = base + L->ln1_out_offset;\n"
-            "        p.ln1_rstd = base + L->ln1_rstd_offset;\n"
-            "        p.q = base + L->q_offset;\n"
-            "        p.k = base + L->k_offset;\n"
-            "        p.v = base + L->v_offset;\n"
-            "        p.scores = base + L->scores_offset;\n"
-            "        p.attn_out = base + L->attn_out_offset;\n"
-            "        p.proj_tmp = base + L->proj_tmp_offset;\n"
-            "        p.proj_scratch = base + L->proj_scratch_offset;\n"
-            "        p.residual1 = base + L->residual1_offset;\n"
-            "        p.ln2_out = base + L->ln2_out_offset;\n"
-            "        p.ln2_rstd = base + L->ln2_rstd_offset;\n"
-            "        p.fc1_out = base + L->fc1_out_offset;\n"
-            "        p.swiglu_out = base + L->swiglu_out_offset;\n"
-            "        p.mlp_out = base + L->mlp_out_offset;\n"
-            "        p.output = base + L->output_offset;\n"
+            "        p.ln1_gamma = cptr_f32(base, L->ln1_gamma_offset);\n"
+            "        p.ln2_gamma = cptr_f32(base, L->ln2_gamma_offset);\n"
+            "        p.wq = cptr_f32(base, L->wq_offset);\n"
+            "        p.bq = cptr_f32(base, L->bq_offset);\n"
+            "        p.wk = cptr_f32(base, L->wk_offset);\n"
+            "        p.bk = cptr_f32(base, L->bk_offset);\n"
+            "        p.wv = cptr_f32(base, L->wv_offset);\n"
+            "        p.bv = cptr_f32(base, L->bv_offset);\n"
+            "        p.wo = cptr_f32(base, L->wo_offset);\n"
+            "        p.bo = cptr_f32(base, L->bo_offset);\n"
+            "        p.w1 = cptr_f32(base, L->w1_offset);\n"
+            "        p.b1 = cptr_f32(base, L->b1_offset);\n"
+            "        p.w2 = cptr_f32(base, L->w2_offset);\n"
+            "        p.b2 = cptr_f32(base, L->b2_offset);\n"
+            "        p.ln1_out = ptr_f32(base, L->ln1_out_offset);\n"
+            "        p.ln1_rstd = ptr_f32(base, L->ln1_rstd_offset);\n"
+            "        p.q = ptr_f32(base, L->q_offset);\n"
+            "        p.k = ptr_f32(base, L->k_offset);\n"
+            "        p.v = ptr_f32(base, L->v_offset);\n"
+            "        p.scores = ptr_f32(base, L->scores_offset);\n"
+            "        p.attn_out = ptr_f32(base, L->attn_out_offset);\n"
+            "        p.proj_tmp = ptr_f32(base, L->proj_tmp_offset);\n"
+            "        p.proj_scratch = ptr_f32(base, L->proj_scratch_offset);\n"
+            "        p.residual1 = ptr_f32(base, L->residual1_offset);\n"
+            "        p.ln2_out = ptr_f32(base, L->ln2_out_offset);\n"
+            "        p.ln2_rstd = ptr_f32(base, L->ln2_rstd_offset);\n"
+            "        p.fc1_out = ptr_f32(base, L->fc1_out_offset);\n"
+            "        p.swiglu_out = ptr_f32(base, L->swiglu_out_offset);\n"
+            "        p.mlp_out = ptr_f32(base, L->mlp_out_offset);\n"
+            "        p.output = ptr_f32(base, L->output_offset);\n"
             "        ck_layer_forward_rmsnorm_swiglu(&p);\n"
             "        current = p.output;\n"
             "    }\n"
-            "    m->final_output_offset = (size_t)(current - base);\n"
-            "    float *final_out = base + m->final_output_offset;\n"
+            "    float *final_out = ptr_f32(base, m->final_output_offset);\n"
             "    rmsnorm_forward(current,\n"
-            "                    base + m->final_ln_weight_offset,\n"
+            "                    cptr_f32(base, m->final_ln_weight_offset),\n"
             "                    final_out,\n"
-            "                    base + m->final_ln_rstd_offset,\n"
+            "                    ptr_f32(base, m->final_ln_rstd_offset),\n"
             "                    m->context_window,\n"
             "                    m->embed_dim,\n"
             "                    (int)m->aligned_embed_dim,\n"
             "                    m->rms_norm_eps);\n"
             "    if (m->vocab_size > 0) {\n"
             "        lm_head_forward(final_out,\n"
-            "                        base + m->lm_head_weight_offset,\n"
-            "                        base + m->logits_offset,\n"
+            "                        cptr_f32(base, m->lm_head_weight_offset),\n"
+            "                        ptr_f32(base, m->logits_offset),\n"
             "                        m->context_window,\n"
             "                        m->vocab_size,\n"
             "                        m->embed_dim,\n"
             "                        (int)m->aligned_embed_dim);\n"
             "    }\n"
+            "}\n\n");
+
+    emit_zero_grad(out);
+    emit_sgd_update(out);
+
+    fprintf(out,
+            "static int run_model_backward(TransformerModel *m,\n"
+            "                              const int32_t *tokens,\n"
+            "                              const int32_t *targets,\n"
+            "                              float *loss_out)\n"
+            "{\n"
+            "    if (!m || !m->training_enabled) return 0;\n"
+            "    if (!tokens || !targets) return -1;\n"
+            "    if (m->num_layers <= 0) return -1;\n"
+            "    int T = m->context_window;\n"
+            "    int V = m->vocab_size;\n"
+            "    int D = m->embed_dim;\n"
+            "    int aligned_D = (int)m->aligned_embed_dim;\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "\n"
+            "    zero_grad(m);\n"
+            "\n"
+            "    float *final_out = ptr_f32(base, m->final_output_offset);\n"
+            "    float *logits = ptr_f32(base, m->logits_offset);\n"
+            "    float *d_logits = ptr_f32(base, m->d_logits_offset);\n"
+            "    float *d_final_out = ptr_f32(base, m->d_final_output_offset);\n"
+            "    float *d_final_in = ptr_f32(base, m->d_final_input_offset);\n"
+            "\n"
+            "    float loss = 0.0f;\n"
+            "    softmax_cross_entropy(logits, targets, T, V, d_logits, &loss);\n"
+            "    if (loss_out) {\n"
+            "        *loss_out = loss;\n"
+            "    }\n"
+            "    lm_head_backward(final_out,\n"
+            "                     cptr_f32(base, m->lm_head_weight_offset),\n"
+            "                     d_logits,\n"
+            "                     d_final_out,\n"
+            "                     ptr_f32(base, m->d_token_emb_offset),\n"
+            "                     T, V, D, aligned_D);\n"
+            "    rmsnorm_backward(d_final_out,\n"
+            "                     ptr_f32(base, m->layers[m->num_layers - 1].output_offset),\n"
+            "                     cptr_f32(base, m->final_ln_weight_offset),\n"
+            "                     ptr_f32(base, m->final_ln_rstd_offset),\n"
+            "                     d_final_in,\n"
+            "                     ptr_f32(base, m->d_final_ln_weight_offset),\n"
+            "                     T, D, aligned_D);\n"
+            "\n"
+            "    for (int layer = m->num_layers - 1; layer >= 0; --layer) {\n"
+            "        TrulyOptimalLayer *L = &m->layers[layer];\n"
+            "        CKLayerBackwardParams p = {0};\n"
+            "        p.tokens = T;\n"
+            "        p.embed_dim = m->embed_dim;\n"
+            "        p.aligned_embed_dim = (int)m->aligned_embed_dim;\n"
+            "        p.num_heads = m->num_attention_heads;\n"
+            "        p.num_kv_heads = m->num_kv_heads;\n"
+            "        p.head_dim = m->head_dim;\n"
+            "        p.aligned_head_dim = (int)m->aligned_head_dim;\n"
+            "        p.aligned_context_window = (int)m->aligned_attn_context_window;\n"
+            "        p.intermediate_dim = m->intermediate_size;\n"
+            "        p.aligned_intermediate_dim = (int)align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n"
+            "        p.eps = m->rms_norm_eps;\n"
+            "        p.rope_pos_offset = 0;\n"
+            "        p.rope_cos = (m->rope_theta > 0.0f) ? cptr_f32(base, m->rope_cos_cache_offset) : NULL;\n"
+            "        p.rope_sin = (m->rope_theta > 0.0f) ? cptr_f32(base, m->rope_sin_cache_offset) : NULL;\n"
+            "        p.input = (layer == 0) ? ptr_f32(base, m->embedded_input_offset)\n"
+            "                             : ptr_f32(base, m->layers[layer - 1].output_offset);\n"
+            "        p.ln1_gamma = cptr_f32(base, L->ln1_gamma_offset);\n"
+            "        p.ln2_gamma = cptr_f32(base, L->ln2_gamma_offset);\n"
+            "        p.ln1_out = cptr_f32(base, L->ln1_out_offset);\n"
+            "        p.ln1_rstd = cptr_f32(base, L->ln1_rstd_offset);\n"
+            "        p.ln2_out = cptr_f32(base, L->ln2_out_offset);\n"
+            "        p.ln2_rstd = cptr_f32(base, L->ln2_rstd_offset);\n"
+            "        p.wq = cptr_f32(base, L->wq_offset);\n"
+            "        p.bq = cptr_f32(base, L->bq_offset);\n"
+            "        p.wk = cptr_f32(base, L->wk_offset);\n"
+            "        p.bk = cptr_f32(base, L->bk_offset);\n"
+            "        p.wv = cptr_f32(base, L->wv_offset);\n"
+            "        p.bv = cptr_f32(base, L->bv_offset);\n"
+            "        p.wo = cptr_f32(base, L->wo_offset);\n"
+            "        p.bo = cptr_f32(base, L->bo_offset);\n"
+            "        p.w1 = cptr_f32(base, L->w1_offset);\n"
+            "        p.b1 = cptr_f32(base, L->b1_offset);\n"
+            "        p.w2 = cptr_f32(base, L->w2_offset);\n"
+            "        p.b2 = cptr_f32(base, L->b2_offset);\n"
+            "        p.q = cptr_f32(base, L->q_offset);\n"
+            "        p.k = cptr_f32(base, L->k_offset);\n"
+            "        p.v = cptr_f32(base, L->v_offset);\n"
+            "        p.scores = cptr_f32(base, L->scores_offset);\n"
+            "        p.attn_out = cptr_f32(base, L->attn_out_offset);\n"
+            "        p.residual1 = cptr_f32(base, L->residual1_offset);\n"
+            "        p.fc1_out = cptr_f32(base, L->fc1_out_offset);\n"
+            "        p.swiglu_out = cptr_f32(base, L->swiglu_out_offset);\n"
+            "        p.d_output = ptr_f32(base, L->d_output_offset);\n"
+            "        p.d_input = ptr_f32(base, L->d_input_offset);\n"
+            "        p.d_ln1_gamma = ptr_f32(base, L->d_ln1_gamma_offset);\n"
+            "        p.d_ln2_gamma = ptr_f32(base, L->d_ln2_gamma_offset);\n"
+            "        p.d_wq = ptr_f32(base, L->d_wq_offset);\n"
+            "        p.d_bq = ptr_f32(base, L->d_bq_offset);\n"
+            "        p.d_wk = ptr_f32(base, L->d_wk_offset);\n"
+            "        p.d_bk = ptr_f32(base, L->d_bk_offset);\n"
+            "        p.d_wv = ptr_f32(base, L->d_wv_offset);\n"
+            "        p.d_bv = ptr_f32(base, L->d_bv_offset);\n"
+            "        p.d_wo = ptr_f32(base, L->d_wo_offset);\n"
+            "        p.d_bo = ptr_f32(base, L->d_bo_offset);\n"
+            "        p.d_w1 = ptr_f32(base, L->d_w1_offset);\n"
+            "        p.d_b1 = ptr_f32(base, L->d_b1_offset);\n"
+            "        p.d_w2 = ptr_f32(base, L->d_w2_offset);\n"
+            "        p.d_b2 = ptr_f32(base, L->d_b2_offset);\n"
+            "        p.d_ln1_out = ptr_f32(base, L->d_ln1_out_offset);\n"
+            "        p.d_q = ptr_f32(base, L->d_q_offset);\n"
+            "        p.d_k = ptr_f32(base, L->d_k_offset);\n"
+            "        p.d_v = ptr_f32(base, L->d_v_offset);\n"
+            "        p.d_scores = ptr_f32(base, L->d_scores_offset);\n"
+            "        p.d_attn_out = ptr_f32(base, L->d_attn_out_offset);\n"
+            "        p.d_proj_tmp = ptr_f32(base, L->d_proj_tmp_offset);\n"
+            "        p.d_residual1 = ptr_f32(base, L->d_residual1_offset);\n"
+            "        p.d_ln2_out = ptr_f32(base, L->d_ln2_out_offset);\n"
+            "        p.d_fc1_out = ptr_f32(base, L->d_fc1_out_offset);\n"
+            "        p.d_swiglu_out = ptr_f32(base, L->d_swiglu_out_offset);\n"
+            "        p.d_mlp_out = ptr_f32(base, L->d_mlp_out_offset);\n"
+            "\n"
+            "        const float *src = (layer == m->num_layers - 1)\n"
+            "            ? d_final_in\n"
+            "            : ptr_f32(base, m->layers[layer + 1].d_input_offset);\n"
+            "        memcpy(p.d_output, src, (size_t)T * (size_t)aligned_D * sizeof(float));\n"
+            "\n"
+            "        ck_layer_backward_rmsnorm_swiglu(&p);\n"
+            "    }\n"
+            "\n"
+            "    {\n"
+            "        TrulyOptimalLayer *L0 = &m->layers[0];\n"
+            "        embedding_backward(tokens,\n"
+            "                           T,\n"
+            "                           ptr_f32(base, L0->d_input_offset),\n"
+            "                           ptr_f32(base, m->d_token_emb_offset),\n"
+            "                           ptr_f32(base, m->d_pos_emb_offset),\n"
+            "                           m->vocab_size,\n"
+            "                           m->embed_dim,\n"
+            "                           aligned_D,\n"
+            "                           m->context_window,\n"
+            "                           m->rope_theta <= 0.0f);\n"
+            "    }\n"
+            "\n"
+            "    sgd_update(m, m->learning_rate);\n"
+            "    return 0;\n"
             "}\n\n");
 
     fprintf(out,
@@ -755,6 +1110,15 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    long v = strtol(s, &end, 10);\n"
             "    if (!end || *end != '\\0') return 0;\n"
             "    *out = (int)v;\n"
+            "    return 1;\n"
+            "}\n\n"
+            "static int parse_float_arg(const char *s, float *out)\n"
+            "{\n"
+            "    if (!s || !out) return 0;\n"
+            "    char *end = NULL;\n"
+            "    double v = strtod(s, &end);\n"
+            "    if (!end || *end != '\\0') return 0;\n"
+            "    *out = (float)v;\n"
             "    return 1;\n"
             "}\n\n"
             "static void print_usage(const char *prog)\n"
@@ -772,6 +1136,10 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    printf(\"  --ctx N            Override context_window\\n\");\n"
             "    printf(\"  --cores N          Override num_cores\\n\");\n"
             "    printf(\"  --litmus           Run LM head + CE + backward litmus\\n\");\n"
+            "    printf(\"  --backward         Run backward pass + SGD update (requires --tokens/--targets)\\n\");\n"
+            "    printf(\"  --lr F             SGD learning rate (default: 1e-3 when --backward)\\n\");\n"
+            "    printf(\"  --steps N          Training steps (default: 1)\\n\");\n"
+            "    printf(\"  --log-steps       Print loss per step during training\\n\");\n"
             "    printf(\"  --hidden PATH      Load hidden activations [T x aligned_D] f32\\n\");\n"
             "    printf(\"  --weights PATH     Load LM head weights [V x aligned_D] f32 (litmus)\\n\");\n"
             "    printf(\"  --targets PATH     Load target tokens [T] int32\\n\");\n"
@@ -782,6 +1150,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    printf(\"  --out-dhidden PATH Write d_hidden [T x aligned_D] f32\\n\");\n"
             "    printf(\"  --out-dweights PATH Write d_weights [V x aligned_D] f32\\n\");\n"
             "    printf(\"  --out-loss PATH    Write loss (single f32)\\n\");\n"
+            "    printf(\"  --out-weights PATH Write model weights (flat, no header)\\n\");\n"
             "    printf(\"  --help             Show this help\\n\");\n"
             "}\n\n"
             "static int read_floats(const char *path, float *dst, size_t count)\n"
@@ -814,6 +1183,12 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    size_t got = fread(dst, sizeof(float), count, f);\n"
             "    return got == count ? 0 : -1;\n"
             "}\n\n"
+            "static int write_floats_file(FILE *f, const float *src, size_t count)\n"
+            "{\n"
+            "    if (!f || !src) return -1;\n"
+            "    size_t wrote = fwrite(src, sizeof(float), count, f);\n"
+            "    return wrote == count ? 0 : -1;\n"
+            "}\n\n"
             "static int skip_bump_header(FILE *f)\n"
             "{\n"
             "    if (!f) return -1;\n"
@@ -838,12 +1213,12 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        fclose(f);\n"
             "        return -1;\n"
             "    }\n"
-            "    float *base = m->memory_base;\n"
-            "    size_t aligned_intermediate = align_up_size((size_t)m->intermediate_size, ALIGN_F);\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "    size_t aligned_intermediate = align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n"
             "\n"
-            "    if (read_floats_file(f, base + m->token_emb_offset,\n"
+            "    if (read_floats_file(f, ptr_f32(base, m->token_emb_offset),\n"
             "                        (size_t)m->vocab_size * m->aligned_embed_dim) != 0) goto fail;\n"
-            "    if (read_floats_file(f, base + m->pos_emb_offset,\n"
+            "    if (read_floats_file(f, ptr_f32(base, m->pos_emb_offset),\n"
             "                        (size_t)m->context_window * m->aligned_embed_dim) != 0) goto fail;\n"
             "\n"
             "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
@@ -857,24 +1232,76 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        size_t w1_w = (size_t)(2 * aligned_intermediate) * m->aligned_embed_dim;\n"
             "        size_t w2_w = m->aligned_embed_dim * aligned_intermediate;\n"
             "\n"
-            "        if (read_floats_file(f, base + L->ln1_gamma_offset, m->aligned_embed_dim) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->ln2_gamma_offset, m->aligned_embed_dim) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->wq_offset, q_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->bq_offset, q_b) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->wk_offset, kv_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->bk_offset, kv_b) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->wv_offset, kv_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->bv_offset, kv_b) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->wo_offset, wo_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->bo_offset, m->aligned_embed_dim) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->w1_offset, w1_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->b1_offset, (size_t)(2 * aligned_intermediate)) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->w2_offset, w2_w) != 0) goto fail;\n"
-            "        if (read_floats_file(f, base + L->b2_offset, m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->ln1_gamma_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->ln2_gamma_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->wq_offset), q_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->bq_offset), q_b) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->wk_offset), kv_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->bk_offset), kv_b) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->wv_offset), kv_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->bv_offset), kv_b) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->wo_offset), wo_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->bo_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->w1_offset), w1_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->b1_offset), (size_t)(2 * aligned_intermediate)) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->w2_offset), w2_w) != 0) goto fail;\n"
+            "        if (read_floats_file(f, ptr_f32(base, L->b2_offset), m->aligned_embed_dim) != 0) goto fail;\n"
             "    }\n"
             "\n"
-            "    if (read_floats_file(f, base + m->final_ln_weight_offset, m->aligned_embed_dim) != 0) goto fail;\n"
-            "    if (read_floats_file(f, base + m->final_ln_bias_offset, m->aligned_embed_dim) != 0) goto fail;\n"
+            "    if (read_floats_file(f, ptr_f32(base, m->final_ln_weight_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "    if (read_floats_file(f, ptr_f32(base, m->final_ln_bias_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "\n"
+            "    fclose(f);\n"
+            "    return 0;\n"
+            "fail:\n"
+            "    fclose(f);\n"
+            "    return -1;\n"
+            "}\n\n"
+            "static int save_model_weights(const char *path, const TransformerModel *m)\n"
+            "{\n"
+            "    if (!path || !m || !m->memory_base) return -1;\n"
+            "    FILE *f = fopen(path, \"wb\");\n"
+            "    if (!f) {\n"
+            "        perror(\"fopen\");\n"
+            "        return -1;\n"
+            "    }\n"
+            "    uint8_t *base = m->memory_base;\n"
+            "    size_t aligned_intermediate = align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n"
+            "\n"
+            "    if (write_floats_file(f, ptr_f32(base, m->token_emb_offset),\n"
+            "                         (size_t)m->vocab_size * m->aligned_embed_dim) != 0) goto fail;\n"
+            "    if (write_floats_file(f, ptr_f32(base, m->pos_emb_offset),\n"
+            "                         (size_t)m->context_window * m->aligned_embed_dim) != 0) goto fail;\n"
+            "\n"
+            "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
+            "        const TrulyOptimalLayer *L = &m->layers[layer];\n"
+            "        size_t head_w_stride = m->aligned_head_dim * m->aligned_embed_dim;\n"
+            "        size_t q_w = (size_t)m->num_attention_heads * head_w_stride;\n"
+            "        size_t kv_w = (size_t)m->num_kv_heads * head_w_stride;\n"
+            "        size_t q_b = (size_t)m->num_attention_heads * m->aligned_head_dim;\n"
+            "        size_t kv_b = (size_t)m->num_kv_heads * m->aligned_head_dim;\n"
+            "        size_t wo_w = (size_t)m->num_attention_heads * m->aligned_embed_dim * m->aligned_head_dim;\n"
+            "        size_t w1_w = (size_t)(2 * aligned_intermediate) * m->aligned_embed_dim;\n"
+            "        size_t w2_w = m->aligned_embed_dim * aligned_intermediate;\n"
+            "\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->ln1_gamma_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->ln2_gamma_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->wq_offset), q_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->bq_offset), q_b) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->wk_offset), kv_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->bk_offset), kv_b) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->wv_offset), kv_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->bv_offset), kv_b) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->wo_offset), wo_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->bo_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->w1_offset), w1_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->b1_offset), (size_t)(2 * aligned_intermediate)) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->w2_offset), w2_w) != 0) goto fail;\n"
+            "        if (write_floats_file(f, cptr_f32(base, L->b2_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "    }\n"
+            "\n"
+            "    if (write_floats_file(f, cptr_f32(base, m->final_ln_weight_offset), m->aligned_embed_dim) != 0) goto fail;\n"
+            "    if (write_floats_file(f, cptr_f32(base, m->final_ln_bias_offset), m->aligned_embed_dim) != 0) goto fail;\n"
             "\n"
             "    fclose(f);\n"
             "    return 0;\n"
@@ -885,9 +1312,10 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "static void embed_tokens(const TransformerModel *m, const int32_t *tokens, int token_count)\n"
             "{\n"
             "    if (!m || !m->memory_base || !tokens) return;\n"
-            "    float *out = m->memory_base + m->embedded_input_offset;\n"
-            "    const float *tok = m->memory_base + m->token_emb_offset;\n"
-            "    const float *pos = m->memory_base + m->pos_emb_offset;\n"
+            "    const uint8_t *base = m->memory_base;\n"
+            "    float *out = ptr_f32((uint8_t *)base, m->embedded_input_offset);\n"
+            "    const float *tok = cptr_f32(base, m->token_emb_offset);\n"
+            "    const float *pos = cptr_f32(base, m->pos_emb_offset);\n"
             "    int T = m->context_window;\n"
             "    int D = m->embed_dim;\n"
             "    int aligned_D = (int)m->aligned_embed_dim;\n"
@@ -1027,7 +1455,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "static void dump_layer_offsets(const TransformerModel *m, int layer)\n"
             "{\n"
             "    const TrulyOptimalLayer *L = &m->layers[layer];\n"
-            "    printf(\"Layer %%d offsets (floats):\\n\", layer);\n"
+            "    printf(\"Layer %%d offsets (bytes):\\n\", layer);\n"
             "    printf(\"  ln1_gamma=%%zu ln2_gamma=%%zu wq=%%zu wk=%%zu wv=%%zu wo=%%zu w1=%%zu w2=%%zu\\n\",\n"
             "           L->ln1_gamma_offset, L->ln2_gamma_offset, L->wq_offset, L->wk_offset,\n"
             "           L->wv_offset, L->wo_offset, L->w1_offset, L->w2_offset);\n"
@@ -1040,22 +1468,22 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "}\n\n"
             "static void dump_layout(const TransformerModel *m, int dump_all)\n"
             "{\n"
-            "    size_t bytes = m->total_floats * sizeof(float);\n"
+            "    size_t bytes = m->total_bytes;\n"
             "    printf(\"Model config:\\n\");\n"
             "    printf(\"  layers=%%d embed=%%d intermediate=%%d heads=%%d kv_heads=%%d\\n\",\n"
             "           m->num_layers, m->embed_dim, m->intermediate_size, m->num_attention_heads, m->num_kv_heads);\n"
             "    printf(\"  head_dim=%%d vocab=%%d ctx=%%d cores=%%d\\n\",\n"
             "           m->head_dim, m->vocab_size, m->context_window, m->num_cores);\n"
             "    printf(\"  eps=%%.6g rope_theta=%%.6g\\n\", m->rms_norm_eps, m->rope_theta);\n"
-            "    printf(\"Aligned dims (floats): embed=%%zu head=%%zu ctx=%%zu\\n\",\n"
+            "    printf(\"Aligned dims (elements): embed=%%zu head=%%zu ctx=%%zu\\n\",\n"
             "           m->aligned_embed_dim, m->aligned_head_dim, m->aligned_attn_context_window);\n"
-            "    printf(\"Memory: total_floats=%%zu bytes=%%zu\\n\", m->total_floats, bytes);\n"
-            "    printf(\"Global offsets (floats): token=%%zu pos=%%zu embedded=%%zu layers_start=%%zu\\n\",\n"
+            "    printf(\"Memory: total_bytes=%%zu\\n\", bytes);\n"
+            "    printf(\"Global offsets (bytes): token=%%zu pos=%%zu embedded=%%zu layers_start=%%zu\\n\",\n"
             "           m->token_emb_offset, m->pos_emb_offset, m->embedded_input_offset, m->layers_start_offset);\n"
-            "    printf(\"Final offsets (floats): final_ln_w=%%zu final_ln_b=%%zu final_ln_mean=%%zu final_ln_rstd=%%zu\\n\",\n"
+            "    printf(\"Final offsets (bytes): final_ln_w=%%zu final_ln_b=%%zu final_ln_mean=%%zu final_ln_rstd=%%zu\\n\",\n"
             "           m->final_ln_weight_offset, m->final_ln_bias_offset,\n"
             "           m->final_ln_mean_offset, m->final_ln_rstd_offset);\n"
-            "    printf(\"LM/logits offsets (floats): lm_head=%%zu logits=%%zu\\n\",\n"
+            "    printf(\"LM/logits offsets (bytes): lm_head=%%zu logits=%%zu\\n\",\n"
             "           m->lm_head_weight_offset, m->logits_offset);\n"
             "    if (m->num_layers > 0) {\n"
             "        dump_layer_offsets(m, 0);\n"
@@ -1074,6 +1502,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    int dump_all = 0;\n"
             "    int no_forward = 0;\n"
             "    int run_litmus = 0;\n"
+            "    int run_backward = 0;\n"
             "    const char *litmus_hidden = NULL;\n"
             "    const char *litmus_weights = NULL;\n"
             "    const char *litmus_targets = NULL;\n"
@@ -1084,6 +1513,11 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    const char *out_dhidden = NULL;\n"
             "    const char *out_dweights = NULL;\n"
             "    const char *out_loss = NULL;\n"
+            "    const char *out_weights = NULL;\n"
+            "    int steps = 1;\n"
+            "    int log_steps = 0;\n"
+            "    int32_t *tokens = NULL;\n"
+            "    int32_t *targets = NULL;\n"
             "    TransformerModel m = {0};\n"
             "    memcpy(m.magic, \"BUMPWGT2\", 8);\n"
             "    m.version = 2;\n"
@@ -1100,6 +1534,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    m.num_cores = 1;\n"
             "    m.task_type = TASK_LM;\n"
             "    m.optimizer = OPTIMIZER_SGD;\n"
+            "    m.learning_rate = 0.0f;\n"
             "    for (int i = 1; i < argc; ++i) {\n"
             "        if (strcmp(argv[i], \"--dump\") == 0) {\n"
             "            dump = 1;\n"
@@ -1116,6 +1551,14 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        }\n"
             "        if (strcmp(argv[i], \"--litmus\") == 0) {\n"
             "            run_litmus = 1;\n"
+            "            continue;\n"
+            "        }\n"
+            "        if (strcmp(argv[i], \"--backward\") == 0) {\n"
+            "            run_backward = 1;\n"
+            "            continue;\n"
+            "        }\n"
+            "        if (strcmp(argv[i], \"--lr\") == 0 && i + 1 < argc) {\n"
+            "            parse_float_arg(argv[++i], &m.learning_rate);\n"
             "            continue;\n"
             "        }\n"
             "        if (strcmp(argv[i], \"--help\") == 0) {\n"
@@ -1162,6 +1605,18 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "            out_loss = argv[++i];\n"
             "            continue;\n"
             "        }\n"
+            "        if (strcmp(argv[i], \"--out-weights\") == 0 && i + 1 < argc) {\n"
+            "            out_weights = argv[++i];\n"
+            "            continue;\n"
+            "        }\n"
+            "        if (strcmp(argv[i], \"--steps\") == 0 && i + 1 < argc) {\n"
+            "            parse_int_arg(argv[++i], &steps);\n"
+            "            continue;\n"
+            "        }\n"
+            "        if (strcmp(argv[i], \"--log-steps\") == 0) {\n"
+            "            log_steps = 1;\n"
+            "            continue;\n"
+            "        }\n"
             "        if (strcmp(argv[i], \"--layers\") == 0 && i + 1 < argc) {\n"
             "            parse_int_arg(argv[++i], &m.num_layers);\n"
             "            continue;\n"
@@ -1198,6 +1653,10 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        print_usage(argv[0]);\n"
             "        return 1;\n"
             "    }\n"
+            "    if (run_backward && m.learning_rate == 0.0f) {\n"
+            "        m.learning_rate = 1e-3f;\n"
+            "    }\n"
+            "    m.training_enabled = run_backward;\n"
             "    if (layout_model(&m) != 0) {\n"
             "        fprintf(stderr, \"layout_model failed\\n\");\n"
             "        return 1;\n"
@@ -1210,7 +1669,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    }\n"
             "    if (tokens_path) {\n"
             "        int T = m.context_window;\n"
-            "        int32_t *tokens = (int32_t *)malloc((size_t)T * sizeof(int32_t));\n"
+            "        tokens = (int32_t *)malloc((size_t)T * sizeof(int32_t));\n"
             "        if (!tokens) {\n"
             "            fprintf(stderr, \"failed to alloc tokens\\n\");\n"
             "            return 1;\n"
@@ -1218,10 +1677,32 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        if (read_ints(tokens_path, tokens, (size_t)T) != 0) {\n"
             "            fprintf(stderr, \"failed to read tokens\\n\");\n"
             "            free(tokens);\n"
+            "            tokens = NULL;\n"
             "            return 1;\n"
             "        }\n"
-            "        embed_tokens(&m, tokens, T);\n"
-            "        free(tokens);\n"
+            "        if (!run_backward) {\n"
+            "            embed_tokens(&m, tokens, T);\n"
+            "            free(tokens);\n"
+            "            tokens = NULL;\n"
+            "        }\n"
+            "    }\n"
+            "    if (run_backward) {\n"
+            "        if (!litmus_targets) {\n"
+            "            fprintf(stderr, \"backward requires --targets\\n\");\n"
+            "            return 1;\n"
+            "        }\n"
+            "        int T = m.context_window;\n"
+            "        targets = (int32_t *)malloc((size_t)T * sizeof(int32_t));\n"
+            "        if (!targets) {\n"
+            "            fprintf(stderr, \"failed to alloc targets\\n\");\n"
+            "            return 1;\n"
+            "        }\n"
+            "        if (read_ints(litmus_targets, targets, (size_t)T) != 0) {\n"
+            "            fprintf(stderr, \"failed to read targets\\n\");\n"
+            "            free(targets);\n"
+            "            targets = NULL;\n"
+            "            return 1;\n"
+            "        }\n"
             "    }\n"
             "    if (dump) {\n"
             "        dump_layout(&m, dump_all);\n"
@@ -1235,9 +1716,9 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        int V = m.vocab_size;\n"
             "        int D = m.embed_dim;\n"
             "        int aligned_D = (int)m.aligned_embed_dim;\n"
-            "        float *hidden = m.memory_base + m.final_output_offset;\n"
-            "        float *weights = m.memory_base + m.lm_head_weight_offset;\n"
-            "        float *logits = m.memory_base + m.logits_offset;\n"
+            "        float *hidden = ptr_f32(m.memory_base, m.final_output_offset);\n"
+            "        float *weights = ptr_f32(m.memory_base, m.lm_head_weight_offset);\n"
+            "        float *logits = ptr_f32(m.memory_base, m.logits_offset);\n"
             "        if (read_floats(litmus_hidden, hidden, (size_t)T * aligned_D) != 0) {\n"
             "            fprintf(stderr, \"failed to read hidden\\n\");\n"
             "            return 1;\n"
@@ -1281,21 +1762,52 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        free(d_logits);\n"
             "        free(d_hidden);\n"
             "        free(d_weights);\n"
-            "        ck_huge_free(m.memory_base, m.total_floats * sizeof(float));\n"
+            "        ck_huge_free(m.memory_base, m.total_bytes);\n"
             "        free(m.layers);\n"
             "        return 0;\n"
             "    }\n"
             "    // TODO: load weights into m.memory_base using the offsets above.\n"
             "    // TODO: write token/pos embeddings into embedded_input_offset.\n"
-            "    if (!no_forward) {\n"
-            "        run_model_forward(&m);\n"
+            "    if (!run_backward) {\n"
+            "        if (!no_forward) {\n"
+            "            run_model_forward(&m);\n"
+            "        }\n"
+            "    } else {\n"
+            "        if (!tokens || !targets) {\n"
+            "            fprintf(stderr, \"backward requires --tokens and --targets\\n\");\n"
+            "            return 1;\n"
+            "        }\n"
+            "        if (steps < 1) steps = 1;\n"
+            "        float loss = 0.0f;\n"
+            "        for (int step = 0; step < steps; ++step) {\n"
+            "            embed_tokens(&m, tokens, m.context_window);\n"
+            "            run_model_forward(&m);\n"
+            "            if (run_model_backward(&m, tokens, targets, &loss) != 0) {\n"
+            "                fprintf(stderr, \"backward failed\\n\");\n"
+            "                return 1;\n"
+            "            }\n"
+            "            if (log_steps) {\n"
+            "                printf(\"step %%d loss=%%.6f\\n\", step, loss);\n"
+            "            }\n"
+            "        }\n"
+            "        if (out_loss) {\n"
+            "            write_float_scalar(out_loss, loss);\n"
+            "        }\n"
             "    }\n"
             "    if (out_logits) {\n"
-            "        write_floats(out_logits, m.memory_base + m.logits_offset,\n"
+            "        write_floats(out_logits, ptr_f32(m.memory_base, m.logits_offset),\n"
             "                     (size_t)m.context_window * (size_t)m.vocab_size);\n"
             "    }\n"
-            "    ck_huge_free(m.memory_base, m.total_floats * sizeof(float));\n"
+            "    if (out_weights) {\n"
+            "        if (save_model_weights(out_weights, &m) != 0) {\n"
+            "            fprintf(stderr, \"failed to save model weights\\n\");\n"
+            "            return 1;\n"
+            "        }\n"
+            "    }\n"
+            "    ck_huge_free(m.memory_base, m.total_bytes);\n"
             "    free(m.layers);\n"
+            "    free(tokens);\n"
+            "    free(targets);\n"
             "    return 0;\n"
             "}\n",
             forward->config.num_layers,
@@ -1309,5 +1821,8 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             forward->config.rope_theta);
 
     fclose(out);
+    if (emit_kernel_manifest(forward, path) != 0) {
+        return -1;
+    }
     return 0;
 }

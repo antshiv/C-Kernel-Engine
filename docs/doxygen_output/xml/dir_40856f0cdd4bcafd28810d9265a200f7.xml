@@ -3,9 +3,11 @@
   <compounddef id="dir_40856f0cdd4bcafd28810d9265a200f7" kind="dir">
     <compoundname>kernels</compoundname>
     <innerfile refid="attention__kernels_8c">attention_kernels.c</innerfile>
+    <innerfile refid="embedding__kernels_8c">embedding_kernels.c</innerfile>
     <innerfile refid="gelu__kernels_8c">gelu_kernels.c</innerfile>
     <innerfile refid="gemm__kernels_8c">gemm_kernels.c</innerfile>
     <innerfile refid="layernorm__kernels_8c">layernorm_kernels.c</innerfile>
+    <innerfile refid="loss__kernels_8c">loss_kernels.c</innerfile>
     <innerfile refid="mlp__kernels_8c">mlp_kernels.c</innerfile>
     <innerfile refid="rmsnorm__kernels_8c">rmsnorm_kernels.c</innerfile>
     <innerfile refid="rope__kernels_8c">rope_kernels.c</innerfile>

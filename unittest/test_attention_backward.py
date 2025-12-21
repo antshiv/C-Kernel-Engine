@@ -9,22 +9,13 @@ Compares d_q, d_k, d_v gradients from C kernel against PyTorch.
 """
 import ctypes
 import math
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "build", "libckernel_attention.so")
-    if not os.path.exists(lib_path):
-        # Fallback to old location
-        lib_path = os.path.join(root, "libckernel_attention.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_attention.so")
 
 # Forward function for non-GQA
 lib.attention_forward_causal_head_major.argtypes = [

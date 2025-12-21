@@ -1,0 +1,22 @@
+{
+  "name": "rope",
+  "impl": {
+    "forward": "rope_forward_qk",
+    "backward": "rope_backward_qk",
+    "sources": ["src/kernels/rope_kernels.c"]
+  },
+  "buffers": [
+    {"id": "q", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "k", "role": "input", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "cos_cache", "role": "activation", "scope": "global", "shape": [{"dim": "tokens"}, {"dim": "head_dim", "div": 2}], "condition": "rope_theta"},
+    {"id": "sin_cache", "role": "activation", "scope": "global", "shape": [{"dim": "tokens"}, {"dim": "head_dim", "div": 2}], "condition": "rope_theta"}
+  ],
+  "buffers_backward": [
+    {"id": "d_q_out", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_k_out", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_q", "role": "grad", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "d_k", "role": "grad", "shape": [{"dim": "num_kv_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
+    {"id": "cos_cache", "role": "activation", "scope": "global", "shape": [{"dim": "tokens"}, {"dim": "head_dim", "div": 2}], "condition": "rope_theta"},
+    {"id": "sin_cache", "role": "activation", "scope": "global", "shape": [{"dim": "tokens"}, {"dim": "head_dim", "div": 2}], "condition": "rope_theta"}
+  ]
+}

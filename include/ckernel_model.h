@@ -4,6 +4,7 @@
 #include "ckernel_ir.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
 /**
  * Simplified forward-only model layout.
@@ -17,7 +18,7 @@
  */
 
 typedef struct {
-    /* Per-layer weight offsets, measured in float elements from memory_base. */
+    /* Per-layer weight offsets, measured in bytes from memory_base. */
     size_t ln1_weight_offset;
     size_t ln1_bias_offset;
 
@@ -38,10 +39,12 @@ typedef struct {
     CKModelConfig cfg;   /* parsed from HF config / IR config */
 
     /* Unified memory block (weights + activations). */
-    float  *memory_base;
-    size_t  total_floats;
+    uint8_t *memory_base;
+    size_t   total_bytes;
+    size_t   total_floats; /* legacy: bytes / elem_bytes when elem_bytes==4 */
+    size_t   elem_bytes;
 
-    /* Global offsets (float elements) into memory_base. */
+    /* Global offsets (bytes) into memory_base. */
     size_t token_emb_offset;      /* [vocab_size × hidden_size] */
     size_t pos_emb_offset;        /* [context_window × hidden_size] */
     size_t embedded_input_offset; /* [context_window × hidden_size] */
@@ -67,9 +70,9 @@ typedef struct {
  *  - Fills token/pos embedding offsets
  *  - Assigns per-layer weight offsets for LN, QKV, attention proj, MLP
  *  - Sets final LN / LM head / logits offsets
- *  - Populates total_floats with the required float capacity
+ *  - Populates total_bytes with the required byte capacity
  *
- * Offsets are in float elements counted from memory_base. The exact shapes
+ * Offsets are in bytes counted from memory_base. The exact shapes
  * and alignment strategy will evolve; this initial version focuses on
  * correctness and clarity over tight packing.
  */

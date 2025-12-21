@@ -6,6 +6,7 @@
     <innerfile refid="ckernel__codegen_8h">ckernel_codegen.h</innerfile>
     <innerfile refid="ckernel__engine_8h">ckernel_engine.h</innerfile>
     <innerfile refid="ckernel__ir_8h">ckernel_ir.h</innerfile>
+    <innerfile refid="ckernel__kernel__specs_8h">ckernel_kernel_specs.h</innerfile>
     <innerfile refid="ckernel__model_8h">ckernel_model.h</innerfile>
     <innerfile refid="ckernel__orchestration_8h">ckernel_orchestration.h</innerfile>
     <innerfile refid="ckernel__registry_8h">ckernel_registry.h</innerfile>

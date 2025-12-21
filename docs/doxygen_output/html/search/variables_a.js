@@ -1,11 +1,6 @@
 var searchData=
 [
-  ['n_5finputs_382',['n_inputs',['../structCKIRNode.html#abf6244a44982d225b1f19abfa2906e8c',1,'CKIRNode']]],
-  ['n_5foutputs_383',['n_outputs',['../structCKIRNode.html#ac80c87853b9a0b35958d643481e95fc7',1,'CKIRNode']]],
-  ['node_384',['node',['../structCKKernelId.html#aaa58279e743ef1ec7a4c9cce3dc67c79',1,'CKKernelId']]],
-  ['nodes_385',['nodes',['../structCKIRGraph.html#aab28fe3564ea6a66b72b4226d05ffb2f',1,'CKIRGraph']]],
-  ['num_5fheads_386',['num_heads',['../structCKModelConfig.html#a3e5c8e6d2da07805365ec6b4db29b9ea',1,'CKModelConfig::num_heads()'],['../structCKLayerForwardParams.html#a6ef0a14fb20cf0840ecc43d05ece08a5',1,'CKLayerForwardParams::num_heads()']]],
-  ['num_5fkv_5fheads_387',['num_kv_heads',['../structCKModelConfig.html#a902b19335449fa61c1e532d9999aa342',1,'CKModelConfig::num_kv_heads()'],['../structCKLayerForwardParams.html#a16731d5e0724c25e7b807955d41be75a',1,'CKLayerForwardParams::num_kv_heads()']]],
-  ['num_5flayers_388',['num_layers',['../structCKModelConfig.html#a01453afe2f69986d9ca04a10f7b9d0a4',1,'CKModelConfig']]],
-  ['num_5fnodes_389',['num_nodes',['../structCKIRGraph.html#ac761026b9b84254516bce9995dd04465',1,'CKIRGraph']]]
+  ['memory_5fbase_575',['memory_base',['../structTransformerModel.html#a955d1efe9f4e9e8bedca00a5a85a5d18',1,'TransformerModel']]],
+  ['mlp_5fout_576',['mlp_out',['../structCKLayerForwardParams.html#a86060e45304124966b764eb8db0365b7',1,'CKLayerForwardParams']]],
+  ['mult_577',['mult',['../structCKDimToken.html#a984c6bca0fce2bd1893a21834837fc7f',1,'CKDimToken']]]
 ];

@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structCKKernelSpec" kind="struct" language="C++" prot="public">
+    <compoundname>CKKernelSpec</compoundname>
+    <includes refid="ckernel__kernel__specs_8h" local="no">ckernel_kernel_specs.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structCKKernelSpec_1af0bb36f16bb8d1a25d56b4cfba88e2ea" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* CKKernelSpec::backward</definition>
+        <argsstring></argsstring>
+        <name>backward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="56" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structCKKernelSpec_1ad74a11f60cf4eb5e8549de4822e934ec" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* CKKernelSpec::forward</definition>
+        <argsstring></argsstring>
+        <name>forward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="55" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structCKKernelSpec_1ab6e588e0f3701c3c63904c231325185d" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* CKKernelSpec::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="54" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structCKKernelSpec_1a702e1368abaa202d24597a58f2f5c751" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* CKKernelSpec::sources[8]</definition>
+        <argsstring>[8]</argsstring>
+        <name>sources</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="57" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="57" bodyend="-1"/>
+        <referencedby refid="ckernel__codegen_8c_1a7e42133d4d709775d7d860a084a457a9" compoundref="ckernel__codegen_8c" startline="457" endline="485">emit_plan_sources</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="53" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="53" bodyend="58"/>
+    <listofallmembers>
+      <member refid="structCKKernelSpec_1af0bb36f16bb8d1a25d56b4cfba88e2ea" prot="public" virt="non-virtual"><scope>CKKernelSpec</scope><name>backward</name></member>
+      <member refid="structCKKernelSpec_1ad74a11f60cf4eb5e8549de4822e934ec" prot="public" virt="non-virtual"><scope>CKKernelSpec</scope><name>forward</name></member>
+      <member refid="structCKKernelSpec_1ab6e588e0f3701c3c63904c231325185d" prot="public" virt="non-virtual"><scope>CKKernelSpec</scope><name>name</name></member>
+      <member refid="structCKKernelSpec_1a702e1368abaa202d24597a58f2f5c751" prot="public" virt="non-virtual"><scope>CKKernelSpec</scope><name>sources</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

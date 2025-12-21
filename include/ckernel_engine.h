@@ -2,6 +2,7 @@
 #define CKERNEL_ENGINE_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -338,6 +339,45 @@ void rope_backward_qk(const float *d_q_out,
                       int head_dim,
                       int aligned_head_dim,
                       int pos_offset);
+
+// Token embedding lookup (optionally adds positional embeddings).
+// token_embeddings: [vocab_size x aligned_embed_dim]
+// pos_embeddings: [context_window x aligned_embed_dim] or NULL if add_pos == 0.
+// output: [context_window x aligned_embed_dim]
+void embedding_forward(const int32_t *token_ids,
+                       int token_count,
+                       int vocab_size,
+                       const float *token_embeddings,
+                       const float *pos_embeddings,
+                       float *output,
+                       int embed_dim,
+                       int aligned_embed_dim,
+                       int context_window,
+                       int add_pos);
+
+// Embedding backward: accumulates into d_token_embeddings and d_pos_embeddings.
+// d_output: [context_window x aligned_embed_dim]
+// d_token_embeddings: [vocab_size x aligned_embed_dim]
+// d_pos_embeddings: [context_window x aligned_embed_dim] (optional)
+void embedding_backward(const int32_t *token_ids,
+                        int token_count,
+                        const float *d_output,
+                        float *d_token_embeddings,
+                        float *d_pos_embeddings,
+                        int vocab_size,
+                        int embed_dim,
+                        int aligned_embed_dim,
+                        int context_window,
+                        int add_pos);
+
+// Softmax cross-entropy loss + gradient w.r.t logits.
+// logits: [tokens x vocab_size], targets: [tokens], d_logits: [tokens x vocab_size]
+void softmax_cross_entropy_loss(const float *logits,
+                                const int32_t *targets,
+                                int tokens,
+                                int vocab_size,
+                                float *d_logits,
+                                float *loss_out);
 
 #ifdef __cplusplus
 } // extern "C"

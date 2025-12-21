@@ -1,22 +1,12 @@
 import ctypes
-import os
 
 import torch
 import torch.nn.functional as F
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    # Prefer a GELU-only library (no AVX-512 dependencies) if it exists,
-    # fall back to the full engine library otherwise.
-    gelu_only = os.path.join(root, "libckernel_gelu.so")
-    full = os.path.join(root, "libckernel_engine.so")
-    lib_path = gelu_only if os.path.exists(gelu_only) else full
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_gelu.so", "libckernel_engine.so")
 lib.gelu_fast_inplace.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_size_t]
 lib.gelu_fast_inplace.restype = None
 

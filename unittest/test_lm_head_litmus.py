@@ -458,7 +458,14 @@ def main():
             check=True,
         )
     if not args.skip_compile:
-        subprocess.run(["gcc", gen_c, "-lm", "-o", gen_bin], cwd=root, check=True)
+        manifest = gen_c + ".kernels"
+        cmd = ["gcc", "-O2", "-Iinclude", gen_c, "-lm", "-o", gen_bin]
+        if os.path.exists(os.path.join(root, manifest)):
+            with open(os.path.join(root, manifest), "r", encoding="utf-8") as f:
+                extra_sources = [line.strip() for line in f if line.strip()]
+            cmd.extend(extra_sources)
+            cmd.insert(1, "-fopenmp")
+        subprocess.run(cmd, cwd=root, check=True)
 
     T = int(cfg["max_position_embeddings"])
     D = int(cfg["hidden_size"])

@@ -1,0 +1,25 @@
+{
+  "name": "rmsnorm",
+  "impl": {
+    "forward": "rmsnorm_forward",
+    "backward": "rmsnorm_backward",
+    "sources": ["src/kernels/rmsnorm_kernels.c"]
+  },
+  "params": [
+    {"id": "eps", "kind": "config", "field": "rms_norm_eps", "type": "float"}
+  ],
+  "buffers": [
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "gamma", "role": "weight", "shape": [{"dim": "aligned_embed"}]},
+    {"id": "out", "role": "output", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "rstd", "role": "activation", "shape": [{"dim": "tokens"}], "optional": true}
+  ],
+  "buffers_backward": [
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "gamma", "role": "weight", "shape": [{"dim": "aligned_embed"}]},
+    {"id": "rstd", "role": "activation", "shape": [{"dim": "tokens"}], "optional": true},
+    {"id": "d_input", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "d_gamma", "role": "grad", "shape": [{"dim": "aligned_embed"}]}
+  ]
+}

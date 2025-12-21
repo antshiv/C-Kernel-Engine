@@ -1,18 +1,12 @@
 import ctypes
-import os
 
 import torch
 import torch.nn.functional as F
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "libckernel_engine.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_engine.so")
 
 # Signatures from ckernel_engine.h
 lib.mlp_token_parallel.argtypes = [
@@ -67,7 +61,7 @@ lib.fc1_backward_kernel.restype = None
 
 
 def tensor_to_ptr(t: torch.Tensor):
-    return t.contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    return t.detach().contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
 
 def max_diff(a: torch.Tensor, b: torch.Tensor) -> float:
@@ -228,4 +222,3 @@ def run_backward_test(T=8, D=16):
 if __name__ == "__main__":
     run_forward_test()
     run_backward_test()
-

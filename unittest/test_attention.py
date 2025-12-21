@@ -1,18 +1,12 @@
 import ctypes
 import math
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "libckernel_attention.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_attention.so")
 
 lib.attention_forward_causal_head_major.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # q
@@ -110,4 +104,3 @@ def run_single_test(H=2, T=8, D=16):
 
 if __name__ == "__main__":
     run_single_test()
-

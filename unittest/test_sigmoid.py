@@ -1,19 +1,11 @@
 import ctypes
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    sig_only = os.path.join(root, "libckernel_sigmoid.so")
-    full = os.path.join(root, "libckernel_engine.so")
-    lib_path = sig_only if os.path.exists(sig_only) else full
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_sigmoid.so", "libckernel_engine.so")
 
 lib.sigmoid_forward.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
@@ -106,4 +98,3 @@ def run_backward_test(N=1024):
 if __name__ == "__main__":
     run_forward_test()
     run_backward_test()
-

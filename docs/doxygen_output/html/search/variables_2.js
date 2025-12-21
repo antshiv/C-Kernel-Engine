@@ -1,6 +1,15 @@
 var searchData=
 [
-  ['cfg_345',['cfg',['../structTransformerModel.html#af6538865812c32df1cbd785b2d40e370',1,'TransformerModel']]],
-  ['config_346',['config',['../structCKIRGraph.html#af12e4b320dee98416c63539b743801f2',1,'CKIRGraph']]],
-  ['context_5fwindow_347',['context_window',['../structCKModelConfig.html#a18a327829d25405e92ba46a79009b89f',1,'CKModelConfig']]]
+  ['cfg_498',['cfg',['../structTransformerModel.html#af6538865812c32df1cbd785b2d40e370',1,'TransformerModel']]],
+  ['ck_5fdecoder_5fbackward_5fplan_499',['ck_decoder_backward_plan',['../ckernel__kernel__specs_8c.html#a96b6d10882bf34a6c7b9bf07b9b31fa2',1,'ck_decoder_backward_plan():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8h.html#a96b6d10882bf34a6c7b9bf07b9b31fa2',1,'ck_decoder_backward_plan():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fdecoder_5fbackward_5fplan_5fcount_500',['ck_decoder_backward_plan_count',['../ckernel__kernel__specs_8c.html#a42241607f71ab42ad23c344eacc3421f',1,'ck_decoder_backward_plan_count():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8h.html#a42241607f71ab42ad23c344eacc3421f',1,'ck_decoder_backward_plan_count():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fdecoder_5fbuffer_5fcount_501',['ck_decoder_buffer_count',['../ckernel__kernel__specs_8h.html#ae9be980801e3c3b9e00b575e2eb132bd',1,'ck_decoder_buffer_count():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#ae9be980801e3c3b9e00b575e2eb132bd',1,'ck_decoder_buffer_count():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fdecoder_5fbuffers_502',['ck_decoder_buffers',['../ckernel__kernel__specs_8h.html#ad9257c11ae490b3da865862c61a8c5cf',1,'ck_decoder_buffers():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#ad9257c11ae490b3da865862c61a8c5cf',1,'ck_decoder_buffers():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fdecoder_5fforward_5fplan_503',['ck_decoder_forward_plan',['../ckernel__kernel__specs_8h.html#a383b37a8b40251a4c98762a31982f5f2',1,'ck_decoder_forward_plan():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#a383b37a8b40251a4c98762a31982f5f2',1,'ck_decoder_forward_plan():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fdecoder_5fforward_5fplan_5fcount_504',['ck_decoder_forward_plan_count',['../ckernel__kernel__specs_8h.html#a7b169d0eafc6b23adf4dc42551b8a38e',1,'ck_decoder_forward_plan_count():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#a7b169d0eafc6b23adf4dc42551b8a38e',1,'ck_decoder_forward_plan_count():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fkernel_5fspec_5fcount_505',['ck_kernel_spec_count',['../ckernel__kernel__specs_8h.html#ae2c418c152f247ea5d6c9be09ae02b3f',1,'ck_kernel_spec_count():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#ae2c418c152f247ea5d6c9be09ae02b3f',1,'ck_kernel_spec_count():&#160;ckernel_kernel_specs.c']]],
+  ['ck_5fkernel_5fspecs_506',['ck_kernel_specs',['../ckernel__kernel__specs_8h.html#aa20bb688c0d74340b5300e106e14e72a',1,'ck_kernel_specs():&#160;ckernel_kernel_specs.c'],['../ckernel__kernel__specs_8c.html#aa20bb688c0d74340b5300e106e14e72a',1,'ck_kernel_specs():&#160;ckernel_kernel_specs.c']]],
+  ['condition_507',['condition',['../structCKPlanStep.html#a870b313bb3754be086178d1478aa8b9e',1,'CKPlanStep::condition()'],['../structCKBufferSpec.html#a4af21c5671866d5883b7c95cd9032afd',1,'CKBufferSpec::condition()']]],
+  ['config_508',['config',['../structCKIRGraph.html#af12e4b320dee98416c63539b743801f2',1,'CKIRGraph']]],
+  ['context_5fwindow_509',['context_window',['../structCKModelConfig.html#a18a327829d25405e92ba46a79009b89f',1,'CKModelConfig']]]
 ];

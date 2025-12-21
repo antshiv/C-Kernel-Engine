@@ -1,0 +1,22 @@
+{
+  "name": "mlp_down",
+  "impl": {
+    "forward": "gemm_blocked_serial",
+    "backward": "fc2_backward_kernel",
+    "sources": ["src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c"]
+  },
+  "buffers": [
+    {"id": "swiglu_out", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate"}]},
+    {"id": "w2", "role": "weight", "shape": [{"dim": "aligned_embed"}, {"dim": "aligned_intermediate"}]},
+    {"id": "b2", "role": "weight", "shape": [{"dim": "aligned_embed"}]},
+    {"id": "mlp_out", "role": "output", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]}
+  ],
+  "buffers_backward": [
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "swiglu_out", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate"}]},
+    {"id": "w2", "role": "weight", "shape": [{"dim": "aligned_embed"}, {"dim": "aligned_intermediate"}]},
+    {"id": "d_input", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate"}]},
+    {"id": "d_w2", "role": "grad", "shape": [{"dim": "aligned_embed"}, {"dim": "aligned_intermediate"}]},
+    {"id": "d_b2", "role": "grad", "shape": [{"dim": "aligned_embed"}]}
+  ]
+}

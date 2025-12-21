@@ -1,20 +1,12 @@
 import ctypes
-import os
 
 import torch
 import torch.nn.functional as F
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    swiglu_only = os.path.join(root, "libckernel_swiglu.so")
-    full = os.path.join(root, "libckernel_engine.so")
-    lib_path = swiglu_only if os.path.exists(swiglu_only) else full
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_swiglu.so", "libckernel_engine.so")
 
 lib.swiglu_forward.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input [T × 2D]
@@ -126,4 +118,3 @@ def run_backward_test(T=16, D=32):
 if __name__ == "__main__":
     run_forward_test()
     run_backward_test()
-

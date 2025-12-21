@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structCKDimToken" kind="struct" language="C++" prot="public">
+    <compoundname>CKDimToken</compoundname>
+    <includes refid="ckernel__kernel__specs_8h" local="no">ckernel_kernel_specs.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structCKDimToken_1a39ef233b6095ec24fa1374c9f6cd93d3" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__kernel__specs_8h_1a3d91eb22ec223e36c65a04283581e390" kindref="member">CKDimKind</ref></type>
+        <definition>CKDimKind CKDimToken::dim</definition>
+        <argsstring></argsstring>
+        <name>dim</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="24" column="15" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structCKDimToken_1a64516b544f8812fc3b3c24ddb472bcb7" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKDimToken::div</definition>
+        <argsstring></argsstring>
+        <name>div</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="26" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structCKDimToken_1a984c6bca0fce2bd1893a21834837fc7f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CKDimToken::mult</definition>
+        <argsstring></argsstring>
+        <name>mult</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="25" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="23" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="23" bodyend="27"/>
+    <listofallmembers>
+      <member refid="structCKDimToken_1a39ef233b6095ec24fa1374c9f6cd93d3" prot="public" virt="non-virtual"><scope>CKDimToken</scope><name>dim</name></member>
+      <member refid="structCKDimToken_1a64516b544f8812fc3b3c24ddb472bcb7" prot="public" virt="non-virtual"><scope>CKDimToken</scope><name>div</name></member>
+      <member refid="structCKDimToken_1a984c6bca0fce2bd1893a21834837fc7f" prot="public" virt="non-virtual"><scope>CKDimToken</scope><name>mult</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -6,12 +6,17 @@
     <includes local="no">omp.h</includes>
     <incdepgraph>
       <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
         <label>omp.h</label>
       </node>
       <node id="2">
         <label>ckernel_engine.h</label>
         <link refid="ckernel__engine_8h"/>
         <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -22,7 +27,7 @@
         <link refid="mlp__kernels_8c"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
     </incdepgraph>
@@ -79,6 +84,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="156" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="156" bodyend="236"/>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="593" endline="733">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="mlp__kernels_8c_1a89a29fc853aae0baf9f6094fee52562a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -132,6 +138,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="62" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="62" bodyend="146"/>
+        <referencedby refid="ckernel__orchestration_8h_1add4c3ac196a25f481496bf69f32a9ac6" compoundref="ckernel__orchestration_8c" startline="207" endline="261">ck_attention_project_head_major_backward</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="593" endline="733">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1aae6b6e1796c190320ef20f0476dc2e9d" compoundref="ckernel__orchestration_8c" startline="263" endline="357">ck_qkv_project_head_major_backward</referencedby>
       </memberdef>
       <memberdef kind="function" id="mlp__kernels_8c_1a5b4ac7df82788956de18c6e1b4f37609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>

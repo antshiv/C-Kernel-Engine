@@ -1,0 +1,128 @@
+{
+  "steps": [
+    {
+      "kernel": "residual_add",
+      "bind": {
+        "d_out": "d_output",
+        "d_a": "d_residual1",
+        "d_b": "d_mlp_out"
+      }
+    },
+    {
+      "kernel": "mlp_down",
+      "bind": {
+        "d_out": "d_mlp_out",
+        "swiglu_out": "swiglu_out",
+        "w2": "w2",
+        "d_input": "d_swiglu_out",
+        "d_w2": "d_w2",
+        "d_b2": "d_b2"
+      }
+    },
+    {
+      "kernel": "swiglu",
+      "bind": {
+        "fc1_out": "fc1_out",
+        "d_out": "d_swiglu_out",
+        "d_input": "d_fc1_out"
+      }
+    },
+    {
+      "kernel": "mlp_up",
+      "bind": {
+        "d_out": "d_fc1_out",
+        "input": "ln2_out",
+        "w1": "w1",
+        "d_input": "d_ln2_out",
+        "d_w1": "d_w1",
+        "d_b1": "d_b1"
+      }
+    },
+    {
+      "kernel": "rmsnorm",
+      "bind": {
+        "d_out": "d_ln2_out",
+        "input": "residual1",
+        "gamma": "ln2_gamma",
+        "rstd": "ln2_rstd",
+        "d_input": "d_residual1",
+        "d_gamma": "d_ln2_gamma"
+      }
+    },
+    {
+      "kernel": "residual_add",
+      "bind": {
+        "d_out": "d_residual1",
+        "d_a": "d_input",
+        "d_b": "d_proj_tmp"
+      }
+    },
+    {
+      "kernel": "attn_proj",
+      "bind": {
+        "d_out": "d_proj_tmp",
+        "attn_out": "attn_out",
+        "wo": "wo",
+        "d_attn_out": "d_attn_out",
+        "d_wo": "d_wo",
+        "d_bo": "d_bo"
+      }
+    },
+    {
+      "kernel": "attention",
+      "bind": {
+        "d_out": "d_attn_out",
+        "q": "q",
+        "k": "k",
+        "v": "v",
+        "scores": "scores",
+        "d_q": "d_q",
+        "d_k": "d_k",
+        "d_v": "d_v",
+        "d_scores": "d_scores"
+      }
+    },
+    {
+      "kernel": "rope",
+      "when": "rope_theta>0",
+      "bind": {
+        "d_q_out": "d_q",
+        "d_k_out": "d_k",
+        "d_q": "d_q",
+        "d_k": "d_k",
+        "cos_cache": "rope_cos_cache",
+        "sin_cache": "rope_sin_cache"
+      }
+    },
+    {
+      "kernel": "qkv_project",
+      "bind": {
+        "d_q": "d_q",
+        "d_k": "d_k",
+        "d_v": "d_v",
+        "input": "ln1_out",
+        "wq": "wq",
+        "wk": "wk",
+        "wv": "wv",
+        "d_input": "d_ln1_out",
+        "d_wq": "d_wq",
+        "d_bq": "d_bq",
+        "d_wk": "d_wk",
+        "d_bk": "d_bk",
+        "d_wv": "d_wv",
+        "d_bv": "d_bv"
+      }
+    },
+    {
+      "kernel": "rmsnorm",
+      "bind": {
+        "d_out": "d_ln1_out",
+        "input": "input",
+        "gamma": "ln1_gamma",
+        "rstd": "ln1_rstd",
+        "d_input": "d_input",
+        "d_gamma": "d_ln1_gamma"
+      }
+    }
+  ]
+}

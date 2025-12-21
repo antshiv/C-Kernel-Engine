@@ -1,19 +1,11 @@
 import ctypes
-import os
 
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    rms_only = os.path.join(root, "libckernel_rmsnorm.so")
-    full = os.path.join(root, "libckernel_engine.so")
-    lib_path = rms_only if os.path.exists(rms_only) else full
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_rmsnorm.so", "libckernel_engine.so")
 
 lib.rmsnorm_forward.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
@@ -170,4 +162,3 @@ def run_backward_test(T=16, D=32, eps=1e-5):
 if __name__ == "__main__":
     run_forward_test()
     run_backward_test()
-

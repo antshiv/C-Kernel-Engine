@@ -1,0 +1,17 @@
+{
+  "name": "swiglu",
+  "impl": {
+    "forward": "swiglu_forward",
+    "backward": "swiglu_backward",
+    "sources": ["src/kernels/swiglu_kernels.c", "src/kernels/sigmoid_kernels.c"]
+  },
+  "buffers": [
+    {"id": "fc1_out", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]},
+    {"id": "swiglu_out", "role": "output", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate"}]}
+  ],
+  "buffers_backward": [
+    {"id": "fc1_out", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]},
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate"}]},
+    {"id": "d_input", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]}
+  ]
+}

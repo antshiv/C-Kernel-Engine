@@ -1,0 +1,22 @@
+{
+  "name": "mlp_up",
+  "impl": {
+    "forward": "gemm_blocked_serial",
+    "backward": "fc1_backward_kernel",
+    "sources": ["src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c"]
+  },
+  "buffers": [
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "w1", "role": "weight", "shape": [{"dim": "aligned_intermediate", "mult": 2}, {"dim": "aligned_embed"}]},
+    {"id": "b1", "role": "weight", "shape": [{"dim": "aligned_intermediate", "mult": 2}]},
+    {"id": "fc1_out", "role": "output", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]}
+  ],
+  "buffers_backward": [
+    {"id": "d_out", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]},
+    {"id": "input", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "w1", "role": "weight", "shape": [{"dim": "aligned_intermediate", "mult": 2}, {"dim": "aligned_embed"}]},
+    {"id": "d_input", "role": "grad", "shape": [{"dim": "tokens"}, {"dim": "aligned_embed"}]},
+    {"id": "d_w1", "role": "grad", "shape": [{"dim": "aligned_intermediate", "mult": 2}, {"dim": "aligned_embed"}]},
+    {"id": "d_b1", "role": "grad", "shape": [{"dim": "aligned_intermediate", "mult": 2}]}
+  ]
+}

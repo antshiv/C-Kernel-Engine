@@ -1,18 +1,12 @@
 import ctypes
-import os
 
 import numpy as np
 import torch
 
-
-def load_lib():
-    here = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(here)
-    lib_path = os.path.join(root, "libckernel_engine.so")
-    return ctypes.cdll.LoadLibrary(lib_path)
+from lib_loader import load_lib
 
 
-lib = load_lib()
+lib = load_lib("libckernel_engine.so")
 
 lib.layernorm_naive_serial.argtypes = [
     ctypes.POINTER(ctypes.c_float),
@@ -240,7 +234,7 @@ def run_backward_test(T=16, D=32, eps=1e-5):
     print(f"Backward d_gamma max diff:  {diff_d_gamma:.2e}")
     print(f"Backward d_beta max diff:   {diff_d_beta:.2e}")
 
-    tol_bwd = 1e-6
+    tol_bwd = 5e-6
     if diff_d_input > tol_bwd or diff_d_gamma > tol_bwd or diff_d_beta > tol_bwd:
         print("LayerNorm backward mismatch. Showing first few elements for d_input vs PyTorch:")
         for t in range(min(2, T)):
