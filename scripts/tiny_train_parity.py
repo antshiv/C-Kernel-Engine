@@ -227,15 +227,15 @@ def rope_cache(head_dim, max_seq_len, base):
 def rope_apply(x, cos, sin):
     T, D = x.shape
     half = D // 2
-    x_even = x[:, 0::2]
-    x_odd = x[:, 1::2]
+    x_even = x[:, :half]
+    x_odd = x[:, half:]
     cos = cos[:T]
     sin = sin[:T]
     out_even = x_even * cos - x_odd * sin
     out_odd = x_even * sin + x_odd * cos
     out = torch.empty_like(x)
-    out[:, 0::2] = out_even
-    out[:, 1::2] = out_odd
+    out[:, :half] = out_even
+    out[:, half:] = out_odd
     return out
 
 
@@ -343,6 +343,7 @@ def main():
     parser.add_argument("--seed", type=int, default=1234, help="RNG seed")
     parser.add_argument("--std", type=float, default=0.02, help="Stddev for weight init")
     parser.add_argument("--build-dir", default="build", help="Build output directory")
+    parser.add_argument("--strict", action="store_true", help="Enable strict parity in C runtime")
     args = parser.parse_args()
 
     cfg = load_cfg(args.config)
@@ -415,7 +416,7 @@ def main():
     cflags = ["-O3", "-fPIC", "-fopenmp", "-Wall"] + detect_avx_flags() + ["-Iinclude"]
     run(["gcc", *cflags, gen_c, *kernels, "-o", model_bin, "-lm"])
 
-    run([
+    cmd = [
         model_bin,
         "--model-weights", weights_bin,
         "--tokens", tokens_bin,
@@ -426,7 +427,10 @@ def main():
         "--log-steps",
         "--out-loss", out_loss,
         "--out-weights", out_weights,
-    ])
+    ]
+    if args.strict:
+        cmd.append("--strict")
+    run(cmd)
 
     torch_weights = {}
     if args.checkpoint or args.weights_bin:

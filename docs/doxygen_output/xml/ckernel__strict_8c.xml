@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="ckernel__strict_8c" kind="file" language="C++">
+    <compoundname>ckernel_strict.c</compoundname>
+    <includes refid="ckernel__engine_8h" local="yes">ckernel_engine.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="1">
+        <label>ckernel_strict.c</label>
+        <link refid="ckernel__strict_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ckernel_engine.h</label>
+        <link refid="ckernel__engine_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" prot="public" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int ck_strict_parity</definition>
+        <argsstring></argsstring>
+        <name>ck_strict_parity</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" line="7" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" bodystart="7" bodyend="-1"/>
+        <referencedby refid="ckernel__engine_8h_1a8bcb6fa03c4861c8f45d59fa424d1146" compoundref="ckernel__strict_8c" startline="9" endline="18">ck_set_strict_parity</referencedby>
+        <referencedby refid="ckernel__engine_8h_1aef8c9a331116ff9c2d77b03152aa8004" compoundref="ckernel__strict_8c" startline="20" endline="23">ck_strict_parity_enabled</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="ckernel__strict_8c_1a8bcb6fa03c4861c8f45d59fa424d1146" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ck_set_strict_parity</definition>
+        <argsstring>(int enabled)</argsstring>
+        <name>ck_set_strict_parity</name>
+        <param>
+          <type>int</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" line="9" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" bodystart="9" bodyend="18"/>
+        <references refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" compoundref="ckernel__strict_8c" startline="7">ck_strict_parity</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__strict_8c_1aef8c9a331116ff9c2d77b03152aa8004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ck_strict_parity_enabled</definition>
+        <argsstring>(void)</argsstring>
+        <name>ck_strict_parity_enabled</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" line="20" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" bodystart="20" bodyend="23"/>
+        <references refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" compoundref="ckernel__strict_8c" startline="7">ck_strict_parity</references>
+        <referencedby refid="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" compoundref="gemm__kernels_8c" startline="51" endline="83">gemm_avx512_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="138" endline="187">gemm_blocked_serial</referencedby>
+        <referencedby refid="ckernel__engine_8h_1abab2d2aaed47f4c682c019bd77fab1ed" compoundref="gemm__kernels_8c" startline="86" endline="135">gemm_fine_grained_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="27" endline="48">gemm_naive_parallel</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="ckernel__engine_8h" kindref="compound">ckernel_engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_OPENMP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;omp.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kindref="member">ck_strict_parity</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9" refid="ckernel__engine_8h_1a8bcb6fa03c4861c8f45d59fa424d1146" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__strict_8c_1a8bcb6fa03c4861c8f45d59fa424d1146" kindref="member">ck_set_strict_parity</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>enabled)</highlight></codeline>
+<codeline lineno="10"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kindref="member">ck_strict_parity</ref><sp/>=<sp/>enabled<sp/>?<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_OPENMP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kindref="member">ck_strict_parity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>omp_set_dynamic(0);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>omp_set_num_threads(1);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20" refid="ckernel__engine_8h_1aef8c9a331116ff9c2d77b03152aa8004" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="ckernel__strict_8c_1aef8c9a331116ff9c2d77b03152aa8004" kindref="member">ck_strict_parity_enabled</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kindref="member">ck_strict_parity</ref>;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c"/>
+  </compounddef>
+</doxygen>

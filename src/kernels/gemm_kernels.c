@@ -6,6 +6,23 @@
 
 static inline int ck_min(int a, int b) { return a < b ? a : b; }
 
+static void gemm_naive_serial_double(const float *A,
+                                     const float *B,
+                                     const float *bias,
+                                     float *C,
+                                     int M, int N, int K)
+{
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            double sum = bias ? (double)bias[j] : 0.0;
+            for (int k = 0; k < K; k++) {
+                sum += (double)A[i * K + k] * (double)B[j * K + k];
+            }
+            C[i * N + j] = (float)sum;
+        }
+    }
+}
+
 // Naive parallel GEMM (reference baseline) – copied from C-Transformer.
 void gemm_naive_parallel(const float *A,
                          const float *B,
@@ -13,6 +30,10 @@ void gemm_naive_parallel(const float *A,
                          float *C,
                          int M, int N, int K)
 {
+    if (ck_strict_parity_enabled()) {
+        gemm_naive_serial_double(A, B, bias, C, M, N, K);
+        return;
+    }
 #pragma omp parallel for
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
@@ -33,6 +54,10 @@ void gemm_avx512_parallel(const float *A,
                           float *C,
                           int M, int N, int K)
 {
+    if (ck_strict_parity_enabled()) {
+        gemm_naive_serial_double(A, B, bias, C, M, N, K);
+        return;
+    }
 #if defined(__AVX512F__)
 #pragma omp parallel for
     for (int i = 0; i < M; i++) {
@@ -64,6 +89,10 @@ void gemm_fine_grained_parallel(const float *A,
                                 float *C,
                                 int M, int N, int K)
 {
+    if (ck_strict_parity_enabled()) {
+        gemm_naive_serial_double(A, B, bias, C, M, N, K);
+        return;
+    }
 #if defined(__AVX512F__)
     const int block_size = 64;
 #pragma omp parallel for
@@ -112,6 +141,10 @@ void gemm_blocked_serial(const float *A,
                          float *C,
                          int M, int N, int K)
 {
+    if (ck_strict_parity_enabled()) {
+        gemm_naive_serial_double(A, B, bias, C, M, N, K);
+        return;
+    }
     const int block_size = 64;
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {

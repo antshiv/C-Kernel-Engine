@@ -4,10 +4,12 @@
  * Applies rotary position embeddings to query and key vectors.
  * Used by Llama, SmolLM, and most modern transformer architectures.
  *
- * Math:
- *   For each position m and dimension pair (2i, 2i+1):
- *     x'[2i]   = x[2i] * cos(m * θ_i) - x[2i+1] * sin(m * θ_i)
- *     x'[2i+1] = x[2i] * sin(m * θ_i) + x[2i+1] * cos(m * θ_i)
+ * Math (Llama-style rotate-half):
+ *   Split head_dim into two halves (0..half-1, half..head_dim-1).
+ *   For each position m and index i in [0, half):
+ *     x0 = x[i], x1 = x[i + half]
+ *     x'[i]       = x0 * cos(m * θ_i) - x1 * sin(m * θ_i)
+ *     x'[i+half]  = x0 * sin(m * θ_i) + x1 * cos(m * θ_i)
  *
  *   Where θ_i = 1 / (base^(2i/d)), typically base=10000.
  *
@@ -64,13 +66,13 @@ static inline void rope_apply_head(float *x,
         float *x_row = x + (size_t)t * (size_t)aligned_head_dim;
 
         for (int i = 0; i < half_dim; ++i) {
-            float x0 = x_row[2 * i];
-            float x1 = x_row[2 * i + 1];
+            float x0 = x_row[i];
+            float x1 = x_row[i + half_dim];
             float c = cos_row[i];
             float s = sin_row[i];
 
-            x_row[2 * i]     = x0 * c - x1 * s;
-            x_row[2 * i + 1] = x0 * s + x1 * c;
+            x_row[i] = x0 * c - x1 * s;
+            x_row[i + half_dim] = x0 * s + x1 * c;
         }
     }
 }
@@ -129,14 +131,14 @@ void rope_backward(const float *d_out,
             float *d_x_row = d_x + idx;
 
             for (int i = 0; i < half_dim; ++i) {
-                float d0 = d_out_row[2 * i];
-                float d1 = d_out_row[2 * i + 1];
+                float d0 = d_out_row[i];
+                float d1 = d_out_row[i + half_dim];
                 float c = cos_row[i];
                 float s = sin_row[i];
 
                 // Inverse rotation: rotate by -θ
-                d_x_row[2 * i]     =  d0 * c + d1 * s;
-                d_x_row[2 * i + 1] = -d0 * s + d1 * c;
+                d_x_row[i] = d0 * c + d1 * s;
+                d_x_row[i + half_dim] = -d0 * s + d1 * c;
             }
 
             for (int i = head_dim; i < aligned_head_dim; ++i) {
@@ -169,14 +171,14 @@ void rope_backward_inplace(float *d_x,
             float *d_row = d_x + h * head_stride + (size_t)t * (size_t)aligned_head_dim;
 
             for (int i = 0; i < half_dim; ++i) {
-                float d0 = d_row[2 * i];
-                float d1 = d_row[2 * i + 1];
+                float d0 = d_row[i];
+                float d1 = d_row[i + half_dim];
                 float c = cos_row[i];
                 float s = sin_row[i];
 
                 // Inverse rotation: rotate by -θ
-                d_row[2 * i]     =  d0 * c + d1 * s;
-                d_row[2 * i + 1] = -d0 * s + d1 * c;
+                d_row[i] = d0 * c + d1 * s;
+                d_row[i + half_dim] = -d0 * s + d1 * c;
             }
 
             for (int i = head_dim; i < aligned_head_dim; ++i) {

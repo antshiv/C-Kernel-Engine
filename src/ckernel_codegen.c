@@ -729,6 +729,7 @@ static int emit_kernel_manifest(const CKIRGraph *forward, const char *runtime_pa
     size_t seen_count = 0;
 
     emit_unique_source(f, "src/ckernel_alloc.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/ckernel_strict.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/embedding_kernels.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/rope_kernels.c", seen, &seen_count, seen_cap);
     if (emit_plan_sources(f,
@@ -1140,6 +1141,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    printf(\"  --lr F             SGD learning rate (default: 1e-3 when --backward)\\n\");\n"
             "    printf(\"  --steps N          Training steps (default: 1)\\n\");\n"
             "    printf(\"  --log-steps       Print loss per step during training\\n\");\n"
+            "    printf(\"  --strict          Enable strict parity mode (single-thread + double GEMM)\\n\");\n"
             "    printf(\"  --hidden PATH      Load hidden activations [T x aligned_D] f32\\n\");\n"
             "    printf(\"  --weights PATH     Load LM head weights [V x aligned_D] f32 (litmus)\\n\");\n"
             "    printf(\"  --targets PATH     Load target tokens [T] int32\\n\");\n"
@@ -1432,21 +1434,21 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    for (int t = 0; t < T; ++t) {\n"
             "        const float *dlog = d_logits + (size_t)t * V;\n"
             "        for (int d = 0; d < D; ++d) {\n"
-            "            float sum = 0.0f;\n"
+            "            double sum = 0.0;\n"
             "            for (int v = 0; v < V; ++v) {\n"
-            "                sum += dlog[v] * weights[(size_t)v * aligned_D + d];\n"
+            "                sum += (double)dlog[v] * (double)weights[(size_t)v * aligned_D + d];\n"
             "            }\n"
-            "            d_hidden[(size_t)t * aligned_D + d] = sum;\n"
+            "            d_hidden[(size_t)t * aligned_D + d] = (float)sum;\n"
             "        }\n"
             "    }\n"
             "    for (int v = 0; v < V; ++v) {\n"
             "        float *dw = d_weights + (size_t)v * aligned_D;\n"
             "        for (int d = 0; d < D; ++d) {\n"
-            "            float sum = 0.0f;\n"
+            "            double sum = 0.0;\n"
             "            for (int t = 0; t < T; ++t) {\n"
-            "                sum += d_logits[(size_t)t * V + v] * hidden[(size_t)t * aligned_D + d];\n"
+            "                sum += (double)d_logits[(size_t)t * V + v] * (double)hidden[(size_t)t * aligned_D + d];\n"
             "            }\n"
-            "            dw[d] = sum;\n"
+            "            dw[d] = (float)sum;\n"
             "        }\n"
             "    }\n"
             "}\n\n");
@@ -1516,6 +1518,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    const char *out_weights = NULL;\n"
             "    int steps = 1;\n"
             "    int log_steps = 0;\n"
+            "    int strict = 0;\n"
             "    int32_t *tokens = NULL;\n"
             "    int32_t *targets = NULL;\n"
             "    TransformerModel m = {0};\n"
@@ -1547,6 +1550,10 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        }\n"
             "        if (strcmp(argv[i], \"--no-forward\") == 0) {\n"
             "            no_forward = 1;\n"
+            "            continue;\n"
+            "        }\n"
+            "        if (strcmp(argv[i], \"--strict\") == 0) {\n"
+            "            strict = 1;\n"
             "            continue;\n"
             "        }\n"
             "        if (strcmp(argv[i], \"--litmus\") == 0) {\n"
@@ -1652,6 +1659,9 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "        fprintf(stderr, \"Unknown or invalid arg: %%s\\n\", argv[i]);\n"
             "        print_usage(argv[0]);\n"
             "        return 1;\n"
+            "    }\n"
+            "    if (strict) {\n"
+            "        ck_set_strict_parity(1);\n"
             "    }\n"
             "    if (run_backward && m.learning_rate == 0.0f) {\n"
             "        m.learning_rate = 1e-3f;\n"

@@ -702,6 +702,10 @@
                         Deep Dive Concepts
                         <small>RoPE, Flash Attention, GQA</small>
                     </a>
+                    <a href="testing.html">
+                        Testing Methodology
+                        <small>Numerical parity verification</small>
+                    </a>
                 </div>
             </div>
             <a href="pytorch-parity.html" class="">PyTorch Parity</a>
@@ -978,7 +982,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-21 14:45</span>
+        <span class="folder-updated">Updated: 2025-12-22 11:17</span>
     </div>
     <pre class="tree-output">
 .
@@ -1005,6 +1009,8 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |   |-- pytorch-parity.html
 |   |   |-- quickstart.html
 |   |   |-- research.html
+|   |   |-- scaling.html
+|   |   |-- testing.html
 |   |   `-- test-viewer.html
 |   |-- study-materials
 |   |   |-- profiling
@@ -1030,6 +1036,8 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- kernel-catalog.md
 |   |-- kernel-design-pattern.md
 |   `-- threading-strategy.md
+|-- errata
+|   `-- smolm.md
 |-- include
 |   |-- ckernel_alloc.h
 |   |-- ckernel_codegen.h
@@ -1058,6 +1066,8 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   `-- kernel_testing_workflow.ipynb
 |-- Screenshots
 |-- scripts
+|   |-- compare_bump_payload.py
+|   |-- compare_bump_to_hf.py
 |   |-- convert_hf_to_bump.py
 |   |-- download_smollm.py
 |   |-- export_hf_llama_to_ckernel.py
@@ -1066,6 +1076,10 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- gen_random_tokens.py
 |   |-- run_all_tests.sh
 |   |-- run_litmus_demo.sh
+|   |-- smollm_forward_parity.py
+|   |-- smollm_layer_stack_diff.py
+|   |-- smollm_layer_stage_diff.py
+|   |-- smollm_train_demo.py
 |   `-- tiny_train_parity.py
 |-- src
 |   |-- kernels
@@ -1090,7 +1104,8 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- ckernel_model_layout.c
 |   |-- ckernel_model_load.c
 |   |-- ckernel_orchestration.c
-|   `-- ckernel_registry.c
+|   |-- ckernel_registry.c
+|   `-- ckernel_strict.c
 |-- tests
 |-- unittest
 |   |-- compare_outputs.py
@@ -1123,7 +1138,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |-- tiny.config.json
 `-- valgrind.supp
 
-21 directories, 119 files
+22 directories, 129 files
 </pre>
 </div>
 
@@ -1326,7 +1341,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-21</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-22</p>
             </div>
         </div>
     </footer>

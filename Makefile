@@ -1,4 +1,19 @@
-CC      := gcc
+# Auto-pick a compiler unless the user explicitly sets CC.
+ifeq ($(origin CC),default)
+CC := $(if $(shell command -v icx 2>/dev/null),icx,gcc)
+endif
+# Some environments export CC=cc; treat that like "unset".
+ifeq ($(CC),cc)
+CC := $(if $(shell command -v icx 2>/dev/null),icx,gcc)
+endif
+# OpenMP flag varies by compiler (icx/icc prefer -qopenmp; gcc/clang use -fopenmp).
+OPENMP_FLAG ?= -fopenmp
+ifneq (,$(findstring icc,$(CC)))
+OPENMP_FLAG := -qopenmp
+endif
+ifneq (,$(findstring icx,$(CC)))
+OPENMP_FLAG := -qopenmp
+endif
 # You can override AVX/arch flags from the environment if needed, e.g.:
 #   make AVX_FLAGS="-mavx2"
 #   make AVX_FLAGS=""            # scalar build
@@ -13,7 +28,7 @@ else
 AVX_FLAGS ?=
 endif
 INCLUDES := -Iinclude
-CFLAGS  := -O3 -fPIC -fopenmp -Wall $(AVX_FLAGS) $(INCLUDES)
+CFLAGS  := -O3 -fPIC $(OPENMP_FLAG) -Wall $(AVX_FLAGS) $(INCLUDES)
 
 BUILD_DIR := build
 
@@ -22,6 +37,7 @@ SRCS    := src/backend_native.c \
            src/ckernel_codegen.c \
            src/ckernel_kernel_specs.c \
            src/ckernel_alloc.c \
+           src/ckernel_strict.c \
            src/ckernel_registry.c \
            src/ckernel_orchestration.c \
            src/ckernel_model_layout.c \
@@ -59,6 +75,23 @@ TINY_TRAIN_ARGS ?= --dump
 TINY_PARITY_ARGS ?=
 ALL_TEST_LAYER_ARGS ?= --tokens 256 --embed 64 --heads 4 --kv-heads 2 --intermediate 128 --rope --strict-ref
 ALL_TEST_LAYER_TOL ?= 2e-3
+SMOLLM_CONFIG ?= smolLM-135.json
+SMOLLM_MODEL_DIR ?= /home/antshiv/Workspace/HF-Models/SmolLM-135M
+SMOLLM_REPO ?= HuggingFaceTB/SmolLM-135M
+SMOLLM_DOWNLOAD ?=
+SMOLLM_CONTEXT ?= 2
+SMOLLM_DATASET ?= roneneldan/TinyStories
+SMOLLM_DATASET_CONFIG ?=
+SMOLLM_SPLIT ?= train
+SMOLLM_MAX_SAMPLES ?= 4
+SMOLLM_TEXT ?= Once upon a time
+SMOLLM_TOPK ?= 5
+SMOLLM_LAYER ?= 0
+SMOLLM_STAGE_TOL ?= 1e-3
+SMOLLM_STAGE_DUMP ?=
+SMOLLM_BUMP ?= $(BUILD_DIR)/smollm_weights.bin
+SMOLLM_OUT_WEIGHTS ?= $(BUILD_DIR)/smollm_weights_after.bin
+SMOLLM_MAX_LAYERS ?=
 
 PYTHON  ?= python3
 PYTHONFLAGS ?= -B
@@ -82,6 +115,17 @@ PY_TESTS := unittest/test_layernorm.py \
 LITMUS_DEMO_ARGS ?= --vocab 100 --ctx 100 --embed 64 --intermediate 128 --heads 4 --kv-heads 2
 LITMUS_DEMO_SVG ?= $(BUILD_DIR)/litmus_report.svg
 LITMUS_DEMO_LOG ?= $(BUILD_DIR)/litmus_demo.log
+CK_GELU_TOL ?= 1e-7
+TEST_ENV :=
+ifneq (,$(findstring icx,$(CC)))
+CK_GELU_TOL := 1e-6
+TEST_ENV += CK_GELU_TOL=$(CK_GELU_TOL)
+endif
+ifneq (,$(findstring icc,$(CC)))
+CK_GELU_TOL := 1e-6
+TEST_ENV += CK_GELU_TOL=$(CK_GELU_TOL)
+endif
+export CK_GELU_TOL
 
 all: $(BUILD_DIR) $(LIB)
 
@@ -160,7 +204,7 @@ test: $(LIB) test-libs
 	@set -e; \
 	for t in $(PY_TESTS); do \
 	  echo "Running $$t"; \
-	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) $$t; \
+	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
 	done; \
 	echo "All Python kernel tests completed."
 
@@ -204,6 +248,59 @@ tiny-train: $(IR_DEMO) $(LIB)
 
 tiny-parity: $(IR_DEMO)
 	$(PYTHON) $(PYTHONFLAGS) scripts/tiny_train_parity.py --config $(TINY_CONFIG) $(TINY_PARITY_ARGS)
+
+smollm-demo:
+	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_train_demo.py \
+	  --config $(SMOLLM_CONFIG) \
+	  --model-dir $(SMOLLM_MODEL_DIR) \
+	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --dataset $(SMOLLM_DATASET) \
+	  $(if $(SMOLLM_DATASET_CONFIG),--dataset-config $(SMOLLM_DATASET_CONFIG),) \
+	  --split $(SMOLLM_SPLIT) \
+	  --max-samples $(SMOLLM_MAX_SAMPLES)
+
+smollm-forward:
+	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_forward_parity.py \
+	  --config $(SMOLLM_CONFIG) \
+	  --model-dir $(SMOLLM_MODEL_DIR) \
+	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --text "$(SMOLLM_TEXT)" \
+	  --topk $(SMOLLM_TOPK)
+
+smollm-layer-diff: $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_layer_stage_diff.py \
+	  --config $(SMOLLM_CONFIG) \
+	  --model-dir $(SMOLLM_MODEL_DIR) \
+	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --text "$(SMOLLM_TEXT)" \
+	  --layer $(SMOLLM_LAYER) \
+	  --tol $(SMOLLM_STAGE_TOL) \
+	  $(if $(SMOLLM_STAGE_DUMP),--dump-stages,)
+
+smollm-bump-compare:
+	$(PYTHON) $(PYTHONFLAGS) scripts/compare_bump_to_hf.py \
+	  --checkpoint $(SMOLLM_MODEL_DIR) \
+	  --bump $(SMOLLM_BUMP) \
+	  --config $(SMOLLM_CONFIG) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --layer $(SMOLLM_LAYER)
+
+smollm-weight-check:
+	$(PYTHON) $(PYTHONFLAGS) scripts/compare_bump_payload.py \
+	  --bump $(SMOLLM_BUMP) \
+	  --raw $(SMOLLM_OUT_WEIGHTS)
+
+smollm-layer-stack:
+	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_layer_stack_diff.py \
+	  --config $(SMOLLM_CONFIG) \
+	  --model-dir $(SMOLLM_MODEL_DIR) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --text "$(SMOLLM_TEXT)" \
+	  $(if $(SMOLLM_MAX_LAYERS),--max-layers $(SMOLLM_MAX_LAYERS),) \
+	  --tol $(SMOLLM_STAGE_TOL)
 
 all-tests: $(LIB)
 	$(MAKE) test
@@ -301,6 +398,12 @@ help:
 	@echo "  make tiny-e2e        Generate random weights/tokens and run tiny end-to-end forward"
 	@echo "  make tiny-train      Generate random weights/tokens/targets and run tiny forward+backward+SGD"
 	@echo "  make tiny-parity     Run tiny end-to-end training parity vs PyTorch (1 step)"
+	@echo "  make smollm-demo     Run a tiny SmolLM training demo (C only, uses HF weights + TinyStories)"
+	@echo "  make smollm-forward  Run SmolLM forward parity vs PyTorch on a short prompt (C vs Torch logits)"
+	@echo "  make smollm-layer-diff  Run per-stage diffs for one SmolLM layer vs PyTorch (C kernel vs ref)"
+	@echo "  make smollm-bump-compare  Compare bump weights vs HF for one SmolLM layer"
+	@echo "  make smollm-weight-check  Compare bump weights against a raw --out-weights dump"
+	@echo "  make smollm-layer-stack  Compare C vs PyTorch per-layer outputs across the full stack"
 	@echo "  make all-tests       Run kernel tests + layer parity + tiny parity (safe defaults)"
 	@echo "  make test-quick      Comprehensive quick tests (<1 min) - tiny models, basic configs"
 	@echo "  make test-full       Comprehensive full tests (5-10 min) - GQA, medium, deep, wide models"

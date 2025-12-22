@@ -195,7 +195,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="21" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="21" bodyend="52"/>
         <references refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" compoundref="gelu__kernels_8c" startline="6" endline="17">gelu_fast_inplace</references>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="109" endline="154">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="138" endline="187">gemm_blocked_serial</references>
       </memberdef>
       </sectiondef>
     <briefdescription>

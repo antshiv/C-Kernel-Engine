@@ -33,6 +33,10 @@ typedef struct {
  */
 CKMathBackend ckernel_backend_native(void);
 
+// Enable stricter numeric parity (single-thread + double-accumulation GEMM).
+void ck_set_strict_parity(int enabled);
+int ck_strict_parity_enabled(void);
+
 // Expose the individual GEMM kernels copied from C-Transformer.
 void gemm_naive_parallel(const float *A,
                          const float *B,

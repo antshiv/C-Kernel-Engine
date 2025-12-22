@@ -1,13 +1,21 @@
 var NAVTREEINDEX2 =
 {
+"structTransformerModel.html#a08ba885dfade40a3910ffba35076a1a3":[0,0,13,4],
+"structTransformerModel.html#a15ebe2bd4db54209b7cc8e89bb1cb8fd":[0,0,13,1],
+"structTransformerModel.html#a1989f1f535ad94b85bb4242ec2148969":[0,0,13,2],
+"structTransformerModel.html#a4a924d843ebdc352caa809c1f72b1838":[0,0,13,3],
+"structTransformerModel.html#a5e14c6be5365203ff62022d605db1672":[0,0,13,12],
+"structTransformerModel.html#a79f34fccbab0e1d127d521b03df5b327":[0,0,13,11],
+"structTransformerModel.html#a920af187f3562257c0fb9c80c05b4582":[0,0,13,7],
+"structTransformerModel.html#a955d1efe9f4e9e8bedca00a5a85a5d18":[0,0,13,10],
 "structTransformerModel.html#a9fb01acf28cf0c0f53a8b4c416cedd59":[0,0,13,13],
 "structTransformerModel.html#aa1da3a055e1f53a6aa8aa54d380e04d1":[0,0,13,14],
 "structTransformerModel.html#aa4fd42c5214bd3b0adcbc64f82461ee7":[0,0,13,5],
 "structTransformerModel.html#aac7b4631a17af2e961d211f4bcccb134":[0,0,13,6],
 "structTransformerModel.html#adc7918eda6b620de8efa5722b57111f8":[0,0,13,9],
 "structTransformerModel.html#af6538865812c32df1cbd785b2d40e370":[0,0,13,0],
-"swiglu__kernels_8c.html":[1,0,29],
-"swiglu__kernels_8c.html#a26369aa07808fb6aae4502d54a1ba650":[1,0,29,1],
-"swiglu__kernels_8c.html#a2d1ada314dda9d7788371a08067917d6":[1,0,29,0],
-"swiglu__kernels_8c_source.html":[1,0,29]
+"swiglu__kernels_8c.html":[1,0,30],
+"swiglu__kernels_8c.html#a26369aa07808fb6aae4502d54a1ba650":[1,0,30,1],
+"swiglu__kernels_8c.html#a2d1ada314dda9d7788371a08067917d6":[1,0,30,0],
+"swiglu__kernels_8c_source.html":[1,0,30]
 };

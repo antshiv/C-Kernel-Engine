@@ -265,6 +265,8 @@
     <member refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" kind="function"><name>attention_forward_causal_head_major_gqa</name></member>
     <member refid="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" kind="function"><name>backward_causal_softmax_head_major</name></member>
     <member refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" kind="function"><name>causal_softmax_head_major</name></member>
+    <member refid="ckernel__engine_8h_1a8bcb6fa03c4861c8f45d59fa424d1146" kind="function"><name>ck_set_strict_parity</name></member>
+    <member refid="ckernel__engine_8h_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
     <member refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" kind="function"><name>ckernel_backend_native</name></member>
     <member refid="ckernel__engine_8h_1a7fb7087da26dca964798795062f5b0a5" kind="function"><name>embedding_backward</name></member>
     <member refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
@@ -438,6 +440,11 @@
     <member refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" kind="function"><name>ck_ir_validate_supported</name></member>
     <member refid="ckernel__registry_8h_1a4178dea993cf3973166fd2dc9d1f2223" kind="function"><name>ck_op_supported</name></member>
   </compound>
+  <compound refid="ckernel__strict_8c" kind="file"><name>ckernel_strict.c</name>
+    <member refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kind="variable"><name>ck_strict_parity</name></member>
+    <member refid="ckernel__strict_8c_1a8bcb6fa03c4861c8f45d59fa424d1146" kind="function"><name>ck_set_strict_parity</name></member>
+    <member refid="ckernel__strict_8c_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
+  </compound>
   <compound refid="embedding__kernels_8c" kind="file"><name>embedding_kernels.c</name>
     <member refid="embedding__kernels_8c_1a7fb7087da26dca964798795062f5b0a5" kind="function"><name>embedding_backward</name></member>
     <member refid="embedding__kernels_8c_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
@@ -453,6 +460,7 @@
     <member refid="gemm__kernels_8c_1af4f0e756d3ac00b45ce2c7a296b61ae3" kind="function"><name>gemm_blocked_serial</name></member>
     <member refid="gemm__kernels_8c_1abab2d2aaed47f4c682c019bd77fab1ed" kind="function"><name>gemm_fine_grained_parallel</name></member>
     <member refid="gemm__kernels_8c_1a1cd1848bd75a4fb5874fe0feaa8716e4" kind="function"><name>gemm_naive_parallel</name></member>
+    <member refid="gemm__kernels_8c_1a155ee359c94e8d25746f5a2828c6c448" kind="function"><name>gemm_naive_serial_double</name></member>
   </compound>
   <compound refid="layernorm__kernels_8c" kind="file"><name>layernorm_kernels.c</name>
     <member refid="layernorm__kernels_8c_1a8d349f047d6654b3a351fb62e0b20e87" kind="function"><name>layernorm_backward_kernel</name></member>

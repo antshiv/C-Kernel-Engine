@@ -6,7 +6,7 @@ Validates:
 - rope_forward
 - rope_backward
 
-Uses the standard Llama-style RoPE formulation.
+    Uses the standard Llama rotate-half RoPE formulation.
 """
 import ctypes
 import math
@@ -84,7 +84,7 @@ def precompute_freqs_cis_pytorch(head_dim: int, max_seq_len: int, base: float = 
 
 def rope_forward_pytorch(x: torch.Tensor, cos_cache: torch.Tensor, sin_cache: torch.Tensor, pos_offset: int = 0):
     """
-    PyTorch reference RoPE forward.
+    PyTorch reference RoPE forward (rotate-half).
     x: [num_heads, num_tokens, head_dim]
     cos_cache, sin_cache: [max_seq_len, head_dim/2]
     """
@@ -100,20 +100,20 @@ def rope_forward_pytorch(x: torch.Tensor, cos_cache: torch.Tensor, sin_cache: to
             sin_row = sin_cache[pos]  # [half_dim]
 
             for i in range(half_dim):
-                x0 = x[h, t, 2 * i]
-                x1 = x[h, t, 2 * i + 1]
+                x0 = x[h, t, i]
+                x1 = x[h, t, i + half_dim]
                 c = cos_row[i]
                 s = sin_row[i]
 
-                x_out[h, t, 2 * i] = x0 * c - x1 * s
-                x_out[h, t, 2 * i + 1] = x0 * s + x1 * c
+                x_out[h, t, i] = x0 * c - x1 * s
+                x_out[h, t, i + half_dim] = x0 * s + x1 * c
 
     return x_out
 
 
 def rope_backward_pytorch(d_out: torch.Tensor, cos_cache: torch.Tensor, sin_cache: torch.Tensor, pos_offset: int = 0):
     """
-    PyTorch reference RoPE backward (inverse rotation).
+    PyTorch reference RoPE backward (inverse rotation, rotate-half).
     d_out: [num_heads, num_tokens, head_dim]
     """
     H, T, D = d_out.shape
@@ -128,14 +128,14 @@ def rope_backward_pytorch(d_out: torch.Tensor, cos_cache: torch.Tensor, sin_cach
             sin_row = sin_cache[pos]
 
             for i in range(half_dim):
-                d0 = d_out[h, t, 2 * i]
-                d1 = d_out[h, t, 2 * i + 1]
+                d0 = d_out[h, t, i]
+                d1 = d_out[h, t, i + half_dim]
                 c = cos_row[i]
                 s = sin_row[i]
 
                 # Inverse rotation: rotate by -theta
-                d_x[h, t, 2 * i] = d0 * c + d1 * s
-                d_x[h, t, 2 * i + 1] = -d0 * s + d1 * c
+                d_x[h, t, i] = d0 * c + d1 * s
+                d_x[h, t, i + half_dim] = -d0 * s + d1 * c
 
     return d_x
 

@@ -19,6 +19,7 @@ var files_dup =
     [ "ckernel_orchestration.h", "ckernel__orchestration_8h.html", "ckernel__orchestration_8h" ],
     [ "ckernel_registry.c", "ckernel__registry_8c.html", "ckernel__registry_8c" ],
     [ "ckernel_registry.h", "ckernel__registry_8h.html", "ckernel__registry_8h" ],
+    [ "ckernel_strict.c", "ckernel__strict_8c.html", "ckernel__strict_8c" ],
     [ "embedding_kernels.c", "embedding__kernels_8c.html", "embedding__kernels_8c" ],
     [ "gelu_kernels.c", "gelu__kernels_8c.html", "gelu__kernels_8c" ],
     [ "gemm_kernels.c", "gemm__kernels_8c.html", "gemm__kernels_8c" ],

@@ -702,6 +702,10 @@
                         Deep Dive Concepts
                         <small>RoPE, Flash Attention, GQA</small>
                     </a>
+                    <a href="testing.html">
+                        Testing Methodology
+                        <small>Numerical parity verification</small>
+                    </a>
                 </div>
             </div>
             <a href="pytorch-parity.html" class="">PyTorch Parity</a>
@@ -766,6 +770,130 @@ void gemm_forward(float *C, const float *A, const float *B,
 // 600B: gemm_forward(out, A, B, 65536, 16384, 16384);
 
 // Same code. Different numbers. That's it.</pre>
+</div>
+
+<h2>Target Platform</h2>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Server-Grade Hardware</h3>
+    <p>C-Kernel-Engine is designed for modern server CPUs, not laptops or desktops. We target:</p>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">CPU Requirements</h3>
+        <ul>
+            <li><strong>High core count</strong> - 64-128+ cores per socket</li>
+            <li><strong>Large L3 cache</strong> - Good core-to-cache ratio (1-2MB/core)</li>
+            <li><strong>AVX-512</strong> - 512-bit SIMD for vectorized math</li>
+            <li><strong>AMX</strong> - Advanced Matrix Extensions (Sapphire Rapids+)</li>
+            <li><strong>Multiple sockets</strong> - NUMA-aware memory access</li>
+        </ul>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Memory Requirements</h3>
+        <ul>
+            <li><strong>DDR5</strong> - Higher bandwidth, lower latency</li>
+            <li><strong>Multi-channel</strong> - 8-12 channels per socket</li>
+            <li><strong>Large capacity</strong> - 512GB - 2TB+ per node</li>
+            <li><strong>ECC</strong> - Error correction for reliability</li>
+            <li><strong>NUMA-local</strong> - Pin threads to local memory</li>
+        </ul>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="margin-top: 0;">Accelerators</h3>
+        <ul>
+            <li><strong>Intel DSA</strong> - Data Streaming Accelerator for memory copies</li>
+            <li><strong>Intel IAA</strong> - Analytics Accelerator for compression</li>
+            <li><strong>Intel QAT</strong> - QuickAssist for crypto (if needed)</li>
+            <li><strong>CXL</strong> - Memory expansion and pooling (future)</li>
+        </ul>
+    </div>
+    <div class="card">
+        <h3 style="margin-top: 0;">Networking</h3>
+        <ul>
+            <li><strong>RDMA</strong> - InfiniBand or RoCEv2</li>
+            <li><strong>100-400 Gbps</strong> - High bandwidth interconnect</li>
+            <li><strong>Low latency</strong> - 1-2 μs for RDMA operations</li>
+            <li><strong>Kernel bypass</strong> - Zero-copy transfers</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card card-green">
+    <h3 style="margin-top: 0;">Operating System</h3>
+    <p><strong>Linux-only.</strong> We use Linux-specific features:</p>
+    <ul>
+        <li><code>mmap()</code> with <code>MAP_HUGETLB</code> for huge pages</li>
+        <li><code>madvise(MADV_HUGEPAGE)</code> for transparent huge pages</li>
+        <li><code>numactl</code> / <code>set_mempolicy()</code> for NUMA binding</li>
+        <li><code>sched_setaffinity()</code> for core pinning</li>
+        <li><code>perf</code> for profiling</li>
+        <li><code>io_uring</code> for async I/O (weight loading)</li>
+        <li>Intel DSA via <code>libaccel-config</code> / <code>idxd</code> driver</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Target CPU Families</h3>
+    <table class="table">
+        <thead>
+            <tr><th>CPU</th><th>Cores</th><th>AVX-512</th><th>AMX</th><th>DDR5 Channels</th><th>DSA</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>AMD EPYC 9004 (Genoa)</td>
+                <td>Up to 128</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td>12</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>AMD EPYC 9005 (Turin)</td>
+                <td>Up to 192</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td>12</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>Intel Xeon Sapphire Rapids</td>
+                <td>Up to 60</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>8</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Intel Xeon Emerald Rapids</td>
+                <td>Up to 64</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>8</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Intel Xeon Granite Rapids</td>
+                <td>Up to 128</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>8</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Ampere Altra Max</td>
+                <td>128</td>
+                <td>No (ARM)</td>
+                <td>No</td>
+                <td>8</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <h2>Why CPU-Only?</h2>
@@ -1190,7 +1318,7 @@ That's it. For any model size.
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-21</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-22</p>
             </div>
         </div>
     </footer>

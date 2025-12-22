@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-21 14:45</span>
+        <span class="folder-updated">Updated: 2025-12-22 11:17</span>
     </div>
     <pre class="tree-output">
 .
@@ -28,6 +28,8 @@
 |   |   |-- pytorch-parity.html
 |   |   |-- quickstart.html
 |   |   |-- research.html
+|   |   |-- scaling.html
+|   |   |-- testing.html
 |   |   `-- test-viewer.html
 |   |-- study-materials
 |   |   |-- profiling
@@ -53,6 +55,8 @@
 |   |-- kernel-catalog.md
 |   |-- kernel-design-pattern.md
 |   `-- threading-strategy.md
+|-- errata
+|   `-- smolm.md
 |-- include
 |   |-- ckernel_alloc.h
 |   |-- ckernel_codegen.h
@@ -81,6 +85,8 @@
 |   `-- kernel_testing_workflow.ipynb
 |-- Screenshots
 |-- scripts
+|   |-- compare_bump_payload.py
+|   |-- compare_bump_to_hf.py
 |   |-- convert_hf_to_bump.py
 |   |-- download_smollm.py
 |   |-- export_hf_llama_to_ckernel.py
@@ -89,6 +95,10 @@
 |   |-- gen_random_tokens.py
 |   |-- run_all_tests.sh
 |   |-- run_litmus_demo.sh
+|   |-- smollm_forward_parity.py
+|   |-- smollm_layer_stack_diff.py
+|   |-- smollm_layer_stage_diff.py
+|   |-- smollm_train_demo.py
 |   `-- tiny_train_parity.py
 |-- src
 |   |-- kernels
@@ -113,7 +123,8 @@
 |   |-- ckernel_model_layout.c
 |   |-- ckernel_model_load.c
 |   |-- ckernel_orchestration.c
-|   `-- ckernel_registry.c
+|   |-- ckernel_registry.c
+|   `-- ckernel_strict.c
 |-- tests
 |-- unittest
 |   |-- compare_outputs.py
@@ -146,7 +157,7 @@
 |-- tiny.config.json
 `-- valgrind.supp
 
-21 directories, 119 files
+22 directories, 129 files
 </pre>
 </div>
 

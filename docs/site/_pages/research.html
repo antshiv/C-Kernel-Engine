@@ -78,6 +78,84 @@
     </tr>
 </table>
 
+<h3>Deep Dive: Multi-Head Latent Attention (MLA)</h3>
+
+<div class="card card-accent">
+    <h4 style="margin-top: 0;">The KV Cache Problem</h4>
+    <p>Standard attention requires storing K and V tensors for each token in the sequence. For long contexts, this becomes massive:</p>
+    <pre>KV Cache size = 2 × num_layers × seq_len × num_heads × head_dim × bytes_per_element
+
+Example (70B model, 128K context):
+= 2 × 80 × 128,000 × 64 × 128 × 2 bytes (FP16)
+= 167 GB just for KV cache!</pre>
+    <p>GQA/MQA reduce this by sharing K/V heads, but MLA takes a different approach.</p>
+</div>
+
+<div class="card card-green">
+    <h4 style="margin-top: 0;">MLA: Low-Rank KV Compression</h4>
+    <p>Instead of reducing heads, MLA compresses the KV cache into a low-rank latent space:</p>
+    <pre>Standard Attention:
+  h → W_K → K (full size)
+  h → W_V → V (full size)
+  Cache: [K, V] per layer
+
+MLA:
+  h → W_compress → c (small latent vector, e.g., 1024-dim)
+  Cache: [c] per layer  ← 93% smaller!
+
+  At attention time:
+  c → W_decompress_K → K (reconstruct)
+  c → W_decompress_V → V (reconstruct)</pre>
+</div>
+
+<div class="card">
+    <h4 style="margin-top: 0;">MLA Results (DeepSeek-V2)</h4>
+    <table class="table">
+        <thead>
+            <tr><th>Metric</th><th>Standard</th><th>MLA</th><th>Improvement</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>KV Cache Size</td><td>100%</td><td>6.7%</td><td><strong>93.3% reduction</strong></td></tr>
+            <tr><td>Generation Throughput</td><td>1x</td><td>5.76x</td><td><strong>5.76x faster</strong></td></tr>
+            <tr><td>Training Cost</td><td>100%</td><td>57.5%</td><td><strong>42.5% cheaper</strong></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h4 style="margin-top: 0;">RoPE Compatibility Challenge</h4>
+    <p>RoPE encodes position in both Q and K, but MLA compresses K into a latent space. DeepSeek's solution:</p>
+    <ul>
+        <li>Keep RoPE on a <em>subset</em> of dimensions (not compressed)</li>
+        <li>Compress the remaining dimensions (NoPE - no positional encoding)</li>
+        <li>Requires careful dimension partitioning</li>
+    </ul>
+    <pre>Q = [Q_rope (with position), Q_nope (compressed)]
+K = [K_rope (with position), K_nope (from latent)]</pre>
+</div>
+
+<div class="card">
+    <h4 style="margin-top: 0;">Implementation Considerations for C-Kernel-Engine</h4>
+    <ul>
+        <li><strong>New kernel:</strong> <code>mla_compress</code> - h → latent (small matmul)</li>
+        <li><strong>New kernel:</strong> <code>mla_decompress</code> - latent → K, V (during attention)</li>
+        <li><strong>Modified attention:</strong> Handle split RoPE/NoPE dimensions</li>
+        <li><strong>KV cache layout:</strong> Store latent vectors instead of full K/V</li>
+        <li><strong>Memory savings:</strong> Critical for long context on CPU (limited RAM vs GPU)</li>
+    </ul>
+    <p><strong>Priority:</strong> High for long-context inference. The 93% KV cache reduction is huge for CPU deployment.</p>
+</div>
+
+<div class="card">
+    <h4 style="margin-top: 0;">References</h4>
+    <ul>
+        <li><a href="https://arxiv.org/abs/2405.04434" target="_blank">DeepSeek-V2 Paper</a> - Original MLA introduction</li>
+        <li><a href="https://medium.com/data-science/deepseek-v3-explained-1-multi-head-latent-attention-ed6bee2a67c4" target="_blank">DeepSeek-V3 MLA Explained</a> - Visual walkthrough</li>
+        <li><a href="https://planetbanatt.net/articles/mla.html" target="_blank">Understanding MLA</a> - Technical deep dive</li>
+        <li><a href="https://arxiv.org/abs/2502.07864" target="_blank">TransMLA</a> - Converting GQA models to MLA</li>
+    </ul>
+</div>
+
 <h2>Position Encodings</h2>
 
 <table>

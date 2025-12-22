@@ -1,4 +1,5 @@
 import ctypes
+import os
 
 import torch
 import torch.nn.functional as F
@@ -51,9 +52,10 @@ def run_single_test(N=1024):
     out = run_c_gelu(x)
 
     diff = max_diff(out, ref)
+    tol = float(os.environ.get("CK_GELU_TOL", "1e-7"))
     print(f"GELU fast vs PyTorch(tanh) max diff: {diff:.2e}")
     # Treat any non-zero diff above tiny FP32 noise as a failure
-    if diff > 1e-7:
+    if diff > tol:
         print("Forward GELU mismatch detected. Showing first few elements:")
         for i in range(min(5, N)):
             print(f"i={i}: x={x[i].item():.6f}, ref={ref[i].item():.6f}, c={out[i].item():.6f}")
@@ -98,7 +100,8 @@ def run_backward_test(N=1024, check_fast: bool = False):
     print(f"GELU backward fast  vs PyTorch max diff: {fast_diff:.2e}")
 
     # Exact path must match within tiny FP32 noise.
-    if exact_diff > 1e-7:
+    tol = float(os.environ.get("CK_GELU_TOL", "1e-7"))
+    if exact_diff > tol:
         print("Backward GELU (exact) mismatch. Showing first few elements:")
         for i in range(min(5, N)):
             print(

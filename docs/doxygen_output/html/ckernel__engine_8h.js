@@ -7,6 +7,8 @@ var ckernel__engine_8h =
     [ "attention_forward_causal_head_major_gqa", "ckernel__engine_8h.html#a3e1aa7c55e515fd996318da27c2c5ade", null ],
     [ "backward_causal_softmax_head_major", "ckernel__engine_8h.html#a3d0ffc191c77d983b953984f8012589d", null ],
     [ "causal_softmax_head_major", "ckernel__engine_8h.html#a920868f80137fe3e0c9cd11acb7ba567", null ],
+    [ "ck_set_strict_parity", "ckernel__engine_8h.html#a8bcb6fa03c4861c8f45d59fa424d1146", null ],
+    [ "ck_strict_parity_enabled", "ckernel__engine_8h.html#aef8c9a331116ff9c2d77b03152aa8004", null ],
     [ "ckernel_backend_native", "ckernel__engine_8h.html#a6c6a2e37aa74b6f118d94eb08debcff3", null ],
     [ "embedding_backward", "ckernel__engine_8h.html#a7fb7087da26dca964798795062f5b0a5", null ],
     [ "embedding_forward", "ckernel__engine_8h.html#ad6f7e7937754e791a704562549e39f05", null ],

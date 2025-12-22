@@ -148,12 +148,12 @@ def rope_apply(x, cos_cache, sin_cache, pos_offset=0):
         cos_row = cos_cache[pos_offset + t]
         sin_row = sin_cache[pos_offset + t]
         for i in range(half_dim):
-            x0 = x[t, 2 * i]
-            x1 = x[t, 2 * i + 1]
+            x0 = x[t, i]
+            x1 = x[t, i + half_dim]
             c = cos_row[i]
             s = sin_row[i]
-            out[t, 2 * i] = x0 * c - x1 * s
-            out[t, 2 * i + 1] = x0 * s + x1 * c
+            out[t, i] = x0 * c - x1 * s
+            out[t, i + half_dim] = x0 * s + x1 * c
     return out
 
 

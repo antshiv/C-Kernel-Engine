@@ -132,7 +132,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="137" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="137" bodyend="170"/>
         <references refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" compoundref="ckernel__orchestration_8c" startline="126" endline="135">ck_add_inplace</references>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="109" endline="154">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="138" endline="187">gemm_blocked_serial</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="496">ck_layer_forward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1add4c3ac196a25f481496bf69f32a9ac6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -239,7 +239,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="172" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="172" bodyend="205"/>
         <references refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" compoundref="ckernel__orchestration_8c" startline="126" endline="135">ck_add_inplace</references>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="10" endline="27">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="27" endline="48">gemm_naive_parallel</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="498" endline="591">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1a1b75acba52e39a2063646dc1dff62ef4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -317,7 +317,7 @@
         <references refid="structCKLayerBackwardParams_1aab3a0f3828a687d937a07f74131b2a3f" compoundref="ckernel__orchestration_8h" startline="104">CKLayerBackwardParams::q</references>
         <references refid="structCKLayerBackwardParams_1abb44b9dbf412823c5d1dc2a426b68d53" compoundref="ckernel__orchestration_8h" startline="109">CKLayerBackwardParams::residual1</references>
         <references refid="ckernel__engine_8h_1aca68d7dda1a7de9ff926920804751db0" compoundref="rmsnorm__kernels_8c" startline="64" endline="111">rmsnorm_backward</references>
-        <references refid="ckernel__engine_8h_1a42fa03f293de94c5422681ada891a24f" compoundref="rope__kernels_8c" startline="208" endline="223">rope_backward_qk</references>
+        <references refid="ckernel__engine_8h_1a42fa03f293de94c5422681ada891a24f" compoundref="rope__kernels_8c" startline="210" endline="225">rope_backward_qk</references>
         <references refid="structCKLayerBackwardParams_1ac9983bf5c0f086d19bce3889e2abfbe8" compoundref="ckernel__orchestration_8h" startline="86">CKLayerBackwardParams::rope_cos</references>
         <references refid="structCKLayerBackwardParams_1ab177ccef441842dede3cb9717e4deff5" compoundref="ckernel__orchestration_8h" startline="76">CKLayerBackwardParams::rope_pos_offset</references>
         <references refid="structCKLayerBackwardParams_1af26bc4e2d6770ac37e07395a26c38993" compoundref="ckernel__orchestration_8h" startline="87">CKLayerBackwardParams::rope_sin</references>
@@ -387,7 +387,7 @@
         <references refid="structCKLayerForwardParams_1a97ce8698227c9cf419c8e21d17cebc12" compoundref="ckernel__orchestration_8h" startline="55">CKLayerForwardParams::residual1</references>
         <references refid="ckernel__engine_8h_1a9a068ed02d809a81a23f09e61b820baf" compoundref="rmsnorm__kernels_8c" startline="12" endline="51">rmsnorm_forward</references>
         <references refid="structCKLayerForwardParams_1a3be9a0f9fae1ab8fddc30e14628d74a0" compoundref="ckernel__orchestration_8h" startline="28">CKLayerForwardParams::rope_cos</references>
-        <references refid="ckernel__engine_8h_1ab18869516e9a6ab5998038716ac8a179" compoundref="rope__kernels_8c" startline="192" endline="205">rope_forward_qk</references>
+        <references refid="ckernel__engine_8h_1ab18869516e9a6ab5998038716ac8a179" compoundref="rope__kernels_8c" startline="194" endline="207">rope_forward_qk</references>
         <references refid="structCKLayerForwardParams_1ad0e18a97d0cd2746890333bcc2d0d0e1" compoundref="ckernel__orchestration_8h" startline="22">CKLayerForwardParams::rope_pos_offset</references>
         <references refid="structCKLayerForwardParams_1a332fc12fb11a99adfd72dba034c56ea7" compoundref="ckernel__orchestration_8h" startline="29">CKLayerForwardParams::rope_sin</references>
         <references refid="structCKLayerForwardParams_1a9b1930ef9e3d94dae2f16bacd354dc2d" compoundref="ckernel__orchestration_8h" startline="51">CKLayerForwardParams::scores</references>
@@ -455,7 +455,7 @@
         <references refid="structCKLayerForwardParams_1a97ce8698227c9cf419c8e21d17cebc12" compoundref="ckernel__orchestration_8h" startline="55">CKLayerForwardParams::residual1</references>
         <references refid="ckernel__engine_8h_1a9a068ed02d809a81a23f09e61b820baf" compoundref="rmsnorm__kernels_8c" startline="12" endline="51">rmsnorm_forward</references>
         <references refid="structCKLayerForwardParams_1a3be9a0f9fae1ab8fddc30e14628d74a0" compoundref="ckernel__orchestration_8h" startline="28">CKLayerForwardParams::rope_cos</references>
-        <references refid="ckernel__engine_8h_1ab18869516e9a6ab5998038716ac8a179" compoundref="rope__kernels_8c" startline="192" endline="205">rope_forward_qk</references>
+        <references refid="ckernel__engine_8h_1ab18869516e9a6ab5998038716ac8a179" compoundref="rope__kernels_8c" startline="194" endline="207">rope_forward_qk</references>
         <references refid="structCKLayerForwardParams_1ad0e18a97d0cd2746890333bcc2d0d0e1" compoundref="ckernel__orchestration_8h" startline="22">CKLayerForwardParams::rope_pos_offset</references>
         <references refid="structCKLayerForwardParams_1a332fc12fb11a99adfd72dba034c56ea7" compoundref="ckernel__orchestration_8h" startline="29">CKLayerForwardParams::rope_sin</references>
         <references refid="structCKLayerForwardParams_1a9b1930ef9e3d94dae2f16bacd354dc2d" compoundref="ckernel__orchestration_8h" startline="51">CKLayerForwardParams::scores</references>
@@ -525,7 +525,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="359" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="359" bodyend="379"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="109" endline="154">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="138" endline="187">gemm_blocked_serial</references>
         <references refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="496">ck_layer_forward_rmsnorm_swiglu</referencedby>
       </memberdef>
@@ -585,7 +585,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="381" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="381" bodyend="401"/>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="10" endline="27">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="27" endline="48">gemm_naive_parallel</references>
         <references refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="498" endline="591">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
@@ -661,7 +661,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="38" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="38" bodyend="80"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="109" endline="154">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="138" endline="187">gemm_blocked_serial</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="496">ck_layer_forward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1aae6b6e1796c190320ef20f0476dc2e9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -848,7 +848,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="82" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="82" bodyend="124"/>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="10" endline="27">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="27" endline="48">gemm_naive_parallel</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="498" endline="591">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1a35426895690beefd7b84cf090639b169" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
