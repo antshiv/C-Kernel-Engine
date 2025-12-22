@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
+"""
+Per-layer output diffs for SmolLM stack vs PyTorch.
+
+Fixed to handle final layer correctly - hidden_states[num_layers] is post-final-norm,
+so we compute raw layer output for comparison on the last layer.
+"""
 import argparse
 import json
-import math
 import os
 import sys
 import ctypes
@@ -40,7 +45,8 @@ def _maybe_force_safe_torch():
 
 _maybe_force_safe_torch()
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoTokenizer
+from transformers import LlamaForCausalLM
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _UNITTEST_DIR = os.path.join(_ROOT, "unittest")
@@ -198,21 +204,96 @@ def pack_w2(down, aligned_embed_dim, aligned_intermediate_dim):
     return packed
 
 
+def run_single_layer_pytorch(model, layer_idx, x_input, rope_theta=10000.0):
+    """
+    Run a single transformer layer in PyTorch and return the raw output
+    (before any final norm). This gives us the true layer output for comparison.
+    """
+    layer = model.model.layers[layer_idx]
+    with torch.no_grad():
+        # We need to run through the layer manually to get raw output
+        # LlamaDecoderLayer forward: residual + attn + residual + mlp
+        hidden = x_input
+
+        # Self-attention block
+        residual = hidden
+        hidden = layer.input_layernorm(hidden)
+
+        # Get attention output - need position_ids and attention_mask
+        batch_size, seq_len, hidden_size = hidden.shape
+        position_ids = torch.arange(seq_len, device=hidden.device).unsqueeze(0)
+
+        # Create causal mask
+        causal_mask = torch.triu(
+            torch.full((seq_len, seq_len), float('-inf'), device=hidden.device),
+            diagonal=1
+        )
+
+        # Compute RoPE position embeddings (cos, sin)
+        # New transformers API requires position_embeddings tuple
+        num_heads = getattr(layer.self_attn, 'num_heads', None) or layer.self_attn.config.num_attention_heads
+        head_dim = hidden_size // num_heads
+
+        # Use the model's rotary_emb if available, otherwise compute manually
+        if hasattr(model.model, 'rotary_emb'):
+            cos, sin = model.model.rotary_emb(hidden, position_ids)
+        elif hasattr(layer.self_attn, 'rotary_emb'):
+            cos, sin = layer.self_attn.rotary_emb(hidden, position_ids)
+        else:
+            # Manual RoPE computation
+            half_dim = head_dim // 2
+            freqs = 1.0 / (rope_theta ** (torch.arange(0, half_dim, dtype=torch.float32, device=hidden.device) * 2.0 / head_dim))
+            t = torch.arange(seq_len, dtype=torch.float32, device=hidden.device)
+            angles = torch.outer(t, freqs)
+            cos = torch.cos(angles).unsqueeze(0)  # [1, seq_len, half_dim]
+            sin = torch.sin(angles).unsqueeze(0)
+
+        position_embeddings = (cos, sin)
+
+        attn_result = layer.self_attn(
+            hidden_states=hidden,
+            attention_mask=causal_mask.unsqueeze(0).unsqueeze(0),
+            position_ids=position_ids,
+            position_embeddings=position_embeddings,
+            use_cache=False,
+        )
+        # Handle both old (3 values) and new (2 values) API
+        attn_output = attn_result[0]
+        hidden = residual + attn_output
+
+        # MLP block
+        residual = hidden
+        hidden = layer.post_attention_layernorm(hidden)
+        hidden = layer.mlp(hidden)
+        hidden = residual + hidden
+
+    return hidden
+
+
 def main():
     parser = argparse.ArgumentParser(description="Per-layer output diffs for SmolLM stack vs PyTorch")
-    parser.add_argument("--config", default="smolLM-135.json", help="Model config JSON")
+    parser.add_argument("--config", default=None, help="Model config JSON (default: uses model-dir/config.json)")
     parser.add_argument("--model-dir", required=True, help="HF model directory")
     parser.add_argument("--context", type=int, default=5, help="Context length")
     parser.add_argument("--text", default="Once upon a time", help="Prompt text")
     parser.add_argument("--max-layers", type=int, default=None, help="Limit layers to check")
-    parser.add_argument("--tol", type=float, default=1e-3, help="Max allowed diff")
+    parser.add_argument("--tol", type=float, default=1e-3, help="Max allowed absolute diff")
+    parser.add_argument("--rtol", type=float, default=None, help="Max allowed relative diff (overrides --tol if set)")
+    parser.add_argument("--verbose", action="store_true", help="Print debug info")
     args = parser.parse_args()
 
-    cfg = override_context(load_cfg(args.config), args.context)
+    # Use model's config.json by default
+    config_path = args.config
+    if config_path is None:
+        config_path = os.path.join(args.model_dir, "config.json")
+        if not os.path.exists(config_path):
+            raise SystemExit(f"Config not found: {config_path}. Specify --config or ensure model-dir has config.json")
+
+    cfg = override_context(load_cfg(config_path), args.context)
     tokenizer = AutoTokenizer.from_pretrained(args.model_dir, use_fast=True)
     tokens = prepare_tokens(tokenizer, args.text, args.context)
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = LlamaForCausalLM.from_pretrained(
         args.model_dir,
         torch_dtype=torch.float32,
         local_files_only=True,
@@ -230,6 +311,16 @@ def main():
     num_layers = len(model.model.layers)
     max_layers = args.max_layers if args.max_layers is not None else num_layers
     max_layers = min(max_layers, num_layers)
+
+    # Debug: show hidden_states structure
+    if args.verbose:
+        print(f"Config: {config_path}")
+        print(f"Number of hidden states: {len(hidden_states)}")
+        print(f"Number of layers: {num_layers}")
+        print(f"hidden_states[0] shape: {hidden_states[0].shape} (embedding output)")
+        print(f"hidden_states[{num_layers}] shape: {hidden_states[num_layers].shape} (final, post-norm)")
+        if hasattr(model.model, 'norm'):
+            print(f"Final norm exists: model.model.norm = {type(model.model.norm)}")
 
     D = int(cfg["hidden_size"])
     T = int(args.context)
@@ -257,10 +348,29 @@ def main():
     lib.ck_layer_forward_rmsnorm_swiglu.argtypes = [ctypes.POINTER(CKLayerForwardParams)]
     lib.ck_layer_forward_rmsnorm_swiglu.restype = None
 
+    all_passed = True
+
     for layer_idx in range(max_layers):
         layer = model.model.layers[layer_idx]
         x_ref = hidden_states[layer_idx][0].cpu().float().numpy()
-        y_ref = hidden_states[layer_idx + 1][0].cpu().float().numpy()
+
+        # For the last layer, hidden_states[layer_idx + 1] is POST final norm
+        # We need to compute the raw layer output ourselves
+        is_last_layer = (layer_idx == num_layers - 1)
+
+        if is_last_layer and (layer_idx + 1) < len(hidden_states):
+            # Compute raw layer output by running the layer manually
+            x_tensor = hidden_states[layer_idx].float()
+            y_raw = run_single_layer_pytorch(model, layer_idx, x_tensor, rope_theta)
+            y_ref = y_raw[0].cpu().numpy()
+
+            if args.verbose:
+                # Also show what the post-norm value looks like
+                y_post_norm = hidden_states[layer_idx + 1][0].cpu().float().numpy()
+                print(f"Layer {layer_idx} (FINAL): comparing raw output, not post-norm")
+                print(f"  Post-norm would have diff range: [{y_post_norm.min():.4f}, {y_post_norm.max():.4f}]")
+        else:
+            y_ref = hidden_states[layer_idx + 1][0].cpu().float().numpy()
 
         x = aligned_empty((T, aligned_embed_dim))
         x.fill(0.0)
@@ -369,10 +479,44 @@ def main():
         lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(params))
 
         out_c = output[:, :D].astype(np.float32)
-        diff = np.max(np.abs(out_c - y_ref))
-        print(f"Layer {layer_idx:02d} max_diff={diff:.3e}")
-        if diff > args.tol:
-            raise SystemExit(f"Layer {layer_idx} diff exceeds tol ({args.tol:g})")
+        abs_diff = np.max(np.abs(out_c - y_ref))
+
+        # Compute relative diff (avoid division by zero)
+        max_magnitude = max(np.max(np.abs(out_c)), np.max(np.abs(y_ref)), 1e-10)
+        rel_diff = abs_diff / max_magnitude
+
+        # Use relative tolerance if specified, otherwise absolute
+        if args.rtol is not None:
+            passed = rel_diff <= args.rtol
+            tol_str = f"rtol={args.rtol:g}"
+            diff_display = f"abs={abs_diff:.3e} rel={rel_diff:.3e}"
+        else:
+            passed = abs_diff <= args.tol
+            tol_str = f"tol={args.tol:g}"
+            diff_display = f"max_diff={abs_diff:.3e}"
+
+        status = "OK" if passed else "FAIL"
+        final_marker = " (FINAL)" if is_last_layer else ""
+        print(f"Layer {layer_idx:02d} {diff_display} [{status}]{final_marker}")
+
+        if not passed:
+            all_passed = False
+            if args.verbose:
+                # Show where the max diff occurs
+                diff_matrix = np.abs(out_c - y_ref)
+                max_idx = np.unravel_index(np.argmax(diff_matrix), diff_matrix.shape)
+                print(f"  Max diff at position {max_idx}")
+                print(f"  C output: {out_c[max_idx]:.6f}")
+                print(f"  PyTorch:  {y_ref[max_idx]:.6f}")
+                print(f"  Relative error: {abs_diff / abs(y_ref[max_idx]):.3e}")
+                print(f"  Output range C: [{out_c.min():.4f}, {out_c.max():.4f}]")
+                print(f"  Output range PT: [{y_ref.min():.4f}, {y_ref.max():.4f}]")
+
+    tol_msg = f"rtol={args.rtol:g}" if args.rtol else f"tol={args.tol:g}"
+    if all_passed:
+        print(f"\nAll {max_layers} layers passed ({tol_msg})")
+    else:
+        raise SystemExit(f"\nSome layers exceeded tolerance ({tol_msg})")
 
 
 if __name__ == "__main__":

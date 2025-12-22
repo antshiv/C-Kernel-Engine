@@ -105,7 +105,7 @@ def build_tokens(tokenizer, ds, text_key, context_len, max_samples):
 
 def main():
     parser = argparse.ArgumentParser(description="SmolLM tiny training demo on a small dataset slice")
-    parser.add_argument("--config", default="smolLM-135.json", help="Model config JSON")
+    parser.add_argument("--config", default=None, help="Model config JSON (default: uses model-dir/config.json)")
     parser.add_argument("--model-dir", required=True, help="HF model directory")
     parser.add_argument("--download-model", action="store_true", help="Download model if missing")
     parser.add_argument("--repo", default="HuggingFaceTB/SmolLM-135M", help="HF repo id for download")
@@ -129,7 +129,14 @@ def main():
             "--outdir", args.model_dir,
         ])
 
-    cfg = override_context(load_cfg(args.config), args.context)
+    # Use model's config.json by default
+    config_path = args.config
+    if config_path is None:
+        config_path = os.path.join(args.model_dir, "config.json")
+        if not os.path.exists(config_path):
+            raise SystemExit(f"Config not found: {config_path}. Specify --config or ensure model-dir has config.json")
+
+    cfg = override_context(load_cfg(config_path), args.context)
     context_len = pick(cfg, ["max_position_embeddings", "context_window", "ctx"], 0)
     if context_len <= 0:
         raise SystemExit("invalid context length; pass --context")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 from huggingface_hub import snapshot_download
 
 
@@ -14,13 +15,17 @@ DEFAULT_PATTERNS = [
     "merges.txt",
 ]
 
+DEFAULT_MODEL_DIR = os.path.join(
+    os.path.expanduser("~"), ".cache", "huggingface", "hub", "SmolLM-135M"
+)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download SmolLM weights from the Hugging Face Hub")
     parser.add_argument("--repo", default="HuggingFaceTB/SmolLM-135M", help="HF repo id")
     parser.add_argument(
         "--outdir",
-        default="/home/antshiv/Workspace/HF-Models/SmolLM-135M",
+        default=DEFAULT_MODEL_DIR,
         help="Output directory",
     )
     parser.add_argument(

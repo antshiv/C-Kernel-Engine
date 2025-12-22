@@ -225,7 +225,7 @@ def pack_w2(down, aligned_embed_dim, aligned_intermediate_dim):
 
 def main():
     parser = argparse.ArgumentParser(description="Per-stage diff for SmolLM layer vs PyTorch ref")
-    parser.add_argument("--config", default="smolLM-135.json", help="Model config JSON")
+    parser.add_argument("--config", default=None, help="Model config JSON (default: uses model-dir/config.json)")
     parser.add_argument("--model-dir", required=True, help="HF model directory")
     parser.add_argument("--download-model", action="store_true", help="Download model if missing")
     parser.add_argument("--repo", default="HuggingFaceTB/SmolLM-135M", help="HF repo id")
@@ -245,7 +245,14 @@ def main():
             "--outdir", args.model_dir,
         ])
 
-    cfg = override_context(load_cfg(args.config), args.context)
+    # Use model's config.json by default
+    config_path = args.config
+    if config_path is None:
+        config_path = os.path.join(args.model_dir, "config.json")
+        if not os.path.exists(config_path):
+            raise SystemExit(f"Config not found: {config_path}. Specify --config or ensure model-dir has config.json")
+
+    cfg = override_context(load_cfg(config_path), args.context)
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_dir, use_fast=True)
     tokens = prepare_tokens(tokenizer, args.text, args.context)

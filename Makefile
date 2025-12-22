@@ -76,7 +76,7 @@ TINY_PARITY_ARGS ?=
 ALL_TEST_LAYER_ARGS ?= --tokens 256 --embed 64 --heads 4 --kv-heads 2 --intermediate 128 --rope --strict-ref
 ALL_TEST_LAYER_TOL ?= 2e-3
 SMOLLM_CONFIG ?= smolLM-135.json
-SMOLLM_MODEL_DIR ?= /home/antshiv/Workspace/HF-Models/SmolLM-135M
+SMOLLM_MODEL_DIR ?= $(HOME)/.cache/huggingface/hub/SmolLM-135M
 SMOLLM_REPO ?= HuggingFaceTB/SmolLM-135M
 SMOLLM_DOWNLOAD ?=
 SMOLLM_CONTEXT ?= 2
@@ -251,7 +251,6 @@ tiny-parity: $(IR_DEMO)
 
 smollm-demo:
 	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_train_demo.py \
-	  --config $(SMOLLM_CONFIG) \
 	  --model-dir $(SMOLLM_MODEL_DIR) \
 	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
 	  --context $(SMOLLM_CONTEXT) \
@@ -262,7 +261,6 @@ smollm-demo:
 
 smollm-forward:
 	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_forward_parity.py \
-	  --config $(SMOLLM_CONFIG) \
 	  --model-dir $(SMOLLM_MODEL_DIR) \
 	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
 	  --context $(SMOLLM_CONTEXT) \
@@ -271,7 +269,6 @@ smollm-forward:
 
 smollm-layer-diff: $(LIB)
 	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_layer_stage_diff.py \
-	  --config $(SMOLLM_CONFIG) \
 	  --model-dir $(SMOLLM_MODEL_DIR) \
 	  $(if $(SMOLLM_DOWNLOAD),--download-model --repo $(SMOLLM_REPO),) \
 	  --context $(SMOLLM_CONTEXT) \
@@ -284,7 +281,6 @@ smollm-bump-compare:
 	$(PYTHON) $(PYTHONFLAGS) scripts/compare_bump_to_hf.py \
 	  --checkpoint $(SMOLLM_MODEL_DIR) \
 	  --bump $(SMOLLM_BUMP) \
-	  --config $(SMOLLM_CONFIG) \
 	  --context $(SMOLLM_CONTEXT) \
 	  --layer $(SMOLLM_LAYER)
 
@@ -295,7 +291,6 @@ smollm-weight-check:
 
 smollm-layer-stack:
 	$(PYTHON) $(PYTHONFLAGS) scripts/smollm_layer_stack_diff.py \
-	  --config $(SMOLLM_CONFIG) \
 	  --model-dir $(SMOLLM_MODEL_DIR) \
 	  --context $(SMOLLM_CONTEXT) \
 	  --text "$(SMOLLM_TEXT)" \
