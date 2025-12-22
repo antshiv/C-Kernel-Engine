@@ -297,6 +297,13 @@ smollm-layer-stack:
 	  $(if $(SMOLLM_MAX_LAYERS),--max-layers $(SMOLLM_MAX_LAYERS),) \
 	  --tol $(SMOLLM_STAGE_TOL)
 
+smollm-train-parity: $(LIB)
+	$(PYTHON) $(PYTHONFLAGS) scripts/tiny_train_parity.py \
+	  --checkpoint $(SMOLLM_MODEL_DIR) \
+	  --context $(SMOLLM_CONTEXT) \
+	  --steps 1 \
+	  --lr 1e-4
+
 all-tests: $(LIB)
 	$(MAKE) test
 	$(MAKE) layer-parity-scalar TOL=$(ALL_TEST_LAYER_TOL) ARGS="$(ALL_TEST_LAYER_ARGS)"
@@ -399,6 +406,7 @@ help:
 	@echo "  make smollm-bump-compare  Compare bump weights vs HF for one SmolLM layer"
 	@echo "  make smollm-weight-check  Compare bump weights against a raw --out-weights dump"
 	@echo "  make smollm-layer-stack  Compare C vs PyTorch per-layer outputs across the full stack"
+	@echo "  make smollm-train-parity  Full forward+backward parity vs PyTorch with SmolLM weights"
 	@echo "  make all-tests       Run kernel tests + layer parity + tiny parity (safe defaults)"
 	@echo "  make test-quick      Comprehensive quick tests (<1 min) - tiny models, basic configs"
 	@echo "  make test-full       Comprehensive full tests (5-10 min) - GQA, medium, deep, wide models"

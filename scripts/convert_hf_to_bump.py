@@ -121,16 +121,16 @@ def require_torch():
 
 def require_transformers():
     try:
-        from transformers import AutoModelForCausalLM  # noqa: F401
-        return AutoModelForCausalLM
+        from transformers import LlamaForCausalLM  # noqa: F401
+        return LlamaForCausalLM
     except ImportError as exc:
         raise SystemExit("transformers is required to convert HF weights") from exc
 
 
 def get_state_dict(checkpoint, torch_dtype):
     torch = require_torch()
-    AutoModelForCausalLM = require_transformers()
-    model = AutoModelForCausalLM.from_pretrained(
+    LlamaForCausalLM = require_transformers()
+    model = LlamaForCausalLM.from_pretrained(
         checkpoint,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,

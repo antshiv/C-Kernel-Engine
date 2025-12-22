@@ -40,7 +40,7 @@ def _maybe_force_safe_torch():
 
 _maybe_force_safe_torch()
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import LlamaForCausalLM, AutoTokenizer
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _UNITTEST_DIR = os.path.join(_ROOT, "unittest")
@@ -257,7 +257,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.model_dir, use_fast=True)
     tokens = prepare_tokens(tokenizer, args.text, args.context)
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = LlamaForCausalLM.from_pretrained(
         args.model_dir,
         torch_dtype=torch.float32,
         local_files_only=True,

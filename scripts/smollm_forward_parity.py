@@ -40,7 +40,7 @@ def _maybe_force_safe_torch():
 
 _maybe_force_safe_torch()
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import LlamaForCausalLM, AutoTokenizer
 
 
 class _DummyDynamo:
@@ -211,7 +211,7 @@ def main():
     c_logits = np.fromfile(logits_bin, dtype=np.float32)
     c_logits = c_logits.reshape(args.context, vocab_size)
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = LlamaForCausalLM.from_pretrained(
         args.model_dir,
         torch_dtype=torch.float32,
         local_files_only=True,

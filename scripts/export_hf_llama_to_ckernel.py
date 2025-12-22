@@ -12,7 +12,7 @@ import hashlib
 
 import numpy as np
 import torch
-from transformers import AutoConfig, AutoModelForCausalLM
+from transformers import AutoConfig, LlamaForCausalLM
 
 ALIGN_BYTES = 64
 ELEM_BYTES = 4
@@ -87,7 +87,7 @@ def export_llama_checkpoint(checkpoint_dir, output_file):
     cfg = AutoConfig.from_pretrained(checkpoint_dir, local_files_only=True)
 
     print(f"Loading model weights from {checkpoint_dir}...")
-    model = AutoModelForCausalLM.from_pretrained(
+    model = LlamaForCausalLM.from_pretrained(
         checkpoint_dir, torch_dtype=torch.float32, local_files_only=True
     )
     state = model.state_dict()

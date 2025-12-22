@@ -334,7 +334,7 @@ def torch_step(weights, cfg, tokens, targets, lr, rope_cos, rope_sin):
 
 def main():
     parser = argparse.ArgumentParser(description="End-to-end tiny training parity vs PyTorch")
-    parser.add_argument("--config", default="tiny.config.json", help="Model config JSON")
+    parser.add_argument("--config", default=None, help="Model config JSON (default: checkpoint/config.json if --checkpoint, else tiny.config.json)")
     parser.add_argument("--checkpoint", help="HF checkpoint dir (optional, converts to bump)")
     parser.add_argument("--weights-bin", help="Use existing bump weights file")
     parser.add_argument("--context", type=int, help="Override context length for small tests")
@@ -346,7 +346,17 @@ def main():
     parser.add_argument("--strict", action="store_true", help="Enable strict parity in C runtime")
     args = parser.parse_args()
 
-    cfg = load_cfg(args.config)
+    # Use checkpoint's config.json if available, otherwise fall back to tiny.config.json
+    config_file = args.config
+    if config_file is None:
+        if args.checkpoint:
+            config_file = os.path.join(args.checkpoint, "config.json")
+            if not os.path.exists(config_file):
+                raise SystemExit(f"Config not found: {config_file}. Specify --config or ensure checkpoint has config.json")
+        else:
+            config_file = "tiny.config.json"
+
+    cfg = load_cfg(config_file)
     cfg = override_context(cfg, args.context)
     vocab_size = pick(cfg, ["vocab_size"])
     context_len = pick(cfg, ["max_position_embeddings", "context_window", "ctx"], 0)
@@ -359,7 +369,7 @@ def main():
         raise SystemExit("config missing vocab_size/context length; set --context if needed")
 
     os.makedirs(args.build_dir, exist_ok=True)
-    config_path = args.config
+    config_path = config_file
     if args.context is not None:
         config_path = os.path.join(args.build_dir, "runtime.config.json")
         write_cfg(config_path, cfg)
@@ -381,7 +391,8 @@ def main():
             "--checkpoint", args.checkpoint,
             "--output", weights_bin,
         ]
-        if args.config:
+        # Only pass --config if user explicitly specified one (convert_hf_to_bump uses model's config.json by default)
+        if args.config is not None:
             convert_cmd += ["--config", config_path]
         if args.context is not None:
             convert_cmd += ["--context", str(context_len)]

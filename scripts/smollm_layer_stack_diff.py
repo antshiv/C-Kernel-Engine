@@ -45,8 +45,7 @@ def _maybe_force_safe_torch():
 
 _maybe_force_safe_torch()
 import torch
-from transformers import AutoTokenizer
-from transformers import LlamaForCausalLM
+from transformers import LlamaForCausalLM, AutoTokenizer
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _UNITTEST_DIR = os.path.join(_ROOT, "unittest")
