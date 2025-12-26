@@ -1,9 +1,17 @@
 {
   "name": "attention",
+  "dtypes": ["fp32", "bf16"],
+  "default_dtype": "fp32",
   "impl": {
     "forward": "attention_forward_causal_head_major_gqa",
     "backward": "attention_backward_causal_head_major_gqa",
-    "sources": ["src/kernels/attention_kernels.c", "src/kernels/softmax_kernels.c"]
+    "sources": ["src/kernels/attention_kernels.c", "src/kernels/softmax_kernels.c"],
+    "variants": {
+      "bf16": {
+        "forward": "attention_forward_causal_head_major_gqa_bf16",
+        "backward": "attention_backward_causal_head_major_gqa_bf16"
+      }
+    }
   },
   "buffers": [
     {"id": "q", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},

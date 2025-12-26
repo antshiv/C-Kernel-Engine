@@ -55,8 +55,8 @@ typedef struct {
 
 typedef struct {
     const char *name;
-    const char *forward;
-    const char *backward;
+    const char *forward[CK_DT_COUNT];
+    const char *backward[CK_DT_COUNT];
     CKDataTypeMask dtype_mask;
     CKDataType default_dtype;
     const char *sources[CKERNEL_MAX_KERNEL_SOURCES];

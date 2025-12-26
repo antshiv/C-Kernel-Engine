@@ -1,9 +1,17 @@
 {
   "name": "rmsnorm",
+  "dtypes": ["fp32", "bf16"],
+  "default_dtype": "fp32",
   "impl": {
     "forward": "rmsnorm_forward",
     "backward": "rmsnorm_backward",
-    "sources": ["src/kernels/rmsnorm_kernels.c"]
+    "sources": ["src/kernels/rmsnorm_kernels.c", "src/kernels/rmsnorm_kernels_bf16.c"],
+    "variants": {
+      "bf16": {
+        "forward": "rmsnorm_forward_bf16",
+        "backward": "rmsnorm_backward_bf16"
+      }
+    }
   },
   "params": [
     {"id": "eps", "kind": "config", "field": "rms_norm_eps", "type": "float"}

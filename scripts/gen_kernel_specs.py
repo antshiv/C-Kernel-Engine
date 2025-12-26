@@ -46,6 +46,46 @@ DEFAULT_BUFFER_DTYPE = "CK_DT_FP32"
 DEFAULT_KERNEL_DTYPE_MASK = "CK_DT_MASK(CK_DT_FP32)"
 DEFAULT_KERNEL_DEFAULT_DTYPE = "CK_DT_FP32"
 
+DT_ORDER = [
+    "fp32",
+    "bf16",
+    "fp16",
+    "int8",
+    "int4",
+]
+
+DT_ENUM = {
+    "fp32": "CK_DT_FP32",
+    "bf16": "CK_DT_BF16",
+    "fp16": "CK_DT_FP16",
+    "int8": "CK_DT_INT8",
+    "int4": "CK_DT_INT4",
+}
+
+DT_INDEX = {dt: idx for idx, dt in enumerate(DT_ORDER)}
+
+
+def normalize_dtype(dtype, context):
+    if not dtype:
+        raise SystemExit(f"missing dtype in {context}")
+    key = dtype.lower()
+    if key not in DT_ENUM:
+        raise SystemExit(f"unknown dtype '{dtype}' in {context}")
+    return key
+
+
+def build_dtype_mask(dtypes):
+    if not dtypes:
+        return DEFAULT_KERNEL_DTYPE_MASK
+    entries = []
+    seen = set()
+    for dt in dtypes:
+        if dt in seen:
+            continue
+        seen.add(dt)
+        entries.append(f"CK_DT_MASK({DT_ENUM[dt]})")
+    return " | ".join(entries) if entries else DEFAULT_KERNEL_DTYPE_MASK
+
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -216,7 +256,8 @@ def main():
 
     kernel_specs = []
     for name in sorted(kernels.keys()):
-        impl = kernels[name].get("impl", {}) or {}
+        kernel = kernels[name]
+        impl = kernel.get("impl", {}) or {}
         forward = impl.get("forward")
         backward = impl.get("backward")
         sources = impl.get("sources", []) or []
@@ -224,7 +265,54 @@ def main():
             sources = [sources]
         if len(sources) > MAX_KERNEL_SOURCES:
             raise SystemExit(f"kernel '{name}' has too many sources (max {MAX_KERNEL_SOURCES})")
-        kernel_specs.append((name, forward, backward, sources))
+
+        dtype_names = []
+        raw_dtypes = kernel.get("dtypes") or []
+        for dt in raw_dtypes:
+            norm = normalize_dtype(dt, f"kernel '{name}' dtypes")
+            if norm not in dtype_names:
+                dtype_names.append(norm)
+
+        variants = impl.get("variants", {}) or {}
+        for variant in variants.keys():
+            norm = normalize_dtype(variant, f"kernel '{name}' variants")
+            if norm not in dtype_names:
+                dtype_names.append(norm)
+
+        if not dtype_names:
+            dtype_names = ["fp32"]
+
+        default_dtype = kernel.get("default_dtype")
+        default_norm = normalize_dtype(default_dtype, f"kernel '{name}' default_dtype") if default_dtype else dtype_names[0]
+        if default_norm not in dtype_names:
+            dtype_names.insert(0, default_norm)
+
+        forward_by_dtype = [None] * len(DT_ORDER)
+        backward_by_dtype = [None] * len(DT_ORDER)
+        for dt in dtype_names:
+            idx = DT_INDEX[dt]
+            forward_by_dtype[idx] = forward
+            backward_by_dtype[idx] = backward
+
+        for variant_name, variant_obj in variants.items():
+            variant_dt = normalize_dtype(variant_name, f"kernel '{name}' variant")
+            idx = DT_INDEX[variant_dt]
+            variant_forward = variant_obj.get("forward")
+            variant_backward = variant_obj.get("backward")
+            if variant_forward:
+                forward_by_dtype[idx] = variant_forward
+            if variant_backward:
+                backward_by_dtype[idx] = variant_backward
+
+        dtype_mask = build_dtype_mask(dtype_names)
+        kernel_specs.append({
+            "name": name,
+            "forward_by_dtype": forward_by_dtype,
+            "backward_by_dtype": backward_by_dtype,
+            "dtype_mask": dtype_mask,
+            "default_dtype": DT_ENUM[default_norm],
+            "sources": sources
+        })
 
     plan_fwd_steps = extract_plan_steps(plan, kernels)
     plan_bwd_steps = extract_plan_steps(plan_bwd, kernels)
@@ -284,8 +372,8 @@ def main():
 
         f.write("typedef struct {\n")
         f.write("    const char *name;\n")
-        f.write("    const char *forward;\n")
-        f.write("    const char *backward;\n")
+        f.write("    const char *forward[CK_DT_COUNT];\n")
+        f.write("    const char *backward[CK_DT_COUNT];\n")
         f.write("    CKDataTypeMask dtype_mask;\n")
         f.write("    CKDataType default_dtype;\n")
         f.write("    const char *sources[CKERNEL_MAX_KERNEL_SOURCES];\n")
@@ -330,10 +418,13 @@ def main():
         f.write("const size_t ck_decoder_buffer_count = sizeof(ck_decoder_buffers) / sizeof(ck_decoder_buffers[0]);\n")
 
         f.write("\nconst CKKernelSpec ck_kernel_specs[] = {\n")
-        for name, forward, backward, sources in kernel_specs:
-            forward_c = f"\"{forward}\"" if forward else "NULL"
-            backward_c = f"\"{backward}\"" if backward else "NULL"
-            srcs = list(sources)
+        for spec in kernel_specs:
+            name = spec["name"]
+            forward_entries = spec["forward_by_dtype"]
+            backward_entries = spec["backward_by_dtype"]
+            mask_c = spec["dtype_mask"]
+            default_c = spec["default_dtype"]
+            srcs = list(spec["sources"])
             while len(srcs) < MAX_KERNEL_SOURCES:
                 srcs.append(None)
             srcs = srcs[:MAX_KERNEL_SOURCES]
@@ -341,9 +432,9 @@ def main():
             for s in srcs:
                 src_items.append(f"\"{s}\"" if s else "NULL")
             src_c = ", ".join(src_items)
-            mask_c = DEFAULT_KERNEL_DTYPE_MASK
-            default_c = DEFAULT_KERNEL_DEFAULT_DTYPE
-            f.write("    {\"%s\", %s, %s, %s, %s, { %s }},\n" % (
+            forward_c = ", ".join(f"\"{fn}\"" if fn else "NULL" for fn in forward_entries)
+            backward_c = ", ".join(f"\"{bn}\"" if bn else "NULL" for bn in backward_entries)
+            f.write("    {\"%s\", { %s }, { %s }, %s, %s, { %s }},\n" % (
                 name, forward_c, backward_c, mask_c, default_c, src_c
             ))
         f.write("};\n\n")

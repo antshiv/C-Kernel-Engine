@@ -124,7 +124,10 @@ PY_TESTS := unittest/test_layernorm.py \
 PY_TESTS_BF16 := unittest/bf16/test_sigmoid_bf16.py \
                 unittest/bf16/test_rmsnorm_bf16.py \
                 unittest/bf16/test_mlp_bf16.py \
-                unittest/bf16/test_attention_bf16.py
+                unittest/bf16/test_attention_bf16.py \
+                unittest/bf16/test_gelu_bf16.py \
+                unittest/bf16/test_layernorm_bf16.py \
+                unittest/bf16/test_rope_bf16.py
 
 LITMUS_DEMO_ARGS ?= --vocab 100 --ctx 100 --embed 64 --intermediate 128 --heads 4 --kv-heads 2
 LITMUS_DEMO_SVG ?= $(BUILD_DIR)/litmus_report.svg
