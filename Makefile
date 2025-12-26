@@ -51,8 +51,10 @@ SRCS    := src/backend_native.c \
            src/kernels/loss_kernels.c \
            src/kernels/mlp_kernels.c \
            src/kernels/rmsnorm_kernels.c \
-           src/kernels/swiglu_kernels.c \
+            src/kernels/rmsnorm_kernels_bf16.c \
+            src/kernels/swiglu_kernels.c \
            src/kernels/sigmoid_kernels.c \
+           src/kernels/relu_kernels.c \
            src/kernels/rope_kernels.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
 LIB_GELU     := $(BUILD_DIR)/libckernel_gelu.so
@@ -61,7 +63,8 @@ LIB_LN       := $(BUILD_DIR)/libckernel_layernorm.so
 LIB_SOFT     := $(BUILD_DIR)/libckernel_softmax.so
 LIB_SWIGLU   := $(BUILD_DIR)/libckernel_swiglu.so
 LIB_SIGMOID  := $(BUILD_DIR)/libckernel_sigmoid.so
-LIB_ATTENTION:= $(BUILD_DIR)/libckernel_attention.so
+LIB_RELU     := $(BUILD_DIR)/libckernel_relu.so
+LIB_ATTENTION := $(BUILD_DIR)/libckernel_attention.so
 LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
 
 IR_DEMO := $(BUILD_DIR)/ck_ir_demo
@@ -104,6 +107,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_rmsnorm.py \
             unittest/test_swiglu.py \
             unittest/test_sigmoid.py \
+            unittest/test_relu.py \
             unittest/test_attention.py \
             unittest/test_attention_backward.py \
             unittest/test_rope.py \
@@ -167,6 +171,9 @@ $(LIB_SWIGLU): $(BUILD_DIR) src/kernels/swiglu_kernels.c src/kernels/sigmoid_ker
 $(LIB_SIGMOID): $(BUILD_DIR) src/kernels/sigmoid_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/sigmoid_kernels.c -lm
 
+$(LIB_RELU): $(BUILD_DIR) src/kernels/relu_kernels.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/relu_kernels.c -lm
+
 $(LIB_ATTENTION): $(BUILD_DIR) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
 
@@ -195,10 +202,16 @@ libckernel_sigmoid.so: $(LIB_SIGMOID)
 libckernel_attention.so: $(LIB_ATTENTION)
 	@true
 
+libckernel_relu.so: $(LIB_RELU)
+	@true
+
+test-relu: $(LIB_RELU)
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_relu.py
+
 libckernel_rope.so: $(LIB_ROPE)
 	@true
 
-test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE)
+test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE) $(LIB_RELU)
 
 test: $(LIB) test-libs
 	@set -e; \
@@ -423,8 +436,26 @@ help:
 	@echo "  make libckernel_softmax.so    Build Softmax-only shared library (outputs to $(LIB_SOFT))"
 	@echo "  make libckernel_swiglu.so     Build SwiGLU-only shared library (outputs to $(LIB_SWIGLU))"
 	@echo "  make libckernel_sigmoid.so    Build Sigmoid-only shared library (outputs to $(LIB_SIGMOID))"
+	@echo "  make libckernel_relu.so       Build ReLU-only shared library (outputs to $(LIB_RELU))"
 	@echo "  make libckernel_attention.so  Build attention-only shared library (scalar math + softmax kernel, outputs to $(LIB_ATTENTION))"
+	@echo "  make libckernel_rope.so       Build RoPE-only shared library (outputs to $(LIB_ROPE))"
 	@echo "  make gen-specs        Regenerate C kernel spec registry from kernel_maps/*.json"
+	@echo ""
+	@echo "  make test-relu        Run isolated ReLU C kernel tests (with PyTorch parity)"
+	@echo ""
+	@echo "Main CLI (ollama-style orchestrator):"
+	@echo "  make ck-cli           Build the 'ck' orchestrator CLI"
+	@echo "    ./build/ck run HuggingFaceTB/SmolLM-135M"
+	@echo "    ./build/ck run https://huggingface.co/Qwen/Qwen2-0.5B --server"
+	@echo "    ./build/ck list     List cached models"
+	@echo "    ./build/ck remove <model>  Remove cached model"
+	@echo ""
+	@echo "Interactive Tools (llama.cpp style):"
+	@echo "  make ck-chat          Build interactive CLI (C-based)"
+	@echo "  make ck-server        Build streaming HTTP server (C-based)"
+	@echo "  make ck-chat-py       Run interactive chat (Python + C inference)"
+	@echo "  make ck-server-py     Run streaming server (Python + C inference)"
+	@echo ""
 	@echo "  make clean            Remove all built libraries"
 	@echo ""
 	@echo "Python unittest scripts (run with: python3 <script>):"
@@ -437,6 +468,7 @@ help:
 	@echo "  unittest/test_gemm.py        - GEMM variants vs PyTorch matmul"
 	@echo "  unittest/test_mlp.py         - MLP block forward/backward vs PyTorch"
 	@echo "  unittest/test_swiglu.py      - SwiGLU activation forward/backward vs PyTorch"
+	@echo "  unittest/test_relu.py        - ReLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_orchestration_layer.py - Full layer forward stitch vs PyTorch (GQA/MHA)"
 
 clean:
@@ -456,6 +488,7 @@ TEST_HARNESS_SRCS := src/backend_native.c \
 	src/kernels/mlp_kernels.c \
 	src/kernels/rmsnorm_kernels.c \
 	src/kernels/sigmoid_kernels.c \
+	src/kernels/relu_kernels.c \
 	src/kernels/softmax_kernels.c \
 	src/kernels/swiglu_kernels.c \
 	src/kernels/rope_kernels.c
@@ -475,4 +508,51 @@ litmus-test:
 	@echo "\n--- [Step 5] Comparing C output with PyTorch reference ---"
 	$(PYTHON) $(PYTHONFLAGS) unittest/compare_outputs.py
 
-.PHONY: all clean test test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph
+# ============================================================================
+# Interactive CLI and Server Tools
+# ============================================================================
+
+CK_TOKENIZER := src/ck_tokenizer.c
+CK_MAIN := tools/ck_main.c
+CK_SERVER := tools/ck_server.c
+CK_CLI := tools/ck.c
+
+# Main orchestrator (ck run, ck list, etc.)
+$(BUILD_DIR)/ck: $(BUILD_DIR) $(CK_CLI)
+	$(CC) -O2 -Wall -o $@ $(CK_CLI) -ldl -lm
+
+ck-cli: $(BUILD_DIR)/ck
+	@echo ""
+	@echo "  C-Kernel-Engine CLI built: $(BUILD_DIR)/ck"
+	@echo ""
+	@echo "  Usage:"
+	@echo "    ./$(BUILD_DIR)/ck run HuggingFaceTB/SmolLM-135M"
+	@echo "    ./$(BUILD_DIR)/ck run https://huggingface.co/Qwen/Qwen2-0.5B --server"
+	@echo "    ./$(BUILD_DIR)/ck list"
+	@echo "    ./$(BUILD_DIR)/ck help"
+	@echo ""
+	@echo "  To install system-wide:"
+	@echo "    sudo cp $(BUILD_DIR)/ck /usr/local/bin/"
+	@echo ""
+
+$(BUILD_DIR)/ck_main: $(BUILD_DIR) $(CK_MAIN) $(CK_TOKENIZER) include/ck_tokenizer.h
+	$(CC) $(CFLAGS) -o $@ $(CK_MAIN) $(CK_TOKENIZER) -lm
+
+$(BUILD_DIR)/ck_server: $(BUILD_DIR) $(CK_SERVER)
+	$(CC) $(CFLAGS) -o $@ $(CK_SERVER) -lpthread
+
+ck-chat: $(BUILD_DIR)/ck_main
+	@echo "Interactive CLI built: $(BUILD_DIR)/ck_main"
+	@echo "Usage: ./$(BUILD_DIR)/ck_main --help"
+
+ck-server: $(BUILD_DIR)/ck_server
+	@echo "Server built: $(BUILD_DIR)/ck_server"
+	@echo "Usage: ./$(BUILD_DIR)/ck_server --port 8080"
+
+ck-chat-py:
+	$(PYTHON) $(PYTHONFLAGS) tools/ck_chat.py --model-dir $(SMOLLM_MODEL_DIR) --context $(SMOLLM_CONTEXT)
+
+ck-server-py:
+	$(PYTHON) $(PYTHONFLAGS) tools/ck_server.py --model-dir $(SMOLLM_MODEL_DIR) --context $(SMOLLM_CONTEXT)
+
+.PHONY: all clean test test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py

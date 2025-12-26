@@ -42,6 +42,10 @@ SCOPE_ENUM = {
     "global": "CK_SCOPE_GLOBAL",
 }
 
+DEFAULT_BUFFER_DTYPE = "CK_DT_FP32"
+DEFAULT_KERNEL_DTYPE_MASK = "CK_DT_MASK(CK_DT_FP32)"
+DEFAULT_KERNEL_DEFAULT_DTYPE = "CK_DT_FP32"
+
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -229,6 +233,7 @@ def main():
         f.write("#ifndef CKERNEL_KERNEL_SPECS_H\n")
         f.write("#define CKERNEL_KERNEL_SPECS_H\n\n")
         f.write("#include <stddef.h>\n\n")
+        f.write("#include \"ckernel_dtype.h\"\n\n")
         f.write("typedef enum {\n")
         f.write("    CK_DIM_TOKENS = 0,\n")
         f.write("    CK_DIM_EMBED,\n")
@@ -274,12 +279,15 @@ def main():
         f.write("    int optional;\n")
         f.write("    const char *alias_of;\n")
         f.write("    const char *condition;\n")
+        f.write("    CKDataType dtype;\n")
         f.write("} CKBufferSpec;\n\n")
 
         f.write("typedef struct {\n")
         f.write("    const char *name;\n")
         f.write("    const char *forward;\n")
         f.write("    const char *backward;\n")
+        f.write("    CKDataTypeMask dtype_mask;\n")
+        f.write("    CKDataType default_dtype;\n")
         f.write("    const char *sources[CKERNEL_MAX_KERNEL_SOURCES];\n")
         f.write("} CKKernelSpec;\n\n")
 
@@ -314,8 +322,9 @@ def main():
             shape_c = ", ".join("{ %s, %d, %d }" % t for t in tokens)
             alias_c = f"\"{alias_of}\"" if alias_of else "NULL"
             cond_c = f"\"{condition}\"" if condition else "NULL"
-            f.write("    {\"%s\", %s, %s, { %s }, %d, %s, %s},\n" % (
-                name, scope_c, role_c, shape_c, optional, alias_c, cond_c
+            dtype_c = DEFAULT_BUFFER_DTYPE
+            f.write("    {\"%s\", %s, %s, { %s }, %d, %s, %s, %s},\n" % (
+                name, scope_c, role_c, shape_c, optional, alias_c, cond_c, dtype_c
             ))
         f.write("};\n\n")
         f.write("const size_t ck_decoder_buffer_count = sizeof(ck_decoder_buffers) / sizeof(ck_decoder_buffers[0]);\n")
@@ -332,7 +341,11 @@ def main():
             for s in srcs:
                 src_items.append(f"\"{s}\"" if s else "NULL")
             src_c = ", ".join(src_items)
-            f.write("    {\"%s\", %s, %s, { %s }},\n" % (name, forward_c, backward_c, src_c))
+            mask_c = DEFAULT_KERNEL_DTYPE_MASK
+            default_c = DEFAULT_KERNEL_DEFAULT_DTYPE
+            f.write("    {\"%s\", %s, %s, %s, %s, { %s }},\n" % (
+                name, forward_c, backward_c, mask_c, default_c, src_c
+            ))
         f.write("};\n\n")
         f.write("const size_t ck_kernel_spec_count = sizeof(ck_kernel_specs) / sizeof(ck_kernel_specs[0]);\n")
 

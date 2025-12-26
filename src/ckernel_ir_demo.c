@@ -9,8 +9,13 @@ int main(int argc, char **argv)
     if (argc < 2) {
         fprintf(stderr,
                 "Usage:\n"
-                "  %s /path/to/config.json [--emit out.c]  # parse config, dump + codegen\n"
-                "  %s --ir /path/to/ir.json [--emit out.c] # parse IR JSON, dump + codegen\n",
+                "  %s /path/to/config.json [--emit out.c] [--emit-lib]  # parse config, dump + codegen\n"
+                "  %s --ir /path/to/ir.json [--emit out.c] [--emit-lib] # parse IR JSON, dump + codegen\n"
+                "\n"
+                "Options:\n"
+                "  --emit out.c    Write generated C code to file\n"
+                "  --emit-lib      Generate shared library API (no main)\n"
+                "                  Without --emit-lib: generates standalone executable with main()\n",
                 argv[0], argv[0]);
         return 1;
     }
@@ -19,10 +24,13 @@ int main(int argc, char **argv)
     CKIRGraph bwd   = {0};
 
     const char *emit_path = NULL;
-    for (int i = 1; i + 1 < argc; ++i) {
-        if (strcmp(argv[i], "--emit") == 0) {
-            emit_path = argv[i + 1];
-            break;
+    CKEmitMode emit_mode = CK_EMIT_STANDALONE;
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--emit") == 0 && i + 1 < argc) {
+            emit_path = argv[++i];
+        } else if (strcmp(argv[i], "--emit-lib") == 0) {
+            emit_mode = CK_EMIT_LIBRARY;
         }
     }
 
@@ -70,10 +78,11 @@ int main(int argc, char **argv)
     ck_codegen_c_skeleton(&graph, &bwd, stdout);
 
     if (emit_path) {
-        if (ck_codegen_emit_runtime(&graph, emit_path) == 0) {
-            fprintf(stderr, "\n[ck_ir_demo] runtime written to %s\n", emit_path);
+        const char *mode_str = (emit_mode == CK_EMIT_LIBRARY) ? "library" : "standalone";
+        if (ck_codegen_emit_runtime(&graph, emit_path, emit_mode) == 0) {
+            fprintf(stderr, "\n[ck_ir_demo] %s runtime written to %s\n", mode_str, emit_path);
         } else {
-            fprintf(stderr, "\n[ck_ir_demo] failed to write runtime to %s\n", emit_path);
+            fprintf(stderr, "\n[ck_ir_demo] failed to write %s runtime to %s\n", mode_str, emit_path);
         }
     }
 

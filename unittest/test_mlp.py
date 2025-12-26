@@ -1,14 +1,29 @@
+"""
+MLP kernel unit tests with performance metrics.
+
+Tests forward and backward passes against PyTorch reference.
+Reports accuracy, timing, and system information.
+"""
 import ctypes
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 
 from lib_loader import load_lib
+from test_utils import (
+    TestReport, TestResult, get_cpu_info,
+    max_diff, numpy_to_ptr, time_function, print_system_info
+)
 
 
+# Load the library
 lib = load_lib("libckernel_engine.so")
 
-# Signatures from ckernel_engine.h
+# ═══════════════════════════════════════════════════════════════════════════════
+# Function signatures
+# ═══════════════════════════════════════════════════════════════════════════════
+
 lib.mlp_token_parallel.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
     ctypes.POINTER(ctypes.c_float),  # W_fc1
@@ -60,165 +75,265 @@ lib.fc1_backward_kernel.argtypes = [
 lib.fc1_backward_kernel.restype = None
 
 
-def tensor_to_ptr(t: torch.Tensor):
-    return t.detach().contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tests
+# ═══════════════════════════════════════════════════════════════════════════════
 
-
-def max_diff(a: torch.Tensor, b: torch.Tensor) -> float:
-    return (a - b).abs().max().item()
-
-
-def run_forward_test(T=8, D=16):
-    torch.manual_seed(0)
+def run_forward_tests(T=64, D=128, warmup=10, iterations=500):
+    """Run forward pass tests with accuracy and timing."""
+    np.random.seed(0)
     fourD = 4 * D
 
-    x = torch.randn(T, D, dtype=torch.float32)
-    fc1 = torch.nn.Linear(D, fourD, bias=True)
-    fc2 = torch.nn.Linear(fourD, D, bias=True)
+    # Pre-allocate numpy arrays
+    x_np = np.random.randn(T, D).astype(np.float32)
+    W1_np = np.random.randn(fourD, D).astype(np.float32) * 0.02
+    b1_np = np.zeros(fourD, dtype=np.float32)
+    W2_np = np.random.randn(D, fourD).astype(np.float32) * 0.02
+    b2_np = np.zeros(D, dtype=np.float32)
+    fc1_out_np = np.zeros((T, fourD), dtype=np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
 
-    # PyTorch reference
-    ref = fc2(F.gelu(fc1(x), approximate="tanh"))
+    # Get pointers
+    x_ptr = numpy_to_ptr(x_np)
+    W1_ptr = numpy_to_ptr(W1_np)
+    b1_ptr = numpy_to_ptr(b1_np)
+    W2_ptr = numpy_to_ptr(W2_np)
+    b2_ptr = numpy_to_ptr(b2_np)
+    fc1_out_ptr = numpy_to_ptr(fc1_out_np)
+    out_ptr = numpy_to_ptr(out_np)
 
-    # Extract weights in our layout:
-    # GEMM uses A[M,K], B[N,K]; B is [out × in] with K=in.
-    W1 = fc1.weight.detach().contiguous()       # [4D, D]
-    b1 = fc1.bias.detach().contiguous()         # [4D]
-    W2 = fc2.weight.detach().contiguous()       # [D, 4D]
-    b2 = fc2.bias.detach().contiguous()         # [D]
+    # Torch tensors
+    x = torch.from_numpy(x_np.copy())
+    W1 = torch.from_numpy(W1_np.copy())
+    b1 = torch.from_numpy(b1_np.copy())
+    W2 = torch.from_numpy(W2_np.copy())
+    b2 = torch.from_numpy(b2_np.copy())
 
-    fc1_out = torch.empty(T, fourD, dtype=torch.float32)
-    out = torch.empty(T, D, dtype=torch.float32)
-
-    lib.mlp_token_parallel(
-        tensor_to_ptr(x),
-        tensor_to_ptr(W1),
-        tensor_to_ptr(b1),
-        tensor_to_ptr(W2),
-        tensor_to_ptr(b2),
-        tensor_to_ptr(fc1_out),
-        tensor_to_ptr(out),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(1),  # num_threads at kernel level; OpenMP inside C can override
+    report = TestReport(
+        test_name="MLP Forward",
+        dtype="fp32",
+        shape=f"T={T}, D={D}, 4D={fourD}",
+        cpu_info=get_cpu_info()
     )
 
-    print(f"MLP forward max diff: {max_diff(out, ref):.2e}")
+    # PyTorch reference: y = fc2(gelu(fc1(x)))
+    def pytorch_mlp():
+        h = F.linear(x, W1, b1)
+        h = F.gelu(h, approximate="tanh")
+        return F.linear(h, W2, b2)
+
+    ref = pytorch_mlp()
+
+    # Time PyTorch
+    pytorch_time = time_function(pytorch_mlp, warmup=warmup, iterations=iterations, name="PyTorch")
+
+    # C kernel
+    def c_mlp():
+        lib.mlp_token_parallel(
+            x_ptr, W1_ptr, b1_ptr, W2_ptr, b2_ptr,
+            fc1_out_ptr, out_ptr,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(1)
+        )
+
+    c_mlp()
+    out = torch.from_numpy(out_np.copy())
+    diff = max_diff(out, ref)
+
+    kernel_time = time_function(c_mlp, warmup=warmup, iterations=iterations, name="C MLP")
+
+    report.add_result(TestResult(
+        name="MLP Forward",
+        passed=diff <= 1e-4,
+        max_diff=diff,
+        tolerance=1e-4,
+        pytorch_time=pytorch_time,
+        kernel_time=kernel_time
+    ))
+
+    return report
 
 
-def run_backward_test(T=8, D=16):
-    torch.manual_seed(1)
+def run_backward_tests(T=64, D=128, warmup=10, iterations=500):
+    """Run backward pass tests with accuracy and timing."""
+    np.random.seed(1)
     fourD = 4 * D
 
-    x = torch.randn(T, D, dtype=torch.float32)
-    fc1 = torch.nn.Linear(D, fourD, bias=True)
-    fc2 = torch.nn.Linear(fourD, D, bias=True)
-    upstream = torch.randn(T, D, dtype=torch.float32)
+    # Pre-allocate numpy arrays
+    x_np = np.random.randn(T, D).astype(np.float32)
+    W1_np = np.random.randn(fourD, D).astype(np.float32) * 0.02
+    b1_np = np.zeros(fourD, dtype=np.float32)
+    W2_np = np.random.randn(D, fourD).astype(np.float32) * 0.02
+    b2_np = np.zeros(D, dtype=np.float32)
+    upstream_np = np.random.randn(T, D).astype(np.float32)
 
-    # PyTorch reference backward
-    x_ref = x.clone().detach().requires_grad_(True)
-    fc1_ref = torch.nn.Linear(D, fourD, bias=True)
-    fc2_ref = torch.nn.Linear(fourD, D, bias=True)
-    fc1_ref.load_state_dict(fc1.state_dict())
-    fc2_ref.load_state_dict(fc2.state_dict())
+    # Torch tensors
+    x = torch.from_numpy(x_np.copy())
+    W1 = torch.from_numpy(W1_np.copy())
+    b1 = torch.from_numpy(b1_np.copy())
+    W2 = torch.from_numpy(W2_np.copy())
+    b2 = torch.from_numpy(b2_np.copy())
+    upstream = torch.from_numpy(upstream_np)
 
-    y_ref = fc2_ref(F.gelu(fc1_ref(x_ref), approximate="tanh"))
-    y_ref.backward(upstream)
+    report = TestReport(
+        test_name="MLP Backward",
+        dtype="fp32",
+        shape=f"T={T}, D={D}, 4D={fourD}",
+        cpu_info=get_cpu_info()
+    )
 
-    dx_ref = x_ref.grad.detach()
-    dW1_ref = fc1_ref.weight.grad.detach()
-    db1_ref = fc1_ref.bias.grad.detach()
-    dW2_ref = fc2_ref.weight.grad.detach()
-    db2_ref = fc2_ref.bias.grad.detach()
+    # PyTorch forward+backward
+    def pytorch_fwd_bwd():
+        x_ref = x.clone().detach().requires_grad_(True)
+        W1_ref = W1.clone().detach().requires_grad_(True)
+        b1_ref = b1.clone().detach().requires_grad_(True)
+        W2_ref = W2.clone().detach().requires_grad_(True)
+        b2_ref = b2.clone().detach().requires_grad_(True)
 
-    # C forward pieces: need fc1_input, fc1_output (pre-GELU), fc2_input (post-GELU)
-    x_c = x.contiguous().float()
-    W1 = fc1.weight.detach().contiguous()
-    b1 = fc1.bias.detach().contiguous()
-    W2 = fc2.weight.detach().contiguous()
-    b2 = fc2.bias.detach().contiguous()
+        h = F.linear(x_ref, W1_ref, b1_ref)
+        h = F.gelu(h, approximate="tanh")
+        y = F.linear(h, W2_ref, b2_ref)
+        y.backward(upstream)
 
-    fc1_out = torch.empty(T, fourD, dtype=torch.float32)
-    out = torch.empty(T, D, dtype=torch.float32)
+        return x_ref.grad, W1_ref.grad, b1_ref.grad, W2_ref.grad, b2_ref.grad
+
+    # Get reference grads
+    dx_ref, dW1_ref, db1_ref, dW2_ref, db2_ref = pytorch_fwd_bwd()
+
+    # C forward to get intermediate values
+    fc1_out_np = np.zeros((T, fourD), dtype=np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
 
     lib.mlp_token_parallel(
-        tensor_to_ptr(x_c),
-        tensor_to_ptr(W1),
-        tensor_to_ptr(b1),
-        tensor_to_ptr(W2),
-        tensor_to_ptr(b2),
-        tensor_to_ptr(fc1_out),
-        tensor_to_ptr(out),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(1),
+        numpy_to_ptr(x_np), numpy_to_ptr(W1_np), numpy_to_ptr(b1_np),
+        numpy_to_ptr(W2_np), numpy_to_ptr(b2_np),
+        numpy_to_ptr(fc1_out_np), numpy_to_ptr(out_np),
+        ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(1)
     )
 
-    # Now backward: y = fc2(gelu(fc1(x)))
-    # Let:
-    #   Z1 = fc1(x)
-    #   H  = gelu(Z1)
-    #   Y  = fc2(H)
-    #
-    # We have upstream dY = upstream
+    # Pre-allocate gradient arrays
+    dH_np = np.zeros((T, fourD), dtype=np.float32)
+    dW2_np = np.zeros_like(W2_np)
+    db2_np = np.zeros_like(b2_np)
+    dZ1_np = np.zeros((T, fourD), dtype=np.float32)
+    dx_np = np.zeros((T, D), dtype=np.float32)
+    dW1_np = np.zeros_like(W1_np)
+    db1_np = np.zeros_like(b1_np)
 
-    dY = upstream.contiguous().float()
-    H = fc1_out.clone()  # after GELU in mlp_token_parallel
+    # Recompute Z1 for GELU backward
+    Z1_np = (x_np @ W1_np.T + b1_np).astype(np.float32)
 
-    # To run FC2 backward, we need fc2_input = H, d_output = dY
-    dH = torch.zeros_like(H)
-    dW2 = torch.zeros_like(W2)
-    db2 = torch.zeros_like(b2)
+    # C backward
+    def c_backward():
+        # Reset gradients
+        dH_np.fill(0)
+        dW2_np.fill(0)
+        db2_np.fill(0)
+        dZ1_np.fill(0)
+        dx_np.fill(0)
+        dW1_np.fill(0)
+        db1_np.fill(0)
 
-    lib.fc2_backward_kernel(
-        tensor_to_ptr(dY),
-        tensor_to_ptr(H),
-        tensor_to_ptr(W2),
-        tensor_to_ptr(dH),
-        tensor_to_ptr(dW2),
-        tensor_to_ptr(db2),
-        ctypes.c_int(T),
-        ctypes.c_int(fourD),
-        ctypes.c_int(D),
-        ctypes.c_int(1),
-    )
+        # FC2 backward
+        lib.fc2_backward_kernel(
+            numpy_to_ptr(upstream_np), numpy_to_ptr(fc1_out_np), numpy_to_ptr(W2_np),
+            numpy_to_ptr(dH_np), numpy_to_ptr(dW2_np), numpy_to_ptr(db2_np),
+            ctypes.c_int(T), ctypes.c_int(fourD), ctypes.c_int(D), ctypes.c_int(1)
+        )
 
-    # GELU backward: Z1 = pre-GELU activations
-    # We need Z1; to reconstruct Z1 we can recompute fc1(x) once more.
-    Z1 = fc1(x_c)  # [T, 4D]
-    dZ1 = torch.zeros_like(Z1)
+        # GELU backward
+        lib.gelu_backward_exact(
+            numpy_to_ptr(Z1_np), numpy_to_ptr(dH_np), numpy_to_ptr(dZ1_np),
+            ctypes.c_size_t(T * fourD)
+        )
 
-    lib.gelu_backward_exact(
-        tensor_to_ptr(Z1),
-        tensor_to_ptr(dH),
-        tensor_to_ptr(dZ1),
-        ctypes.c_size_t(Z1.numel()),
-    )
+        # FC1 backward
+        lib.fc1_backward_kernel(
+            numpy_to_ptr(dZ1_np), numpy_to_ptr(x_np), numpy_to_ptr(W1_np),
+            numpy_to_ptr(dx_np), numpy_to_ptr(dW1_np), numpy_to_ptr(db1_np),
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(fourD), ctypes.c_int(1)
+        )
 
-    # FC1 backward: d_output = dZ1, fc1_input = x, W_fc1 = W1
-    dx = torch.zeros_like(x_c)
-    dW1 = torch.zeros_like(W1)
-    db1 = torch.zeros_like(b1)
+    # Run once for accuracy
+    c_backward()
+    dx_c = torch.from_numpy(dx_np.copy())
+    dW1_c = torch.from_numpy(dW1_np.copy())
+    db1_c = torch.from_numpy(db1_np.copy())
+    dW2_c = torch.from_numpy(dW2_np.copy())
+    db2_c = torch.from_numpy(db2_np.copy())
 
-    lib.fc1_backward_kernel(
-        tensor_to_ptr(dZ1),
-        tensor_to_ptr(x_c),
-        tensor_to_ptr(W1),
-        tensor_to_ptr(dx),
-        tensor_to_ptr(dW1),
-        tensor_to_ptr(db1),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(fourD),
-        ctypes.c_int(1),
-    )
+    diff_dx = max_diff(dx_c, dx_ref)
+    diff_dW1 = max_diff(dW1_c, dW1_ref)
+    diff_db1 = max_diff(db1_c, db1_ref)
+    diff_dW2 = max_diff(dW2_c, dW2_ref)
+    diff_db2 = max_diff(db2_c, db2_ref)
 
-    print(f"MLP backward dX   max diff: {max_diff(dx, dx_ref):.2e}")
-    print(f"MLP backward dW1  max diff: {max_diff(dW1, dW1_ref):.2e}")
-    print(f"MLP backward db1  max diff: {max_diff(db1, db1_ref):.2e}")
-    print(f"MLP backward dW2  max diff: {max_diff(dW2, dW2_ref):.2e}")
-    print(f"MLP backward db2  max diff: {max_diff(db2, db2_ref):.2e}")
+    # Timing
+    pt_fwd_bwd_time = time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch Fwd+Bwd")
+    c_bwd_time = time_function(c_backward, warmup=warmup, iterations=iterations, name="C Bwd")
 
+    report.add_result(TestResult(
+        name="d_input",
+        passed=diff_dx <= 1e-4,
+        max_diff=diff_dx,
+        tolerance=1e-4,
+        pytorch_time=pt_fwd_bwd_time,
+        kernel_time=c_bwd_time
+    ))
+
+    report.add_result(TestResult(
+        name="d_W1",
+        passed=diff_dW1 <= 1e-4,
+        max_diff=diff_dW1,
+        tolerance=1e-4,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
+    report.add_result(TestResult(
+        name="d_b1",
+        passed=diff_db1 <= 1e-4,
+        max_diff=diff_db1,
+        tolerance=1e-4,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
+    report.add_result(TestResult(
+        name="d_W2",
+        passed=diff_dW2 <= 1e-4,
+        max_diff=diff_dW2,
+        tolerance=1e-4,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
+    report.add_result(TestResult(
+        name="d_b2",
+        passed=diff_db2 <= 1e-4,
+        max_diff=diff_db2,
+        tolerance=1e-4,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
+    return report
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main
+# ═══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    run_forward_test()
-    run_backward_test()
+    print_system_info()
+
+    # Forward tests
+    fwd_report = run_forward_tests(T=64, D=128, warmup=10, iterations=500)
+    fwd_report.print_report()
+
+    # Backward tests
+    bwd_report = run_backward_tests(T=64, D=128, warmup=10, iterations=500)
+    bwd_report.print_report()
+
+    # Exit with error if any tests failed
+    if not fwd_report.all_passed() or not bwd_report.all_passed():
+        exit(1)

@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "ckernel_dtype.h"
+
 typedef enum {
     CK_DIM_TOKENS = 0,
     CK_DIM_EMBED,
@@ -48,12 +50,15 @@ typedef struct {
     int optional;
     const char *alias_of;
     const char *condition;
+    CKDataType dtype;
 } CKBufferSpec;
 
 typedef struct {
     const char *name;
     const char *forward;
     const char *backward;
+    CKDataTypeMask dtype_mask;
+    CKDataType default_dtype;
     const char *sources[CKERNEL_MAX_KERNEL_SOURCES];
 } CKKernelSpec;
 

@@ -63,6 +63,10 @@ void layernorm_naive_serial(const float *input,
         if (rstd_cache) {
             rstd_cache[t] = inv_std;
         }
+        /* Keep aligned padding quiet so future GEMMs see deterministic memory. */
+        for (int i = d_model; i < aligned_embed_dim; ++i) {
+            out_ptr[i] = 0.0f;
+        }
     }
 }
 

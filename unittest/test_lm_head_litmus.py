@@ -2,11 +2,28 @@ import argparse
 import json
 import math
 import os
+import shutil
 import subprocess
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+
+
+def detect_cc() -> str:
+    """Detect best available C compiler: prefer icx, fall back to gcc."""
+    if shutil.which("icx"):
+        return "icx"
+    if shutil.which("icc"):
+        return "icc"
+    return "gcc"
+
+
+def openmp_flag(cc: str) -> str:
+    cc_lower = cc.lower()
+    if "icx" in cc_lower or "icc" in cc_lower:
+        return "-qopenmp"
+    return "-fopenmp"
 
 
 def align_up(n, a=16):
@@ -459,12 +476,13 @@ def main():
         )
     if not args.skip_compile:
         manifest = gen_c + ".kernels"
-        cmd = ["gcc", "-O2", "-Iinclude", gen_c, "-lm", "-o", gen_bin]
+        cc = os.environ.get("CC", detect_cc())
+        cmd = [cc, "-O2", "-Iinclude", gen_c, "-lm", "-o", gen_bin]
         if os.path.exists(os.path.join(root, manifest)):
             with open(os.path.join(root, manifest), "r", encoding="utf-8") as f:
                 extra_sources = [line.strip() for line in f if line.strip()]
             cmd.extend(extra_sources)
-            cmd.insert(1, "-fopenmp")
+            cmd.insert(1, openmp_flag(cc))
         subprocess.run(cmd, cwd=root, check=True)
 
     T = int(cfg["max_position_embeddings"])

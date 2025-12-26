@@ -235,6 +235,11 @@ void attention_backward_causal_head_major_gqa(
                 d_k[base + i] = 0.0f;
                 d_v[base + i] = 0.0f;
             }
+            /* Clear padding so later GEMMs don't see stale data. */
+            for (int i = hd; i < ad; ++i) {
+                d_k[base + i] = 0.0f;
+                d_v[base + i] = 0.0f;
+            }
         }
     }
 
@@ -272,6 +277,10 @@ void attention_backward_causal_head_major_gqa(
 
             // Zero out upper triangle of d_scores
             for (int j = i + 1; j < T; ++j) {
+                d_scores[score_index(h, i, j, aw)] = 0.0f;
+            }
+            /* Scores scratch uses aligned_context_window, zero the padded columns. */
+            for (int j = T; j < aw; ++j) {
                 d_scores[score_index(h, i, j, aw)] = 0.0f;
             }
         }
@@ -312,6 +321,10 @@ void attention_backward_causal_head_major_gqa(
 
             // Zero d_q for this position
             for (int dd = 0; dd < hd; ++dd) {
+                d_q[d_q_base + dd] = 0.0f;
+            }
+            /* Zero padded head lanes before accumulation. */
+            for (int dd = hd; dd < ad; ++dd) {
                 d_q[d_q_base + dd] = 0.0f;
             }
 

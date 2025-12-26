@@ -732,6 +732,7 @@ static int emit_kernel_manifest(const CKIRGraph *forward, const char *runtime_pa
     emit_unique_source(f, "src/ckernel_strict.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/embedding_kernels.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/rope_kernels.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/loss_kernels.c", seen, &seen_count, seen_cap);
     if (emit_plan_sources(f,
                           ck_decoder_forward_plan,
                           ck_decoder_forward_plan_count,
@@ -764,7 +765,142 @@ static int emit_kernel_manifest(const CKIRGraph *forward, const char *runtime_pa
     return 0;
 }
 
-int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
+/* Library API functions emitted when mode == CK_EMIT_LIBRARY */
+static void emit_library_api(FILE *out, const CKIRGraph *forward)
+{
+    fprintf(out,
+            "\n/* ═══════════════════════════════════════════════════════════════\n"
+            " * C-Kernel-Engine Library API (for dlopen)\n"
+            " * ═══════════════════════════════════════════════════════════════ */\n\n"
+            "#ifdef _WIN32\n"
+            "#define CK_EXPORT __declspec(dllexport)\n"
+            "#else\n"
+            "#define CK_EXPORT __attribute__((visibility(\"default\")))\n"
+            "#endif\n\n"
+            "typedef struct {\n"
+            "    int num_layers;\n"
+            "    int hidden_size;\n"
+            "    int intermediate_size;\n"
+            "    int num_heads;\n"
+            "    int num_kv_heads;\n"
+            "    int vocab_size;\n"
+            "    int context_window;\n"
+            "    float rms_norm_eps;\n"
+            "    float rope_theta;\n"
+            "} CKModelInfo;\n\n"
+            "static TransformerModel g_model = {0};\n"
+            "static int g_initialized = 0;\n\n");
+
+    /* ck_model_init */
+    fprintf(out,
+            "CK_EXPORT int ck_model_init(const char *weights_path)\n"
+            "{\n"
+            "    if (g_initialized) return 0;\n"
+            "    memcpy(g_model.magic, \"BUMPWGT2\", 8);\n"
+            "    g_model.version = 2;\n"
+            "    g_model.model_type = 0;\n"
+            "    g_model.num_layers = %d;\n"
+            "    g_model.embed_dim = %d;\n"
+            "    g_model.intermediate_size = %d;\n"
+            "    g_model.num_attention_heads = %d;\n"
+            "    g_model.num_kv_heads = %d;\n"
+            "    g_model.vocab_size = %d;\n"
+            "    g_model.context_window = %d;\n"
+            "    g_model.rms_norm_eps = (float)%.9g;\n"
+            "    g_model.rope_theta = (float)%.9g;\n"
+            "    g_model.num_cores = 1;\n"
+            "    g_model.task_type = TASK_LM;\n"
+            "    if (layout_model(&g_model) != 0) return -1;\n"
+            "    if (weights_path) {\n"
+            "        if (load_model_weights(weights_path, &g_model) != 0) return -2;\n"
+            "    }\n"
+            "    g_initialized = 1;\n"
+            "    return 0;\n"
+            "}\n\n",
+            forward->config.num_layers,
+            forward->config.hidden_size,
+            forward->config.intermediate_size,
+            forward->config.num_heads,
+            forward->config.num_kv_heads,
+            forward->config.vocab_size,
+            forward->config.context_window,
+            forward->config.rms_norm_eps,
+            forward->config.rope_theta);
+
+    /* ck_model_get_info */
+    fprintf(out,
+            "CK_EXPORT void ck_model_get_info(CKModelInfo *info)\n"
+            "{\n"
+            "    if (!info) return;\n"
+            "    info->num_layers = g_model.num_layers;\n"
+            "    info->hidden_size = g_model.embed_dim;\n"
+            "    info->intermediate_size = g_model.intermediate_size;\n"
+            "    info->num_heads = g_model.num_attention_heads;\n"
+            "    info->num_kv_heads = g_model.num_kv_heads;\n"
+            "    info->vocab_size = g_model.vocab_size;\n"
+            "    info->context_window = g_model.context_window;\n"
+            "    info->rms_norm_eps = g_model.rms_norm_eps;\n"
+            "    info->rope_theta = g_model.rope_theta;\n"
+            "}\n\n");
+
+    /* ck_model_embed_tokens */
+    fprintf(out,
+            "CK_EXPORT int ck_model_embed_tokens(const int32_t *tokens, int num_tokens)\n"
+            "{\n"
+            "    if (!g_initialized) return -1;\n"
+            "    if (num_tokens > g_model.context_window) num_tokens = g_model.context_window;\n"
+            "    embed_tokens(&g_model, tokens, num_tokens);\n"
+            "    return 0;\n"
+            "}\n\n");
+
+    /* ck_model_forward */
+    fprintf(out,
+            "CK_EXPORT int ck_model_forward(float *logits_out)\n"
+            "{\n"
+            "    if (!g_initialized) return -1;\n"
+            "    run_model_forward(&g_model);\n"
+            "    if (logits_out && g_model.vocab_size > 0) {\n"
+            "        size_t n = (size_t)g_model.context_window * (size_t)g_model.vocab_size;\n"
+            "        memcpy(logits_out, ptr_f32(g_model.memory_base, g_model.logits_offset), n * sizeof(float));\n"
+            "    }\n"
+            "    return 0;\n"
+            "}\n\n");
+
+    /* ck_model_get_logits - get pointer to internal logits buffer */
+    fprintf(out,
+            "CK_EXPORT float* ck_model_get_logits(void)\n"
+            "{\n"
+            "    if (!g_initialized) return NULL;\n"
+            "    return ptr_f32(g_model.memory_base, g_model.logits_offset);\n"
+            "}\n\n");
+
+    /* ck_model_backward */
+    fprintf(out,
+            "CK_EXPORT int ck_model_backward(const int32_t *tokens, const int32_t *targets, float *loss_out)\n"
+            "{\n"
+            "    if (!g_initialized) return -1;\n"
+            "    return run_model_backward(&g_model, tokens, targets, loss_out);\n"
+            "}\n\n");
+
+    /* ck_model_free */
+    fprintf(out,
+            "CK_EXPORT void ck_model_free(void)\n"
+            "{\n"
+            "    if (!g_initialized) return;\n"
+            "    if (g_model.memory_base) ck_huge_free(g_model.memory_base, g_model.total_bytes);\n"
+            "    if (g_model.layers) free(g_model.layers);\n"
+            "    memset(&g_model, 0, sizeof(g_model));\n"
+            "    g_initialized = 0;\n"
+            "}\n\n");
+
+    /* ck_model_get_context_window */
+    fprintf(out,
+            "CK_EXPORT int ck_model_get_context_window(void) { return g_initialized ? g_model.context_window : 0; }\n"
+            "CK_EXPORT int ck_model_get_vocab_size(void) { return g_initialized ? g_model.vocab_size : 0; }\n"
+            "CK_EXPORT int ck_model_get_hidden_size(void) { return g_initialized ? g_model.embed_dim : 0; }\n\n");
+}
+
+int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMode mode)
 {
     if (!forward || !path) {
         return -1;
@@ -1497,6 +1633,8 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             "    }\n"
             "}\n\n");
 
+    /* Emit either main() for standalone or API for library mode */
+    if (mode == CK_EMIT_STANDALONE) {
     fprintf(out,
             "int main(int argc, char **argv)\n"
             "{\n"
@@ -1829,6 +1967,10 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path)
             forward->config.context_window,
             forward->config.rms_norm_eps,
             forward->config.rope_theta);
+    } else {
+        /* Library mode - emit API functions instead of main() */
+        emit_library_api(out, forward);
+    }
 
     fclose(out);
     if (emit_kernel_manifest(forward, path) != 0) {

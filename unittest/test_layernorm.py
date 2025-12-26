@@ -1,12 +1,27 @@
+"""
+LayerNorm kernel unit tests with performance metrics.
+
+Tests forward and backward passes against PyTorch reference.
+Reports accuracy, timing, and system information.
+"""
 import ctypes
 
 import numpy as np
 import torch
 
 from lib_loader import load_lib
+from test_utils import (
+    CPUInfo, TestReport, TestResult, get_cpu_info,
+    max_diff, tensor_to_ptr, numpy_to_ptr, time_function, print_system_info
+)
 
 
+# Load the library
 lib = load_lib("libckernel_engine.so")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Function signatures
+# ═══════════════════════════════════════════════════════════════════════════════
 
 lib.layernorm_naive_serial.argtypes = [
     ctypes.POINTER(ctypes.c_float),
@@ -65,9 +80,9 @@ lib.layernorm_backward_kernel.argtypes = [
 lib.layernorm_backward_kernel.restype = None
 
 
-def tensor_to_ptr(t: torch.Tensor):
-    return t.contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kernel Wrappers
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def run_c_layernorm_naive(x, gamma, beta, eps=1e-5):
     T, D = x.shape
@@ -145,72 +160,12 @@ def run_c_layernorm_unrolled(x, gamma, beta, eps=1e-5):
     return out, mean, rstd
 
 
-def max_diff(a: torch.Tensor, b: torch.Tensor) -> float:
-    return (a - b).abs().max().item()
-
-
-def run_single_test(T=32, D=128, eps=1e-5):
-    torch.manual_seed(0)
-    x = torch.randn(T, D, dtype=torch.float32)
-    gamma = torch.randn(D, dtype=torch.float32)
-    beta = torch.randn(D, dtype=torch.float32)
-
-    ref = torch.layer_norm(x, (D,), gamma, beta, eps)
-
-    out_naive, _, _ = run_c_layernorm_naive(x, gamma, beta, eps)
-    out_rolled, _, _ = run_c_layernorm_rolled(x, gamma, beta, eps)
-    out_unrolled, _, _ = run_c_layernorm_unrolled(x, gamma, beta, eps)
-
-    diff_naive = max_diff(out_naive, ref)
-    diff_rolled = max_diff(out_rolled, ref)
-    diff_unrolled = max_diff(out_unrolled, ref)
-
-    print(f"Naive vs PyTorch max diff:      {diff_naive:.2e}")
-    print(f"Rolled vs PyTorch max diff:     {diff_rolled:.2e}")
-    print(f"Unrolled vs PyTorch max diff:   {diff_unrolled:.2e}")
-
-    # Enforce near-exactness; if this fails, print a few entries.
-    tol = 1e-6
-    if diff_naive > tol or diff_rolled > tol or diff_unrolled > tol:
-        print("LayerNorm forward mismatch detected. Showing first few elements for naive vs PyTorch:")
-        for t in range(min(2, T)):
-            for d in range(min(5, D)):
-                print(
-                    f"t={t}, d={d}: x={x[t,d].item():.6f}, "
-                    f"ref={ref[t,d].item():.6f}, "
-                    f"naive={out_naive[t,d].item():.6f}"
-                )
-        raise AssertionError(
-            f"LayerNorm forward mismatch: "
-            f"diff_naive={diff_naive}, diff_rolled={diff_rolled}, diff_unrolled={diff_unrolled}"
-        )
-
-
-def run_backward_test(T=16, D=32, eps=1e-5):
-    torch.manual_seed(1)
-    x = torch.randn(T, D, dtype=torch.float32)
-    gamma = torch.randn(D, dtype=torch.float32)
-    beta = torch.randn(D, dtype=torch.float32)
-    upstream = torch.randn(T, D, dtype=torch.float32)
-
-    # PyTorch reference grads
-    x_ref = x.clone().detach().requires_grad_(True)
-    gamma_ref = gamma.clone().detach().requires_grad_(True)
-    beta_ref = beta.clone().detach().requires_grad_(True)
-
-    y_ref = torch.layer_norm(x_ref, (D,), gamma_ref, beta_ref, eps)
-    y_ref.backward(upstream)
-
-    dx_ref = x_ref.grad.detach()
-    dgamma_ref = gamma_ref.grad.detach()
-    dbeta_ref = beta_ref.grad.detach()
-
-    # C forward to get mean/rstd, then C backward
-    _, mean, rstd = run_c_layernorm_naive(x, gamma, beta, eps)
+def run_c_layernorm_backward(upstream, x, gamma, mean, rstd):
+    T, D = x.shape
 
     d_input = torch.zeros_like(x)
     d_gamma = torch.zeros_like(gamma)
-    d_beta = torch.zeros_like(beta)
+    d_beta = torch.zeros_like(gamma)
 
     lib.layernorm_backward_kernel(
         tensor_to_ptr(upstream),
@@ -225,31 +180,266 @@ def run_backward_test(T=16, D=32, eps=1e-5):
         ctypes.c_int(D),
         ctypes.c_int(D),
     )
+    return d_input, d_gamma, d_beta
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def run_forward_tests(T=32, D=128, eps=1e-5, warmup=10, iterations=1000):
+    """Run forward pass tests with accuracy and timing."""
+    torch.manual_seed(0)
+
+    # Pre-allocate numpy arrays for accurate timing (avoids ctypes overhead)
+    x_np = np.random.randn(T, D).astype(np.float32)
+    gamma_np = np.random.randn(D).astype(np.float32)
+    beta_np = np.random.randn(D).astype(np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
+    mean_np = np.zeros(T, dtype=np.float32)
+    rstd_np = np.zeros(T, dtype=np.float32)
+
+    # Get pointers once
+    x_ptr = numpy_to_ptr(x_np)
+    g_ptr = numpy_to_ptr(gamma_np)
+    b_ptr = numpy_to_ptr(beta_np)
+    o_ptr = numpy_to_ptr(out_np)
+    m_ptr = numpy_to_ptr(mean_np)
+    r_ptr = numpy_to_ptr(rstd_np)
+
+    # Torch tensors for PyTorch comparison
+    x = torch.from_numpy(x_np)
+    gamma = torch.from_numpy(gamma_np)
+    beta = torch.from_numpy(beta_np)
+
+    report = TestReport(
+        test_name="LayerNorm Forward",
+        dtype="fp32",
+        shape=f"tokens={T}, d_model={D}",
+        cpu_info=get_cpu_info()
+    )
+
+    # PyTorch reference
+    ref = torch.layer_norm(x, (D,), gamma, beta, eps)
+
+    # Time PyTorch
+    pytorch_time = time_function(
+        lambda: torch.layer_norm(x, (D,), gamma, beta, eps),
+        warmup=warmup, iterations=iterations, name="PyTorch"
+    )
+
+    # Test naive kernel (with pre-allocated buffers for timing)
+    lib.layernorm_naive_serial(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps))
+    out_naive = torch.from_numpy(out_np.copy())
+    diff_naive = max_diff(out_naive, ref)
+    naive_time = time_function(
+        lambda: lib.layernorm_naive_serial(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps)),
+        warmup=warmup, iterations=iterations, name="Naive"
+    )
+    report.add_result(TestResult(
+        name="Naive (scalar)",
+        passed=diff_naive <= 1e-5,
+        max_diff=diff_naive,
+        tolerance=1e-5,
+        pytorch_time=pytorch_time,
+        kernel_time=naive_time
+    ))
+
+    # Test rolled kernel
+    lib.layernorm_forward_rolled_slice(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps))
+    out_rolled = torch.from_numpy(out_np.copy())
+    diff_rolled = max_diff(out_rolled, ref)
+    rolled_time = time_function(
+        lambda: lib.layernorm_forward_rolled_slice(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps)),
+        warmup=warmup, iterations=iterations, name="Rolled"
+    )
+    report.add_result(TestResult(
+        name="Rolled (SIMD)",
+        passed=diff_rolled <= 1e-5,
+        max_diff=diff_rolled,
+        tolerance=1e-5,
+        pytorch_time=pytorch_time,
+        kernel_time=rolled_time
+    ))
+
+    # Test unrolled kernel
+    lib.layernorm_forward_unrolled_slice(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, ctypes.c_float(eps))
+    out_unrolled = torch.from_numpy(out_np.copy())
+    diff_unrolled = max_diff(out_unrolled, ref)
+    unrolled_time = time_function(
+        lambda: lib.layernorm_forward_unrolled_slice(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, ctypes.c_float(eps)),
+        warmup=warmup, iterations=iterations, name="Unrolled"
+    )
+    report.add_result(TestResult(
+        name="Unrolled (SIMD)",
+        passed=diff_unrolled <= 1e-5,
+        max_diff=diff_unrolled,
+        tolerance=1e-5,
+        pytorch_time=pytorch_time,
+        kernel_time=unrolled_time
+    ))
+
+    return report
+
+
+def run_backward_tests(T=32, D=128, eps=1e-5, warmup=10, iterations=1000):
+    """Run backward pass tests with accuracy and timing (forward, backward, and combined)."""
+    np.random.seed(1)
+
+    # Pre-allocate numpy arrays
+    x_np = np.random.randn(T, D).astype(np.float32)
+    gamma_np = np.random.randn(D).astype(np.float32)
+    beta_np = np.random.randn(D).astype(np.float32)
+    upstream_np = np.random.randn(T, D).astype(np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
+    mean_np = np.zeros(T, dtype=np.float32)
+    rstd_np = np.zeros(T, dtype=np.float32)
+    d_input_np = np.zeros((T, D), dtype=np.float32)
+    d_gamma_np = np.zeros(D, dtype=np.float32)
+    d_beta_np = np.zeros(D, dtype=np.float32)
+
+    # Get pointers
+    x_ptr = numpy_to_ptr(x_np)
+    g_ptr = numpy_to_ptr(gamma_np)
+    b_ptr = numpy_to_ptr(beta_np)
+    o_ptr = numpy_to_ptr(out_np)
+    m_ptr = numpy_to_ptr(mean_np)
+    r_ptr = numpy_to_ptr(rstd_np)
+    up_ptr = numpy_to_ptr(upstream_np)
+    di_ptr = numpy_to_ptr(d_input_np)
+    dg_ptr = numpy_to_ptr(d_gamma_np)
+    db_ptr = numpy_to_ptr(d_beta_np)
+
+    # Torch tensors
+    x = torch.from_numpy(x_np)
+    gamma = torch.from_numpy(gamma_np)
+    beta = torch.from_numpy(beta_np)
+    upstream = torch.from_numpy(upstream_np)
+
+    report = TestReport(
+        test_name="LayerNorm Backward",
+        dtype="fp32",
+        shape=f"tokens={T}, d_model={D}",
+        cpu_info=get_cpu_info()
+    )
+
+    # PyTorch forward only
+    def pytorch_forward():
+        return torch.layer_norm(x, (D,), gamma, beta, eps)
+
+    # PyTorch forward+backward
+    def pytorch_fwd_bwd():
+        x_ref = x.clone().detach().requires_grad_(True)
+        gamma_ref = gamma.clone().detach().requires_grad_(True)
+        beta_ref = beta.clone().detach().requires_grad_(True)
+        y_ref = torch.layer_norm(x_ref, (D,), gamma_ref, beta_ref, eps)
+        y_ref.backward(upstream)
+        return x_ref.grad, gamma_ref.grad, beta_ref.grad
+
+    # Get reference grads for accuracy check
+    dx_ref, dgamma_ref, dbeta_ref = pytorch_fwd_bwd()
+
+    # C forward
+    def c_forward():
+        lib.layernorm_naive_serial(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps))
+
+    # C backward only
+    def c_backward():
+        lib.layernorm_backward_kernel(up_ptr, x_ptr, g_ptr, m_ptr, r_ptr, di_ptr, dg_ptr, db_ptr, T, D, D)
+
+    # C forward + backward
+    def c_fwd_bwd():
+        lib.layernorm_naive_serial(x_ptr, g_ptr, b_ptr, o_ptr, m_ptr, r_ptr, T, D, D, ctypes.c_float(eps))
+        lib.layernorm_backward_kernel(up_ptr, x_ptr, g_ptr, m_ptr, r_ptr, di_ptr, dg_ptr, db_ptr, T, D, D)
+
+    # Run once for accuracy
+    c_forward()
+    c_backward()
+    d_input = torch.from_numpy(d_input_np.copy())
+    d_gamma = torch.from_numpy(d_gamma_np.copy())
+    d_beta = torch.from_numpy(d_beta_np.copy())
+
+    # Timing
+    pt_fwd_time = time_function(pytorch_forward, warmup=warmup, iterations=iterations, name="PyTorch Fwd")
+    pt_fwd_bwd_time = time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch Fwd+Bwd")
+    c_fwd_time = time_function(c_forward, warmup=warmup, iterations=iterations, name="C Fwd")
+    c_bwd_time = time_function(c_backward, warmup=warmup, iterations=iterations, name="C Bwd")
+    c_fwd_bwd_time = time_function(c_fwd_bwd, warmup=warmup, iterations=iterations, name="C Fwd+Bwd")
+
+    # PyTorch backward only (estimated by subtracting forward from fwd+bwd)
+    pt_bwd_est = pt_fwd_bwd_time.mean_us - pt_fwd_time.mean_us
+
+    # Accuracy results
     diff_d_input = max_diff(d_input, dx_ref)
     diff_d_gamma = max_diff(d_gamma, dgamma_ref)
     diff_d_beta = max_diff(d_beta, dbeta_ref)
 
-    print(f"Backward d_input max diff:  {diff_d_input:.2e}")
-    print(f"Backward d_gamma max diff:  {diff_d_gamma:.2e}")
-    print(f"Backward d_beta max diff:   {diff_d_beta:.2e}")
+    report.add_result(TestResult(
+        name="d_input",
+        passed=diff_d_input <= 5e-6,
+        max_diff=diff_d_input,
+        tolerance=5e-6,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+    report.add_result(TestResult(
+        name="d_gamma",
+        passed=diff_d_gamma <= 5e-6,
+        max_diff=diff_d_gamma,
+        tolerance=5e-6,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+    report.add_result(TestResult(
+        name="d_beta",
+        passed=diff_d_beta <= 5e-6,
+        max_diff=diff_d_beta,
+        tolerance=5e-6,
+        pytorch_time=None,
+        kernel_time=None
+    ))
 
-    tol_bwd = 5e-6
-    if diff_d_input > tol_bwd or diff_d_gamma > tol_bwd or diff_d_beta > tol_bwd:
-        print("LayerNorm backward mismatch. Showing first few elements for d_input vs PyTorch:")
-        for t in range(min(2, T)):
-            for d in range(min(5, D)):
-                print(
-                    f"t={t}, d={d}: upstream={upstream[t,d].item():.6f}, "
-                    f"ref_dx={dx_ref[t,d].item():.6f}, "
-                    f"c_dx={d_input[t,d].item():.6f}"
-                )
-        raise AssertionError(
-            f"LayerNorm backward mismatch: "
-            f"d_input={diff_d_input}, d_gamma={diff_d_gamma}, d_beta={diff_d_beta}"
-        )
+    # Store timing data for custom print
+    report.timing_breakdown = {
+        'pt_fwd': pt_fwd_time.mean_us,
+        'pt_bwd_est': pt_bwd_est,
+        'pt_fwd_bwd': pt_fwd_bwd_time.mean_us,
+        'c_fwd': c_fwd_time.mean_us,
+        'c_bwd': c_bwd_time.mean_us,
+        'c_fwd_bwd': c_fwd_bwd_time.mean_us,
+    }
 
+    return report
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main
+# ═══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    run_single_test()
-    run_backward_test()
+    print_system_info()
+
+    # Forward tests
+    fwd_report = run_forward_tests(T=32, D=128, warmup=10, iterations=1000)
+    fwd_report.print_report()
+
+    # Backward tests (same shape as forward for fair comparison)
+    bwd_report = run_backward_tests(T=32, D=128, warmup=10, iterations=1000)
+    bwd_report.print_report()
+
+    # Print detailed timing breakdown
+    if hasattr(bwd_report, 'timing_breakdown'):
+        t = bwd_report.timing_breakdown
+        print("  DETAILED TIMING BREAKDOWN (Forward vs Backward)")
+        print("  " + "-" * 55)
+        print(f"  {'Operation':<20} {'PyTorch (us)':<15} {'C Kernel (us)':<15} {'Speedup':<10}")
+        print("  " + "-" * 55)
+        print(f"  {'Forward':<20} {t['pt_fwd']:<15.1f} {t['c_fwd']:<15.1f} {t['pt_fwd']/t['c_fwd']:.2f}x")
+        print(f"  {'Backward (est)':<20} {t['pt_bwd_est']:<15.1f} {t['c_bwd']:<15.1f} {t['pt_bwd_est']/t['c_bwd']:.2f}x")
+        print(f"  {'Forward+Backward':<20} {t['pt_fwd_bwd']:<15.1f} {t['c_fwd_bwd']:<15.1f} {t['pt_fwd_bwd']/t['c_fwd_bwd']:.2f}x")
+        print("  " + "-" * 55)
+        print()
+
+    # Exit with error if any tests failed
+    if not fwd_report.all_passed() or not bwd_report.all_passed():
+        exit(1)

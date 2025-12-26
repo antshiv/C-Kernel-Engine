@@ -62,6 +62,48 @@ void gemm_blocked_serial(const float *A,
                          float *C,
                          int M, int N, int K);
 
+// GEMM_NN: C[M,N] = A[M,K] @ B[K,N] + bias[N]
+// B is stored row-major as [K,N] (no transpose on B)
+// Used for backward d_input = d_output @ W
+void gemm_nn_parallel(const float *A,
+                      const float *B,
+                      const float *bias,
+                      float *C,
+                      int M, int N, int K);
+
+void gemm_nn_avx512(const float *A,
+                    const float *B,
+                    const float *bias,
+                    float *C,
+                    int M, int N, int K);
+
+void gemm_nn_blocked(const float *A,
+                     const float *B,
+                     const float *bias,
+                     float *C,
+                     int M, int N, int K);
+
+// GEMM_TN: C[M,N] = A[K,M].T @ B[K,N] + bias[N]
+// A is stored row-major as [K,M], B is stored row-major as [K,N]
+// Used for backward d_W = d_output.T @ input
+void gemm_tn_parallel(const float *A,
+                      const float *B,
+                      const float *bias,
+                      float *C,
+                      int M, int N, int K);
+
+void gemm_tn_avx512(const float *A,
+                    const float *B,
+                    const float *bias,
+                    float *C,
+                    int M, int N, int K);
+
+void gemm_tn_blocked(const float *A,
+                     const float *B,
+                     const float *bias,
+                     float *C,
+                     int M, int N, int K);
+
 // LayerNorm forward kernels, copied from C-Transformer.
 void layernorm_naive_serial(const float *input,
                             const float *gamma,
@@ -131,6 +173,25 @@ void rmsnorm_backward(const float *d_output,
                       int d_model,
                       int aligned_embed_dim);
 
+void rmsnorm_forward_bf16(const uint16_t *input,
+                          const float *gamma,
+                          uint16_t *output,
+                          float *rstd_cache,
+                          int tokens,
+                          int d_model,
+                          int aligned_embed_dim,
+                          float eps);
+
+void rmsnorm_backward_bf16(const uint16_t *d_output,
+                           const uint16_t *input,
+                           const float *gamma,
+                           const float *rstd_cache,
+                           uint16_t *d_input,
+                           float *d_gamma,
+                           int tokens,
+                           int d_model,
+                           int aligned_embed_dim);
+
 // GELU forward kernel (fast approximation), copied from C-Transformer.
 void gelu_fast_inplace(float *data, size_t n);
 
@@ -143,6 +204,14 @@ void gelu_backward_fast(const float *input,
                         const float *d_output,
                         float *d_input,
                         size_t n);
+
+// ReLU kernels.
+void relu_forward(const float *input, float *output, size_t n);
+void relu_forward_inplace(float *data, size_t n);
+void relu_backward(const float *input,
+                   const float *d_output,
+                   float *d_input,
+                   size_t n);
 
 // Causal softmax kernel on head-major attention scores, copied from C-Transformer.
 void causal_softmax_head_major(float *scores,

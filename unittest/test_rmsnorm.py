@@ -1,11 +1,27 @@
+"""
+RMSNorm kernel unit tests with performance metrics.
+
+Tests forward and backward passes against PyTorch reference.
+Reports accuracy, timing, and system information.
+"""
 import ctypes
 
+import numpy as np
 import torch
 
 from lib_loader import load_lib
+from test_utils import (
+    TestReport, TestResult, get_cpu_info,
+    max_diff, numpy_to_ptr, time_function, print_system_info
+)
 
 
+# Load the library
 lib = load_lib("libckernel_rmsnorm.so", "libckernel_engine.so")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Function signatures
+# ═══════════════════════════════════════════════════════════════════════════════
 
 lib.rmsnorm_forward.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
@@ -33,132 +49,234 @@ lib.rmsnorm_backward.argtypes = [
 lib.rmsnorm_backward.restype = None
 
 
-def tensor_to_ptr(t: torch.Tensor):
-    return t.contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
+# ═══════════════════════════════════════════════════════════════════════════════
+# Reference implementation
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def rmsnorm_torch(x: torch.Tensor, gamma: torch.Tensor, eps: float) -> torch.Tensor:
-    # x: [T,D], gamma: [D]
+    """PyTorch reference: x: [T,D], gamma: [D]"""
     var = x.pow(2).mean(dim=-1, keepdim=True)
     rstd = (var + eps).rsqrt()
     x_hat = x * rstd
     return x_hat * gamma
 
 
-def max_diff(a: torch.Tensor, b: torch.Tensor) -> float:
-    return (a - b).abs().max().item()
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tests
+# ═══════════════════════════════════════════════════════════════════════════════
 
+def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
+    """Run forward pass tests with accuracy and timing."""
+    np.random.seed(0)
 
-def run_forward_test(T=32, D=128, eps=1e-5):
-    torch.manual_seed(0)
-    x = torch.randn(T, D, dtype=torch.float32)
-    gamma = torch.randn(D, dtype=torch.float32)
+    # Pre-allocate numpy arrays
+    x_np = np.random.randn(T, D).astype(np.float32)
+    gamma_np = np.random.randn(D).astype(np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
+    rstd_np = np.zeros(T, dtype=np.float32)
 
+    # Get pointers
+    x_ptr = numpy_to_ptr(x_np)
+    gamma_ptr = numpy_to_ptr(gamma_np)
+    out_ptr = numpy_to_ptr(out_np)
+    rstd_ptr = numpy_to_ptr(rstd_np)
+
+    # Torch tensors
+    x = torch.from_numpy(x_np.copy())
+    gamma = torch.from_numpy(gamma_np.copy())
+
+    report = TestReport(
+        test_name="RMSNorm Forward",
+        dtype="fp32",
+        shape=f"T={T}, D={D}",
+        cpu_info=get_cpu_info()
+    )
+
+    # PyTorch reference
     ref = rmsnorm_torch(x, gamma, eps)
 
-    aligned = D
-    x_f = x.contiguous().float()
-    g_f = gamma.contiguous().float()
-    out = torch.empty_like(x_f)
-    rstd = torch.empty(T, dtype=torch.float32)
-
-    lib.rmsnorm_forward(
-        tensor_to_ptr(x_f),
-        tensor_to_ptr(g_f),
-        tensor_to_ptr(out),
-        tensor_to_ptr(rstd),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(aligned),
-        ctypes.c_float(eps),
+    # Time PyTorch
+    pytorch_time = time_function(
+        lambda: rmsnorm_torch(x, gamma, eps),
+        warmup=warmup, iterations=iterations, name="PyTorch"
     )
 
-    diff = max_diff(out, ref)
-    print(f"RMSNorm forward max diff: {diff:.2e}")
-
-    tol = 1e-6
-    if diff > tol:
-        print("RMSNorm forward mismatch. Showing first few elements:")
-        for t in range(min(2, T)):
-            for d in range(min(5, D)):
-                print(
-                    f"t={t}, d={d}: x={x[t,d].item():.6f}, "
-                    f"ref={ref[t,d].item():.6f}, "
-                    f"c={out[t,d].item():.6f}"
-                )
-        raise AssertionError(f"RMSNorm forward mismatch: max diff {diff}")
-
-
-def run_backward_test(T=16, D=32, eps=1e-5):
-    torch.manual_seed(1)
-    x = torch.randn(T, D, dtype=torch.float32)
-    gamma = torch.randn(D, dtype=torch.float32)
-    upstream = torch.randn(T, D, dtype=torch.float32)
-
-    # PyTorch reference grads
-    x_ref = x.clone().detach().requires_grad_(True)
-    gamma_ref = gamma.clone().detach().requires_grad_(True)
-
-    y_ref = rmsnorm_torch(x_ref, gamma_ref, eps)
-    y_ref.backward(upstream)
-
-    dx_ref = x_ref.grad.detach()
-    dgamma_ref = gamma_ref.grad.detach()
-
-    # C forward to get rstd, then backward
-    aligned = D
-    x_f = x.contiguous().float()
-    g_f = gamma.contiguous().float()
-    out = torch.empty_like(x_f)
-    rstd = torch.empty(T, dtype=torch.float32)
-
-    lib.rmsnorm_forward(
-        tensor_to_ptr(x_f),
-        tensor_to_ptr(g_f),
-        tensor_to_ptr(out),
-        tensor_to_ptr(rstd),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(aligned),
-        ctypes.c_float(eps),
-    )
-
-    d_input = torch.zeros_like(x_f)
-    d_gamma = torch.zeros_like(g_f)
-
-    lib.rmsnorm_backward(
-        tensor_to_ptr(upstream),
-        tensor_to_ptr(x_f),
-        tensor_to_ptr(g_f),
-        tensor_to_ptr(rstd),
-        tensor_to_ptr(d_input),
-        tensor_to_ptr(d_gamma),
-        ctypes.c_int(T),
-        ctypes.c_int(D),
-        ctypes.c_int(aligned),
-    )
-
-    diff_dx = max_diff(d_input, dx_ref)
-    diff_dgamma = max_diff(d_gamma, dgamma_ref)
-
-    print(f"RMSNorm backward d_input max diff: {diff_dx:.2e}")
-    print(f"RMSNorm backward d_gamma max diff: {diff_dgamma:.2e}")
-
-    tol = 1e-6
-    if diff_dx > tol or diff_dgamma > tol:
-        print("RMSNorm backward mismatch. Showing first few elements for d_input vs PyTorch:")
-        for t in range(min(2, T)):
-            for d in range(min(5, D)):
-                print(
-                    f"t={t}, d={d}: upstream={upstream[t,d].item():.6f}, "
-                    f"ref_dx={dx_ref[t,d].item():.6f}, "
-                    f"c_dx={d_input[t,d].item():.6f}"
-                )
-        raise AssertionError(
-            f"RMSNorm backward mismatch: d_input={diff_dx}, d_gamma={diff_dgamma}"
+    # C kernel
+    def c_rmsnorm():
+        lib.rmsnorm_forward(
+            x_ptr, gamma_ptr, out_ptr, rstd_ptr,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D),
+            ctypes.c_float(eps)
         )
 
+    c_rmsnorm()
+    out = torch.from_numpy(out_np.copy())
+    diff = max_diff(out, ref)
+
+    kernel_time = time_function(c_rmsnorm, warmup=warmup, iterations=iterations, name="C RMSNorm")
+
+    report.add_result(TestResult(
+        name="RMSNorm",
+        passed=diff <= 1e-6,
+        max_diff=diff,
+        tolerance=1e-6,
+        pytorch_time=pytorch_time,
+        kernel_time=kernel_time
+    ))
+
+    return report
+
+
+def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
+    """Run backward pass tests with accuracy and timing."""
+    np.random.seed(1)
+
+    # Pre-allocate numpy arrays
+    x_np = np.random.randn(T, D).astype(np.float32)
+    gamma_np = np.random.randn(D).astype(np.float32)
+    upstream_np = np.random.randn(T, D).astype(np.float32)
+    out_np = np.zeros((T, D), dtype=np.float32)
+    rstd_np = np.zeros(T, dtype=np.float32)
+    dx_np = np.zeros((T, D), dtype=np.float32)
+    dgamma_np = np.zeros(D, dtype=np.float32)
+
+    # Get pointers
+    x_ptr = numpy_to_ptr(x_np)
+    gamma_ptr = numpy_to_ptr(gamma_np)
+    upstream_ptr = numpy_to_ptr(upstream_np)
+    out_ptr = numpy_to_ptr(out_np)
+    rstd_ptr = numpy_to_ptr(rstd_np)
+    dx_ptr = numpy_to_ptr(dx_np)
+    dgamma_ptr = numpy_to_ptr(dgamma_np)
+
+    # Torch tensors
+    x = torch.from_numpy(x_np.copy())
+    gamma = torch.from_numpy(gamma_np.copy())
+    upstream = torch.from_numpy(upstream_np)
+
+    report = TestReport(
+        test_name="RMSNorm Backward",
+        dtype="fp32",
+        shape=f"T={T}, D={D}",
+        cpu_info=get_cpu_info()
+    )
+
+    # PyTorch forward only
+    def pytorch_forward():
+        return rmsnorm_torch(x, gamma, eps)
+
+    # PyTorch forward+backward
+    def pytorch_fwd_bwd():
+        x_ref = x.clone().detach().requires_grad_(True)
+        gamma_ref = gamma.clone().detach().requires_grad_(True)
+        y = rmsnorm_torch(x_ref, gamma_ref, eps)
+        y.backward(upstream)
+        return x_ref.grad, gamma_ref.grad
+
+    # Get reference grads
+    dx_ref, dgamma_ref = pytorch_fwd_bwd()
+
+    # C forward (needed for rstd cache)
+    lib.rmsnorm_forward(
+        x_ptr, gamma_ptr, out_ptr, rstd_ptr,
+        ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D),
+        ctypes.c_float(eps)
+    )
+
+    # C backward
+    def c_backward():
+        lib.rmsnorm_backward(
+            upstream_ptr, x_ptr, gamma_ptr, rstd_ptr,
+            dx_ptr, dgamma_ptr,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
+        )
+
+    # C forward + backward combined
+    def c_fwd_bwd():
+        lib.rmsnorm_forward(
+            x_ptr, gamma_ptr, out_ptr, rstd_ptr,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D),
+            ctypes.c_float(eps)
+        )
+        lib.rmsnorm_backward(
+            upstream_ptr, x_ptr, gamma_ptr, rstd_ptr,
+            dx_ptr, dgamma_ptr,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
+        )
+
+    # Run once for accuracy
+    c_backward()
+    dx_c = torch.from_numpy(dx_np.copy())
+    dgamma_c = torch.from_numpy(dgamma_np.copy())
+    diff_dx = max_diff(dx_c, dx_ref)
+    diff_dgamma = max_diff(dgamma_c, dgamma_ref)
+
+    # Timing
+    pt_fwd_time = time_function(pytorch_forward, warmup=warmup, iterations=iterations, name="PyTorch Fwd")
+    pt_fwd_bwd_time = time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch Fwd+Bwd")
+    c_bwd_time = time_function(c_backward, warmup=warmup, iterations=iterations, name="C Bwd")
+    c_fwd_bwd_time = time_function(c_fwd_bwd, warmup=warmup, iterations=iterations, name="C Fwd+Bwd")
+
+    pt_bwd_est = pt_fwd_bwd_time.mean_us - pt_fwd_time.mean_us
+
+    report.add_result(TestResult(
+        name="d_input",
+        passed=diff_dx <= 1e-5,
+        max_diff=diff_dx,
+        tolerance=1e-5,
+        pytorch_time=pt_fwd_bwd_time,
+        kernel_time=c_fwd_bwd_time
+    ))
+
+    report.add_result(TestResult(
+        name="d_gamma",
+        passed=diff_dgamma <= 1e-5,
+        max_diff=diff_dgamma,
+        tolerance=1e-5,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
+    # Store timing data
+    report.timing_breakdown = {
+        'pt_fwd': pt_fwd_time.mean_us,
+        'pt_bwd_est': pt_bwd_est,
+        'pt_fwd_bwd': pt_fwd_bwd_time.mean_us,
+        'c_bwd': c_bwd_time.mean_us,
+        'c_fwd_bwd': c_fwd_bwd_time.mean_us,
+    }
+
+    return report
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main
+# ═══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    run_forward_test()
-    run_backward_test()
+    print_system_info()
+
+    # Forward tests
+    fwd_report = run_forward_tests(T=64, D=256, warmup=10, iterations=1000)
+    fwd_report.print_report()
+
+    # Backward tests
+    bwd_report = run_backward_tests(T=64, D=256, warmup=10, iterations=1000)
+    bwd_report.print_report()
+
+    # Print detailed timing breakdown
+    if hasattr(bwd_report, 'timing_breakdown'):
+        t = bwd_report.timing_breakdown
+        print("  DETAILED TIMING BREAKDOWN (Forward vs Backward)")
+        print("  " + "-" * 60)
+        print(f"  {'Operation':<20} {'PyTorch (us)':<15} {'C Kernel (us)':<15} {'Speedup':<10}")
+        print("  " + "-" * 60)
+        print(f"  {'Forward':<20} {t['pt_fwd']:<15.1f} {'(see above)':<15} {'-':<10}")
+        print(f"  {'Backward':<20} {t['pt_bwd_est']:<15.1f} {t['c_bwd']:<15.1f} {t['pt_bwd_est']/t['c_bwd']:.2f}x")
+        print(f"  {'Forward+Backward':<20} {t['pt_fwd_bwd']:<15.1f} {t['c_fwd_bwd']:<15.1f} {t['pt_fwd_bwd']/t['c_fwd_bwd']:.2f}x")
+        print("  " + "-" * 60)
+        print()
+
+    # Exit with error if any tests failed
+    if not fwd_report.all_passed() or not bwd_report.all_passed():
+        exit(1)

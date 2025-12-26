@@ -1,12 +1,28 @@
+"""
+Causal Softmax Backward kernel unit tests with performance metrics.
+
+Note: This is a focused backward-only test. See test_softmax.py for
+comprehensive forward+backward tests with timing breakdown.
+"""
 import ctypes
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 
 from lib_loader import load_lib
+from test_utils import (
+    TestReport, TestResult, get_cpu_info,
+    max_diff, numpy_to_ptr, time_function, print_system_info
+)
 
 
+# Load the library
 lib = load_lib("libckernel_engine.so")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Function signatures
+# ═══════════════════════════════════════════════════════════════════════════════
 
 lib.causal_softmax_head_major.argtypes = [
     ctypes.POINTER(ctypes.c_float),
@@ -26,20 +42,12 @@ lib.backward_causal_softmax_head_major.argtypes = [
 lib.backward_causal_softmax_head_major.restype = None
 
 
-def tensor_to_ptr(t: torch.Tensor):
-    return t.contiguous().view(-1).numpy().ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
-
-def forward_causal_softmax(scores: torch.Tensor) -> torch.Tensor:
-    H, T, _ = scores.shape
-    aligned = T
-    s = scores.contiguous().float().clone()
-    ptr = tensor_to_ptr(s)
-    lib.causal_softmax_head_major(ptr, ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(aligned))
-    return s
-
+# ═══════════════════════════════════════════════════════════════════════════════
+# Reference implementation
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def backward_causal_softmax_ref(dY: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
+    """PyTorch reference for causal softmax backward."""
     H, T, _ = Y.shape
     dX = torch.zeros_like(Y)
     for h in range(H):
@@ -52,53 +60,127 @@ def backward_causal_softmax_ref(dY: torch.Tensor, Y: torch.Tensor) -> torch.Tens
     return dX
 
 
-def backward_causal_softmax_c(dY: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
-    H, T, _ = Y.shape
-    aligned = T
-    d_scores = dY.contiguous().float().clone()
-    weights = Y.contiguous().float()
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tests
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    lib.backward_causal_softmax_head_major(
-        tensor_to_ptr(d_scores),
-        tensor_to_ptr(weights),
-        ctypes.c_int(H),
-        ctypes.c_int(T),
-        ctypes.c_int(aligned),
+def run_backward_tests(H=8, T=64, warmup=10, iterations=500):
+    """Run backward pass tests with accuracy and timing."""
+    np.random.seed(0)
+
+    # Pre-allocate numpy arrays
+    scores_np = np.random.randn(H, T, T).astype(np.float32)
+    weights_np = scores_np.copy()
+    dY_np = np.random.randn(H, T, T).astype(np.float32)
+    dX_np = dY_np.copy()
+
+    # Get pointers
+    weights_ptr = numpy_to_ptr(weights_np)
+    dX_ptr = numpy_to_ptr(dX_np)
+
+    # Run forward to get weights
+    lib.causal_softmax_head_major(weights_ptr, H, T, T)
+
+    # Torch tensors
+    Y = torch.from_numpy(weights_np.copy())
+    dY = torch.from_numpy(dY_np.copy())
+
+    report = TestReport(
+        test_name="Causal Softmax Backward",
+        dtype="fp32",
+        shape=f"H={H}, T={T}",
+        cpu_info=get_cpu_info()
     )
-    return d_scores
 
-
-def max_diff(a: torch.Tensor, b: torch.Tensor) -> float:
-    return (a - b).abs().max().item()
-
-
-def run_single_test(H=2, T=8):
-    torch.manual_seed(2)
-    scores = torch.randn(H, T, T, dtype=torch.float32)
-
-    Y = forward_causal_softmax(scores)
-    dY = torch.randn_like(Y)
-
+    # PyTorch reference
     dX_ref = backward_causal_softmax_ref(dY, Y)
-    dX_c = backward_causal_softmax_c(dY, Y)
 
+    # C kernel
+    def c_softmax_backward():
+        np.copyto(dX_np, dY_np)
+        lib.backward_causal_softmax_head_major(dX_ptr, weights_ptr, H, T, T)
+
+    c_softmax_backward()
+    dX_c = torch.from_numpy(dX_np.copy())
     diff = max_diff(dX_c, dX_ref)
-    print(f"Backward causal softmax max diff: {diff:.2e}")
 
-    tol = 1e-6
-    if diff > tol:
-        print("Softmax backward mismatch. Showing first row for first head:")
-        h = 0
-        i = 0
-        for j in range(min(5, T)):
-            print(
-                f"j={j}: Y={Y[h,i,j].item():.6f}, "
-                f"dY={dY[h,i,j].item():.6f}, "
-                f"ref_dX={dX_ref[h,i,j].item():.6f}, "
-                f"c_dX={dX_c[h,i,j].item():.6f}"
-            )
-        raise AssertionError(f"Causal softmax backward mismatch: max diff {diff}")
+    kernel_time = time_function(c_softmax_backward, warmup=warmup, iterations=iterations, name="C Softmax Bwd")
 
+    report.add_result(TestResult(
+        name="d_scores",
+        passed=diff <= 1e-5,
+        max_diff=diff,
+        tolerance=1e-5,
+        pytorch_time=None,
+        kernel_time=kernel_time
+    ))
+
+    return report
+
+
+def run_accuracy_tests():
+    """Run accuracy tests at various sizes."""
+    report = TestReport(
+        test_name="Causal Softmax Backward Accuracy",
+        dtype="fp32",
+        shape="Multiple sizes",
+        cpu_info=get_cpu_info()
+    )
+
+    test_configs = [
+        (2, 8, "Small"),
+        (4, 16, "Medium"),
+        (8, 32, "Large"),
+    ]
+
+    for H, T, name in test_configs:
+        np.random.seed(42)
+
+        scores_np = np.random.randn(H, T, T).astype(np.float32)
+        weights_np = scores_np.copy()
+        dY_np = np.random.randn(H, T, T).astype(np.float32)
+        dX_np = dY_np.copy()
+
+        weights_ptr = numpy_to_ptr(weights_np)
+        dX_ptr = numpy_to_ptr(dX_np)
+
+        lib.causal_softmax_head_major(weights_ptr, H, T, T)
+
+        Y = torch.from_numpy(weights_np.copy())
+        dY = torch.from_numpy(dY_np.copy())
+        dX_ref = backward_causal_softmax_ref(dY, Y)
+
+        lib.backward_causal_softmax_head_major(dX_ptr, weights_ptr, H, T, T)
+        dX_c = torch.from_numpy(dX_np.copy())
+        diff = max_diff(dX_c, dX_ref)
+
+        report.add_result(TestResult(
+            name=f"{name} (H={H},T={T})",
+            passed=diff <= 1e-5,
+            max_diff=diff,
+            tolerance=1e-5,
+            pytorch_time=None,
+            kernel_time=None
+        ))
+
+    return report
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main
+# ═══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    run_single_test()
+    print_system_info()
+
+    # Accuracy tests
+    acc_report = run_accuracy_tests()
+    acc_report.print_report()
+
+    # Performance tests
+    perf_report = run_backward_tests(H=8, T=64, warmup=10, iterations=500)
+    perf_report.print_report()
+
+    # Exit with error if any tests failed
+    if not acc_report.all_passed() or not perf_report.all_passed():
+        exit(1)

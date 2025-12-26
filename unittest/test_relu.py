@@ -1,11 +1,10 @@
 """
-GELU kernel unit tests with performance metrics.
+ReLU kernel unit tests with performance metrics.
 
 Tests forward and backward passes against PyTorch reference.
 Reports accuracy, timing, and system information.
 """
 import ctypes
-import os
 
 import numpy as np
 import torch
@@ -19,30 +18,32 @@ from test_utils import (
 
 
 # Load the library
-lib = load_lib("libckernel_gelu.so", "libckernel_engine.so")
+lib = load_lib("libckernel_relu.so", "libckernel_engine.so")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Function signatures
 # ═══════════════════════════════════════════════════════════════════════════════
 
-lib.gelu_fast_inplace.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_size_t]
-lib.gelu_fast_inplace.restype = None
+lib.relu_forward.argtypes = [
+    ctypes.POINTER(ctypes.c_float),  # input
+    ctypes.POINTER(ctypes.c_float),  # output
+    ctypes.c_size_t,                 # n
+]
+lib.relu_forward.restype = None
 
-lib.gelu_backward_exact.argtypes = [
+lib.relu_forward_inplace.argtypes = [
+    ctypes.POINTER(ctypes.c_float),  # data (in/out)
+    ctypes.c_size_t,                 # n
+]
+lib.relu_forward_inplace.restype = None
+
+lib.relu_backward.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
     ctypes.POINTER(ctypes.c_float),  # d_output
     ctypes.POINTER(ctypes.c_float),  # d_input
     ctypes.c_size_t,                 # n
 ]
-lib.gelu_backward_exact.restype = None
-
-lib.gelu_backward_fast.argtypes = [
-    ctypes.POINTER(ctypes.c_float),  # input
-    ctypes.POINTER(ctypes.c_float),  # d_output
-    ctypes.POINTER(ctypes.c_float),  # d_input
-    ctypes.c_size_t,                 # n
-]
-lib.gelu_backward_fast.restype = None
+lib.relu_backward.restype = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -55,50 +56,70 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
 
     # Pre-allocate numpy arrays
     x_np = np.random.randn(N).astype(np.float32)
-    out_np = x_np.copy()  # GELU is inplace
+    out_np = np.zeros(N, dtype=np.float32)
+    out_inplace_np = x_np.copy()
 
     # Get pointers
+    x_ptr = numpy_to_ptr(x_np)
     out_ptr = numpy_to_ptr(out_np)
+    out_inplace_ptr = numpy_to_ptr(out_inplace_np)
 
-    # Torch tensor for PyTorch comparison
+    # Torch tensor
     x = torch.from_numpy(x_np.copy())
 
     report = TestReport(
-        test_name="GELU Forward",
+        test_name="ReLU Forward",
         dtype="fp32",
         shape=f"N={N}",
         cpu_info=get_cpu_info()
     )
 
     # PyTorch reference
-    ref = F.gelu(x, approximate="tanh")
+    ref = F.relu(x)
 
     # Time PyTorch
     pytorch_time = time_function(
-        lambda: F.gelu(x, approximate="tanh"),
+        lambda: F.relu(x),
         warmup=warmup, iterations=iterations, name="PyTorch"
     )
 
-    # C kernel (inplace) - need to reset buffer each time for timing
-    def c_gelu():
-        np.copyto(out_np, x_np)  # Reset
-        lib.gelu_fast_inplace(out_ptr, ctypes.c_size_t(N))
+    # C kernel out-of-place
+    def c_relu():
+        lib.relu_forward(x_ptr, out_ptr, ctypes.c_size_t(N))
 
-    # Run once for accuracy
-    c_gelu()
+    c_relu()
     out = torch.from_numpy(out_np.copy())
     diff = max_diff(out, ref)
 
-    # Time C kernel
-    kernel_time = time_function(c_gelu, warmup=warmup, iterations=iterations, name="C GELU")
+    kernel_time = time_function(c_relu, warmup=warmup, iterations=iterations, name="C ReLU")
 
     report.add_result(TestResult(
-        name="GELU (tanh approx)",
-        passed=diff <= 1e-6,
+        name="ReLU (out-of-place)",
+        passed=diff <= 1e-7,
         max_diff=diff,
-        tolerance=1e-6,
+        tolerance=1e-7,
         pytorch_time=pytorch_time,
         kernel_time=kernel_time
+    ))
+
+    # C kernel inplace
+    def c_relu_inplace():
+        np.copyto(out_inplace_np, x_np)
+        lib.relu_forward_inplace(out_inplace_ptr, ctypes.c_size_t(N))
+
+    c_relu_inplace()
+    out_inplace = torch.from_numpy(out_inplace_np.copy())
+    diff_inplace = max_diff(out_inplace, ref)
+
+    inplace_time = time_function(c_relu_inplace, warmup=warmup, iterations=iterations, name="C ReLU Inplace")
+
+    report.add_result(TestResult(
+        name="ReLU (inplace)",
+        passed=diff_inplace <= 1e-7,
+        max_diff=diff_inplace,
+        tolerance=1e-7,
+        pytorch_time=pytorch_time,
+        kernel_time=inplace_time
     ))
 
     return report
@@ -111,21 +132,19 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     # Pre-allocate numpy arrays
     x_np = np.random.randn(N).astype(np.float32)
     upstream_np = np.random.randn(N).astype(np.float32)
-    dx_exact_np = np.zeros(N, dtype=np.float32)
-    dx_fast_np = np.zeros(N, dtype=np.float32)
+    dx_np = np.zeros(N, dtype=np.float32)
 
     # Get pointers
     x_ptr = numpy_to_ptr(x_np)
-    up_ptr = numpy_to_ptr(upstream_np)
-    dx_exact_ptr = numpy_to_ptr(dx_exact_np)
-    dx_fast_ptr = numpy_to_ptr(dx_fast_np)
+    upstream_ptr = numpy_to_ptr(upstream_np)
+    dx_ptr = numpy_to_ptr(dx_np)
 
     # Torch tensors
     x = torch.from_numpy(x_np.copy())
     upstream = torch.from_numpy(upstream_np)
 
     report = TestReport(
-        test_name="GELU Backward",
+        test_name="ReLU Backward",
         dtype="fp32",
         shape=f"N={N}",
         cpu_info=get_cpu_info()
@@ -133,59 +152,41 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
 
     # PyTorch forward only
     def pytorch_forward():
-        return F.gelu(x, approximate="tanh")
+        return F.relu(x)
 
     # PyTorch forward+backward
     def pytorch_fwd_bwd():
         x_ref = x.clone().detach().requires_grad_(True)
-        y = F.gelu(x_ref, approximate="tanh")
+        y = F.relu(x_ref)
         y.backward(upstream)
         return x_ref.grad
 
     # Get reference grad
     dx_ref = pytorch_fwd_bwd()
 
-    # C backward exact
-    def c_backward_exact():
-        lib.gelu_backward_exact(x_ptr, up_ptr, dx_exact_ptr, ctypes.c_size_t(N))
-
-    # C backward fast
-    def c_backward_fast():
-        lib.gelu_backward_fast(x_ptr, up_ptr, dx_fast_ptr, ctypes.c_size_t(N))
+    # C backward
+    def c_backward():
+        lib.relu_backward(x_ptr, upstream_ptr, dx_ptr, ctypes.c_size_t(N))
 
     # Run once for accuracy
-    c_backward_exact()
-    c_backward_fast()
-    dx_exact = torch.from_numpy(dx_exact_np.copy())
-    dx_fast = torch.from_numpy(dx_fast_np.copy())
-
-    diff_exact = max_diff(dx_exact, dx_ref)
-    diff_fast = max_diff(dx_fast, dx_ref)
+    c_backward()
+    dx_c = torch.from_numpy(dx_np.copy())
+    diff = max_diff(dx_c, dx_ref)
 
     # Timing
     pt_fwd_time = time_function(pytorch_forward, warmup=warmup, iterations=iterations, name="PyTorch Fwd")
     pt_fwd_bwd_time = time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch Fwd+Bwd")
-    c_exact_time = time_function(c_backward_exact, warmup=warmup, iterations=iterations, name="C Exact")
-    c_fast_time = time_function(c_backward_fast, warmup=warmup, iterations=iterations, name="C Fast")
+    c_bwd_time = time_function(c_backward, warmup=warmup, iterations=iterations, name="C Bwd")
 
     pt_bwd_est = pt_fwd_bwd_time.mean_us - pt_fwd_time.mean_us
 
     report.add_result(TestResult(
-        name="Backward (exact)",
-        passed=diff_exact <= 1e-6,
-        max_diff=diff_exact,
-        tolerance=1e-6,
-        pytorch_time=pt_fwd_bwd_time,  # Will show in perf table
-        kernel_time=c_exact_time
-    ))
-
-    report.add_result(TestResult(
-        name="Backward (fast)",
-        passed=True,  # Fast is approximate, just report diff
-        max_diff=diff_fast,
-        tolerance=0.1,  # Approximate
-        pytorch_time=None,
-        kernel_time=c_fast_time
+        name="d_input",
+        passed=diff <= 1e-7,
+        max_diff=diff,
+        tolerance=1e-7,
+        pytorch_time=pt_fwd_bwd_time,
+        kernel_time=c_bwd_time
     ))
 
     # Store timing data
@@ -193,8 +194,7 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
         'pt_fwd': pt_fwd_time.mean_us,
         'pt_bwd_est': pt_bwd_est,
         'pt_fwd_bwd': pt_fwd_bwd_time.mean_us,
-        'c_exact': c_exact_time.mean_us,
-        'c_fast': c_fast_time.mean_us,
+        'c_bwd': c_bwd_time.mean_us,
     }
 
     return report
@@ -220,11 +220,10 @@ if __name__ == "__main__":
         t = bwd_report.timing_breakdown
         print("  DETAILED TIMING BREAKDOWN (Forward vs Backward)")
         print("  " + "-" * 60)
-        print(f"  {'Operation':<25} {'PyTorch (us)':<15} {'C Kernel (us)':<15} {'Speedup':<10}")
+        print(f"  {'Operation':<20} {'PyTorch (us)':<15} {'C Kernel (us)':<15} {'Speedup':<10}")
         print("  " + "-" * 60)
-        print(f"  {'Forward':<25} {t['pt_fwd']:<15.1f} {'(inplace)':<15} {'-':<10}")
-        print(f"  {'Backward (exact)':<25} {t['pt_bwd_est']:<15.1f} {t['c_exact']:<15.1f} {t['pt_bwd_est']/t['c_exact']:.2f}x")
-        print(f"  {'Backward (fast)':<25} {t['pt_bwd_est']:<15.1f} {t['c_fast']:<15.1f} {t['pt_bwd_est']/t['c_fast']:.2f}x")
+        print(f"  {'Forward':<20} {t['pt_fwd']:<15.1f} {'(see above)':<15} {'-':<10}")
+        print(f"  {'Backward':<20} {t['pt_bwd_est']:<15.1f} {t['c_bwd']:<15.1f} {t['pt_bwd_est']/t['c_bwd']:.2f}x")
         print("  " + "-" * 60)
         print()
 

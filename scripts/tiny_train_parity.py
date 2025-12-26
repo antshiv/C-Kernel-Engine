@@ -92,6 +92,23 @@ def detect_avx_flags():
     return []
 
 
+def detect_cc() -> str:
+    """Detect best available C compiler: prefer icx, fall back to gcc."""
+    import shutil
+    if shutil.which("icx"):
+        return "icx"
+    if shutil.which("icc"):
+        return "icc"
+    return "gcc"
+
+
+def openmp_flag(cc: str) -> str:
+    cc_lower = cc.lower()
+    if "icx" in cc_lower or "icc" in cc_lower:
+        return "-qopenmp"
+    return "-fopenmp"
+
+
 def run(cmd, cwd=None):
     print("+", " ".join(cmd))
     subprocess.check_call(cmd, cwd=cwd)
@@ -424,8 +441,9 @@ def main():
     with open(kernel_manifest, "r", encoding="utf-8") as f:
         kernels = f.read().split()
 
-    cflags = ["-O3", "-fPIC", "-fopenmp", "-Wall"] + detect_avx_flags() + ["-Iinclude"]
-    run(["gcc", *cflags, gen_c, *kernels, "-o", model_bin, "-lm"])
+    cc = os.environ.get("CC", detect_cc())
+    cflags = ["-O3", "-fPIC", openmp_flag(cc), "-Wall"] + detect_avx_flags() + ["-Iinclude"]
+    run([cc, *cflags, gen_c, *kernels, "-o", model_bin, "-lm"])
 
     cmd = [
         model_bin,
