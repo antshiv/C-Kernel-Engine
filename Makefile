@@ -55,6 +55,7 @@ SRCS    := src/backend_native.c \
             src/kernels/swiglu_kernels.c \
            src/kernels/sigmoid_kernels.c \
            src/kernels/relu_kernels.c \
+           src/kernels/vision_kernels.c \
            src/kernels/rope_kernels.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
 LIB_GELU     := $(BUILD_DIR)/libckernel_gelu.so
@@ -64,6 +65,7 @@ LIB_SOFT     := $(BUILD_DIR)/libckernel_softmax.so
 LIB_SWIGLU   := $(BUILD_DIR)/libckernel_swiglu.so
 LIB_SIGMOID  := $(BUILD_DIR)/libckernel_sigmoid.so
 LIB_RELU     := $(BUILD_DIR)/libckernel_relu.so
+LIB_VISION   := $(BUILD_DIR)/libckernel_vision.so
 LIB_ATTENTION := $(BUILD_DIR)/libckernel_attention.so
 LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
 
@@ -136,7 +138,7 @@ all: $(BUILD_DIR) $(LIB)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(LIB): $(SRCS)
+$(LIB): $(BUILD_DIR) $(SRCS)
 	$(CC) $(CFLAGS) -shared -o $@ $(SRCS) -lm
 
 $(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
@@ -174,6 +176,9 @@ $(LIB_SIGMOID): $(BUILD_DIR) src/kernels/sigmoid_kernels.c include/ckernel_engin
 $(LIB_RELU): $(BUILD_DIR) src/kernels/relu_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/relu_kernels.c -lm
 
+$(LIB_VISION): $(BUILD_DIR) src/kernels/vision_kernels.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/vision_kernels.c -lm
+
 $(LIB_ATTENTION): $(BUILD_DIR) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
 
@@ -205,13 +210,19 @@ libckernel_attention.so: $(LIB_ATTENTION)
 libckernel_relu.so: $(LIB_RELU)
 	@true
 
+libckernel_vision.so: $(LIB_VISION)
+	@true
+
 test-relu: $(LIB_RELU)
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_relu.py
+
+test-vision: $(LIB_VISION)
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_vision.py
 
 libckernel_rope.so: $(LIB_ROPE)
 	@true
 
-test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE) $(LIB_RELU)
+test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE) $(LIB_RELU) $(LIB_VISION)
 
 test: $(LIB) test-libs
 	@set -e; \
@@ -220,6 +231,9 @@ test: $(LIB) test-libs
 	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
 	done; \
 	echo "All Python kernel tests completed."
+
+rope-test: $(LIB) test-libs
+	$(PYTHON) $(PYTHONFLAGS) unittest/test_rope.py
 
 litmus:
 	$(PYTHON) $(PYTHONFLAGS) unittest/test_lm_head_litmus.py $(ARGS)

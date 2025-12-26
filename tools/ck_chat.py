@@ -267,10 +267,27 @@ class CKernelChat:
             "--ctx", str(self.context_len),
         ]
 
-        subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"\n[ERROR] Model forward pass failed (exit code {e.returncode})")
+            if e.stderr:
+                print(f"[STDERR] {e.stderr[:500]}")
+            print("\n[HINT] Run diagnostics with: python scripts/smollm_forward_parity.py")
+            print("[HINT] Check kernel tests with: make test")
+            raise RuntimeError(f"Model execution failed: {e.returncode}") from e
 
         # Read logits
+        if not os.path.exists(logits_bin):
+            raise RuntimeError(f"Output logits file not created: {logits_bin}")
+
         logits = np.fromfile(logits_bin, dtype=np.float32)
+        expected_size = self.context_len * self.vocab_size
+        if logits.size != expected_size:
+            raise RuntimeError(
+                f"Logits size mismatch: got {logits.size}, expected {expected_size} "
+                f"(ctx={self.context_len}, vocab={self.vocab_size})"
+            )
         logits = logits.reshape(self.context_len, self.vocab_size)
 
         # Return logits for the last actual token position

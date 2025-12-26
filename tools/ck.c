@@ -82,6 +82,7 @@ typedef struct {
     bool verbose;
     bool force_download;
     bool force_convert;
+    bool debug;              /* Run pre-flight checks and show diagnostics */
 
     /* Model info (parsed from config.json) */
     ModelArch arch;
@@ -148,6 +149,7 @@ static void print_usage(void) {
     printf("  --force-download  Re-download model files\n");
     printf("  --force-convert   Re-convert weights\n");
     printf("  --verbose         Verbose output\n");
+    printf("  --debug           Run pre-flight diagnostics before starting\n");
     printf("\n");
     printf(C_BOLD "EXAMPLES:" C_RESET "\n");
     printf("  ck run HuggingFaceTB/SmolLM-135M\n");
@@ -786,7 +788,155 @@ static int sample_top_k(const float *logits, int vocab_size, int k, float temp) 
     return result;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Pre-flight Diagnostics (--debug mode)
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+static int run_preflight_checks(CKConfig *cfg) {
+    printf("\n");
+    printf(C_YELLOW "╔═══════════════════════════════════════════════════════════╗\n" C_RESET);
+    printf(C_YELLOW "║" C_RESET C_BOLD "  PRE-FLIGHT DIAGNOSTICS                                  " C_RESET C_YELLOW "║\n" C_RESET);
+    printf(C_YELLOW "╚═══════════════════════════════════════════════════════════╝\n" C_RESET);
+    printf("\n");
+
+    int errors = 0;
+    int warnings = 0;
+
+    /* Check 1: Required files */
+    printf(C_BOLD "  [1/4] Checking required files...\n" C_RESET);
+
+    char model_so[MAX_PATH];
+    snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
+
+    struct {
+        const char *name;
+        const char *path;
+        bool required;
+    } files[] = {
+        {"Config", cfg->config_path, true},
+        {"Weights", cfg->weights_path, true},
+        {"Tokenizer", cfg->tokenizer_path, false},
+        {"Model Library", model_so, true},
+    };
+
+    for (int i = 0; i < 4; i++) {
+        bool exists = file_exists(files[i].path);
+        if (exists) {
+            printf("        " C_GREEN "✓" C_RESET " %s: %s\n", files[i].name, files[i].path);
+        } else if (files[i].required) {
+            printf("        " C_RED "✗" C_RESET " %s: %s " C_RED "(MISSING)" C_RESET "\n", files[i].name, files[i].path);
+            errors++;
+        } else {
+            printf("        " C_YELLOW "○" C_RESET " %s: %s " C_DIM "(optional)" C_RESET "\n", files[i].name, files[i].path);
+            warnings++;
+        }
+    }
+
+    /* Check 2: Library loading */
+    printf(C_BOLD "\n  [2/4] Testing library loading...\n" C_RESET);
+
+    void *lib = dlopen(model_so, RTLD_NOW);
+    if (!lib) {
+        printf("        " C_RED "✗" C_RESET " dlopen failed: %s\n", dlerror());
+        errors++;
+    } else {
+        printf("        " C_GREEN "✓" C_RESET " Library opened successfully\n");
+
+        /* Check required symbols */
+        const char *required_syms[] = {
+            "ck_model_init", "ck_model_embed_tokens",
+            "ck_model_forward", "ck_model_get_logits", "ck_model_free"
+        };
+        for (int i = 0; i < 5; i++) {
+            void *sym = dlsym(lib, required_syms[i]);
+            if (sym) {
+                printf("        " C_GREEN "✓" C_RESET " %s\n", required_syms[i]);
+            } else {
+                printf("        " C_RED "✗" C_RESET " %s " C_RED "(missing symbol)" C_RESET "\n", required_syms[i]);
+                errors++;
+            }
+        }
+        dlclose(lib);
+    }
+
+    /* Check 3: Weights file sanity */
+    printf(C_BOLD "\n  [3/4] Checking weights file...\n" C_RESET);
+
+    FILE *wf = fopen(cfg->weights_path, "rb");
+    if (wf) {
+        fseek(wf, 0, SEEK_END);
+        long size = ftell(wf);
+        fclose(wf);
+        printf("        " C_GREEN "✓" C_RESET " Size: %.2f MB\n", size / (1024.0 * 1024.0));
+
+        /* Estimate expected size based on param count */
+        long expected_bytes = cfg->param_count * 4;  /* fp32 */
+        if (size < expected_bytes * 0.5) {
+            printf("        " C_YELLOW "⚠" C_RESET " File seems small for %ldM params (expected ~%.0f MB)\n",
+                   cfg->param_count / 1000000, expected_bytes / (1024.0 * 1024.0));
+            warnings++;
+        }
+    } else {
+        printf("        " C_RED "✗" C_RESET " Cannot read weights file\n");
+        errors++;
+    }
+
+    /* Check 4: CPU capabilities */
+    printf(C_BOLD "\n  [4/4] Checking CPU capabilities...\n" C_RESET);
+
+#ifdef __x86_64__
+    FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
+    if (cpuinfo) {
+        char line[1024];
+        bool avx = false, avx2 = false, avx512 = false;
+        while (fgets(line, sizeof(line), cpuinfo)) {
+            if (strncmp(line, "flags", 5) == 0) {
+                avx = strstr(line, " avx ") != NULL;
+                avx2 = strstr(line, " avx2 ") != NULL;
+                avx512 = strstr(line, " avx512f ") != NULL;
+                break;
+            }
+        }
+        fclose(cpuinfo);
+        printf("        AVX:     %s\n", avx ? C_GREEN "✓" C_RESET : C_DIM "✗" C_RESET);
+        printf("        AVX2:    %s\n", avx2 ? C_GREEN "✓" C_RESET : C_DIM "✗" C_RESET);
+        printf("        AVX-512: %s\n", avx512 ? C_GREEN "✓" C_RESET : C_DIM "✗" C_RESET);
+    }
+#else
+    printf("        " C_DIM "(CPU check only available on x86_64)" C_RESET "\n");
+#endif
+
+    /* Summary */
+    printf("\n");
+    printf(C_DIM "  ─────────────────────────────────────────────────────────\n" C_RESET);
+    if (errors > 0) {
+        printf("  " C_RED "FAILED" C_RESET ": %d error(s), %d warning(s)\n", errors, warnings);
+        printf("\n");
+        printf(C_DIM "  Troubleshooting:\n" C_RESET);
+        printf(C_DIM "    • Run 'make test' to check kernel functionality\n" C_RESET);
+        printf(C_DIM "    • Run 'python scripts/smollm_forward_parity.py' for PyTorch comparison\n" C_RESET);
+        printf(C_DIM "    • Try 'ck run <model> --force-convert' to regenerate weights\n" C_RESET);
+        printf("\n");
+        return -1;
+    } else if (warnings > 0) {
+        printf("  " C_YELLOW "PASSED with warnings" C_RESET ": %d warning(s)\n", warnings);
+    } else {
+        printf("  " C_GREEN "ALL CHECKS PASSED" C_RESET "\n");
+    }
+    printf(C_DIM "  ─────────────────────────────────────────────────────────\n" C_RESET);
+    printf("\n");
+
+    return 0;
+}
+
 static int run_chat(CKConfig *cfg) {
+    /* Run pre-flight checks in debug mode */
+    if (cfg->debug) {
+        if (run_preflight_checks(cfg) != 0) {
+            return -1;
+        }
+    }
+
     printf("\n");
     printf(C_ORANGE "  ┌─────────────────────────────────────────────────────────┐\n" C_RESET);
     printf(C_ORANGE "  │" C_RESET C_BOLD " Model: " C_RESET C_CYAN "%s" C_RESET "\n", cfg->model_id);
@@ -1160,6 +1310,7 @@ int main(int argc, char *argv[]) {
         cfg.verbose = false;
         cfg.force_download = false;
         cfg.force_convert = false;
+        cfg.debug = false;
 
         /* Parse model argument */
         if (setup_config(&cfg, argv[2]) != 0) {
@@ -1182,6 +1333,9 @@ int main(int argc, char *argv[]) {
                 cfg.force_download = true;
             } else if (strcmp(argv[i], "--force-convert") == 0) {
                 cfg.force_convert = true;
+            } else if (strcmp(argv[i], "--debug") == 0) {
+                cfg.debug = true;
+                cfg.verbose = true;  /* Debug implies verbose */
             }
         }
 
