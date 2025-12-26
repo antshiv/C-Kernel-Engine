@@ -235,7 +235,7 @@ void attention_backward_causal_head_major_gqa(
                 d_k[base + i] = 0.0f;
                 d_v[base + i] = 0.0f;
             }
-            /* Clear padding so later GEMMs don't see stale data. */
+            /* Keep the padded lanes quiet so downstream GEMMs don't observe stale values. */
             for (int i = hd; i < ad; ++i) {
                 d_k[base + i] = 0.0f;
                 d_v[base + i] = 0.0f;
@@ -323,7 +323,7 @@ void attention_backward_causal_head_major_gqa(
             for (int dd = 0; dd < hd; ++dd) {
                 d_q[d_q_base + dd] = 0.0f;
             }
-            /* Zero padded head lanes before accumulation. */
+            /* Clear padded head lanes so subsequent GEMMs only touch real values. */
             for (int dd = hd; dd < ad; ++dd) {
                 d_q[d_q_base + dd] = 0.0f;
             }

@@ -42,7 +42,6 @@ void rope_precompute_cache(float *cos_cache,
         for (int i = 0; i < half_dim; ++i) {
             long double exponent = ((long double)(2 * i)) / head_dim_ld;
             long double freq = expl(-exponent * log_base);
-            long double angle = (long double)pos * freq;
             float freq_f = (float)freq;
             float angle_f = (float)pos * freq_f;
             cos_cache[pos * half_dim + i] = cosf(angle_f);

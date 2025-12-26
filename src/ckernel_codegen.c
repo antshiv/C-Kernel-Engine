@@ -849,6 +849,8 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
             "{\n"
             "    if (!g_initialized) return -1;\n"
             "    if (num_tokens > g_model.context_window) num_tokens = g_model.context_window;\n"
+            "    if (num_tokens < 1) num_tokens = 1;\n"
+            "    g_model.active_tokens = num_tokens;\n"
             "    embed_tokens(&g_model, tokens, num_tokens);\n"
             "    return 0;\n"
             "}\n\n");
@@ -860,7 +862,7 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
             "    if (!g_initialized) return -1;\n"
             "    run_model_forward(&g_model);\n"
             "    if (logits_out && g_model.vocab_size > 0) {\n"
-            "        size_t n = (size_t)g_model.context_window * (size_t)g_model.vocab_size;\n"
+            "        size_t n = (size_t)g_model.active_tokens * (size_t)g_model.vocab_size;\n"
             "        memcpy(logits_out, ptr_f32(g_model.memory_base, g_model.logits_offset), n * sizeof(float));\n"
             "    }\n"
             "    return 0;\n"
@@ -897,7 +899,8 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
     fprintf(out,
             "CK_EXPORT int ck_model_get_context_window(void) { return g_initialized ? g_model.context_window : 0; }\n"
             "CK_EXPORT int ck_model_get_vocab_size(void) { return g_initialized ? g_model.vocab_size : 0; }\n"
-            "CK_EXPORT int ck_model_get_hidden_size(void) { return g_initialized ? g_model.embed_dim : 0; }\n\n");
+            "CK_EXPORT int ck_model_get_hidden_size(void) { return g_initialized ? g_model.embed_dim : 0; }\n"
+            "CK_EXPORT int ck_model_get_active_tokens(void) { return g_initialized ? g_model.active_tokens : 0; }\n\n");
 }
 
 int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMode mode)
@@ -1023,10 +1026,11 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMo
             "    uint8_t *base = m->memory_base;\n"
             "    float *current = ptr_f32(base, m->embedded_input_offset);\n"
             "    int aligned_intermediate_dim = (int)align_up_elems((size_t)m->intermediate_size, m->elem_bytes, CACHELINE_BYTES);\n"
+            "    int T = m->active_tokens > 0 ? m->active_tokens : m->context_window;\n"
             "    for (int layer = 0; layer < m->num_layers; ++layer) {\n"
             "        TrulyOptimalLayer *L = &m->layers[layer];\n"
             "        CKLayerForwardParams p = {0};\n"
-            "        p.tokens = m->context_window;\n"
+            "        p.tokens = T;\n"
             "        p.embed_dim = m->embed_dim;\n"
             "        p.aligned_embed_dim = (int)m->aligned_embed_dim;\n"
             "        p.num_heads = m->num_attention_heads;\n"
@@ -1079,7 +1083,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMo
             "                    cptr_f32(base, m->final_ln_weight_offset),\n"
             "                    final_out,\n"
             "                    ptr_f32(base, m->final_ln_rstd_offset),\n"
-            "                    m->context_window,\n"
+            "                    T,\n"
             "                    m->embed_dim,\n"
             "                    (int)m->aligned_embed_dim,\n"
             "                    m->rms_norm_eps);\n"
@@ -1087,7 +1091,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMo
             "        lm_head_forward(final_out,\n"
             "                        cptr_f32(base, m->lm_head_weight_offset),\n"
             "                        ptr_f32(base, m->logits_offset),\n"
-            "                        m->context_window,\n"
+            "                        T,\n"
             "                        m->vocab_size,\n"
             "                        m->embed_dim,\n"
             "                        (int)m->aligned_embed_dim);\n"

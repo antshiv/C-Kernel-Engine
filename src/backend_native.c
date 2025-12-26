@@ -21,10 +21,19 @@ static void ckernel_sgemm_native(int M, int N, int K,
                                  const float *bias,
                                  float *C, int ldc)
 {
-    (void)lda;
-    (void)ldb;
-    (void)ldc;
-    gemm_blocked_serial(A, B, bias, C, M, N, K);
+    /* Honor caller-provided strides so padded matrices still compute correctly. */
+    for (int i = 0; i < M; ++i) {
+        const float *a_row = A + (size_t)i * lda;
+        float *c_row = C + (size_t)i * ldc;
+        for (int j = 0; j < N; ++j) {
+            float sum = bias ? bias[j] : 0.0f;
+            const float *b_row = B + (size_t)j * ldb;
+            for (int k = 0; k < K; ++k) {
+                sum += a_row[k] * b_row[k];
+            }
+            c_row[j] = sum;
+        }
+    }
 }
 
 CKMathBackend ckernel_backend_native(void)

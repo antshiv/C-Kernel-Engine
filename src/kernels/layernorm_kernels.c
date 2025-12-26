@@ -3,6 +3,15 @@
 #endif
 #include <math.h>
 
+static inline void zero_layernorm_padding(float *out_ptr,
+                                          int d_model,
+                                          int aligned_embed_dim)
+{
+    for (int idx = d_model; idx < aligned_embed_dim; ++idx) {
+        out_ptr[idx] = 0.0f;
+    }
+}
+
 void layernorm_naive_serial_matched_precision(const float *input,
                                               const float *gamma,
                                               const float *beta,
@@ -145,6 +154,11 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
             float normed = (in_ptr_token[j] - mean) * inv_std;
             out_ptr_token[j] = normed * gamma[j] + beta[j];
         }
+
+        if (aligned_embed_dim > d_model) {
+            /* Keep the padded lanes zeroed so later GEMMs see deterministic memory. */
+            zero_layernorm_padding(out_ptr_token, d_model, aligned_embed_dim);
+        }
     }
 }
 #elif defined(__AVX2__) || defined(__AVX__)
@@ -229,6 +243,10 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
         for (; j < d_model; ++j) {
             float normed = (in_ptr_token[j] - mean) * inv_std;
             out_ptr_token[j] = normed * gamma[j] + beta[j];
+        }
+
+        if (aligned_embed_dim > d_model) {
+            zero_layernorm_padding(out_ptr_token, d_model, aligned_embed_dim);
         }
     }
 }
