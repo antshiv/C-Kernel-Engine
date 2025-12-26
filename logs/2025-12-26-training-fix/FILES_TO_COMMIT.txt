@@ -1,0 +1,27 @@
+# Files to commit for Training Fix
+
+## Modified (core fix):
+src/ckernel_codegen.c
+
+## New files:
+scripts/test_training_fix.sh
+logs/2025-12-26-training-fix/README.md
+logs/2025-12-26-training-fix/CHANGES.md
+logs/2025-12-26-training-fix/test_output_before_fix.txt
+logs/2025-12-26-training-fix/FILES_TO_COMMIT.txt
+
+## Git commands:
+git add src/ckernel_codegen.c
+git add scripts/test_training_fix.sh
+git add logs/2025-12-26-training-fix/
+git commit -m "Fix training: gradient allocation + remove duplicate SGD
+
+- Add CK_ENABLE_TRAINING=1 env var to pre-allocate gradient buffers
+- Remove duplicate sgd_update() call from run_model_backward()
+- Add test script: scripts/test_training_fix.sh
+- Add logs documenting the fix
+
+Before: Loss stuck at 10.802672 for all training steps
+After: Loss should decrease (weights now actually update)"
+
+git push

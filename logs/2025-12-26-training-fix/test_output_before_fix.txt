@@ -1,0 +1,44 @@
+# Test output BEFORE fix (from earlier session)
+# Loss stays constant - weights not being updated
+
+Loading model from /home/antshiv/.cache/ck-engine/models/HuggingFaceTB--SmolLM-135M...
+Model loaded! Vocab: 49152, Context: 2048
+
+=== Testing Training API ===
+Training enabled (before): False
+Enable training returned: 0
+Training enabled (after): True
+Training enabled (disabled): False
+Training API test PASSED
+
+=== Testing Forward/Backward ===
+Input text: 'Hello world'
+Tokens: [19556, 905]
+Targets: [905, 0]
+
+Running forward pass...
+Forward time: 0.498s
+Logits shape: (2, 49152)
+Logits range: [-14.9755, 16.3842]
+
+Running backward pass...
+Backward time: 2.514s
+Loss: 7.076798
+Forward/Backward test PASSED
+
+=== Testing Training Loop (5 steps) ===
+Training text: 'The quick brown fox'
+Step 1: loss = 10.802672
+Step 2: loss = 10.802672
+Step 3: loss = 10.802672
+Step 4: loss = 10.802672
+Step 5: loss = 10.802672
+Warning: Loss didn't decrease: 10.802672 -> 10.802672
+Training loop test PASSED
+
+==================================================
+ALL TESTS PASSED
+
+# NOTE: Loss is EXACTLY the same for all 5 steps
+# This proves weights are not being updated
+# Root cause: gradient buffers have offset=0, so SGD updates nothing

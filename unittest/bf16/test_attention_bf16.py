@@ -112,9 +112,9 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     k_bf = float32_to_bf16(k_np)
     v_bf = float32_to_bf16(v_np)
 
-    q = torch.from_numpy(q_np.copy())
-    k = torch.from_numpy(k_np.copy())
-    v = torch.from_numpy(v_np.copy())
+    q = torch.from_numpy(q_np.copy()).to(dtype=torch.bfloat16)
+    k = torch.from_numpy(k_np.copy()).to(dtype=torch.bfloat16)
+    v = torch.from_numpy(v_np.copy()).to(dtype=torch.bfloat16)
 
     report = TestReport(
         test_name="Attention Forward (BF16)",
@@ -145,7 +145,7 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
 
     c_attention()
     out = torch.from_numpy(out_np.copy())
-    diff = max_diff(out, ref)
+    diff = max_diff(out, ref.to(dtype=torch.float32))
 
     report.add_result(TestResult(
         name="Causal Attention",
@@ -166,13 +166,13 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
     v_np = np.random.randn(H, T, D).astype(np.float32)
     d_out_np = np.random.randn(H, T, D).astype(np.float32)
 
-    q = torch.from_numpy(q_np.copy())
-    k = torch.from_numpy(k_np.copy())
-    v = torch.from_numpy(v_np.copy())
-    d_out = torch.from_numpy(d_out_np.copy())
+    q = torch.from_numpy(q_np.copy()).to(dtype=torch.bfloat16)
+    k = torch.from_numpy(k_np.copy()).to(dtype=torch.bfloat16)
+    v = torch.from_numpy(v_np.copy()).to(dtype=torch.bfloat16)
+    d_out = torch.from_numpy(d_out_np.copy()).to(dtype=torch.bfloat16)
 
     _, attn_weights = causal_attention_pytorch(q, k, v)
-    attn_weights_np = attn_weights.numpy()
+    attn_weights_np = attn_weights.to(dtype=torch.float32).numpy()
 
     def pytorch_fwd_bwd():
         q_ref = q.clone().detach().requires_grad_(True)
@@ -226,8 +226,8 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
 
     report.add_result(TestResult(
         name="d_q",
-        passed=max_diff(torch.from_numpy(d_q_np.copy()), d_q_ref) <= 1e-2,
-        max_diff=max_diff(torch.from_numpy(d_q_np.copy()), d_q_ref),
+        passed=max_diff(torch.from_numpy(d_q_np.copy()), d_q_ref.to(dtype=torch.float32)) <= 1e-2,
+        max_diff=max_diff(torch.from_numpy(d_q_np.copy()), d_q_ref.to(dtype=torch.float32)),
         tolerance=1e-2,
         pytorch_time=time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch"),
         kernel_time=time_function(c_backward, warmup=warmup, iterations=iterations, name="C Attention BF16")
@@ -235,8 +235,8 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
 
     report.add_result(TestResult(
         name="d_k",
-        passed=max_diff(torch.from_numpy(d_k_np.copy()), d_k_ref) <= 1e-2,
-        max_diff=max_diff(torch.from_numpy(d_k_np.copy()), d_k_ref),
+        passed=max_diff(torch.from_numpy(d_k_np.copy()), d_k_ref.to(dtype=torch.float32)) <= 1e-2,
+        max_diff=max_diff(torch.from_numpy(d_k_np.copy()), d_k_ref.to(dtype=torch.float32)),
         tolerance=1e-2,
         pytorch_time=None,
         kernel_time=None
@@ -244,8 +244,8 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
 
     report.add_result(TestResult(
         name="d_v",
-        passed=max_diff(torch.from_numpy(d_v_np.copy()), d_v_ref) <= 1e-2,
-        max_diff=max_diff(torch.from_numpy(d_v_np.copy()), d_v_ref),
+        passed=max_diff(torch.from_numpy(d_v_np.copy()), d_v_ref.to(dtype=torch.float32)) <= 1e-2,
+        max_diff=max_diff(torch.from_numpy(d_v_np.copy()), d_v_ref.to(dtype=torch.float32)),
         tolerance=1e-2,
         pytorch_time=None,
         kernel_time=None

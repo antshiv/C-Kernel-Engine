@@ -65,11 +65,11 @@ def run_forward_tests(T=64, D=128, warmup=10, iterations=500):
     W2_bf = float32_to_bf16(W2_np)
     b2_bf = float32_to_bf16(b2_np)
 
-    x = torch.from_numpy(x_np.copy())
-    W1 = torch.from_numpy(W1_np.copy())
-    b1 = torch.from_numpy(b1_np.copy())
-    W2 = torch.from_numpy(W2_np.copy())
-    b2 = torch.from_numpy(b2_np.copy())
+    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
+    W1 = torch.from_numpy(W1_np.copy()).to(dtype=torch.bfloat16)
+    b1 = torch.from_numpy(b1_np.copy()).to(dtype=torch.bfloat16)
+    W2 = torch.from_numpy(W2_np.copy()).to(dtype=torch.bfloat16)
+    b2 = torch.from_numpy(b2_np.copy()).to(dtype=torch.bfloat16)
 
     report = TestReport(
         test_name="MLP Forward (BF16)",
@@ -99,7 +99,7 @@ def run_forward_tests(T=64, D=128, warmup=10, iterations=500):
 
     c_mlp()
     out = torch.from_numpy(out_np.copy())
-    diff = max_diff(out, ref)
+    diff = max_diff(out, ref.to(dtype=torch.float32))
 
     report.add_result(TestResult(
         name="MLP Forward",

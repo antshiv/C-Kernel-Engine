@@ -72,8 +72,8 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
 
     x_bf16 = float32_to_bf16(x_np)
 
-    x = torch.from_numpy(x_np.copy())
-    gamma = torch.from_numpy(gamma_np.copy())
+    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
+    gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
 
     report = TestReport(
         test_name="RMSNorm Forward (BF16)",
@@ -98,7 +98,7 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
 
     c_rmsnorm()
     out = torch.from_numpy(bf16_to_float32(out_bf16.copy()))
-    diff = max_diff(out, pytorch_out)
+    diff = max_diff(out, pytorch_out.to(dtype=torch.float32))
 
     report.add_result(TestResult(
         name="RMSNorm",
@@ -118,9 +118,9 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     gamma_np = np.random.randn(D).astype(np.float32)
     upstream_np = np.random.randn(T, D).astype(np.float32)
 
-    x = torch.from_numpy(x_np.copy())
-    gamma = torch.from_numpy(gamma_np.copy())
-    upstream = torch.from_numpy(upstream_np.copy())
+    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
+    gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
+    upstream = torch.from_numpy(upstream_np.copy()).to(dtype=torch.bfloat16)
 
     def pytorch_fwd_bwd():
         x_ref = x.clone().detach().requires_grad_(True)
@@ -171,15 +171,15 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
         tolerance=1e-2,
         pytorch_time=time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch"),
         kernel_time=time_function(
-        lambda: lib.rmsnorm_backward_bf16(
-            numpy_to_uint16_ptr(upstream_bf16),
-            numpy_to_uint16_ptr(x_bf16),
-            numpy_to_ptr(gamma_np),
-            numpy_to_ptr(rstd_np),
-            numpy_to_uint16_ptr(dx_bf16),
-            numpy_to_ptr(dgamma_np),
-            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
-        ),
+            lambda: lib.rmsnorm_backward_bf16(
+                numpy_to_uint16_ptr(upstream_bf16),
+                numpy_to_uint16_ptr(x_bf16),
+                numpy_to_ptr(gamma_np),
+                numpy_to_ptr(rstd_np),
+                numpy_to_uint16_ptr(dx_bf16),
+                numpy_to_ptr(dgamma_np),
+                ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
+            ),
             warmup=warmup, iterations=iterations, name="C RMSNorm BF16 Bwd"
         )
     ))

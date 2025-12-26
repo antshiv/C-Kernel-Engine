@@ -163,8 +163,8 @@ ck-emit: emit
 $(LIB_GELU): $(BUILD_DIR) src/kernels/gelu_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/gelu_kernels.c -lm
 
-$(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c -lm
+$(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c -lm
 
 $(LIB_LN): $(BUILD_DIR) src/kernels/layernorm_kernels.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/layernorm_kernels.c -lm

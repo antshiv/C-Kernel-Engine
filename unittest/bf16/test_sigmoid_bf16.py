@@ -63,7 +63,7 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
     x_ptr = numpy_to_uint16_ptr(x_bf16)
     out_ptr = numpy_to_uint16_ptr(out_bf16)
 
-    x = torch.from_numpy(x_np.copy())
+    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
     report = TestReport(
         test_name="Sigmoid Forward",
         dtype="bf16",
@@ -74,14 +74,14 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
     def pytorch_sigmoid():
         return torch.sigmoid(x)
 
-    pytorch_ref = pytorch_sigmoid()
+    pytorch_ref = pytorch_sigmoid().to(dtype=torch.bfloat16)
 
     def c_sigmoid():
         lib.sigmoid_forward_bf16(x_ptr, out_ptr, ctypes.c_size_t(N))
 
     c_sigmoid()
     out_fp32 = torch.from_numpy(bf16_to_float32(out_bf16.copy()))
-    diff = max_diff(out_fp32, pytorch_ref)
+    diff = max_diff(out_fp32, pytorch_ref.to(dtype=torch.float32))
 
     report.add_result(TestResult(
         name="Sigmoid",
@@ -109,8 +109,8 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     upstream_ptr = numpy_to_uint16_ptr(upstream_bf16)
     dx_ptr = numpy_to_uint16_ptr(dx_bf16)
 
-    x = torch.from_numpy(x_np.copy())
-    upstream = torch.from_numpy(upstream_np.copy())
+    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
+    upstream = torch.from_numpy(upstream_np.copy()).to(dtype=torch.bfloat16)
 
     report = TestReport(
         test_name="Sigmoid Backward",
