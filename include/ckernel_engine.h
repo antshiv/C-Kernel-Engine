@@ -253,6 +253,18 @@ void attention_forward_causal_head_major_gqa(const float *q,
                                          int aligned_head_dim,
                                          int aligned_context_window);
 
+void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
+                                                  const uint16_t *k,
+                                                  const uint16_t *v,
+                                                  float *scores,
+                                                  float *output,
+                                                  int num_heads,
+                                                  int num_kv_heads,
+                                                  int num_tokens,
+                                                  int head_dim,
+                                                  int aligned_head_dim,
+                                                  int aligned_context_window);
+
 // MLP forward kernel (FC1 -> GELU -> FC2), generic token-parallel version.
 void mlp_token_parallel(const float *input,
                         const float *W_fc1,
@@ -264,6 +276,17 @@ void mlp_token_parallel(const float *input,
                         int T,
                         int aligned_dim,
                         int num_threads);
+
+void mlp_token_parallel_bf16(const uint16_t *input,
+                             const uint16_t *W_fc1,
+                             const uint16_t *b_fc1,
+                             const uint16_t *W_fc2,
+                             const uint16_t *b_fc2,
+                             float *fc1_output,
+                             float *output,
+                             int T,
+                             int aligned_dim,
+                             int num_threads);
 
 // MLP FC1/FC2 backward kernels (generic), adapted from C-Transformer.
 void fc2_backward_kernel(const float *d_output,
@@ -299,6 +322,15 @@ void sigmoid_backward(const float *input,
                       const float *d_output,
                       float *d_input,
                       size_t n);
+
+void sigmoid_forward_bf16(const uint16_t *input,
+                          uint16_t *output,
+                          size_t n);
+
+void sigmoid_backward_bf16(const uint16_t *input,
+                           const uint16_t *d_output,
+                           uint16_t *d_input,
+                           size_t n);
 
 // SwiGLU activation kernels (forward + backward).
 // Input layout per token: [gate[0..D-1], value[0..D-1]], size 2*D.
@@ -344,6 +376,24 @@ void attention_backward_causal_head_major(
     float *d_v,
     float *d_scores,
     int num_heads,
+    int num_tokens,
+    int head_dim,
+    int aligned_head_dim,
+    int aligned_context_window);
+
+void attention_backward_causal_head_major_gqa_bf16(
+    const uint16_t *d_output,
+    float *d_x,
+    const uint16_t *q,
+    const uint16_t *k,
+    const uint16_t *v,
+    const float *attn_weights,
+    float *d_q,
+    float *d_k,
+    float *d_v,
+    float *d_scores,
+    int num_heads,
+    int num_kv_heads,
     int num_tokens,
     int head_dim,
     int aligned_head_dim,

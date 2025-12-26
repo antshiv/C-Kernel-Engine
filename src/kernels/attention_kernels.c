@@ -1,5 +1,19 @@
+#include "bf16_utils.h"
 #include "ckernel_engine.h"
 #include <math.h>
+#include <stdlib.h>
+
+static float *convert_bf16_tensor(const uint16_t *src, size_t count)
+{
+    float *dst = (float *)malloc(count * sizeof(float));
+    if (!dst) {
+        return NULL;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        dst[i] = bf16_to_float(src[i]);
+    }
+    return dst;
+}
 
 // Helpers for head-major layouts used in attention.
 // Q/K/V layout: [head][token][head_dim] with stride aligned_head_dim.
@@ -165,6 +179,46 @@ void attention_forward_causal_head_major_gqa(const float *q,
             }
         }
     }
+}
+
+void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
+                                                  const uint16_t *k,
+                                                  const uint16_t *v,
+                                                  float *scores,
+                                                  float *output,
+                                                  int num_heads,
+                                                  int num_kv_heads,
+                                                  int num_tokens,
+                                                  int head_dim,
+                                                  int aligned_head_dim,
+                                                  int aligned_context_window)
+{
+    const size_t q_elems = (size_t)num_heads * (size_t)num_tokens * (size_t)aligned_head_dim;
+    const size_t kv_elems = (size_t)num_kv_heads * (size_t)num_tokens * (size_t)aligned_head_dim;
+
+    float *q_float = convert_bf16_tensor(q, q_elems);
+    if (!q_float) return;
+    float *k_float = convert_bf16_tensor(k, kv_elems);
+    if (!k_float) {
+        free(q_float);
+        return;
+    }
+    float *v_float = convert_bf16_tensor(v, kv_elems);
+    if (!v_float) {
+        free(q_float);
+        free(k_float);
+        return;
+    }
+
+    attention_forward_causal_head_major_gqa(q_float, k_float, v_float,
+                                            scores, output,
+                                            num_heads, num_kv_heads,
+                                            num_tokens, head_dim,
+                                            aligned_head_dim, aligned_context_window);
+
+    free(q_float);
+    free(k_float);
+    free(v_float);
 }
 
 // ============================================================================

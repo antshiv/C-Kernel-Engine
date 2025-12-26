@@ -587,11 +587,15 @@ static int codegen_and_compile(CKConfig *cfg) {
     snprintf(model_c, sizeof(model_c), "%s/model.c", cfg->cache_dir);
     snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
 
-    /* Check if already compiled */
-    if (file_exists(model_so)) {
+    /* Check if already compiled (unless force_convert is set) */
+    if (file_exists(model_so) && !cfg->force_convert) {
         /* TODO: Check if config changed */
         log_ok("Model already compiled");
         return 0;
+    }
+
+    if (cfg->force_convert && file_exists(model_so)) {
+        log_info("Force recompiling model...");
     }
 
     log_info("Generating model code...");
