@@ -35,14 +35,16 @@ void rope_precompute_cache(float *cos_cache,
 {
     int half_dim = head_dim / 2;
 
-    double base_d = (double)base;
-    double head_dim_d = (double)head_dim;
+    long double base_ld = (long double)base;
+    long double head_dim_ld = (long double)head_dim;
+    long double log_base = logl(base_ld);
     for (int pos = 0; pos < max_seq_len; ++pos) {
         for (int i = 0; i < half_dim; ++i) {
-            double theta = 1.0 / pow(base_d, (double)(2 * i) / head_dim_d);
-            double angle = (double)pos * theta;
-            cos_cache[pos * half_dim + i] = (float)cos(angle);
-            sin_cache[pos * half_dim + i] = (float)sin(angle);
+            long double exponent = ((long double)(2 * i)) / head_dim_ld;
+            long double freq = expl(-exponent * log_base);
+            long double angle = (long double)pos * freq;
+            cos_cache[pos * half_dim + i] = (float)cosl(angle);
+            sin_cache[pos * half_dim + i] = (float)sinl(angle);
         }
     }
 }
