@@ -83,6 +83,7 @@ typedef struct {
     bool force_download;
     bool force_convert;
     bool debug;              /* Run pre-flight checks and show diagnostics */
+    char prompt[4096];       /* Optional prompt for non-interactive mode */
 
     /* Model info (parsed from config.json) */
     ModelArch arch;
@@ -146,6 +147,7 @@ static void print_usage(void) {
     printf("  --port <port>     Server port (default: 8080)\n");
     printf("  --temp <float>    Temperature (default: 0.7)\n");
     printf("  --max-tokens <n>  Max tokens to generate (default: 512)\n");
+    printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
     printf("  --force-convert   Re-convert weights\n");
     printf("  --verbose         Verbose output\n");
@@ -945,129 +947,43 @@ static int run_chat(CKConfig *cfg) {
     printf(C_ORANGE "  └─────────────────────────────────────────────────────────┘\n" C_RESET);
     printf("\n");
 
-    /* Load the compiled model library */
-    char model_so[MAX_PATH];
-    snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
+    /* Use Python chat script with proper tokenizer */
+    char cmd[MAX_CMD];
 
-    if (!file_exists(model_so)) {
-        log_error("Model library not found. Compilation may have failed.");
-        return -1;
-    }
+    /* Find the scripts directory - try relative to executable or cwd */
+    const char *script_paths[] = {
+        "./scripts/ck_chat.py",
+        "../scripts/ck_chat.py",
+        "scripts/ck_chat.py",
+        NULL
+    };
 
-    void *lib = dlopen(model_so, RTLD_NOW);
-    if (!lib) {
-        fprintf(stderr, C_RED "[ERROR]" C_RESET " Failed to load model: %s\n", dlerror());
-        return -1;
-    }
-
-    /* Load function pointers */
-    ck_model_init_fn model_init = (ck_model_init_fn)dlsym(lib, "ck_model_init");
-    ck_model_embed_tokens_fn model_embed = (ck_model_embed_tokens_fn)dlsym(lib, "ck_model_embed_tokens");
-    ck_model_forward_fn model_forward = (ck_model_forward_fn)dlsym(lib, "ck_model_forward");
-    ck_model_get_logits_fn model_get_logits = (ck_model_get_logits_fn)dlsym(lib, "ck_model_get_logits");
-    ck_model_free_fn model_free = (ck_model_free_fn)dlsym(lib, "ck_model_free");
-    ck_model_get_vocab_size_fn model_get_vocab_size = (ck_model_get_vocab_size_fn)dlsym(lib, "ck_model_get_vocab_size");
-    ck_model_get_context_window_fn model_get_ctx = (ck_model_get_context_window_fn)dlsym(lib, "ck_model_get_context_window");
-
-    if (!model_init || !model_embed || !model_forward || !model_get_logits || !model_free) {
-        log_error("Failed to load model API functions");
-        dlclose(lib);
-        return -1;
-    }
-
-    log_info("Loading model weights...");
-
-    int ret = model_init(cfg->weights_path);
-    if (ret != 0) {
-        fprintf(stderr, C_RED "[ERROR]" C_RESET " Failed to initialize model (code %d)\n", ret);
-        dlclose(lib);
-        return -1;
-    }
-
-    int vocab_size = model_get_vocab_size ? model_get_vocab_size() : cfg->vocab_size;
-    int ctx_window = model_get_ctx ? model_get_ctx() : 2048;
-
-    log_ok("Model loaded!");
-    printf(C_DIM "  Vocab: %d | Context: %d\n" C_RESET, vocab_size, ctx_window);
-    printf("\n");
-    printf(C_DIM "  Type your message and press Enter. Commands: /help, /exit\n" C_RESET);
-    printf(C_DIM "  (Note: Tokenizer not yet integrated - using char-level tokens)\n" C_RESET);
-    printf("\n");
-
-    /* Simple chat loop - using character-level "tokens" as placeholder */
-    char input[4096];
-    int32_t tokens[2048];
-
-    while (1) {
-        printf(C_GREEN "You: " C_RESET);
-        fflush(stdout);
-
-        if (!fgets(input, sizeof(input), stdin)) break;
-
-        /* Remove trailing newline */
-        size_t len = strlen(input);
-        if (len > 0 && input[len-1] == '\n') input[--len] = '\0';
-        if (len == 0) continue;
-
-        /* Check for commands */
-        if (strcmp(input, "/exit") == 0 || strcmp(input, "/quit") == 0) break;
-        if (strcmp(input, "/help") == 0) {
-            printf(C_DIM "  Commands: /exit, /help\n" C_RESET);
-            continue;
+    const char *script = NULL;
+    for (int i = 0; script_paths[i]; i++) {
+        if (file_exists(script_paths[i])) {
+            script = script_paths[i];
+            break;
         }
-
-        /* Placeholder: convert chars to token IDs (proper tokenizer TODO) */
-        int num_tokens = 0;
-        for (size_t i = 0; i < len && num_tokens < ctx_window - cfg->max_tokens; i++) {
-            tokens[num_tokens++] = (int32_t)(unsigned char)input[i];
-        }
-
-        /* Embed and run forward */
-        model_embed(tokens, num_tokens);
-        model_forward(NULL);
-
-        /* Get logits and generate tokens */
-        printf(C_BLUE "Assistant: " C_RESET);
-        fflush(stdout);
-
-        for (int i = 0; i < cfg->max_tokens; i++) {
-            float *logits = model_get_logits();
-            if (!logits) break;
-
-            /* Get logits for last position */
-            float *last_logits = logits + (num_tokens - 1) * vocab_size;
-
-            /* Sample next token */
-            int next_token = sample_top_k(last_logits, vocab_size, 40, cfg->temperature);
-
-            /* Check for EOS (token 0 or 2 typically) */
-            if (next_token <= 2) break;
-
-            /* Print token (placeholder - just print ID for now) */
-            if (next_token < 128) {
-                printf("%c", (char)next_token);
-            } else {
-                printf("[%d]", next_token);
-            }
-            fflush(stdout);
-
-            /* Add token to sequence */
-            if (num_tokens < ctx_window) {
-                tokens[num_tokens++] = next_token;
-                model_embed(tokens, num_tokens);
-                model_forward(NULL);
-            } else {
-                break;  /* Context full */
-            }
-        }
-        printf("\n\n");
     }
 
-    model_free();
-    dlclose(lib);
+    if (!script) {
+        log_error("Chat script not found. Please run from the C-Kernel-Engine directory.");
+        return -1;
+    }
 
-    printf(C_DIM "Goodbye!\n" C_RESET);
-    return 0;
+    if (cfg->prompt[0] != '\0') {
+        /* Non-interactive mode with prompt */
+        snprintf(cmd, sizeof(cmd),
+            "python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d --prompt '%s'",
+            script, cfg->cache_dir, cfg->temperature, cfg->max_tokens, cfg->prompt);
+    } else {
+        /* Interactive mode */
+        snprintf(cmd, sizeof(cmd),
+            "python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d",
+            script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
+    }
+
+    return system(cmd);
 }
 
 static int run_server(CKConfig *cfg) {
@@ -1336,6 +1252,9 @@ int main(int argc, char *argv[]) {
             } else if (strcmp(argv[i], "--debug") == 0) {
                 cfg.debug = true;
                 cfg.verbose = true;  /* Debug implies verbose */
+            } else if (strcmp(argv[i], "--prompt") == 0 && i + 1 < argc) {
+                strncpy(cfg.prompt, argv[++i], sizeof(cfg.prompt) - 1);
+                cfg.prompt[sizeof(cfg.prompt) - 1] = '\0';
             }
         }
 

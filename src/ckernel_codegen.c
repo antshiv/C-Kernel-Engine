@@ -215,6 +215,28 @@ static void emit_shape_expr(FILE *out, const CKDimToken *shape)
     }
 }
 
+static void emit_bump_bytes_assignment(FILE *out,
+                                      const char *indent,
+                                      const char *struct_prefix,
+                                      const char *name,
+                                      const CKDimToken *shape)
+{
+    fprintf(out, "%s%s%s_offset = bump_bytes(&off, (", indent, struct_prefix, name);
+    emit_shape_expr(out, shape);
+    fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+}
+
+static void emit_training_conditional_assignment(FILE *out,
+                                                 const char *indent,
+                                                 const char *struct_prefix,
+                                                 const char *name,
+                                                 const CKDimToken *shape)
+{
+    fprintf(out, "%s%s%s_offset = m->training_enabled ? bump_bytes(&off, (", indent, struct_prefix, name);
+    emit_shape_expr(out, shape);
+    fprintf(out, ") * elem_bytes, CACHELINE_BYTES) : 0;\n");
+}
+
 static void emit_global_allocations(FILE *out)
 {
     for (size_t i = 0; i < ck_decoder_buffer_count; ++i) {
@@ -226,13 +248,7 @@ static void emit_global_allocations(FILE *out)
             continue;
         }
         if (spec->role == CK_ROLE_GRAD) {
-            fprintf(out, "    if (m->training_enabled) {\n");
-            fprintf(out, "        m->%s_offset = bump_bytes(&off, (", spec->name);
-            emit_shape_expr(out, spec->shape);
-            fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
-            fprintf(out, "    } else {\n");
-            fprintf(out, "        m->%s_offset = 0;\n", spec->name);
-            fprintf(out, "    }\n");
+            emit_training_conditional_assignment(out, "    ", "m->", spec->name, spec->shape);
             continue;
         }
         if (spec->alias_of) {
@@ -252,9 +268,7 @@ static void emit_global_allocations(FILE *out)
             fprintf(out, "    }\n");
             continue;
         }
-        fprintf(out, "    m->%s_offset = bump_bytes(&off, (", spec->name);
-        emit_shape_expr(out, spec->shape);
-        fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+        emit_bump_bytes_assignment(out, "    ", "m->", spec->name, spec->shape);
     }
 }
 
@@ -269,18 +283,10 @@ static void emit_layer_allocations(FILE *out)
             continue;
         }
         if (spec->role == CK_ROLE_GRAD) {
-            fprintf(out, "        if (m->training_enabled) {\n");
-            fprintf(out, "            L->%s_offset = bump_bytes(&off, (", spec->name);
-            emit_shape_expr(out, spec->shape);
-            fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
-            fprintf(out, "        } else {\n");
-            fprintf(out, "            L->%s_offset = 0;\n", spec->name);
-            fprintf(out, "        }\n");
+            emit_training_conditional_assignment(out, "        ", "L->", spec->name, spec->shape);
             continue;
         }
-        fprintf(out, "        L->%s_offset = bump_bytes(&off, (", spec->name);
-        emit_shape_expr(out, spec->shape);
-        fprintf(out, ") * elem_bytes, CACHELINE_BYTES);\n");
+        emit_bump_bytes_assignment(out, "        ", "L->", spec->name, spec->shape);
     }
 }
 
