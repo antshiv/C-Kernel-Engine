@@ -967,8 +967,15 @@ static int run_chat(CKConfig *cfg) {
     }
 
     if (!script) {
-        log_error("Chat script not found. Please run from the C-Kernel-Engine directory.");
+        log_error("Chat script not found (scripts/ck_chat.py)");
+        printf(C_DIM "  Searched: ./scripts/ck_chat.py, ../scripts/ck_chat.py\n" C_RESET);
+        printf(C_DIM "  Current directory: %s\n" C_RESET, getcwd(NULL, 0));
+        printf(C_DIM "  Please run from the C-Kernel-Engine directory.\n" C_RESET);
         return -1;
+    }
+
+    if (cfg->verbose) {
+        printf(C_DIM "  Using script: %s\n" C_RESET, script);
     }
 
     if (cfg->prompt[0] != '\0') {
@@ -983,7 +990,17 @@ static int run_chat(CKConfig *cfg) {
             script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
     }
 
-    return system(cmd);
+    if (cfg->verbose) {
+        printf(C_DIM "  Command: %s\n" C_RESET, cmd);
+    }
+
+    int ret = system(cmd);
+    if (ret != 0) {
+        log_error("Chat script failed");
+        printf(C_DIM "  Exit code: %d\n" C_RESET, ret);
+        printf(C_DIM "  Try: pip install tokenizers numpy\n" C_RESET);
+    }
+    return ret;
 }
 
 static int run_server(CKConfig *cfg) {
