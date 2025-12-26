@@ -256,6 +256,64 @@ void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
 // For GQA: multiple query heads share the same KV head, so we accumulate
 // gradients from all query heads that map to each KV head.
 //
+void attention_backward_causal_head_major_gqa_bf16(
+    const uint16_t *d_output,      // [num_heads, T, aligned_head_dim]
+    float *d_x,                    // [num_heads, T, aligned_head_dim]
+    const uint16_t *q,             // [num_heads, T, aligned_head_dim]
+    const uint16_t *k,             // [num_kv_heads, T, aligned_head_dim]
+    const uint16_t *v,             // [num_kv_heads, T, aligned_head_dim]
+    const float *attn_weights,     // [num_heads, T, aligned_context_window]
+    float *d_q,                    // [num_heads, T, aligned_head_dim] output
+    float *d_k,                    // [num_kv_heads, T, aligned_head_dim] output
+    float *d_v,                    // [num_kv_heads, T, aligned_head_dim] output
+    float *d_scores,               // [num_heads, T, aligned_context_window] scratch
+    int num_heads,
+    int num_kv_heads,
+    int num_tokens,
+    int head_dim,
+    int aligned_head_dim,
+    int aligned_context_window)
+{
+    (void)d_x;
+    const size_t head_elems = (size_t)num_heads * (size_t)num_tokens * (size_t)aligned_head_dim;
+    const size_t kv_elems = (size_t)num_kv_heads * (size_t)num_tokens * (size_t)aligned_head_dim;
+
+    float *d_output_f = convert_bf16_tensor(d_output, head_elems);
+    if (!d_output_f) {
+        return;
+    }
+    float *q_f = convert_bf16_tensor(q, head_elems);
+    if (!q_f) {
+        free(d_output_f);
+        return;
+    }
+    float *k_f = convert_bf16_tensor(k, kv_elems);
+    if (!k_f) {
+        free(d_output_f);
+        free(q_f);
+        return;
+    }
+    float *v_f = convert_bf16_tensor(v, kv_elems);
+    if (!v_f) {
+        free(d_output_f);
+        free(q_f);
+        free(k_f);
+        return;
+    }
+
+    attention_backward_causal_head_major_gqa(d_output_f, q_f, k_f, v_f,
+                                             attn_weights,
+                                             d_q, d_k, d_v, d_scores,
+                                             num_heads, num_kv_heads,
+                                             num_tokens, head_dim,
+                                             aligned_head_dim, aligned_context_window);
+
+    free(d_output_f);
+    free(q_f);
+    free(k_f);
+    free(v_f);
+}
+
 void attention_backward_causal_head_major_gqa(
     const float *d_output,      // [num_heads, T, aligned_head_dim]
     const float *q,             // [num_heads, T, aligned_head_dim]
@@ -281,20 +339,15 @@ void attention_backward_causal_head_major_gqa(
     int ad = aligned_head_dim;
     int aw = aligned_context_window;
 
-    // Zero d_k and d_v (we accumulate from multiple query heads for GQA)
-    for (int kv_h = 0; kv_h < H_kv; ++kv_h) {
-        for (int t = 0; t < T; ++t) {
-            size_t base = qkv_index(kv_h, t, 0, T, ad);
-            for (int i = 0; i < hd; ++i) {
-                d_k[base + i] = 0.0f;
-                d_v[base + i] = 0.0f;
-            }
-            /* Keep the padded lanes quiet so downstream GEMMs don't observe stale values. */
-            for (int i = hd; i < ad; ++i) {
-                d_k[base + i] = 0.0f;
-                d_v[base + i] = 0.0f;
-            }
-        }
+    const size_t d_q_elems = (size_t)H * (size_t)T * (size_t)ad;
+    const size_t kv_elems = (size_t)H_kv * (size_t)T * (size_t)ad;
+    /* Zero the aligned outputs so padded lanes never leak garbage to downstream GEMMs. */
+    for (size_t idx = 0; idx < d_q_elems; ++idx) {
+        d_q[idx] = 0.0f;
+    }
+    for (size_t idx = 0; idx < kv_elems; ++idx) {
+        d_k[idx] = 0.0f;
+        d_v[idx] = 0.0f;
     }
 
     // Process each query head
@@ -372,15 +425,6 @@ void attention_backward_causal_head_major_gqa(
         for (int i = 0; i < T; ++i) {
             size_t d_q_base = qkv_index(h, i, 0, T, ad);
             size_t q_base = qkv_index(h, i, 0, T, ad);
-
-            // Zero d_q for this position
-            for (int dd = 0; dd < hd; ++dd) {
-                d_q[d_q_base + dd] = 0.0f;
-            }
-            /* Clear padded head lanes so subsequent GEMMs only touch real values. */
-            for (int dd = hd; dd < ad; ++dd) {
-                d_q[d_q_base + dd] = 0.0f;
-            }
 
             // d_q[h, i, :] = sum_j d_scores[h, i, j] * k[kv_h, j, :] * scale
             // d_k[kv_h, j, :] += d_scores[h, i, j] * q[h, i, :] * scale

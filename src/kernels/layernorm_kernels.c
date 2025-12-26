@@ -73,15 +73,18 @@ void layernorm_naive_serial(const float *input,
             rstd_cache[t] = inv_std;
         }
         /* Keep aligned padding quiet so future GEMMs see deterministic memory. */
-        for (int i = d_model; i < aligned_embed_dim; ++i) {
-            out_ptr[i] = 0.0f;
+        if (aligned_embed_dim > d_model) {
+            /* Keep padded lanes zeroed so subsequent GEMMs never read stale data. */
+            for (int i = d_model; i < aligned_embed_dim; ++i) {
+                out_ptr[i] = 0.0f;
+            }
         }
     }
 }
 
 #if defined(__AVX512F__)
 // AVX-512 rolled slice kernel, copied from C-Transformer (model-agnostic).
-void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
+static void layernorm_forward_rolled_slice_avx512(const float *__restrict input_slice_base,
                                     const float *__restrict gamma,
                                     const float *__restrict beta,
                                     float *__restrict output_slice_base,
@@ -163,7 +166,7 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
 }
 #elif defined(__AVX2__) || defined(__AVX__)
 // AVX/AVX2 rolled slice kernel (8-float vectors).
-void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
+static void layernorm_forward_rolled_slice_avx256(const float *__restrict input_slice_base,
                                     const float *__restrict gamma,
                                     const float *__restrict beta,
                                     float *__restrict output_slice_base,
@@ -250,8 +253,8 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
         }
     }
 }
-#else
-// Scalar fallback when AVX-512 is unavailable.
+#endif
+
 void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
                                     const float *__restrict gamma,
                                     const float *__restrict beta,
@@ -263,18 +266,27 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
                                     int aligned_embed_dim,
                                     float eps)
 {
+#if defined(__AVX512F__)
+    layernorm_forward_rolled_slice_avx512(input_slice_base, gamma, beta,
+                                           output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                           num_tokens_in_slice, d_model, aligned_embed_dim, eps);
+#elif defined(__AVX2__) || defined(__AVX__)
+    layernorm_forward_rolled_slice_avx256(input_slice_base, gamma, beta,
+                                           output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                           num_tokens_in_slice, d_model, aligned_embed_dim, eps);
+#else
     layernorm_naive_serial(input_slice_base, gamma, beta,
                            output_slice_base, mean_cache_slice, rstd_cache_slice,
                            num_tokens_in_slice, d_model, aligned_embed_dim, eps);
-}
 #endif
+}
 
 #if defined(__AVX512F__)
 // AVX-512 unrolled slice kernel, copied from C-Transformer (model-agnostic).
-void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
-                                      const float *__restrict gamma,
-                                      const float *__restrict beta,
-                                      float *__restrict output_slice_base,
+static void layernorm_forward_unrolled_slice_avx512(const float *__restrict input_slice_base,
+                                    const float *__restrict gamma,
+                                    const float *__restrict beta,
+                                    float *__restrict output_slice_base,
                                       float *__restrict mean_cache_slice,
                                       float *__restrict rstd_cache_slice,
                                       int num_tokens_in_slice,
@@ -404,10 +416,10 @@ void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
 }
 #elif defined(__AVX2__) || defined(__AVX__)
 // AVX/AVX2 unrolled slice kernel (8-float vectors).
-void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
-                                      const float *__restrict gamma,
-                                      const float *__restrict beta,
-                                      float *__restrict output_slice_base,
+static void layernorm_forward_unrolled_slice_avx256(const float *__restrict input_slice_base,
+                                    const float *__restrict gamma,
+                                    const float *__restrict beta,
+                                    float *__restrict output_slice_base,
                                       float *__restrict mean_cache_slice,
                                       float *__restrict rstd_cache_slice,
                                       int num_tokens_in_slice,
@@ -551,7 +563,7 @@ void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
 }
 #else
 // Scalar fallback when AVX-512 is unavailable.
-void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
+static void layernorm_forward_unrolled_slice_scalar(const float *__restrict input_slice_base,
                                       const float *__restrict gamma,
                                       const float *__restrict beta,
                                       float *__restrict output_slice_base,
@@ -566,6 +578,31 @@ void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
                                              num_tokens_in_slice, d_model, eps);
 }
 #endif
+
+void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
+                                      const float *__restrict gamma,
+                                      const float *__restrict beta,
+                                      float *__restrict output_slice_base,
+                                      float *__restrict mean_cache_slice,
+                                      float *__restrict rstd_cache_slice,
+                                      int num_tokens_in_slice,
+                                      int d_model,
+                                      float eps)
+{
+#if defined(__AVX512F__)
+    layernorm_forward_unrolled_slice_avx512(input_slice_base, gamma, beta,
+                                             output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                             num_tokens_in_slice, d_model, eps);
+#elif defined(__AVX2__) || defined(__AVX__)
+    layernorm_forward_unrolled_slice_avx256(input_slice_base, gamma, beta,
+                                             output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                             num_tokens_in_slice, d_model, eps);
+#else
+    layernorm_forward_unrolled_slice_scalar(input_slice_base, gamma, beta,
+                                            output_slice_base, mean_cache_slice, rstd_cache_slice,
+                                            num_tokens_in_slice, d_model, eps);
+#endif
+}
 
 // Precision-matched naive LayerNorm used for benchmarking, copied from C-Transformer.
 void layernorm_naive_serial_matched_precision(const float *input,

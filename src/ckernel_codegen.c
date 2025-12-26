@@ -232,6 +232,7 @@ static void emit_training_conditional_assignment(FILE *out,
                                                  const char *name,
                                                  const CKDimToken *shape)
 {
+    /* Allocate gradient buffers only if training is enabled at init time */
     fprintf(out, "%s%s%s_offset = m->training_enabled ? bump_bytes(&off, (", indent, struct_prefix, name);
     emit_shape_expr(out, shape);
     fprintf(out, ") * elem_bytes, CACHELINE_BYTES) : 0;\n");
@@ -816,6 +817,12 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
             "    g_model.rope_theta = (float)%.9g;\n"
             "    g_model.num_cores = 1;\n"
             "    g_model.task_type = TASK_LM;\n"
+            "    /* Check env var to pre-allocate gradient buffers for training */\n"
+            "    const char *train_env = getenv(\"CK_ENABLE_TRAINING\");\n"
+            "    if (train_env && (train_env[0] == '1' || train_env[0] == 'y' || train_env[0] == 'Y')) {\n"
+            "        g_model.training_enabled = true;\n"
+            "        g_model.learning_rate = 1e-4f;\n"
+            "    }\n"
             "    if (layout_model(&g_model) != 0) return -1;\n"
             "    if (weights_path) {\n"
             "        if (load_model_weights(weights_path, &g_model) != 0) return -2;\n"
@@ -906,7 +913,26 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
             "CK_EXPORT int ck_model_get_context_window(void) { return g_initialized ? g_model.context_window : 0; }\n"
             "CK_EXPORT int ck_model_get_vocab_size(void) { return g_initialized ? g_model.vocab_size : 0; }\n"
             "CK_EXPORT int ck_model_get_hidden_size(void) { return g_initialized ? g_model.embed_dim : 0; }\n"
-            "CK_EXPORT int ck_model_get_active_tokens(void) { return g_initialized ? g_model.active_tokens : 0; }\n\n");
+            "CK_EXPORT int ck_model_get_active_tokens(void) { return g_initialized ? g_model.active_tokens : 0; }\n"
+            "CK_EXPORT int ck_model_is_training_enabled(void) { return g_initialized ? g_model.training_enabled : 0; }\n"
+            "CK_EXPORT void ck_model_set_learning_rate(float lr) { if (g_initialized) g_model.learning_rate = lr; }\n"
+            "CK_EXPORT float ck_model_get_learning_rate(void) { return g_initialized ? g_model.learning_rate : 0.0f; }\n\n"
+            "CK_EXPORT int ck_model_enable_training(float learning_rate)\n"
+            "{\n"
+            "    if (!g_initialized) return -1;\n"
+            "    g_model.training_enabled = true;\n"
+            "    g_model.learning_rate = learning_rate;\n"
+            "    return 0;\n"
+            "}\n\n"
+            "CK_EXPORT void ck_model_disable_training(void)\n"
+            "{\n"
+            "    if (g_initialized) g_model.training_enabled = false;\n"
+            "}\n\n"
+            "CK_EXPORT void ck_model_optimizer_step(void)\n"
+            "{\n"
+            "    if (!g_initialized || !g_model.training_enabled) return;\n"
+            "    sgd_update(&g_model, g_model.learning_rate);\n"
+            "}\n\n");
 }
 
 int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMode mode)
@@ -1116,7 +1142,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMo
             "    if (!m || !m->training_enabled) return 0;\n"
             "    if (!tokens || !targets) return -1;\n"
             "    if (m->num_layers <= 0) return -1;\n"
-            "    int T = m->context_window;\n"
+            "    int T = m->active_tokens > 0 ? m->active_tokens : m->context_window;\n"
             "    int V = m->vocab_size;\n"
             "    int D = m->embed_dim;\n"
             "    int aligned_D = (int)m->aligned_embed_dim;\n"
@@ -1245,7 +1271,7 @@ int ck_codegen_emit_runtime(const CKIRGraph *forward, const char *path, CKEmitMo
             "                           m->rope_theta <= 0.0f);\n"
             "    }\n"
             "\n"
-            "    sgd_update(m, m->learning_rate);\n"
+            "    /* SGD update is now called separately via optimizer_step() */\n"
             "    return 0;\n"
             "}\n\n");
 

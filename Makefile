@@ -118,6 +118,11 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_orchestration_layer.py \
             unittest/test_lm_head_litmus.py
 
+PY_TESTS_BF16 := unittest/bf16/test_sigmoid_bf16.py \
+                unittest/bf16/test_rmsnorm_bf16.py \
+                unittest/bf16/test_mlp_bf16.py \
+                unittest/bf16/test_attention_bf16.py
+
 LITMUS_DEMO_ARGS ?= --vocab 100 --ctx 100 --embed 64 --intermediate 128 --heads 4 --kv-heads 2
 LITMUS_DEMO_SVG ?= $(BUILD_DIR)/litmus_report.svg
 LITMUS_DEMO_LOG ?= $(BUILD_DIR)/litmus_demo.log
@@ -231,6 +236,14 @@ test: $(LIB) test-libs
 	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
 	done; \
 	echo "All Python kernel tests completed."
+
+test-bf16: $(LIB) test-libs
+	@set -e; \
+	for t in $(PY_TESTS_BF16); do \
+	  echo "Running $$t"; \
+	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
+	done; \
+	echo "BF16 Python kernel tests completed."
 
 rope-test: $(LIB) test-libs
 	$(PYTHON) $(PYTHONFLAGS) unittest/test_rope.py
@@ -484,6 +497,11 @@ help:
 	@echo "  unittest/test_swiglu.py      - SwiGLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_relu.py        - ReLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_orchestration_layer.py - Full layer forward stitch vs PyTorch (GQA/MHA)"
+	@echo "  unittest/bf16/test_sigmoid_bf16.py     - BF16 sigmoid forward/backward vs PyTorch"
+	@echo "  unittest/bf16/test_rmsnorm_bf16.py    - BF16 RMSNorm forward/backward vs PyTorch"
+	@echo "  unittest/bf16/test_mlp_bf16.py        - BF16 MLP forward vs PyTorch"
+	@echo "  unittest/bf16/test_attention_bf16.py  - BF16 attention forward/backward vs PyTorch"
+	@echo "  make test-bf16        - Run the BF16 kernel test suite"
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -569,4 +587,4 @@ ck-chat-py:
 ck-server-py:
 	$(PYTHON) $(PYTHONFLAGS) tools/ck_server.py --model-dir $(SMOLLM_MODEL_DIR) --context $(SMOLLM_CONTEXT)
 
-.PHONY: all clean test test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py
+.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py
