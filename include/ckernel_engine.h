@@ -125,6 +125,17 @@ void layernorm_forward_rolled_slice(const float *__restrict input_slice_base,
                                     int aligned_embed_dim,
                                     float eps);
 
+void layernorm_forward_rolled_slice_bf16(const uint16_t *__restrict input_slice_base,
+                                         const float *__restrict gamma,
+                                         const float *__restrict beta,
+                                         uint16_t *__restrict output_slice_base,
+                                         float *__restrict mean_cache_slice,
+                                         float *__restrict rstd_cache_slice,
+                                         int num_tokens_in_slice,
+                                         int d_model,
+                                         int aligned_embed_dim,
+                                         float eps);
+
 void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
                                       const float *__restrict gamma,
                                       const float *__restrict beta,
@@ -134,6 +145,16 @@ void layernorm_forward_unrolled_slice(const float *__restrict input_slice_base,
                                       int num_tokens_in_slice,
                                       int d_model,
                                       float eps);
+
+void layernorm_forward_unrolled_slice_bf16(const uint16_t *__restrict input_slice_base,
+                                           const float *__restrict gamma,
+                                           const float *__restrict beta,
+                                           uint16_t *__restrict output_slice_base,
+                                           float *__restrict mean_cache_slice,
+                                           float *__restrict rstd_cache_slice,
+                                           int num_tokens_in_slice,
+                                           int d_model,
+                                           float eps);
 
 void layernorm_naive_serial_matched_precision(const float *input,
                                               const float *gamma,
@@ -152,6 +173,16 @@ void layernorm_backward_kernel(const float *d_output,
                                float *d_gamma,
                                float *d_beta,
                                int tokens, int d_model, int aligned_embed_dim);
+
+void layernorm_backward_kernel_bf16(const uint16_t *d_output,
+                                    const uint16_t *input,
+                                    const float *gamma,
+                                    const float *mean,
+                                    const float *rstd,
+                                    uint16_t *d_input,
+                                    float *d_gamma,
+                                    float *d_beta,
+                                    int tokens, int d_model, int aligned_embed_dim);
 
 // RMSNorm forward/backward kernels.
 void rmsnorm_forward(const float *input,
@@ -204,6 +235,17 @@ void gelu_backward_fast(const float *input,
                         const float *d_output,
                         float *d_input,
                         size_t n);
+
+// BF16 variants relying on the same floating-point logic.
+void gelu_fast_inplace_bf16(uint16_t *data, size_t n);
+void gelu_backward_exact_bf16(const uint16_t *input,
+                              const uint16_t *d_output,
+                              uint16_t *d_input,
+                              size_t n);
+void gelu_backward_fast_bf16(const uint16_t *input,
+                             const uint16_t *d_output,
+                             uint16_t *d_input,
+                             size_t n);
 
 // ReLU kernels.
 void relu_forward(const float *input, float *output, size_t n);
@@ -427,6 +469,25 @@ void rope_backward(const float *d_out,
                    int head_dim,
                    int aligned_head_dim,
                    int pos_offset);
+
+void rope_forward_bf16(uint16_t *x,
+                       const float *cos_cache,
+                       const float *sin_cache,
+                       int num_heads,
+                       int num_tokens,
+                       int head_dim,
+                       int aligned_head_dim,
+                       int pos_offset);
+
+void rope_backward_bf16(const uint16_t *d_out,
+                        uint16_t *d_x,
+                        const float *cos_cache,
+                        const float *sin_cache,
+                        int num_heads,
+                        int num_tokens,
+                        int head_dim,
+                        int aligned_head_dim,
+                        int pos_offset);
 
 // RoPE backward in-place.
 void rope_backward_inplace(float *d_x,

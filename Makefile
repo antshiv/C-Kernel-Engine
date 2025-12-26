@@ -43,8 +43,10 @@ SRCS    := src/backend_native.c \
            src/ckernel_model_layout.c \
            src/ckernel_model_load.c \
             src/kernels/gemm_kernels.c \
-            src/kernels/layernorm_kernels.c \
+           src/kernels/layernorm_kernels.c \
+           src/kernels/layernorm_kernels_bf16.c \
            src/kernels/gelu_kernels.c \
+           src/kernels/gelu_kernels_bf16.c \
            src/kernels/softmax_kernels.c \
            src/kernels/attention_kernels.c \
            src/kernels/embedding_kernels.c \
@@ -56,7 +58,8 @@ SRCS    := src/backend_native.c \
            src/kernels/sigmoid_kernels.c \
            src/kernels/relu_kernels.c \
            src/kernels/vision_kernels.c \
-           src/kernels/rope_kernels.c
+           src/kernels/rope_kernels.c \
+           src/kernels/rope_kernels_bf16.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
 LIB_GELU     := $(BUILD_DIR)/libckernel_gelu.so
 LIB_RMSNORM  := $(BUILD_DIR)/libckernel_rmsnorm.so
@@ -160,14 +163,14 @@ emit: $(IR_DEMO)
 ck-emit: emit
 	@true
 
-$(LIB_GELU): $(BUILD_DIR) src/kernels/gelu_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/gelu_kernels.c -lm
+$(LIB_GELU): $(BUILD_DIR) src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c -lm
 
 $(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c -lm
 
-$(LIB_LN): $(BUILD_DIR) src/kernels/layernorm_kernels.c include/ckernel_engine.h
-	$(CC) $(CFLAGS) -shared -o $@ src/kernels/layernorm_kernels.c -lm
+$(LIB_LN): $(BUILD_DIR) src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c -lm
 
 $(LIB_SOFT): $(BUILD_DIR) src/kernels/softmax_kernels.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/softmax_kernels.c -lm
@@ -187,8 +190,8 @@ $(LIB_VISION): $(BUILD_DIR) src/kernels/vision_kernels.c include/ckernel_engine.
 $(LIB_ATTENTION): $(BUILD_DIR) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
 
-$(LIB_ROPE): $(BUILD_DIR) src/kernels/rope_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rope_kernels.c -lm
+$(LIB_ROPE): $(BUILD_DIR) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
 
 # Convenience alias targets so existing commands still work.
 libckernel_gelu.so: $(LIB_GELU)
