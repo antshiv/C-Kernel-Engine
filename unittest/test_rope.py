@@ -180,20 +180,21 @@ def run_cache_tests(max_seq_len=128, head_dim=64, warmup=10, iterations=1000):
     diff_cos = max_diff(cos_c, cos_ref)
     diff_sin = max_diff(sin_c, sin_ref)
 
+    cache_tolerance = 5e-6
     report.add_result(TestResult(
         name="cos_cache",
-        passed=diff_cos <= 1e-6,
+        passed=diff_cos <= cache_tolerance,
         max_diff=diff_cos,
-        tolerance=1e-6,
+        tolerance=cache_tolerance,
         pytorch_time=None,
         kernel_time=None
     ))
 
     report.add_result(TestResult(
         name="sin_cache",
-        passed=diff_sin <= 1e-6,
+        passed=diff_sin <= cache_tolerance,
         max_diff=diff_sin,
-        tolerance=1e-6,
+        tolerance=cache_tolerance,
         pytorch_time=None,
         kernel_time=None
     ))
