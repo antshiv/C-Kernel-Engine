@@ -15,6 +15,7 @@ for path in (ROOT, UNITS):
         sys.path.append(str(path))
 
 import numpy as np
+import torch
 
 from lib_loader import load_lib
 from test_utils import TestReport, TestResult, get_cpu_info, max_diff, print_system_info
@@ -107,7 +108,10 @@ def run_forward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
     aligned = head_dim
 
     x_np = np.random.randn(num_heads, tokens, aligned).astype(np.float32)
-    q_ref = x_np.copy()
+    # Match BF16 wrapper contract: BF16 is storage; math is FP32.
+    # Quantize inputs to BF16, run FP32 reference, then quantize outputs to BF16.
+    x_bf16 = float32_to_bf16(x_np.reshape(-1))
+    q_ref = bf16_to_float32(x_bf16.reshape(num_heads, tokens, aligned)).copy()
     lib.rope_forward(
         q_ref.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         cos_cache.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
@@ -119,7 +123,7 @@ def run_forward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
         ctypes.c_int(pos_offset),
     )
 
-    x_bf16 = float32_to_bf16(x_np.reshape(-1))
+    q_ref_bf16 = float32_to_bf16(q_ref.reshape(-1))
     lib.rope_forward_bf16(
         numpy_to_uint16_ptr(x_bf16),
         cos_cache.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
@@ -132,7 +136,8 @@ def run_forward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
     )
 
     out_bf16 = bf16_to_float32(x_bf16.reshape(num_heads, tokens, aligned))
-    diff = max_diff(out_bf16, q_ref)
+    q_ref_out = bf16_to_float32(q_ref_bf16.reshape(num_heads, tokens, aligned))
+    diff = max_diff(torch.from_numpy(out_bf16), torch.from_numpy(q_ref_out))
 
     report = TestReport(
         test_name="RoPE Forward",
@@ -154,9 +159,13 @@ def run_backward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
     aligned = head_dim
 
     d_out_np = np.random.randn(num_heads, tokens, aligned).astype(np.float32)
-    dx_ref = np.zeros_like(d_out_np)
+    # Match BF16 wrapper contract: quantize input to BF16, run FP32 reference,
+    # then quantize output to BF16.
+    d_out_bf16 = float32_to_bf16(d_out_np.reshape(-1))
+    d_out_ref = bf16_to_float32(d_out_bf16.reshape(num_heads, tokens, aligned)).copy()
+    dx_ref = np.zeros_like(d_out_ref)
     lib.rope_backward(
-        d_out_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+        d_out_ref.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         dx_ref.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         cos_cache.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         sin_cache.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
@@ -167,7 +176,7 @@ def run_backward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
         ctypes.c_int(pos_offset),
     )
 
-    d_out_bf16 = float32_to_bf16(d_out_np.reshape(-1))
+    dx_ref_bf16 = float32_to_bf16(dx_ref.reshape(-1))
     dx_bf16 = np.zeros_like(d_out_bf16)
 
     lib.rope_backward_bf16(
@@ -183,7 +192,8 @@ def run_backward_tests(num_heads=2, tokens=4, head_dim=16, pos_offset=0):
     )
 
     dx_c = bf16_to_float32(dx_bf16.reshape(num_heads, tokens, aligned))
-    diff = max_diff(dx_c, dx_ref)
+    dx_ref_out = bf16_to_float32(dx_ref_bf16.reshape(num_heads, tokens, aligned))
+    diff = max_diff(torch.from_numpy(dx_c), torch.from_numpy(dx_ref_out))
 
     report = TestReport(
         test_name="RoPE Backward",
