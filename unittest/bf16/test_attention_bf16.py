@@ -79,6 +79,28 @@ def attention_reference(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor) -> to
     return torch.bmm(weights, v)
 
 
+def attention_reference_fp32(q: torch.Tensor,
+                             k: torch.Tensor,
+                             v: torch.Tensor):
+    """
+    Reference attention that matches the BF16 wrappers' contract:
+    BF16 is storage, math is FP32.
+
+    Returns:
+      output_fp32: [H, T, D] float32
+      weights_fp32: [H, T, T] float32
+    """
+    H, T, D = q.shape
+    scale = 1.0 / math.sqrt(D)
+
+    scores = torch.bmm(q, k.transpose(-2, -1)) * scale
+    mask = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1)
+    scores = scores.masked_fill(mask, float("-inf"))
+    weights = F.softmax(scores, dim=-1)
+    out = torch.bmm(weights, v)
+    return out, weights
+
+
 def causal_attention_pytorch(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor):
     H, T, D = q.shape
     H_kv = k.shape[0]
@@ -113,10 +135,6 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     k_bf = float32_to_bf16(k_np)
     v_bf = float32_to_bf16(v_np)
 
-    q = torch.from_numpy(q_np.copy()).to(dtype=torch.bfloat16)
-    k = torch.from_numpy(k_np.copy()).to(dtype=torch.bfloat16)
-    v = torch.from_numpy(v_np.copy()).to(dtype=torch.bfloat16)
-
     report = TestReport(
         test_name="Attention Forward (BF16)",
         dtype="bf16",
@@ -125,7 +143,11 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     )
 
     def pytorch_forward():
-        return attention_reference(q, k, v)
+        q_ref = torch.from_numpy(bf16_to_float32(q_bf)).to(dtype=torch.float32)
+        k_ref = torch.from_numpy(bf16_to_float32(k_bf)).to(dtype=torch.float32)
+        v_ref = torch.from_numpy(bf16_to_float32(v_bf)).to(dtype=torch.float32)
+        out, _ = attention_reference_fp32(q_ref, k_ref, v_ref)
+        return out
 
     ref = pytorch_forward()
 
@@ -146,7 +168,7 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
 
     c_attention()
     out = torch.from_numpy(out_np.copy())
-    diff = max_diff(out, ref.to(dtype=torch.float32))
+    diff = max_diff(out, ref)
 
     report.add_result(TestResult(
         name="Causal Attention",
@@ -167,24 +189,6 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
     v_np = np.random.randn(H, T, D).astype(np.float32)
     d_out_np = np.random.randn(H, T, D).astype(np.float32)
 
-    q = torch.from_numpy(q_np.copy()).to(dtype=torch.bfloat16)
-    k = torch.from_numpy(k_np.copy()).to(dtype=torch.bfloat16)
-    v = torch.from_numpy(v_np.copy()).to(dtype=torch.bfloat16)
-    d_out = torch.from_numpy(d_out_np.copy()).to(dtype=torch.bfloat16)
-
-    _, attn_weights = causal_attention_pytorch(q, k, v)
-    attn_weights_np = attn_weights.to(dtype=torch.float32).numpy()
-
-    def pytorch_fwd_bwd():
-        q_ref = q.clone().detach().requires_grad_(True)
-        k_ref = k.clone().detach().requires_grad_(True)
-        v_ref = v.clone().detach().requires_grad_(True)
-        out_ref, _ = causal_attention_pytorch(q_ref, k_ref, v_ref)
-        out_ref.backward(d_out)
-        return q_ref.grad, k_ref.grad, v_ref.grad
-
-    d_q_ref, d_k_ref, d_v_ref = pytorch_fwd_bwd()
-
     scores_np = np.zeros((H, T, T), dtype=np.float32)
     d_q_np = np.zeros((H, T, D), dtype=np.float32)
     d_k_np = np.zeros((H, T, D), dtype=np.float32)
@@ -195,6 +199,32 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
     k_bf = float32_to_bf16(k_np)
     v_bf = float32_to_bf16(v_np)
     d_out_bf = float32_to_bf16(d_out_np)
+
+    # Use the same FP32-compute reference for both the weights (passed to the C backward)
+    # and the gradient reference, so we're not mixing BF16-softmax weights with an FP32
+    # backward path.
+    d_out_ref = torch.from_numpy(bf16_to_float32(d_out_bf)).to(dtype=torch.float32)
+
+    def pytorch_fwd_bwd():
+        q_ref = torch.from_numpy(bf16_to_float32(q_bf)).to(dtype=torch.float32).requires_grad_(True)
+        k_ref = torch.from_numpy(bf16_to_float32(k_bf)).to(dtype=torch.float32).requires_grad_(True)
+        v_ref = torch.from_numpy(bf16_to_float32(v_bf)).to(dtype=torch.float32).requires_grad_(True)
+        out, _ = attention_reference_fp32(q_ref, k_ref, v_ref)
+        out.backward(d_out_ref)
+        return q_ref.grad, k_ref.grad, v_ref.grad
+
+    # Compute gradient reference using the same BF16-quantized inputs and FP32 math.
+    # Note: we compute `weights_ref` above for the C backward input; autograd computes
+    # the same weights internally from the same inputs.
+    d_q_ref, d_k_ref, d_v_ref = pytorch_fwd_bwd()
+
+    # Provide the same forward weights to the C backward kernel.
+    with torch.no_grad():
+        q_f = torch.from_numpy(bf16_to_float32(q_bf)).to(dtype=torch.float32)
+        k_f = torch.from_numpy(bf16_to_float32(k_bf)).to(dtype=torch.float32)
+        v_f = torch.from_numpy(bf16_to_float32(v_bf)).to(dtype=torch.float32)
+        _, weights_ref = attention_reference_fp32(q_f, k_f, v_f)
+        attn_weights_np = weights_ref.to(dtype=torch.float32).numpy()
 
     report = TestReport(
         test_name="Attention Backward (BF16)",

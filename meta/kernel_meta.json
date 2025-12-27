@@ -1,0 +1,1013 @@
+{
+  "_schema_version": "1.0",
+  "_description": "C-Kernel-Engine optimization and kernel tracking metadata",
+  "_updated": "2025-12-27",
+
+  "_usage": {
+    "view_report": "make report",
+    "quick_status": "make opt-status",
+    "pending_work": "make opt-pending",
+    "test_coverage": "make test-coverage",
+    "validate_json": "make meta-check",
+    "how_to_update": [
+      "1. Edit this file when you add/modify a kernel",
+      "2. Update 'opt_level' array when adding SIMD/blocking/parallel",
+      "3. Update 'status' to 'done' when implementation is complete",
+      "4. Add to 'optimizations_pending' for planned improvements",
+      "5. Run 'make report' to see updated status"
+    ],
+    "opt_level_values": ["scalar", "simd_avx2", "simd_avx512", "simd_avx512bf16", "simd_amx", "blocked", "parallel", "fused"],
+    "status_values": ["done", "partial", "not_started"]
+  },
+  "optimization_levels": {
+    "none": "Not implemented",
+    "scalar": "Scalar C implementation",
+    "simd_avx2": "AVX2 vectorized",
+    "simd_avx512": "AVX-512 vectorized",
+    "simd_avx512bf16": "AVX-512 BF16 native instructions",
+    "simd_amx": "Intel AMX (matrix accelerator)",
+    "fused": "Fused with adjacent operations",
+    "blocked": "Cache-blocked for L1/L2/L3",
+    "parallel": "OpenMP multi-threaded"
+  },
+  "dtypes": {
+    "fp32": "32-bit float",
+    "bf16": "Brain Float 16",
+    "fp16": "IEEE Float 16",
+    "int8": "8-bit integer",
+    "int4": "4-bit integer",
+    "q4_0": "GGML Q4_0 quantization",
+    "q4_k": "GGML Q4_K quantization",
+    "q8_0": "GGML Q8_0 quantization"
+  },
+  "kernels": {
+    "gemm": {
+      "description": "General matrix multiplication C = A @ B.T",
+      "category": "compute",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "parallel",
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512",
+              "blocked"
+            ],
+            "file": "gemm_kernels.c",
+            "func": "gemm_nn_*"
+          },
+          "backward_dw": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512",
+              "blocked"
+            ],
+            "file": "gemm_kernels.c",
+            "func": "gemm_tn_*"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "parallel",
+              "simd_avx2",
+              "simd_avx512",
+              "simd_avx512bf16"
+            ],
+            "file": "gemm_kernels_bf16.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_bf16.c",
+            "func": "gemm_nn_bf16"
+          },
+          "backward_dw": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_bf16.c",
+            "func": "gemm_tn_bf16"
+          }
+        },
+        "fp16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx2",
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_f16.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gemm_kernels_f16.c"
+          }
+        },
+        "q4_0": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_q4_0.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gemm_kernels_q4_0.c"
+          }
+        },
+        "q4_k": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_q4k.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_q4k.c"
+          }
+        },
+        "q8_0": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "simd_avx512"
+            ],
+            "file": "gemm_kernels_q8_0.c"
+          },
+          "backward_dx": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gemm_kernels_q8_0.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch torch.mm",
+        "test_files": [
+          "unittest/test_gemm.py",
+          "unittest/test_quant_kernels.py"
+        ]
+      },
+      "optimizations_pending": [
+        {
+          "name": "amx_bf16",
+          "description": "Intel AMX for BF16 GEMM",
+          "priority": "high"
+        },
+        {
+          "name": "microkernel",
+          "description": "Fixed-size microkernels like oneDNN",
+          "priority": "high"
+        },
+        {
+          "name": "pack_matrix",
+          "description": "Pack B matrix for better cache access",
+          "priority": "medium"
+        }
+      ]
+    },
+    "attention": {
+      "description": "Multi-head attention with causal mask",
+      "category": "compute",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "attention_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "attention_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "attention_kernels.c",
+            "func": "*_bf16"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "attention_kernels.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch F.scaled_dot_product_attention",
+        "test_files": [
+          "unittest/bf16/test_attention_bf16.py"
+        ]
+      },
+      "optimizations_pending": [
+        {
+          "name": "flash_attention",
+          "description": "FlashAttention algorithm (tiled, fused softmax)",
+          "priority": "critical"
+        },
+        {
+          "name": "kv_cache",
+          "description": "KV cache for autoregressive decoding",
+          "priority": "critical"
+        },
+        {
+          "name": "gqa",
+          "description": "Grouped Query Attention",
+          "priority": "high"
+        },
+        {
+          "name": "paged_attention",
+          "description": "Paged KV cache for long sequences",
+          "priority": "medium"
+        }
+      ]
+    },
+    "rmsnorm": {
+      "description": "Root Mean Square Layer Normalization",
+      "category": "normalization",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_bf16.c"
+          }
+        },
+        "int8": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_int8.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_int8.c"
+          }
+        },
+        "int4": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_int4.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rmsnorm_kernels_int4.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch custom rmsnorm",
+        "test_files": [
+          "unittest/bf16/test_rmsnorm_bf16.py"
+        ]
+      },
+      "optimizations_pending": [
+        {
+          "name": "simd_avx512",
+          "description": "AVX-512 vectorization",
+          "priority": "high"
+        },
+        {
+          "name": "fused_residual",
+          "description": "Fuse with residual add",
+          "priority": "medium"
+        }
+      ]
+    },
+    "layernorm": {
+      "description": "Layer Normalization",
+      "category": "normalization",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx2",
+              "simd_avx512"
+            ],
+            "file": "layernorm_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "parallel"
+            ],
+            "file": "layernorm_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "layernorm_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "layernorm_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch nn.LayerNorm",
+        "test_files": []
+      }
+    },
+    "softmax": {
+      "description": "Softmax activation",
+      "category": "activation",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "softmax_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "softmax_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "softmax_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "softmax_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch F.softmax",
+        "test_files": []
+      },
+      "optimizations_pending": [
+        {
+          "name": "online_softmax",
+          "description": "Online/streaming softmax for flash attention",
+          "priority": "high"
+        }
+      ]
+    },
+    "gelu": {
+      "description": "GELU activation",
+      "category": "activation",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gelu_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gelu_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gelu_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "gelu_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch F.gelu",
+        "test_files": []
+      }
+    },
+    "swiglu": {
+      "description": "SwiGLU activation (Swish-Gated Linear Unit)",
+      "category": "activation",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "swiglu_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "swiglu_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "swiglu_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "swiglu_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch custom swiglu",
+        "test_files": []
+      }
+    },
+    "rope": {
+      "description": "Rotary Position Embedding",
+      "category": "embedding",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rope_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rope_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rope_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "rope_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "HuggingFace transformers RoPE",
+        "test_files": []
+      },
+      "optimizations_pending": [
+        {
+          "name": "simd_avx512",
+          "description": "AVX-512 vectorization",
+          "priority": "medium"
+        },
+        {
+          "name": "fused_qk",
+          "description": "Fuse RoPE into Q/K projection",
+          "priority": "low"
+        }
+      ]
+    },
+    "embedding": {
+      "description": "Token embedding lookup",
+      "category": "embedding",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "embedding_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "embedding_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "embedding_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "embedding_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch nn.Embedding",
+        "test_files": []
+      }
+    },
+    "mlp": {
+      "description": "MLP block (FC1 -> activation -> FC2)",
+      "category": "compute",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "parallel",
+              "simd_avx512"
+            ],
+            "file": "mlp_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "blocked",
+              "parallel",
+              "simd_avx512"
+            ],
+            "file": "mlp_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "parallel",
+              "simd_avx2",
+              "simd_avx512"
+            ],
+            "file": "mlp_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "pending",
+            "opt_level": [],
+            "file": "mlp_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch nn.Linear + GELU + nn.Linear",
+        "test_files": [
+          "unittest/bf16/test_mlp_bf16.py"
+        ]
+      },
+      "optimizations_pending": [
+        {
+          "name": "fused_gelu",
+          "description": "Fuse GELU into GEMM epilogue",
+          "priority": "high"
+        }
+      ]
+    },
+    "sigmoid": {
+      "description": "Sigmoid activation",
+      "category": "activation",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "sigmoid_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "sigmoid_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "sigmoid_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "sigmoid_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch torch.sigmoid",
+        "test_files": [
+          "unittest/bf16/test_sigmoid_bf16.py"
+        ]
+      }
+    },
+    "relu": {
+      "description": "ReLU activation",
+      "category": "activation",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx2",
+              "simd_avx512"
+            ],
+            "file": "relu_kernels.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx2",
+              "simd_avx512"
+            ],
+            "file": "relu_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "relu_kernels_bf16.c"
+          },
+          "backward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "relu_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "PyTorch F.relu",
+        "test_files": []
+      }
+    },
+    "dequant": {
+      "description": "Dequantization (INT4/INT8 -> FP32)",
+      "category": "quantization",
+      "variants": {
+        "q4_0": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "dequant_kernels.c"
+          }
+        },
+        "q4_k": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "dequant_kernels.c"
+          }
+        },
+        "q8_0": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "simd_avx512"
+            ],
+            "file": "dequant_kernels.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "llama.cpp dequant",
+        "test_files": [
+          "unittest/test_quant_kernels.py"
+        ]
+      }
+    },
+    "vision": {
+      "description": "Vision encoder operations (patch embed, etc.)",
+      "category": "vision",
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "vision_kernels.c"
+          }
+        },
+        "bf16": {
+          "forward": {
+            "status": "done",
+            "opt_level": [
+              "scalar"
+            ],
+            "file": "vision_kernels_bf16.c"
+          }
+        }
+      },
+      "tests": {
+        "reference": "HuggingFace ViT",
+        "test_files": []
+      }
+    }
+  },
+  "inference_optimizations": {
+    "prefill": {
+      "description": "Process full prompt in parallel (compute-bound)",
+      "status": "partial",
+      "details": "Basic GEMM parallelization done, needs flash attention",
+      "priority": "critical",
+      "depends_on": [
+        "flash_attention"
+      ]
+    },
+    "decode": {
+      "description": "Autoregressive token generation (memory-bound)",
+      "status": "not_started",
+      "details": "Needs KV cache and optimized GEMV",
+      "priority": "critical",
+      "depends_on": [
+        "kv_cache",
+        "gemv_optimized"
+      ]
+    },
+    "kv_cache": {
+      "description": "Cache key/value tensors for decode phase",
+      "status": "not_started",
+      "details": "Need to implement KV cache management and update attention",
+      "priority": "critical",
+      "depends_on": []
+    },
+    "flash_attention": {
+      "description": "Tiled attention with fused softmax (O(N) memory)",
+      "status": "not_started",
+      "details": "Implement FlashAttention-2 algorithm",
+      "priority": "critical",
+      "depends_on": [
+        "online_softmax"
+      ]
+    },
+    "online_softmax": {
+      "description": "Streaming softmax without materializing full attention matrix",
+      "status": "not_started",
+      "details": "Required for flash attention",
+      "priority": "high",
+      "depends_on": []
+    },
+    "continuous_batching": {
+      "description": "Dynamic batching for variable-length sequences",
+      "status": "not_started",
+      "details": "Requires paged attention and scheduler",
+      "priority": "medium",
+      "depends_on": [
+        "paged_attention"
+      ]
+    },
+    "paged_attention": {
+      "description": "Paged KV cache for efficient memory management",
+      "status": "not_started",
+      "details": "vLLM-style paged attention",
+      "priority": "medium",
+      "depends_on": [
+        "kv_cache"
+      ]
+    },
+    "speculative_decoding": {
+      "description": "Use small model to draft, large model to verify",
+      "status": "not_started",
+      "details": "Requires draft model support",
+      "priority": "low",
+      "depends_on": []
+    },
+    "quantized_kv_cache": {
+      "description": "Store KV cache in INT8/FP8 to save memory",
+      "status": "not_started",
+      "details": "Reduces memory bandwidth during decode",
+      "priority": "medium",
+      "depends_on": [
+        "kv_cache"
+      ]
+    }
+  },
+  "training_optimizations": {
+    "gradient_checkpointing": {
+      "description": "Recompute activations during backward to save memory",
+      "status": "not_started",
+      "priority": "medium"
+    },
+    "fused_adam": {
+      "description": "Fused Adam optimizer update",
+      "status": "not_started",
+      "priority": "medium"
+    },
+    "mixed_precision": {
+      "description": "FP16/BF16 forward, FP32 master weights",
+      "status": "partial",
+      "details": "BF16 kernels exist, need loss scaling",
+      "priority": "high"
+    },
+    "gradient_accumulation": {
+      "description": "Accumulate gradients over micro-batches",
+      "status": "not_started",
+      "priority": "low"
+    }
+  },
+  "single_core_optimizations": {
+    "description": "Optimizations to maximize single-core performance before going parallel",
+    "status_summary": {
+      "gemm": "blocked + AVX-512",
+      "attention": "needs work",
+      "activation": "mostly scalar",
+      "normalization": "mostly scalar"
+    },
+    "priorities": [
+      {
+        "name": "gemm_microkernel",
+        "description": "8x8 or 16x6 register-blocked GEMM microkernel",
+        "status": "not_started"
+      },
+      {
+        "name": "cache_blocking",
+        "description": "Tune block sizes for L1/L2/L3",
+        "status": "partial"
+      },
+      {
+        "name": "prefetch",
+        "description": "Software prefetch for memory access",
+        "status": "not_started"
+      },
+      {
+        "name": "branch_elimination",
+        "description": "Remove branches in hot loops",
+        "status": "not_started"
+      },
+      {
+        "name": "simd_everywhere",
+        "description": "Vectorize all scalar kernels",
+        "status": "partial"
+      }
+    ]
+  },
+  "performance_targets": {
+    "gemm_fp32": {
+      "metric": "GFLOPS",
+      "target": "80% of peak",
+      "current": "~40% estimated",
+      "reference": "oneDNN"
+    },
+    "gemm_bf16": {
+      "metric": "GFLOPS",
+      "target": "80% of peak (2x FP32 with BF16 instructions)",
+      "current": "unknown",
+      "reference": "oneDNN"
+    },
+    "attention": {
+      "metric": "tokens/sec",
+      "target": "match FlashAttention",
+      "current": "naive O(N^2) memory",
+      "reference": "FlashAttention-2"
+    },
+    "inference_latency": {
+      "metric": "ms/token",
+      "target": "competitive with llama.cpp",
+      "current": "not measured",
+      "reference": "llama.cpp"
+    }
+  },
+  "test_references": {
+    "pytorch": "Primary reference for correctness",
+    "onednn": "Reference for GEMM/convolution performance",
+    "llama_cpp": "Reference for quantized inference",
+    "flash_attention": "Reference for attention performance",
+    "huggingface": "Reference for model-level correctness"
+  }
+}

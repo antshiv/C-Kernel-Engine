@@ -1,5 +1,12 @@
 """
-RMSNorm BF16 kernel unit tests comparing forward and backward wrappers against PyTorch.
+RMSNorm BF16 kernel unit tests.
+
+The C BF16 kernels treat BF16 as a storage format:
+- Inputs/outputs are BF16 (uint16 bit patterns)
+- Computation happens in FP32 (rstd cache and d_gamma are FP32)
+
+So the reference here uses BF16-quantized inputs but computes in FP32 and only
+quantizes the final outputs to BF16, matching the kernel's contract.
 """
 import ctypes
 import sys
@@ -57,10 +64,14 @@ lib.rmsnorm_backward_bf16.argtypes = [
 lib.rmsnorm_backward_bf16.restype = None
 
 
-def rmsnorm_torch(x: torch.Tensor, gamma: torch.Tensor, eps: float) -> torch.Tensor:
-    var = x.pow(2).mean(dim=-1, keepdim=True)
+def rmsnorm_ref_fp32_compute(x_fp32: torch.Tensor, gamma_fp32: torch.Tensor, eps: float) -> torch.Tensor:
+    """
+    Reference RMSNorm with FP32 math and BF16 output quantization.
+    """
+    var = x_fp32.pow(2).mean(dim=-1, keepdim=True)
     rstd = (var + eps).rsqrt()
-    return x * rstd * gamma
+    out_fp32 = x_fp32 * rstd * gamma_fp32
+    return out_fp32.to(dtype=torch.bfloat16)
 
 
 def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
@@ -77,8 +88,9 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     # values to match what PyTorch sees
     gamma_bf16_quantized = bf16_to_float32(float32_to_bf16(gamma_np))
 
-    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
-    gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
+    # Use BF16-quantized values but run the reference in FP32.
+    x_ref = torch.from_numpy(bf16_to_float32(x_bf16.copy())).to(dtype=torch.float32)
+    gamma_ref = torch.from_numpy(gamma_bf16_quantized.copy()).to(dtype=torch.float32)
 
     report = TestReport(
         test_name="RMSNorm Forward (BF16)",
@@ -88,7 +100,7 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     )
 
     def pytorch_ref():
-        return rmsnorm_torch(x, gamma, eps)
+        return rmsnorm_ref_fp32_compute(x_ref, gamma_ref, eps)
 
     pytorch_out = pytorch_ref()
 
@@ -126,16 +138,19 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     # Quantize gamma to BF16 precision for fair comparison with PyTorch BF16
     gamma_bf16_quantized = bf16_to_float32(float32_to_bf16(gamma_np))
 
-    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
-    gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
-    upstream = torch.from_numpy(upstream_np.copy()).to(dtype=torch.bfloat16)
+    # BF16-quantized values for inputs/upstream, FP32 compute for reference.
+    x_q_fp32 = torch.from_numpy(bf16_to_float32(float32_to_bf16(x_np))).to(dtype=torch.float32)
+    gamma_q_fp32 = torch.from_numpy(gamma_bf16_quantized.copy()).to(dtype=torch.float32)
+    upstream_q_fp32 = torch.from_numpy(bf16_to_float32(float32_to_bf16(upstream_np))).to(dtype=torch.float32)
 
     def pytorch_fwd_bwd():
-        x_ref = x.clone().detach().requires_grad_(True)
-        gamma_ref = gamma.clone().detach().requires_grad_(True)
-        out_ref = rmsnorm_torch(x_ref, gamma_ref, eps)
-        out_ref.backward(upstream)
-        return x_ref.grad, gamma_ref.grad
+        x_ref = x_q_fp32.clone().detach().requires_grad_(True)
+        gamma_ref = gamma_q_fp32.clone().detach().requires_grad_(True)
+        out_ref = rmsnorm_ref_fp32_compute(x_ref, gamma_ref, eps)
+        out_ref.backward(upstream_q_fp32.to(dtype=torch.bfloat16))
+        dx = x_ref.grad.to(dtype=torch.bfloat16).to(dtype=torch.float32)
+        dgamma = gamma_ref.grad.to(dtype=torch.float32)
+        return dx, dgamma
 
     dx_ref, dgamma_ref = pytorch_fwd_bwd()
 

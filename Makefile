@@ -284,11 +284,17 @@ test: $(LIB) test-libs
 	echo "All Python kernel tests completed."
 
 test-bf16: $(LIB) test-libs
-	@set -e; \
+	@failed=0; \
 	for t in $(PY_TESTS_BF16); do \
 	  echo "Running $$t"; \
-	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
+	  if ! LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; then \
+	    failed=1; \
+	  fi; \
 	done; \
+	if [ $$failed -ne 0 ]; then \
+	  echo "BF16 Python kernel tests failed."; \
+	  exit 1; \
+	fi; \
 	echo "BF16 Python kernel tests completed."
 
 $(BUILD_DIR)/bench_gemm_onednn.o: tools/bench_gemm_onednn.cpp include/ckernel_engine.h
@@ -332,12 +338,6 @@ layer-parity-scalar:
 
 gen-specs:
 	$(PYTHON) $(PYTHONFLAGS) scripts/gen_kernel_specs.py
-
-kernel-coverage:
-	@$(PYTHON) $(PYTHONFLAGS) scripts/kernel_coverage.py
-
-kernel-coverage-md:
-	@$(PYTHON) $(PYTHONFLAGS) scripts/kernel_coverage.py --markdown
 
 tiny-e2e: $(IR_DEMO) $(LIB)
 	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_weights.bin
@@ -661,4 +661,119 @@ ck-chat-py:
 ck-server-py:
 	$(PYTHON) $(PYTHONFLAGS) tools/ck_server.py --model-dir $(SMOLLM_MODEL_DIR) --context $(SMOLLM_CONTEXT)
 
-.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py
+# ============================================================================
+# Status and Coverage Reports
+# ============================================================================
+
+opt-status:
+	@$(PYTHON) scripts/optimization_status.py
+
+opt-pending:
+	@$(PYTHON) scripts/optimization_status.py --pending
+
+opt-inference:
+	@$(PYTHON) scripts/optimization_status.py --inference
+
+opt-training:
+	@$(PYTHON) scripts/optimization_status.py --training
+
+opt-kernels:
+	@$(PYTHON) scripts/optimization_status.py --kernels
+
+opt-targets:
+	@$(PYTHON) scripts/optimization_status.py --targets
+
+opt-md:
+	@$(PYTHON) scripts/optimization_status.py --markdown
+
+kernel-coverage:
+	@$(PYTHON) scripts/kernel_coverage.py
+
+kernel-coverage-md:
+	@$(PYTHON) scripts/kernel_coverage.py --markdown
+
+test-coverage:
+	@$(PYTHON) scripts/test_coverage.py
+
+test-coverage-md:
+	@$(PYTHON) scripts/test_coverage.py --markdown
+
+# ============================================================================
+# Status Reports (reads from meta/kernel_meta.json)
+# ============================================================================
+# Usage:
+#   make report        - Full comprehensive report (kernel status, roadmaps, tests)
+#   make opt-status    - Quick kernel implementation table with opt levels
+#   make opt-pending   - Show what's not done yet
+#   make test-coverage - Show test file coverage
+#
+# To update the report:
+#   1. Edit meta/kernel_meta.json when you add/modify kernels
+#   2. Update "opt_level" arrays when adding SIMD/blocking/parallel
+#   3. Run "make report" to see updated status
+#
+# Optional validation (checks JSON matches source code):
+#   make meta-check    - Report discrepancies between JSON and code
+# ============================================================================
+
+meta-check:
+	@$(PYTHON) scripts/sync_kernel_meta.py --check
+
+meta-sync:
+	@$(PYTHON) scripts/sync_kernel_meta.py --update
+
+# Comprehensive report - runs all status reports
+report:
+	@echo ""
+	@echo "╔══════════════════════════════════════════════════════════════════════════════════════════════════╗"
+	@echo "║                              C-KERNEL-ENGINE COMPREHENSIVE REPORT                                ║"
+	@echo "╚══════════════════════════════════════════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  1. KERNEL IMPLEMENTATION STATUS (with optimization levels)                                      │"
+	@echo "│     Legend: A5=AVX512, A2=AVX2, BF=BF16, AM=AMX, +=blocked/parallel, S=scalar                    │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/optimization_status.py --kernels
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  2. INFERENCE OPTIMIZATION ROADMAP                                                               │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/optimization_status.py --inference
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  3. TRAINING OPTIMIZATION ROADMAP                                                                │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/optimization_status.py --training
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  4. SINGLE-CORE PRIORITIES & PERFORMANCE TARGETS                                                 │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/optimization_status.py --single-core
+	@$(PYTHON) scripts/optimization_status.py --targets
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  5. TEST COVERAGE                                                                                │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/test_coverage.py --summary
+	@$(PYTHON) scripts/test_coverage.py --missing
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  6. HIGH-PRIORITY PENDING WORK                                                                   │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
+	@$(PYTHON) scripts/optimization_status.py --pending
+	@echo ""
+	@echo "╔══════════════════════════════════════════════════════════════════════════════════════════════════╗"
+	@echo "║                                        END OF REPORT                                             ║"
+	@echo "╚══════════════════════════════════════════════════════════════════════════════════════════════════╝"
+
+# Generate markdown report for documentation
+report-md:
+	@echo "# C-Kernel-Engine Status Report"
+	@echo ""
+	@echo "Generated: $$(date)"
+	@echo ""
+	@$(PYTHON) scripts/kernel_coverage.py --markdown
+	@echo ""
+	@$(PYTHON) scripts/optimization_status.py --markdown
+
+.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md
