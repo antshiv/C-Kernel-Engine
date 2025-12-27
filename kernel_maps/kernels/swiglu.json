@@ -1,9 +1,17 @@
 {
   "name": "swiglu",
+  "dtypes": ["fp32", "bf16"],
+  "default_dtype": "fp32",
   "impl": {
     "forward": "swiglu_forward",
     "backward": "swiglu_backward",
-    "sources": ["src/kernels/swiglu_kernels.c", "src/kernels/sigmoid_kernels.c"]
+    "sources": ["src/kernels/swiglu_kernels.c", "src/kernels/swiglu_kernels_bf16.c", "src/kernels/sigmoid_kernels.c"],
+    "variants": {
+      "bf16": {
+        "forward": "swiglu_forward_bf16",
+        "backward": "swiglu_backward_bf16"
+      }
+    }
   },
   "buffers": [
     {"id": "fc1_out", "role": "input", "shape": [{"dim": "tokens"}, {"dim": "aligned_intermediate", "mult": 2}]},

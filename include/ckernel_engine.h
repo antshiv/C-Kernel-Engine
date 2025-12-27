@@ -56,11 +56,18 @@ void gemm_fine_grained_parallel(const float *A,
                                 float *C,
                                 int M, int N, int K);
 
-void gemm_blocked_serial(const float *A,
-                         const float *B,
-                         const float *bias,
-                         float *C,
-                         int M, int N, int K);
+	void gemm_blocked_serial(const float *A,
+	                         const float *B,
+	                         const float *bias,
+	                         float *C,
+	                         int M, int N, int K);
+
+	// Reference BF16 GEMM (A/B/bias in BF16, output BF16).
+	void gemm_blocked_serial_bf16(const uint16_t *A,
+	                              const uint16_t *B,
+	                              const uint16_t *bias,
+	                              uint16_t *C,
+	                              int M, int N, int K);
 
 // GEMM_NN: C[M,N] = A[M,K] @ B[K,N] + bias[N]
 // B is stored row-major as [K,N] (no transpose on B)
@@ -223,6 +230,44 @@ void rmsnorm_backward_bf16(const uint16_t *d_output,
                            int d_model,
                            int aligned_embed_dim);
 
+void rmsnorm_forward_int8(const int8_t *input,
+                          const float *gamma,
+                          int8_t *output,
+                          float *rstd_cache,
+                          int tokens,
+                          int d_model,
+                          int aligned_embed_dim,
+                          float eps);
+
+void rmsnorm_backward_int8(const int8_t *d_output,
+                           const int8_t *input,
+                           const float *gamma,
+                           const float *rstd_cache,
+                           int8_t *d_input,
+                           float *d_gamma,
+                           int tokens,
+                           int d_model,
+                           int aligned_embed_dim);
+
+void rmsnorm_forward_int4(const uint8_t *input,
+                          const float *gamma,
+                          uint8_t *output,
+                          float *rstd_cache,
+                          int tokens,
+                          int d_model,
+                          int aligned_embed_dim,
+                          float eps);
+
+void rmsnorm_backward_int4(const uint8_t *d_output,
+                           const uint8_t *input,
+                           const float *gamma,
+                           const float *rstd_cache,
+                           uint8_t *d_input,
+                           float *d_gamma,
+                           int tokens,
+                           int d_model,
+                           int aligned_embed_dim);
+
 // GELU forward kernel (fast approximation), copied from C-Transformer.
 void gelu_fast_inplace(float *data, size_t n);
 
@@ -247,25 +292,43 @@ void gelu_backward_fast_bf16(const uint16_t *input,
                              uint16_t *d_input,
                              size_t n);
 
-// ReLU kernels.
-void relu_forward(const float *input, float *output, size_t n);
-void relu_forward_inplace(float *data, size_t n);
-void relu_backward(const float *input,
-                   const float *d_output,
-                   float *d_input,
-                   size_t n);
+	// ReLU kernels.
+	void relu_forward(const float *input, float *output, size_t n);
+	void relu_forward_inplace(float *data, size_t n);
+	void relu_backward(const float *input,
+	                   const float *d_output,
+	                   float *d_input,
+	                   size_t n);
 
-// Causal softmax kernel on head-major attention scores, copied from C-Transformer.
-void causal_softmax_head_major(float *scores,
-                               int num_heads,
-                               int num_tokens,
-                               int aligned_context_window);
+	void relu_forward_bf16(const uint16_t *input, uint16_t *output, size_t n);
+	void relu_forward_inplace_bf16(uint16_t *data, size_t n);
+	void relu_backward_bf16(const uint16_t *input,
+	                        const uint16_t *d_output,
+	                        uint16_t *d_input,
+	                        size_t n);
 
-void backward_causal_softmax_head_major(float *d_scores,
-                                        const float *weights,
-                                        int num_heads,
-                                        int num_tokens,
-                                        int aligned_context_window);
+	// Causal softmax kernel on head-major attention scores, copied from C-Transformer.
+	void causal_softmax_head_major(float *scores,
+	                               int num_heads,
+	                               int num_tokens,
+	                               int aligned_context_window);
+
+	void backward_causal_softmax_head_major(float *d_scores,
+	                                        const float *weights,
+	                                        int num_heads,
+	                                        int num_tokens,
+	                                        int aligned_context_window);
+
+	void causal_softmax_head_major_bf16(uint16_t *scores,
+	                                   int num_heads,
+	                                   int num_tokens,
+	                                   int aligned_context_window);
+
+	void backward_causal_softmax_head_major_bf16(uint16_t *d_scores,
+	                                            const uint16_t *weights,
+	                                            int num_heads,
+	                                            int num_tokens,
+	                                            int aligned_context_window);
 
 // Scaled dot-product attention (causal) in head-major layout.
 // Q/K/V layout: [head][token][head_dim] with stride aligned_head_dim.
@@ -377,16 +440,27 @@ void sigmoid_backward_bf16(const uint16_t *input,
 // SwiGLU activation kernels (forward + backward).
 // Input layout per token: [gate[0..D-1], value[0..D-1]], size 2*D.
 // Output: [D].
-void swiglu_forward(const float *input,
-                    float *output,
-                    int tokens,
-                    int dim);
+	void swiglu_forward(const float *input,
+	                    float *output,
+	                    int tokens,
+	                    int dim);
 
-void swiglu_backward(const float *input,
-                     const float *d_output,
-                     float *d_input,
-                     int tokens,
-                     int dim);
+	void swiglu_backward(const float *input,
+	                     const float *d_output,
+	                     float *d_input,
+	                     int tokens,
+	                     int dim);
+
+	void swiglu_forward_bf16(const uint16_t *input,
+	                         uint16_t *output,
+	                         int tokens,
+	                         int dim);
+
+	void swiglu_backward_bf16(const uint16_t *input,
+	                          const uint16_t *d_output,
+	                          uint16_t *d_input,
+	                          int tokens,
+	                          int dim);
 
 // Attention backward (GQA-aware): computes d_q, d_k, d_v.
 void attention_backward_causal_head_major_gqa(
@@ -500,9 +574,9 @@ void rope_backward_inplace(float *d_x,
                            int pos_offset);
 
 // Combined RoPE for Q and K.
-void rope_forward_qk(float *q,
-                     float *k,
-                     const float *cos_cache,
+	void rope_forward_qk(float *q,
+	                     float *k,
+	                     const float *cos_cache,
                      const float *sin_cache,
                      int num_heads,
                      int num_kv_heads,
@@ -511,9 +585,9 @@ void rope_forward_qk(float *q,
                      int aligned_head_dim,
                      int pos_offset);
 
-void rope_backward_qk(const float *d_q_out,
-                      const float *d_k_out,
-                      float *d_q,
+	void rope_backward_qk(const float *d_q_out,
+	                      const float *d_k_out,
+	                      float *d_q,
                       float *d_k,
                       const float *cos_cache,
                       const float *sin_cache,
@@ -521,47 +595,115 @@ void rope_backward_qk(const float *d_q_out,
                       int num_kv_heads,
                       int num_tokens,
                       int head_dim,
-                      int aligned_head_dim,
-                      int pos_offset);
+	                      int aligned_head_dim,
+	                      int pos_offset);
+
+	void rope_forward_qk_bf16(uint16_t *q,
+	                          uint16_t *k,
+	                          const float *cos_cache,
+	                          const float *sin_cache,
+	                          int num_heads,
+	                          int num_kv_heads,
+	                          int num_tokens,
+	                          int head_dim,
+	                          int aligned_head_dim,
+	                          int pos_offset);
+
+	void rope_backward_qk_bf16(const uint16_t *d_q_out,
+	                           const uint16_t *d_k_out,
+	                           uint16_t *d_q,
+	                           uint16_t *d_k,
+	                           const float *cos_cache,
+	                           const float *sin_cache,
+	                           int num_heads,
+	                           int num_kv_heads,
+	                           int num_tokens,
+	                           int head_dim,
+	                           int aligned_head_dim,
+	                           int pos_offset);
 
 // Token embedding lookup (optionally adds positional embeddings).
 // token_embeddings: [vocab_size x aligned_embed_dim]
 // pos_embeddings: [context_window x aligned_embed_dim] or NULL if add_pos == 0.
 // output: [context_window x aligned_embed_dim]
-void embedding_forward(const int32_t *token_ids,
-                       int token_count,
-                       int vocab_size,
+	void embedding_forward(const int32_t *token_ids,
+	                       int token_count,
+	                       int vocab_size,
                        const float *token_embeddings,
                        const float *pos_embeddings,
                        float *output,
                        int embed_dim,
                        int aligned_embed_dim,
-                       int context_window,
-                       int add_pos);
+	                       int context_window,
+	                       int add_pos);
+
+	void embedding_forward_bf16(const int32_t *token_ids,
+	                            int token_count,
+	                            int vocab_size,
+	                            const uint16_t *token_embeddings,
+	                            const uint16_t *pos_embeddings,
+	                            uint16_t *output,
+	                            int embed_dim,
+	                            int aligned_embed_dim,
+	                            int context_window,
+	                            int add_pos);
 
 // Embedding backward: accumulates into d_token_embeddings and d_pos_embeddings.
 // d_output: [context_window x aligned_embed_dim]
 // d_token_embeddings: [vocab_size x aligned_embed_dim]
 // d_pos_embeddings: [context_window x aligned_embed_dim] (optional)
-void embedding_backward(const int32_t *token_ids,
-                        int token_count,
-                        const float *d_output,
+	void embedding_backward(const int32_t *token_ids,
+	                        int token_count,
+	                        const float *d_output,
                         float *d_token_embeddings,
                         float *d_pos_embeddings,
                         int vocab_size,
                         int embed_dim,
-                        int aligned_embed_dim,
-                        int context_window,
-                        int add_pos);
+	                        int aligned_embed_dim,
+	                        int context_window,
+	                        int add_pos);
+
+	void embedding_backward_bf16(const int32_t *token_ids,
+	                             int token_count,
+	                             const uint16_t *d_output,
+	                             uint16_t *d_token_embeddings,
+	                             uint16_t *d_pos_embeddings,
+	                             int vocab_size,
+	                             int embed_dim,
+	                             int aligned_embed_dim,
+	                             int context_window,
+	                             int add_pos);
 
 // Softmax cross-entropy loss + gradient w.r.t logits.
 // logits: [tokens x vocab_size], targets: [tokens], d_logits: [tokens x vocab_size]
-void softmax_cross_entropy_loss(const float *logits,
-                                const int32_t *targets,
-                                int tokens,
-                                int vocab_size,
-                                float *d_logits,
-                                float *loss_out);
+	void softmax_cross_entropy_loss(const float *logits,
+	                                const int32_t *targets,
+	                                int tokens,
+	                                int vocab_size,
+	                                float *d_logits,
+	                                float *loss_out);
+
+	void softmax_cross_entropy_loss_bf16(const uint16_t *logits,
+	                                     const int32_t *targets,
+	                                     int tokens,
+	                                     int vocab_size,
+	                                     uint16_t *d_logits,
+	                                     float *loss_out);
+
+	// Vision helpers (patchify/unpatchify).
+	void im2patch(const float *image,
+	              float *patches,
+	              int C, int H, int W, int P);
+	void patch2im(const float *d_patches,
+	              float *d_image,
+	              int C, int H, int W, int P);
+
+	void im2patch_bf16(const uint16_t *image,
+	                   uint16_t *patches,
+	                   int C, int H, int W, int P);
+	void patch2im_bf16(const uint16_t *d_patches,
+	                   uint16_t *d_image,
+	                   int C, int H, int W, int P);
 
 #ifdef __cplusplus
 } // extern "C"

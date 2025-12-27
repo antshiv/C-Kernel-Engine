@@ -1,4 +1,3 @@
-#include "bf16_utils.h"
 #include "ckernel_engine.h"
 #if defined(__AVX512F__) || defined(__AVX2__) || defined(__AVX__)
 #include <immintrin.h>
@@ -51,84 +50,6 @@ void mlp_token_parallel(const float *input,
                         T,  // M
                         D,  // N
                         fourD); // K
-}
-
-static float *convert_bf16_tensor(const uint16_t *src, size_t count)
-{
-    float *dst = (float *)malloc(count * sizeof(float));
-    if (!dst) {
-        return NULL;
-    }
-    for (size_t i = 0; i < count; ++i) {
-        dst[i] = bf16_to_float(src[i]);
-    }
-    return dst;
-}
-
-/* The BF16 wrappers keep a portable path: on hosts without native BF16/AMX,
- * we decode the packed values, run the familiar FP32 SIMD kernel, and re-encode
- * the results so the API still behaves like BF16. On tuned systems the registry
- * can instead point at a native `_bf16` kernel that uses BF16 intrinsics/tiles
- * directly for higher throughput, so both workflows coexist cleanly. */
-void mlp_token_parallel_bf16(const uint16_t *input,
-                             const uint16_t *W_fc1,
-                             const uint16_t *b_fc1,
-                             const uint16_t *W_fc2,
-                             const uint16_t *b_fc2,
-                             float *fc1_output,
-                             float *output,
-                             int T,
-                             int aligned_dim,
-                             int num_threads)
-{
-    int D = aligned_dim;
-    int fourD = 4 * D;
-
-    size_t input_elems = (size_t)T * (size_t)aligned_dim;
-    size_t w1_elems = (size_t)fourD * (size_t)aligned_dim;
-    size_t b1_elems = (size_t)fourD;
-    size_t w2_elems = (size_t)aligned_dim * (size_t)fourD;
-    size_t b2_elems = (size_t)aligned_dim;
-
-    float *input_f = convert_bf16_tensor(input, input_elems);
-    if (!input_f) {
-        return;
-    }
-    float *W1_f = convert_bf16_tensor(W_fc1, w1_elems);
-    if (!W1_f) {
-        free(input_f);
-        return;
-    }
-    float *b1_f = convert_bf16_tensor(b_fc1, b1_elems);
-    if (!b1_f) {
-        free(input_f);
-        free(W1_f);
-        return;
-    }
-    float *W2_f = convert_bf16_tensor(W_fc2, w2_elems);
-    if (!W2_f) {
-        free(input_f);
-        free(W1_f);
-        free(b1_f);
-        return;
-    }
-    float *b2_f = convert_bf16_tensor(b_fc2, b2_elems);
-    if (!b2_f) {
-        free(input_f);
-        free(W1_f);
-        free(b1_f);
-        free(W2_f);
-        return;
-    }
-
-    mlp_token_parallel(input_f, W1_f, b1_f, W2_f, b2_f,
-                       fc1_output, output, T, aligned_dim, num_threads);
-
-    free(input_f);
-    free(W1_f);
-    free(b1_f);
-    free(W2_f);
-    free(b2_f);
 }
 
 // Generic FC2 backward kernel adapted from C-Transformer's backward_fc2_feature_parallel.

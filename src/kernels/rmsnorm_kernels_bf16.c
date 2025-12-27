@@ -1,26 +1,8 @@
+#include "bf16_utils.h"
 #include "ckernel_engine.h"
 
 #include <math.h>
 #include <stdint.h>
-
-typedef union {
-    uint32_t u;
-    float f;
-} FloatBits;
-
-static inline float bf16_to_float(uint16_t v)
-{
-    FloatBits fb;
-    fb.u = (uint32_t)v << 16;
-    return fb.f;
-}
-
-static inline uint16_t float_to_bf16(float f)
-{
-    FloatBits fb;
-    fb.f = f;
-    return (uint16_t)(fb.u >> 16);
-}
 
 // RMSNorm forward for BF16 inputs/outputs; gamma stays in float for precision.
 void rmsnorm_forward_bf16(const uint16_t *input,

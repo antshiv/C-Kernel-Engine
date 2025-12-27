@@ -21,6 +21,9 @@ static inline uint16_t float_to_bf16(float f)
         float f;
     } tmp;
     tmp.f = f;
+    /* Round-to-nearest-even (matches common BF16 semantics and PyTorch CPU). */
+    uint32_t lsb = (tmp.u >> 16) & 1u;
+    tmp.u += 0x7FFFu + lsb;
     return (uint16_t)(tmp.u >> 16);
 }
 

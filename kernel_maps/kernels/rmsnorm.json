@@ -1,15 +1,23 @@
 {
   "name": "rmsnorm",
-  "dtypes": ["fp32", "bf16"],
+  "dtypes": ["fp32", "bf16", "int8", "int4"],
   "default_dtype": "fp32",
   "impl": {
     "forward": "rmsnorm_forward",
     "backward": "rmsnorm_backward",
-    "sources": ["src/kernels/rmsnorm_kernels.c", "src/kernels/rmsnorm_kernels_bf16.c"],
+    "sources": ["src/kernels/rmsnorm_kernels.c", "src/kernels/rmsnorm_kernels_bf16.c", "src/kernels/rmsnorm_kernels_int8.c", "src/kernels/rmsnorm_kernels_int4.c"],
     "variants": {
       "bf16": {
         "forward": "rmsnorm_forward_bf16",
         "backward": "rmsnorm_backward_bf16"
+      },
+      "int8": {
+        "forward": "rmsnorm_forward_int8",
+        "backward": "rmsnorm_backward_int8"
+      },
+      "int4": {
+        "forward": "rmsnorm_forward_int4",
+        "backward": "rmsnorm_backward_int4"
       }
     }
   },

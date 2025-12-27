@@ -6,7 +6,6 @@
 #include <immintrin.h>
 #endif
 
-#include "bf16_utils.h"
 
 // Core sigmoid scalar kernel.
 float sigmoid_scalar(float x)
@@ -95,73 +94,4 @@ void sigmoid_backward(const float *input,
         d_input[i] = d_output[i] * s_prime;
     }
 #endif
-}
-
-static float *convert_bf16_tensor(const uint16_t *src, size_t n)
-{
-    float *dst = (float *)malloc(n * sizeof(float));
-    if (!dst) {
-        return NULL;
-    }
-    for (size_t i = 0; i < n; ++i) {
-        dst[i] = bf16_to_float(src[i]);
-    }
-    return dst;
-}
-
-static void convert_float_to_bf16_tensor(const float *src, uint16_t *dst, size_t n)
-{
-    for (size_t i = 0; i < n; ++i) {
-        dst[i] = float_to_bf16(src[i]);
-    }
-}
-
-void sigmoid_forward_bf16(const uint16_t *input,
-                          uint16_t *output,
-                          size_t n)
-{
-    float *tmp_in = convert_bf16_tensor(input, n);
-    if (!tmp_in) {
-        return;
-    }
-    float *tmp_out = (float *)malloc(n * sizeof(float));
-    if (!tmp_out) {
-        free(tmp_in);
-        return;
-    }
-
-    sigmoid_forward(tmp_in, tmp_out, n);
-    convert_float_to_bf16_tensor(tmp_out, output, n);
-
-    free(tmp_in);
-    free(tmp_out);
-}
-
-void sigmoid_backward_bf16(const uint16_t *input,
-                           const uint16_t *d_output,
-                           uint16_t *d_input,
-                           size_t n)
-{
-    float *tmp_in = convert_bf16_tensor(input, n);
-    if (!tmp_in) {
-        return;
-    }
-    float *tmp_dout = convert_bf16_tensor(d_output, n);
-    if (!tmp_dout) {
-        free(tmp_in);
-        return;
-    }
-    float *tmp_din = (float *)malloc(n * sizeof(float));
-    if (!tmp_din) {
-        free(tmp_in);
-        free(tmp_dout);
-        return;
-    }
-
-    sigmoid_backward(tmp_in, tmp_dout, tmp_din, n);
-    convert_float_to_bf16_tensor(tmp_din, d_input, n);
-
-    free(tmp_in);
-    free(tmp_dout);
-    free(tmp_din);
 }

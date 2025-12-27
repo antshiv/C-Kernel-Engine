@@ -43,24 +43,41 @@ SRCS    := src/backend_native.c \
            src/ckernel_model_layout.c \
            src/ckernel_model_load.c \
             src/kernels/gemm_kernels.c \
-           src/kernels/layernorm_kernels.c \
-           src/kernels/layernorm_kernels_bf16.c \
-           src/kernels/gelu_kernels.c \
-           src/kernels/gelu_kernels_bf16.c \
-           src/kernels/softmax_kernels.c \
-           src/kernels/attention_kernels.c \
-           src/kernels/embedding_kernels.c \
-           src/kernels/loss_kernels.c \
-           src/kernels/mlp_kernels.c \
-           src/kernels/rmsnorm_kernels.c \
-            src/kernels/rmsnorm_kernels_bf16.c \
-            src/kernels/swiglu_kernels.c \
-           src/kernels/sigmoid_kernels.c \
-           src/kernels/relu_kernels.c \
-           src/kernels/vision_kernels.c \
-           src/kernels/rope_kernels.c \
-           src/kernels/rope_kernels_bf16.c
+	           src/kernels/layernorm_kernels.c \
+	           src/kernels/layernorm_kernels_bf16.c \
+	           src/kernels/gelu_kernels.c \
+	           src/kernels/gelu_kernels_bf16.c \
+	           src/kernels/softmax_kernels.c \
+	           src/kernels/softmax_kernels_bf16.c \
+	           src/kernels/attention_kernels.c \
+	           src/kernels/embedding_kernels.c \
+	           src/kernels/embedding_kernels_bf16.c \
+	           src/kernels/loss_kernels.c \
+	           src/kernels/loss_kernels_bf16.c \
+	           src/kernels/mlp_kernels.c \
+	           src/kernels/mlp_kernels_bf16.c \
+	           src/kernels/rmsnorm_kernels.c \
+	            src/kernels/rmsnorm_kernels_bf16.c \
+	            src/kernels/rmsnorm_kernels_int8.c \
+	            src/kernels/rmsnorm_kernels_int4.c \
+	            src/kernels/swiglu_kernels.c \
+	           src/kernels/swiglu_kernels_bf16.c \
+	           src/kernels/sigmoid_kernels.c \
+	           src/kernels/sigmoid_kernels_bf16.c \
+	           src/kernels/relu_kernels.c \
+	           src/kernels/relu_kernels_bf16.c \
+	           src/kernels/vision_kernels.c \
+	           src/kernels/vision_kernels_bf16.c \
+	           src/kernels/rope_kernels.c \
+	           src/kernels/rope_kernels_bf16.c \
+	           src/kernels/dequant_kernels.c \
+	           src/kernels/gemm_kernels_bf16.c \
+	           src/kernels/gemm_kernels_q4_0.c \
+	           src/kernels/gemm_kernels_q4k.c \
+	           src/kernels/gemm_kernels_q8_0.c \
+	           src/kernels/gemm_kernels_f16.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
+LIB_QUANT    := $(BUILD_DIR)/libckernel_quant.so
 LIB_GELU     := $(BUILD_DIR)/libckernel_gelu.so
 LIB_RMSNORM  := $(BUILD_DIR)/libckernel_rmsnorm.so
 LIB_LN       := $(BUILD_DIR)/libckernel_layernorm.so
@@ -127,7 +144,11 @@ PY_TESTS_BF16 := unittest/bf16/test_sigmoid_bf16.py \
                 unittest/bf16/test_attention_bf16.py \
                 unittest/bf16/test_gelu_bf16.py \
                 unittest/bf16/test_layernorm_bf16.py \
-                unittest/bf16/test_rope_bf16.py
+                unittest/bf16/test_rope_bf16.py \
+                unittest/bf16/test_relu_bf16.py \
+                unittest/bf16/test_swiglu_bf16.py \
+                unittest/bf16/test_embedding_bf16.py \
+                unittest/bf16/test_cross_entropy_bf16.py
 
 LITMUS_DEMO_ARGS ?= --vocab 100 --ctx 100 --embed 64 --intermediate 128 --heads 4 --kv-heads 2
 LITMUS_DEMO_SVG ?= $(BUILD_DIR)/litmus_report.svg
@@ -169,32 +190,35 @@ ck-emit: emit
 $(LIB_GELU): $(BUILD_DIR) src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c -lm
 
-$(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c -lm
+$(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c -lm
 
 $(LIB_LN): $(BUILD_DIR) src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c -lm
 
-$(LIB_SOFT): $(BUILD_DIR) src/kernels/softmax_kernels.c include/ckernel_engine.h
-	$(CC) $(CFLAGS) -shared -o $@ src/kernels/softmax_kernels.c -lm
+$(LIB_SOFT): $(BUILD_DIR) src/kernels/softmax_kernels.c src/kernels/softmax_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/softmax_kernels.c src/kernels/softmax_kernels_bf16.c -lm
 
-$(LIB_SWIGLU): $(BUILD_DIR) src/kernels/swiglu_kernels.c src/kernels/sigmoid_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/swiglu_kernels.c src/kernels/sigmoid_kernels.c -lm
+$(LIB_SWIGLU): $(BUILD_DIR) src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c -lm
 
-$(LIB_SIGMOID): $(BUILD_DIR) src/kernels/sigmoid_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/sigmoid_kernels.c -lm
+$(LIB_SIGMOID): $(BUILD_DIR) src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c -lm
 
-$(LIB_RELU): $(BUILD_DIR) src/kernels/relu_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/relu_kernels.c -lm
+$(LIB_RELU): $(BUILD_DIR) src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c -lm
 
-$(LIB_VISION): $(BUILD_DIR) src/kernels/vision_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/vision_kernels.c -lm
+$(LIB_VISION): $(BUILD_DIR) src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c include/ckernel_engine.h
+	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c -lm
 
 $(LIB_ATTENTION): $(BUILD_DIR) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
 
 $(LIB_ROPE): $(BUILD_DIR) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
 	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
+
+$(LIB_QUANT): $(BUILD_DIR) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
 
 # Convenience alias targets so existing commands still work.
 libckernel_gelu.so: $(LIB_GELU)
@@ -233,7 +257,13 @@ test-vision: $(LIB_VISION)
 libckernel_rope.so: $(LIB_ROPE)
 	@true
 
-test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE) $(LIB_RELU) $(LIB_VISION)
+libckernel_quant.so: $(LIB_QUANT)
+	@true
+
+test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_SIGMOID) $(LIB_ATTENTION) $(LIB_ROPE) $(LIB_RELU) $(LIB_VISION) $(LIB_QUANT)
+
+test-quant: $(LIB_QUANT)
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_quant_kernels.py
 
 test: $(LIB) test-libs
 	@set -e; \
@@ -270,6 +300,12 @@ layer-parity-scalar:
 
 gen-specs:
 	$(PYTHON) $(PYTHONFLAGS) scripts/gen_kernel_specs.py
+
+kernel-coverage:
+	@$(PYTHON) $(PYTHONFLAGS) scripts/kernel_coverage.py
+
+kernel-coverage-md:
+	@$(PYTHON) $(PYTHONFLAGS) scripts/kernel_coverage.py --markdown
 
 tiny-e2e: $(IR_DEMO) $(LIB)
 	$(PYTHON) $(PYTHONFLAGS) scripts/gen_random_bump.py --config $(TINY_CONFIG) --output $(BUILD_DIR)/tiny_weights.bin

@@ -1,0 +1,528 @@
+"""
+Quantized Kernel Unit Tests
+
+Tests all quantization formats:
+- Q4_0: Simple 4-bit (32 weights/block)
+- Q4_K: K-quant 4-bit with nested scales (256 weights/block)
+- Q8_0: Simple 8-bit (32 weights/block)
+- F16: IEEE half-precision
+
+Tests both forward (GEMV/GEMM) and backward passes.
+"""
+import ctypes
+import sys
+import struct
+from pathlib import Path
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+UNITS = ROOT / "unittest"
+for path in (ROOT, UNITS):
+    if str(path) not in sys.path:
+        sys.path.append(str(path))
+
+from lib_loader import load_lib
+from test_utils import print_system_info
+
+# Load the library
+try:
+    lib = load_lib("libckernel_quant.so", "libckernel_engine.so")
+except Exception as e:
+    print(f"Warning: Could not load quantization library: {e}")
+    print("Run 'make libckernel_quant.so' first")
+    sys.exit(0)
+
+# Constants
+QK4_0 = 32          # Q4_0 block size
+QK8_0 = 32          # Q8_0 block size
+QK_K = 256          # Q4_K block size
+BLOCK_Q4_0_SIZE = 18
+BLOCK_Q8_0_SIZE = 34
+BLOCK_Q4_K_SIZE = 144
+
+
+# ============================================================================
+# FP16 Utilities
+# ============================================================================
+
+def fp16_to_fp32(h: int) -> float:
+    """Convert FP16 (uint16) to FP32."""
+    sign = (h >> 15) & 1
+    exp = (h >> 10) & 0x1F
+    mant = h & 0x3FF
+
+    if exp == 0:
+        if mant == 0:
+            return (-1.0 if sign else 1.0) * 0.0
+        return (-1.0 if sign else 1.0) * (mant / 1024.0) * (2.0 ** -14)
+    elif exp == 31:
+        if mant == 0:
+            return float('-inf') if sign else float('inf')
+        return float('nan')
+    else:
+        return (-1.0 if sign else 1.0) * (1.0 + mant / 1024.0) * (2.0 ** (exp - 15))
+
+
+# ============================================================================
+# Q4_0 Reference Implementation
+# ============================================================================
+
+def create_random_q4_0_block() -> bytes:
+    """Create a random Q4_0 block for testing."""
+    d = np.random.uniform(0.01, 0.5)
+    d_bits = np.float16(d).view(np.uint16)
+    qs = np.random.randint(0, 256, QK4_0 // 2, dtype=np.uint8).tobytes()
+    return struct.pack('<H', d_bits) + qs
+
+
+def dequant_q4_0_block_ref(block_data: bytes) -> np.ndarray:
+    """Reference dequantization of Q4_0 block."""
+    d_bits = struct.unpack('<H', block_data[0:2])[0]
+    d = fp16_to_fp32(d_bits)
+    qs = block_data[2:18]
+
+    output = np.zeros(QK4_0, dtype=np.float32)
+    for i in range(QK4_0 // 2):
+        packed = qs[i]
+        q0 = (packed & 0x0F) - 8
+        q1 = (packed >> 4) - 8
+        output[2*i + 0] = d * q0
+        output[2*i + 1] = d * q1
+    return output
+
+
+def gemv_q4_0_ref(W_blocks: bytes, x: np.ndarray, M: int, K: int) -> np.ndarray:
+    """Reference Q4_0 GEMV."""
+    blocks_per_row = K // QK4_0
+    y = np.zeros(M, dtype=np.float32)
+
+    for row in range(M):
+        for b in range(blocks_per_row):
+            offset = (row * blocks_per_row + b) * BLOCK_Q4_0_SIZE
+            block_data = W_blocks[offset:offset + BLOCK_Q4_0_SIZE]
+            w_fp32 = dequant_q4_0_block_ref(block_data)
+            y[row] += np.dot(w_fp32, x[b * QK4_0:(b + 1) * QK4_0])
+    return y
+
+
+# ============================================================================
+# Q8_0 Reference Implementation
+# ============================================================================
+
+def create_random_q8_0_block() -> bytes:
+    """Create a random Q8_0 block for testing."""
+    d = np.random.uniform(0.01, 0.5)
+    d_bits = np.float16(d).view(np.uint16)
+    qs = np.random.randint(-128, 128, QK8_0, dtype=np.int8).tobytes()
+    return struct.pack('<H', d_bits) + qs
+
+
+def dequant_q8_0_block_ref(block_data: bytes) -> np.ndarray:
+    """Reference dequantization of Q8_0 block."""
+    d_bits = struct.unpack('<H', block_data[0:2])[0]
+    d = fp16_to_fp32(d_bits)
+    qs = np.frombuffer(block_data[2:34], dtype=np.int8)
+    return d * qs.astype(np.float32)
+
+
+def gemv_q8_0_ref(W_blocks: bytes, x: np.ndarray, M: int, K: int) -> np.ndarray:
+    """Reference Q8_0 GEMV."""
+    blocks_per_row = K // QK8_0
+    y = np.zeros(M, dtype=np.float32)
+
+    for row in range(M):
+        for b in range(blocks_per_row):
+            offset = (row * blocks_per_row + b) * BLOCK_Q8_0_SIZE
+            block_data = W_blocks[offset:offset + BLOCK_Q8_0_SIZE]
+            w_fp32 = dequant_q8_0_block_ref(block_data)
+            y[row] += np.dot(w_fp32, x[b * QK8_0:(b + 1) * QK8_0])
+    return y
+
+
+# ============================================================================
+# Q4_K Reference Implementation
+# ============================================================================
+
+def unpack_q4_k_scales(scales: bytes) -> tuple:
+    """Unpack 6-bit scales and mins from 12-byte packed array."""
+    sc = [0] * 8
+    m = [0] * 8
+
+    sc[0] = scales[0] & 0x3F
+    sc[1] = (scales[0] >> 6) | ((scales[1] & 0x0F) << 2)
+    sc[2] = (scales[1] >> 4) | ((scales[2] & 0x03) << 4)
+    sc[3] = scales[2] >> 2
+    sc[4] = scales[3] & 0x3F
+    sc[5] = (scales[3] >> 6) | ((scales[4] & 0x0F) << 2)
+    sc[6] = (scales[4] >> 4) | ((scales[5] & 0x03) << 4)
+    sc[7] = scales[5] >> 2
+
+    m[0] = scales[6] & 0x3F
+    m[1] = (scales[6] >> 6) | ((scales[7] & 0x0F) << 2)
+    m[2] = (scales[7] >> 4) | ((scales[8] & 0x03) << 4)
+    m[3] = scales[8] >> 2
+    m[4] = scales[9] & 0x3F
+    m[5] = (scales[9] >> 6) | ((scales[10] & 0x0F) << 2)
+    m[6] = (scales[10] >> 4) | ((scales[11] & 0x03) << 4)
+    m[7] = scales[11] >> 2
+
+    return sc, m
+
+
+def create_random_q4_k_block() -> bytes:
+    """Create a random Q4_K block for testing."""
+    d = np.random.uniform(0.01, 0.5)
+    dmin = np.random.uniform(0.0, 0.1)
+    d_bits = np.float16(d).view(np.uint16)
+    dmin_bits = np.float16(dmin).view(np.uint16)
+
+    sc = np.random.randint(0, 64, 8, dtype=np.uint8)
+    m = np.random.randint(0, 64, 8, dtype=np.uint8)
+
+    scales = bytes([
+        (sc[0] & 0x3F) | ((sc[1] & 0x03) << 6),
+        ((sc[1] >> 2) & 0x0F) | ((sc[2] & 0x0F) << 4),
+        ((sc[2] >> 4) & 0x03) | ((sc[3] & 0x3F) << 2),
+        (sc[4] & 0x3F) | ((sc[5] & 0x03) << 6),
+        ((sc[5] >> 2) & 0x0F) | ((sc[6] & 0x0F) << 4),
+        ((sc[6] >> 4) & 0x03) | ((sc[7] & 0x3F) << 2),
+        (m[0] & 0x3F) | ((m[1] & 0x03) << 6),
+        ((m[1] >> 2) & 0x0F) | ((m[2] & 0x0F) << 4),
+        ((m[2] >> 4) & 0x03) | ((m[3] & 0x3F) << 2),
+        (m[4] & 0x3F) | ((m[5] & 0x03) << 6),
+        ((m[5] >> 2) & 0x0F) | ((m[6] & 0x0F) << 4),
+        ((m[6] >> 4) & 0x03) | ((m[7] & 0x3F) << 2),
+    ])
+
+    qs = np.random.randint(0, 256, 128, dtype=np.uint8).tobytes()
+    return struct.pack('<H', d_bits) + struct.pack('<H', dmin_bits) + scales + qs
+
+
+def dequant_q4_k_block_ref(block_data: bytes) -> np.ndarray:
+    """Reference dequantization of Q4_K block."""
+    d_bits = struct.unpack('<H', block_data[0:2])[0]
+    dmin_bits = struct.unpack('<H', block_data[2:4])[0]
+    scales = block_data[4:16]
+    qs = block_data[16:144]
+
+    d = fp16_to_fp32(d_bits)
+    dmin = fp16_to_fp32(dmin_bits)
+    sc, m = unpack_q4_k_scales(scales)
+
+    output = np.zeros(256, dtype=np.float32)
+    for sub in range(8):
+        scale = d * sc[sub]
+        min_val = dmin * m[sub]
+        for i in range(16):
+            packed = qs[sub * 16 + i]
+            q0 = (packed & 0x0F) - 8
+            q1 = (packed >> 4) - 8
+            output[sub * 32 + 2*i + 0] = scale * q0 + min_val
+            output[sub * 32 + 2*i + 1] = scale * q1 + min_val
+    return output
+
+
+def gemv_q4_k_ref(W_blocks: bytes, x: np.ndarray, M: int, K: int) -> np.ndarray:
+    """Reference Q4_K GEMV."""
+    blocks_per_row = K // QK_K
+    y = np.zeros(M, dtype=np.float32)
+
+    for row in range(M):
+        for b in range(blocks_per_row):
+            offset = (row * blocks_per_row + b) * BLOCK_Q4_K_SIZE
+            block_data = W_blocks[offset:offset + BLOCK_Q4_K_SIZE]
+            w_fp32 = dequant_q4_k_block_ref(block_data)
+            y[row] += np.dot(w_fp32, x[b * QK_K:(b + 1) * QK_K])
+    return y
+
+
+# ============================================================================
+# F16 Reference Implementation
+# ============================================================================
+
+def gemv_f16_ref(W: np.ndarray, x: np.ndarray) -> np.ndarray:
+    """Reference F16 GEMV (W is uint16 F16 format)."""
+    M, K = W.shape
+    y = np.zeros(M, dtype=np.float32)
+    for row in range(M):
+        for k in range(K):
+            w = fp16_to_fp32(W[row, k])
+            y[row] += w * x[k]
+    return y
+
+
+# ============================================================================
+# Test Functions
+# ============================================================================
+
+def test_dequant_q4_0():
+    """Test Q4_0 dequantization accuracy."""
+    np.random.seed(42)
+    block_data = create_random_q4_0_block()
+    ref_output = dequant_q4_0_block_ref(block_data)
+
+    try:
+        lib.dequant_q4_0_row.argtypes = [
+            ctypes.c_void_p, ctypes.POINTER(ctypes.c_float), ctypes.c_size_t
+        ]
+        lib.dequant_q4_0_row.restype = None
+
+        c_output = np.zeros(QK4_0, dtype=np.float32)
+        block_arr = np.frombuffer(block_data, dtype=np.uint8)
+        lib.dequant_q4_0_row(
+            block_arr.ctypes.data_as(ctypes.c_void_p),
+            c_output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_size_t(QK4_0)
+        )
+        diff = np.max(np.abs(c_output - ref_output))
+        return diff <= 1e-5, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_gemv_q4_0():
+    """Test Q4_0 GEMV accuracy."""
+    np.random.seed(42)
+    M, K = 32, 64
+    blocks = b''.join([create_random_q4_0_block() for _ in range(M * K // QK4_0)])
+    x = np.random.randn(K).astype(np.float32)
+    ref_y = gemv_q4_0_ref(blocks, x, M, K)
+
+    try:
+        lib.gemv_q4_0.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int
+        ]
+        lib.gemv_q4_0.restype = None
+
+        c_y = np.zeros(M, dtype=np.float32)
+        blocks_arr = np.frombuffer(blocks, dtype=np.uint8)
+        lib.gemv_q4_0(
+            c_y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            blocks_arr.ctypes.data_as(ctypes.c_void_p),
+            x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_int(M), ctypes.c_int(K)
+        )
+        diff = np.max(np.abs(c_y - ref_y))
+        return diff <= 1e-3, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_dequant_q8_0():
+    """Test Q8_0 dequantization accuracy."""
+    np.random.seed(42)
+    block_data = create_random_q8_0_block()
+    ref_output = dequant_q8_0_block_ref(block_data)
+
+    try:
+        lib.dequant_q8_0_row.argtypes = [
+            ctypes.c_void_p, ctypes.POINTER(ctypes.c_float), ctypes.c_size_t
+        ]
+        lib.dequant_q8_0_row.restype = None
+
+        c_output = np.zeros(QK8_0, dtype=np.float32)
+        block_arr = np.frombuffer(block_data, dtype=np.uint8)
+        lib.dequant_q8_0_row(
+            block_arr.ctypes.data_as(ctypes.c_void_p),
+            c_output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_size_t(QK8_0)
+        )
+        diff = np.max(np.abs(c_output - ref_output))
+        return diff <= 1e-5, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_gemv_q8_0():
+    """Test Q8_0 GEMV accuracy."""
+    np.random.seed(42)
+    M, K = 32, 64
+    blocks = b''.join([create_random_q8_0_block() for _ in range(M * K // QK8_0)])
+    x = np.random.randn(K).astype(np.float32)
+    ref_y = gemv_q8_0_ref(blocks, x, M, K)
+
+    try:
+        lib.gemv_q8_0.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int
+        ]
+        lib.gemv_q8_0.restype = None
+
+        c_y = np.zeros(M, dtype=np.float32)
+        blocks_arr = np.frombuffer(blocks, dtype=np.uint8)
+        lib.gemv_q8_0(
+            c_y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            blocks_arr.ctypes.data_as(ctypes.c_void_p),
+            x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_int(M), ctypes.c_int(K)
+        )
+        diff = np.max(np.abs(c_y - ref_y))
+        return diff <= 1e-3, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_dequant_q4_k():
+    """Test Q4_K dequantization accuracy."""
+    np.random.seed(42)
+    block_data = create_random_q4_k_block()
+    ref_output = dequant_q4_k_block_ref(block_data)
+
+    try:
+        lib.dequant_q4_k_row.argtypes = [
+            ctypes.c_void_p, ctypes.POINTER(ctypes.c_float), ctypes.c_size_t
+        ]
+        lib.dequant_q4_k_row.restype = None
+
+        c_output = np.zeros(QK_K, dtype=np.float32)
+        block_arr = np.frombuffer(block_data, dtype=np.uint8)
+        lib.dequant_q4_k_row(
+            block_arr.ctypes.data_as(ctypes.c_void_p),
+            c_output.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_size_t(QK_K)
+        )
+        diff = np.max(np.abs(c_output - ref_output))
+        return diff <= 1e-5, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_gemv_q4_k():
+    """Test Q4_K GEMV accuracy."""
+    np.random.seed(42)
+    M, K = 64, 256
+    blocks = b''.join([create_random_q4_k_block() for _ in range(M)])
+    x = np.random.randn(K).astype(np.float32)
+    ref_y = gemv_q4_k_ref(blocks, x, M, K)
+
+    try:
+        lib.gemv_q4_k.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int
+        ]
+        lib.gemv_q4_k.restype = None
+
+        c_y = np.zeros(M, dtype=np.float32)
+        blocks_arr = np.frombuffer(blocks, dtype=np.uint8)
+        lib.gemv_q4_k(
+            c_y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            blocks_arr.ctypes.data_as(ctypes.c_void_p),
+            x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_int(M), ctypes.c_int(K)
+        )
+        diff = np.max(np.abs(c_y - ref_y))
+        return diff <= 1e-3, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_gemv_f16():
+    """Test F16 GEMV accuracy."""
+    np.random.seed(42)
+    M, K = 32, 64
+
+    # Create F16 weights
+    W_fp32 = np.random.randn(M, K).astype(np.float32)
+    W_f16 = W_fp32.astype(np.float16).view(np.uint16)
+    x = np.random.randn(K).astype(np.float32)
+
+    # Reference using numpy's float16
+    ref_y = (W_fp32.astype(np.float16).astype(np.float32) @ x)
+
+    try:
+        lib.gemv_f16.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int
+        ]
+        lib.gemv_f16.restype = None
+
+        c_y = np.zeros(M, dtype=np.float32)
+        lib.gemv_f16(
+            c_y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            W_f16.ctypes.data_as(ctypes.c_void_p),
+            x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_int(M), ctypes.c_int(K)
+        )
+        diff = np.max(np.abs(c_y - ref_y))
+        return diff <= 1e-3, diff
+    except Exception as e:
+        return False, str(e)
+
+
+def test_backward_q4_k():
+    """Test Q4_K backward pass accuracy."""
+    np.random.seed(42)
+    M, K = 64, 256
+    blocks = b''.join([create_random_q4_k_block() for _ in range(M)])
+    dY = np.random.randn(M).astype(np.float32)
+
+    # Reference: dX = W^T @ dY (dequantize W, then transpose matmul)
+    W_fp32 = np.zeros((M, K), dtype=np.float32)
+    for row in range(M):
+        offset = row * BLOCK_Q4_K_SIZE
+        block_data = blocks[offset:offset + BLOCK_Q4_K_SIZE]
+        W_fp32[row, :] = dequant_q4_k_block_ref(block_data)
+    ref_dX = W_fp32.T @ dY
+
+    try:
+        lib.gemv_q4_k_backward.argtypes = [
+            ctypes.POINTER(ctypes.c_float), ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int
+        ]
+        lib.gemv_q4_k_backward.restype = None
+
+        c_dX = np.zeros(K, dtype=np.float32)
+        blocks_arr = np.frombuffer(blocks, dtype=np.uint8)
+        lib.gemv_q4_k_backward(
+            c_dX.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            blocks_arr.ctypes.data_as(ctypes.c_void_p),
+            dY.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            ctypes.c_int(M), ctypes.c_int(K)
+        )
+        diff = np.max(np.abs(c_dX - ref_dX))
+        return diff <= 1e-2, diff  # Relaxed tolerance for backward
+    except Exception as e:
+        return False, str(e)
+
+
+# ============================================================================
+# Main
+# ============================================================================
+
+if __name__ == "__main__":
+    print_system_info()
+
+    print("\n" + "=" * 70)
+    print("  Quantized Kernel Unit Tests")
+    print("=" * 70)
+
+    tests = [
+        ("Q4_0 Dequantization", test_dequant_q4_0),
+        ("Q4_0 GEMV Forward", test_gemv_q4_0),
+        ("Q8_0 Dequantization", test_dequant_q8_0),
+        ("Q8_0 GEMV Forward", test_gemv_q8_0),
+        ("Q4_K Dequantization", test_dequant_q4_k),
+        ("Q4_K GEMV Forward", test_gemv_q4_k),
+        ("Q4_K GEMV Backward", test_backward_q4_k),
+        ("F16 GEMV Forward", test_gemv_f16),
+    ]
+
+    passed = 0
+    failed = 0
+
+    for name, test_fn in tests:
+        print(f"\nTest: {name}")
+        success, result = test_fn()
+        if success:
+            print(f"  [PASS] max_diff = {result:.2e}")
+            passed += 1
+        else:
+            print(f"  [FAIL] {result}")
+            failed += 1
+
+    print("\n" + "=" * 70)
+    print(f"  Results: {passed} passed, {failed} failed")
+    print("=" * 70)
+
+    sys.exit(0 if failed == 0 else 1)

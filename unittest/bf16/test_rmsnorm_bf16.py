@@ -72,6 +72,11 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
 
     x_bf16 = float32_to_bf16(x_np)
 
+    # Quantize gamma to BF16 precision for fair comparison with PyTorch BF16
+    # The C kernel keeps gamma in FP32 for precision, but we pass BF16-quantized
+    # values to match what PyTorch sees
+    gamma_bf16_quantized = bf16_to_float32(float32_to_bf16(gamma_np))
+
     x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
     gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
 
@@ -90,7 +95,7 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     def c_rmsnorm():
         lib.rmsnorm_forward_bf16(
             numpy_to_uint16_ptr(x_bf16),
-            numpy_to_ptr(gamma_np),
+            numpy_to_ptr(gamma_bf16_quantized),
             numpy_to_uint16_ptr(out_bf16),
             numpy_to_ptr(rstd_np),
             ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D), ctypes.c_float(eps)
@@ -118,6 +123,9 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     gamma_np = np.random.randn(D).astype(np.float32)
     upstream_np = np.random.randn(T, D).astype(np.float32)
 
+    # Quantize gamma to BF16 precision for fair comparison with PyTorch BF16
+    gamma_bf16_quantized = bf16_to_float32(float32_to_bf16(gamma_np))
+
     x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
     gamma = torch.from_numpy(gamma_np.copy()).to(dtype=torch.bfloat16)
     upstream = torch.from_numpy(upstream_np.copy()).to(dtype=torch.bfloat16)
@@ -139,7 +147,7 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     upstream_bf16 = float32_to_bf16(upstream_np)
     lib.rmsnorm_forward_bf16(
         numpy_to_uint16_ptr(x_bf16),
-        numpy_to_ptr(gamma_np),
+        numpy_to_ptr(gamma_bf16_quantized),
         numpy_to_uint16_ptr(dx_bf16),  # reuse buffer to prime rstd cache
         numpy_to_ptr(rstd_np),
         ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D), ctypes.c_float(eps)
@@ -148,7 +156,7 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
     lib.rmsnorm_backward_bf16(
         numpy_to_uint16_ptr(upstream_bf16),
         numpy_to_uint16_ptr(x_bf16),
-        numpy_to_ptr(gamma_np),
+        numpy_to_ptr(gamma_bf16_quantized),
         numpy_to_ptr(rstd_np),
         numpy_to_uint16_ptr(dx_bf16),
         numpy_to_ptr(dgamma_np),
@@ -174,7 +182,7 @@ def run_backward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
             lambda: lib.rmsnorm_backward_bf16(
                 numpy_to_uint16_ptr(upstream_bf16),
                 numpy_to_uint16_ptr(x_bf16),
-                numpy_to_ptr(gamma_np),
+                numpy_to_ptr(gamma_bf16_quantized),
                 numpy_to_ptr(rstd_np),
                 numpy_to_uint16_ptr(dx_bf16),
                 numpy_to_ptr(dgamma_np),

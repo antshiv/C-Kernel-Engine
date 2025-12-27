@@ -1,9 +1,17 @@
 {
   "name": "rope",
+  "dtypes": ["fp32", "bf16"],
+  "default_dtype": "fp32",
   "impl": {
     "forward": "rope_forward_qk",
     "backward": "rope_backward_qk",
-    "sources": ["src/kernels/rope_kernels.c"]
+    "sources": ["src/kernels/rope_kernels.c", "src/kernels/rope_kernels_bf16.c"],
+    "variants": {
+      "bf16": {
+        "forward": "rope_forward_qk_bf16",
+        "backward": "rope_backward_qk_bf16"
+      }
+    }
   },
   "buffers": [
     {"id": "q", "role": "input", "shape": [{"dim": "num_heads"}, {"dim": "tokens"}, {"dim": "aligned_head"}]},
