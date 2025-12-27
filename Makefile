@@ -29,8 +29,17 @@ AVX_FLAGS ?=
 endif
 INCLUDES := -Iinclude
 CFLAGS  := -O3 -fPIC $(OPENMP_FLAG) -Wall $(AVX_FLAGS) $(INCLUDES)
+CXX ?= g++
+BENCH_CC ?= gcc
+BENCH_CXX ?= $(CXX)
 
 BUILD_DIR := build
+
+# oneDNN (optional) - used for benchmarking / baseline comparisons.
+DNNL_PREFIX ?= /usr/local
+DNNL_INC := $(DNNL_PREFIX)/include
+DNNL_LIB := $(DNNL_PREFIX)/lib
+DNNL_HPP := $(wildcard $(DNNL_INC)/dnnl.hpp)
 
 SRCS    := src/backend_native.c \
            src/ckernel_ir.c \
@@ -88,6 +97,7 @@ LIB_RELU     := $(BUILD_DIR)/libckernel_relu.so
 LIB_VISION   := $(BUILD_DIR)/libckernel_vision.so
 LIB_ATTENTION := $(BUILD_DIR)/libckernel_attention.so
 LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
+BENCH_GEMM_ONEDNN := $(BUILD_DIR)/bench_gemm_onednn
 
 IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 DEFAULT_CONFIG := default.config.json
@@ -280,6 +290,28 @@ test-bf16: $(LIB) test-libs
 	  LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(TEST_ENV) $(PYTHON) $(PYTHONFLAGS) $$t; \
 	done; \
 	echo "BF16 Python kernel tests completed."
+
+$(BUILD_DIR)/bench_gemm_onednn.o: tools/bench_gemm_onednn.cpp include/ckernel_engine.h
+	$(BENCH_CXX) -O3 -std=c++17 -Iinclude -I$(DNNL_INC) -c -o $@ tools/bench_gemm_onednn.cpp
+
+$(BUILD_DIR)/bench_gemm_gemm_kernels.o: src/kernels/gemm_kernels.c include/ckernel_engine.h
+	$(BENCH_CC) -O3 -Wall $(AVX_FLAGS) $(OPENMP_FLAG) -Iinclude -c -o $@ src/kernels/gemm_kernels.c
+
+$(BUILD_DIR)/bench_gemm_strict.o: src/ckernel_strict.c include/ckernel_engine.h
+	$(BENCH_CC) -O3 -Wall -Iinclude -c -o $@ src/ckernel_strict.c
+
+$(BENCH_GEMM_ONEDNN): $(BUILD_DIR) $(BUILD_DIR)/bench_gemm_onednn.o $(BUILD_DIR)/bench_gemm_gemm_kernels.o $(BUILD_DIR)/bench_gemm_strict.o
+	$(BENCH_CXX) -O3 -o $@ $(BUILD_DIR)/bench_gemm_onednn.o $(BUILD_DIR)/bench_gemm_gemm_kernels.o $(BUILD_DIR)/bench_gemm_strict.o \
+	    -L$(DNNL_LIB) -ldnnl -lm $(OPENMP_FLAG) -Wl,-rpath,$(DNNL_LIB)
+
+bench-gemm-onednn:
+ifeq ($(DNNL_HPP),)
+	@echo "oneDNN headers not found at $(DNNL_INC) (set DNNL_PREFIX=/path/to/install)"; \
+	exit 1
+else
+	$(MAKE) $(BENCH_GEMM_ONEDNN)
+	LD_LIBRARY_PATH=$(DNNL_LIB):$$LD_LIBRARY_PATH ./$(BENCH_GEMM_ONEDNN) $(ARGS)
+endif
 
 rope-test: $(LIB) test-libs
 	$(PYTHON) $(PYTHONFLAGS) unittest/test_rope.py
