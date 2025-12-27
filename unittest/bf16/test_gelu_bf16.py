@@ -3,6 +3,10 @@ GELU BF16 kernel unit tests.
 
 Verifies the in-place forward pass and backward gradient path exposed in
 `gelu_kernels_bf16.c` against PyTorch's BF16 implementation.
+
+Note: our BF16 GELU kernels treat BF16 as a storage format and do the math in
+FP32 using the tanh GELU approximation (PyTorch `approximate=\"tanh\"`), then
+round back to BF16. The reference below matches that contract.
 """
 import ctypes
 import sys
@@ -64,7 +68,8 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
 
     def pytorch_gelu():
         x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
-        return torch.nn.functional.gelu(x)
+        # BF16 storage -> FP32 compute -> BF16 output (tanh approx).
+        return torch.nn.functional.gelu(x.to(dtype=torch.float32), approximate="tanh").to(dtype=torch.bfloat16)
 
     def c_gelu():
         lib.gelu_fast_inplace_bf16(data_ptr, ctypes.c_size_t(N))
@@ -97,8 +102,8 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     upstream_ptr = numpy_to_uint16_ptr(upstream_bf16)
     dx_ptr = numpy_to_uint16_ptr(dx_bf16)
 
-    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16).requires_grad_(True)
-    upstream = torch.from_numpy(upstream_np.copy()).to(dtype=torch.bfloat16)
+    x_q = torch.from_numpy(bf16_to_float32(x_bf16.copy())).to(dtype=torch.float32)
+    upstream_q = torch.from_numpy(bf16_to_float32(upstream_bf16.copy())).to(dtype=torch.float32)
 
     report = TestReport(
         test_name="GELU Backward",
@@ -108,13 +113,15 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     )
 
     def pytorch_forward():
-        return torch.nn.functional.gelu(x)
+        x_ref = x_q.clone().detach().requires_grad_(True)
+        return torch.nn.functional.gelu(x_ref, approximate="tanh")
 
     def pytorch_fwd_bwd():
-        x_ref = x.clone().detach().requires_grad_(True)
-        out = torch.nn.functional.gelu(x_ref)
-        out.backward(upstream)
-        return x_ref.grad
+        x_ref = x_q.clone().detach().requires_grad_(True)
+        out = torch.nn.functional.gelu(x_ref, approximate="tanh")
+        out.backward(upstream_q)
+        # Kernel returns BF16 gradients (quantized), so quantize the reference too.
+        return x_ref.grad.to(dtype=torch.bfloat16).to(dtype=torch.float32)
 
     dx_ref = pytorch_fwd_bwd()
 
@@ -123,7 +130,7 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
 
     c_backward()
     dx_c = torch.from_numpy(bf16_to_float32(dx_bf16.copy()))
-    diff = max_diff(dx_c, dx_ref.to(dtype=torch.float32))
+    diff = max_diff(dx_c, dx_ref)
 
     report.add_result(TestResult(
         name="d_input",

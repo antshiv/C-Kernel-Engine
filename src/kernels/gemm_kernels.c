@@ -1,10 +1,26 @@
 #include "ckernel_engine.h"
-#if defined(__AVX512F__)
+#if defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__)
 #include <immintrin.h>
 #endif
 #include <omp.h>
 
 static inline int ck_min(int a, int b) { return a < b ? a : b; }
+
+// AVX1 horizontal sum helper (no _mm256_reduce_add_ps in AVX1)
+#if defined(__AVX__) && !defined(__AVX512F__)
+static inline float hsum256_ps(__m256 v) {
+    // Sum upper and lower 128-bit lanes
+    __m128 lo = _mm256_castps256_ps128(v);
+    __m128 hi = _mm256_extractf128_ps(v, 1);
+    __m128 sum128 = _mm_add_ps(lo, hi);
+    // Horizontal add within 128-bit
+    __m128 shuf = _mm_movehdup_ps(sum128);  // [1,1,3,3]
+    __m128 sums = _mm_add_ps(sum128, shuf); // [0+1,1+1,2+3,3+3]
+    shuf = _mm_movehl_ps(shuf, sums);       // [2+3,3+3,...]
+    sums = _mm_add_ss(sums, shuf);          // [0+1+2+3,...]
+    return _mm_cvtss_f32(sums);
+}
+#endif
 
 static void gemm_naive_serial_double(const float *A,
                                      const float *B,
@@ -47,7 +63,7 @@ void gemm_naive_parallel(const float *A,
     }
 }
 
-// AVX-512 optimized GEMM – copied from C-Transformer.
+// AVX-512 optimized GEMM with AVX1 fallback
 void gemm_avx512_parallel(const float *A,
                           const float *B,
                           const float *bias,
@@ -77,12 +93,33 @@ void gemm_avx512_parallel(const float *A,
             C[i * N + j] = sum + bias_val;
         }
     }
+#elif defined(__AVX__)
+    // AVX1 path: 256-bit vectors, no FMA (use mul + add)
+#pragma omp parallel for
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            __m256 sum_vec = _mm256_setzero_ps();
+            int k;
+            for (k = 0; k <= K - 8; k += 8) {
+                __m256 a_vec = _mm256_loadu_ps(&A[i * K + k]);
+                __m256 b_vec = _mm256_loadu_ps(&B[j * K + k]);
+                __m256 prod = _mm256_mul_ps(a_vec, b_vec);
+                sum_vec = _mm256_add_ps(sum_vec, prod);
+            }
+            float sum = hsum256_ps(sum_vec);
+            for (; k < K; k++) {
+                sum += A[i * K + k] * B[j * K + k];
+            }
+            float bias_val = bias ? bias[j] : 0.0f;
+            C[i * N + j] = sum + bias_val;
+        }
+    }
 #else
     gemm_naive_parallel(A, B, bias, C, M, N, K);
 #endif
 }
 
-// Cache-blocked GEMM with fine-grained parallelism – copied from C-Transformer.
+// Cache-blocked GEMM with fine-grained parallelism and AVX1 fallback
 void gemm_fine_grained_parallel(const float *A,
                                 const float *B,
                                 const float *bias,
@@ -119,6 +156,44 @@ void gemm_fine_grained_parallel(const float *A,
                             sum_vec = _mm512_fmadd_ps(a_vec, b_vec, sum_vec);
                         }
                         float partial_sum = _mm512_reduce_add_ps(sum_vec);
+                        for (; k < k_end; k++) {
+                            partial_sum += A[i * K + k] * B[j * K + k];
+                        }
+#pragma omp atomic
+                        C[i * N + j] += partial_sum;
+                    }
+                }
+            }
+        }
+    }
+#elif defined(__AVX__)
+    // AVX1 cache-blocked version
+    const int block_size = 32;  // Smaller block for L1 cache
+#pragma omp parallel for
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            C[i * N + j] = bias ? bias[j] : 0.0f;
+        }
+    }
+#pragma omp parallel for collapse(3)
+    for (int ii = 0; ii < M; ii += block_size) {
+        for (int jj = 0; jj < N; jj += block_size) {
+            for (int kk = 0; kk < K; kk += block_size) {
+                int i_end = ck_min(ii + block_size, M);
+                int j_end = ck_min(jj + block_size, N);
+                int k_end = ck_min(kk + block_size, K);
+
+                for (int i = ii; i < i_end; i++) {
+                    for (int j = jj; j < j_end; j++) {
+                        __m256 sum_vec = _mm256_setzero_ps();
+                        int k;
+                        for (k = kk; k <= k_end - 8; k += 8) {
+                            __m256 a_vec = _mm256_loadu_ps(&A[i * K + k]);
+                            __m256 b_vec = _mm256_loadu_ps(&B[j * K + k]);
+                            __m256 prod = _mm256_mul_ps(a_vec, b_vec);
+                            sum_vec = _mm256_add_ps(sum_vec, prod);
+                        }
+                        float partial_sum = hsum256_ps(sum_vec);
                         for (; k < k_end; k++) {
                             partial_sum += A[i * K + k] * B[j * K + k];
                         }
@@ -214,6 +289,29 @@ void gemm_nn_avx512(const float *A,
             C[i * N + j] = sum;
         }
     }
+#elif defined(__AVX__)
+    // AVX1: vectorize over N (8 columns at a time)
+#pragma omp parallel for
+    for (int i = 0; i < M; i++) {
+        int j = 0;
+        for (; j <= N - 8; j += 8) {
+            __m256 sum_vec = bias ? _mm256_loadu_ps(&bias[j]) : _mm256_setzero_ps();
+            for (int k = 0; k < K; k++) {
+                __m256 a_broadcast = _mm256_set1_ps(A[i * K + k]);
+                __m256 b_vec = _mm256_loadu_ps(&B[k * N + j]);
+                __m256 prod = _mm256_mul_ps(a_broadcast, b_vec);
+                sum_vec = _mm256_add_ps(sum_vec, prod);
+            }
+            _mm256_storeu_ps(&C[i * N + j], sum_vec);
+        }
+        for (; j < N; j++) {
+            float sum = bias ? bias[j] : 0.0f;
+            for (int k = 0; k < K; k++) {
+                sum += A[i * K + k] * B[k * N + j];
+            }
+            C[i * N + j] = sum;
+        }
+    }
 #else
     gemm_nn_parallel(A, B, bias, C, M, N, K);
 #endif
@@ -229,14 +327,22 @@ void gemm_nn_blocked(const float *A,
         gemm_nn_serial_double(A, B, bias, C, M, N, K);
         return;
     }
+#if defined(__AVX512F__)
     const int block_size = 64;
-    // Initialize C with bias
+#elif defined(__AVX__)
+    const int block_size = 32;
+#else
+    const int block_size = 32;
+#endif
+    // Initialize C with bias (parallelized)
+#pragma omp parallel for
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             C[i * N + j] = bias ? bias[j] : 0.0f;
         }
     }
-    // Blocked multiply-accumulate
+    // Blocked multiply-accumulate (parallelized over M blocks)
+#pragma omp parallel for
     for (int ii = 0; ii < M; ii += block_size) {
         for (int kk = 0; kk < K; kk += block_size) {
             for (int jj = 0; jj < N; jj += block_size) {
@@ -255,6 +361,19 @@ void gemm_nn_blocked(const float *A,
                             __m512 c_vec = _mm512_loadu_ps(&C[i * N + j]);
                             c_vec = _mm512_fmadd_ps(a_broadcast, b_vec, c_vec);
                             _mm512_storeu_ps(&C[i * N + j], c_vec);
+                        }
+                        for (; j < j_end; j++) {
+                            C[i * N + j] += a_val * B[k * N + j];
+                        }
+#elif defined(__AVX__)
+                        __m256 a_broadcast = _mm256_set1_ps(a_val);
+                        int j;
+                        for (j = jj; j <= j_end - 8; j += 8) {
+                            __m256 b_vec = _mm256_loadu_ps(&B[k * N + j]);
+                            __m256 c_vec = _mm256_loadu_ps(&C[i * N + j]);
+                            __m256 prod = _mm256_mul_ps(a_broadcast, b_vec);
+                            c_vec = _mm256_add_ps(c_vec, prod);
+                            _mm256_storeu_ps(&C[i * N + j], c_vec);
                         }
                         for (; j < j_end; j++) {
                             C[i * N + j] += a_val * B[k * N + j];
@@ -349,6 +468,29 @@ void gemm_tn_avx512(const float *A,
             C[i * N + j] = sum;
         }
     }
+#elif defined(__AVX__)
+    // AVX1: vectorize over N (8 columns at a time)
+#pragma omp parallel for
+    for (int i = 0; i < M; i++) {
+        int j = 0;
+        for (; j <= N - 8; j += 8) {
+            __m256 sum_vec = bias ? _mm256_loadu_ps(&bias[j]) : _mm256_setzero_ps();
+            for (int k = 0; k < K; k++) {
+                __m256 a_broadcast = _mm256_set1_ps(A[k * M + i]);
+                __m256 b_vec = _mm256_loadu_ps(&B[k * N + j]);
+                __m256 prod = _mm256_mul_ps(a_broadcast, b_vec);
+                sum_vec = _mm256_add_ps(sum_vec, prod);
+            }
+            _mm256_storeu_ps(&C[i * N + j], sum_vec);
+        }
+        for (; j < N; j++) {
+            float sum = bias ? bias[j] : 0.0f;
+            for (int k = 0; k < K; k++) {
+                sum += A[k * M + i] * B[k * N + j];
+            }
+            C[i * N + j] = sum;
+        }
+    }
 #else
     gemm_tn_parallel(A, B, bias, C, M, N, K);
 #endif
@@ -364,14 +506,22 @@ void gemm_tn_blocked(const float *A,
         gemm_tn_serial_double(A, B, bias, C, M, N, K);
         return;
     }
+#if defined(__AVX512F__)
     const int block_size = 64;
-    // Initialize C with bias
+#elif defined(__AVX__)
+    const int block_size = 32;
+#else
+    const int block_size = 32;
+#endif
+    // Initialize C with bias (parallelized)
+#pragma omp parallel for
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             C[i * N + j] = bias ? bias[j] : 0.0f;
         }
     }
-    // Blocked multiply-accumulate
+    // Blocked multiply-accumulate (parallelized over M blocks)
+#pragma omp parallel for
     for (int ii = 0; ii < M; ii += block_size) {
         for (int kk = 0; kk < K; kk += block_size) {
             for (int jj = 0; jj < N; jj += block_size) {
@@ -394,6 +544,19 @@ void gemm_tn_blocked(const float *A,
                         for (; j < j_end; j++) {
                             C[i * N + j] += a_val * B[k * N + j];
                         }
+#elif defined(__AVX__)
+                        __m256 a_broadcast = _mm256_set1_ps(a_val);
+                        int j;
+                        for (j = jj; j <= j_end - 8; j += 8) {
+                            __m256 b_vec = _mm256_loadu_ps(&B[k * N + j]);
+                            __m256 c_vec = _mm256_loadu_ps(&C[i * N + j]);
+                            __m256 prod = _mm256_mul_ps(a_broadcast, b_vec);
+                            c_vec = _mm256_add_ps(c_vec, prod);
+                            _mm256_storeu_ps(&C[i * N + j], c_vec);
+                        }
+                        for (; j < j_end; j++) {
+                            C[i * N + j] += a_val * B[k * N + j];
+                        }
 #else
                         for (int j = jj; j < j_end; j++) {
                             C[i * N + j] += a_val * B[k * N + j];
@@ -411,7 +574,7 @@ void gemm_tn_blocked(const float *A,
 // B is stored row-major as [N,K] (transposed in the multiply)
 // =============================================================================
 
-// Serial cache-blocked GEMM – copied from C-Transformer (with NULL-safe bias).
+// Serial cache-blocked GEMM with SIMD (AVX/AVX512).
 void gemm_blocked_serial(const float *A,
                          const float *B,
                          const float *bias,
@@ -422,7 +585,13 @@ void gemm_blocked_serial(const float *A,
         gemm_naive_serial_double(A, B, bias, C, M, N, K);
         return;
     }
+#if defined(__AVX512F__)
     const int block_size = 64;
+#elif defined(__AVX__)
+    const int block_size = 32;
+#else
+    const int block_size = 32;
+#endif
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             C[i * N + j] = bias ? bias[j] : 0.0f;
@@ -446,6 +615,19 @@ void gemm_blocked_serial(const float *A,
                             sum_vec = _mm512_fmadd_ps(a_vec, b_vec, sum_vec);
                         }
                         float partial_sum = _mm512_reduce_add_ps(sum_vec);
+                        for (; k < k_end; k++) {
+                            partial_sum += A[i * K + k] * B[j * K + k];
+                        }
+#elif defined(__AVX__)
+                        __m256 sum_vec = _mm256_setzero_ps();
+                        int k;
+                        for (k = kk; k <= k_end - 8; k += 8) {
+                            __m256 a_vec = _mm256_loadu_ps(&A[i * K + k]);
+                            __m256 b_vec = _mm256_loadu_ps(&B[j * K + k]);
+                            __m256 prod = _mm256_mul_ps(a_vec, b_vec);
+                            sum_vec = _mm256_add_ps(sum_vec, prod);
+                        }
+                        float partial_sum = hsum256_ps(sum_vec);
                         for (; k < k_end; k++) {
                             partial_sum += A[i * K + k] * B[j * K + k];
                         }

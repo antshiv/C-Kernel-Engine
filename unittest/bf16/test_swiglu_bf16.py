@@ -2,6 +2,10 @@
 SwiGLU BF16 kernel unit tests.
 
 Validates BF16 forward/backward kernels against PyTorch BF16 reference.
+
+Note: our BF16 SwiGLU kernels treat BF16 as a storage format and do the math in
+FP32, then round back to BF16. The references below match that contract by
+using BF16-quantized inputs, FP32 compute, and BF16-quantized outputs.
 """
 import ctypes
 import sys
@@ -62,10 +66,10 @@ def run_forward_tests(T=64, D=256, warmup=10, iterations=1000):
     x_ptr = numpy_to_uint16_ptr(x_bf16)
     out_ptr = numpy_to_uint16_ptr(out_bf16.reshape(-1))
 
-    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
-    gate = x[:, :D]
-    value = x[:, D:]
-    ref = F.silu(gate) * value
+    x_q = torch.from_numpy(bf16_to_float32(x_bf16.reshape(T, 2 * D))).to(dtype=torch.float32)
+    gate = x_q[:, :D]
+    value = x_q[:, D:]
+    ref = (F.silu(gate) * value).to(dtype=torch.bfloat16).to(dtype=torch.float32)
 
     report = TestReport(
         test_name="SwiGLU Forward (BF16)",
@@ -79,7 +83,7 @@ def run_forward_tests(T=64, D=256, warmup=10, iterations=1000):
 
     c_swiglu()
     out = torch.from_numpy(bf16_to_float32(out_bf16.copy()))
-    diff = max_diff(out, ref.to(dtype=torch.float32))
+    diff = max_diff(out, ref)
 
     report.add_result(
         TestResult(
@@ -107,8 +111,8 @@ def run_backward_tests(T=64, D=256, warmup=10, iterations=500):
     dy_ptr = numpy_to_uint16_ptr(dy_bf16)
     dx_ptr = numpy_to_uint16_ptr(dx_bf16.reshape(-1))
 
-    x = torch.from_numpy(x_np.copy()).to(dtype=torch.bfloat16)
-    dy = torch.from_numpy(dy_np.copy()).to(dtype=torch.bfloat16)
+    x_q = torch.from_numpy(bf16_to_float32(x_bf16.reshape(T, 2 * D))).to(dtype=torch.float32)
+    dy_q = torch.from_numpy(bf16_to_float32(dy_bf16.reshape(T, D))).to(dtype=torch.float32)
 
     report = TestReport(
         test_name="SwiGLU Backward (BF16)",
@@ -118,12 +122,13 @@ def run_backward_tests(T=64, D=256, warmup=10, iterations=500):
     )
 
     def pytorch_fwd_bwd():
-        x_ref = x.clone().detach().requires_grad_(True)
+        x_ref = x_q.clone().detach().requires_grad_(True)
         gate = x_ref[:, :D]
         value = x_ref[:, D:]
         y = F.silu(gate) * value
-        y.backward(dy)
-        return x_ref.grad
+        y.backward(dy_q)
+        # Kernel returns BF16 gradients; quantize the reference too.
+        return x_ref.grad.to(dtype=torch.bfloat16).to(dtype=torch.float32)
 
     dx_ref = pytorch_fwd_bwd()
 
@@ -132,7 +137,7 @@ def run_backward_tests(T=64, D=256, warmup=10, iterations=500):
 
     c_backward()
     dx = torch.from_numpy(bf16_to_float32(dx_bf16.copy()))
-    diff = max_diff(dx, dx_ref.to(dtype=torch.float32))
+    diff = max_diff(dx, dx_ref)
 
     report.add_result(
         TestResult(
@@ -158,4 +163,3 @@ if __name__ == "__main__":
 
     if not fwd_report.all_passed() or not bwd_report.all_passed():
         sys.exit(1)
-
