@@ -222,6 +222,149 @@ void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
 }
 
 // ============================================================================
+// ATTENTION FORWARD - Flash-style (no scores materialization)
+// ============================================================================
+//
+// Computes the same causal attention output as `attention_forward_causal_head_major_gqa`,
+// but does not materialize the [H, T, T] score/weight matrices. This is useful for:
+//   - Prefill: avoids large scratch buffers and improves cache locality
+//   - Decode: supports KV-cache attention for a single token
+//
+// Note: This is a correctness-first implementation using an online softmax
+// accumulator; further blocking/SIMD/AMX optimizations can be layered on later.
+
+static void attention_flash_query_causal(const float *q_vec,
+                                        const float *k_head,
+                                        const float *v_head,
+                                        int kv_tokens,
+                                        int head_dim,
+                                        int aligned_head_dim,
+                                        float scale,
+                                        float *out_vec)
+{
+    // Online softmax:
+    //   m = running max, s = running sum(exp(score - m))
+    //   out = sum(exp(score - m) * v)
+    float m = -INFINITY;
+    float s = 0.0f;
+
+    for (int d = 0; d < head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+
+    for (int j = 0; j < kv_tokens; ++j) {
+        const float *k_vec = k_head + (size_t)j * (size_t)aligned_head_dim;
+        const float *v_vec = v_head + (size_t)j * (size_t)aligned_head_dim;
+
+        float dot = 0.0f;
+        for (int d = 0; d < head_dim; ++d) {
+            dot += q_vec[d] * k_vec[d];
+        }
+        float score = dot * scale;
+
+        if (score > m) {
+            float exp_m = (m == -INFINITY) ? 0.0f : expf(m - score);
+            s *= exp_m;
+            for (int d = 0; d < head_dim; ++d) {
+                out_vec[d] *= exp_m;
+            }
+            s += 1.0f;
+            for (int d = 0; d < head_dim; ++d) {
+                out_vec[d] += v_vec[d];
+            }
+            m = score;
+        } else {
+            float e = expf(score - m);
+            s += e;
+            for (int d = 0; d < head_dim; ++d) {
+                out_vec[d] += e * v_vec[d];
+            }
+        }
+    }
+
+    float inv_s = 1.0f / s;
+    for (int d = 0; d < head_dim; ++d) {
+        out_vec[d] *= inv_s;
+    }
+    for (int d = head_dim; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+}
+
+void attention_forward_causal_head_major_gqa_flash(const float *q,
+                                                   const float *k,
+                                                   const float *v,
+                                                   float *output,
+                                                   int num_heads,
+                                                   int num_kv_heads,
+                                                   int num_tokens,
+                                                   int head_dim,
+                                                   int aligned_head_dim)
+{
+    if (!q || !k || !v || !output) {
+        return;
+    }
+    if (num_heads <= 0 || num_kv_heads <= 0 || num_tokens <= 0) {
+        return;
+    }
+
+    const float scale = 1.0f / sqrtf((float)head_dim);
+    const int T = num_tokens;
+
+    for (int h = 0; h < num_heads; ++h) {
+        int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
+        const float *k_head = k + (size_t)kv_head * (size_t)T * (size_t)aligned_head_dim;
+        const float *v_head = v + (size_t)kv_head * (size_t)T * (size_t)aligned_head_dim;
+
+        for (int i = 0; i < T; ++i) {
+            const float *q_vec = q + qkv_index(h, i, 0, T, aligned_head_dim);
+            float *out_vec = output + qkv_index(h, i, 0, T, aligned_head_dim);
+            attention_flash_query_causal(q_vec, k_head, v_head,
+                                         /*kv_tokens=*/i + 1,
+                                         head_dim, aligned_head_dim,
+                                         scale, out_vec);
+        }
+    }
+}
+
+void attention_forward_decode_head_major_gqa_flash(const float *q_token,
+                                                   const float *k_cache,
+                                                   const float *v_cache,
+                                                   float *out_token,
+                                                   int num_heads,
+                                                   int num_kv_heads,
+                                                   int kv_tokens,
+                                                   int cache_capacity,
+                                                   int head_dim,
+                                                   int aligned_head_dim)
+{
+    if (!q_token || !k_cache || !v_cache || !out_token) {
+        return;
+    }
+    if (num_heads <= 0 || num_kv_heads <= 0 || kv_tokens <= 0 || cache_capacity <= 0) {
+        return;
+    }
+    if (kv_tokens > cache_capacity) {
+        return;
+    }
+
+    const float scale = 1.0f / sqrtf((float)head_dim);
+    const size_t head_stride = (size_t)cache_capacity * (size_t)aligned_head_dim;
+
+    for (int h = 0; h < num_heads; ++h) {
+        int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
+        const float *q_vec = q_token + (size_t)h * (size_t)aligned_head_dim;
+        const float *k_head = k_cache + (size_t)kv_head * head_stride;
+        const float *v_head = v_cache + (size_t)kv_head * head_stride;
+        float *out_vec = out_token + (size_t)h * (size_t)aligned_head_dim;
+
+        attention_flash_query_causal(q_vec, k_head, v_head,
+                                     kv_tokens, head_dim, aligned_head_dim,
+                                     scale, out_vec);
+    }
+}
+
+// ============================================================================
 // ATTENTION BACKWARD - Causal, Head-Major, GQA-aware
 // ============================================================================
 //

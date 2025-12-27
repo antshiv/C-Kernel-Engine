@@ -29,6 +29,7 @@ class CKModel:
         self.tokenizer = None
         self.vocab_size = 0
         self.context_window = 0
+        self.has_kv_decode = False
 
     def load(self) -> bool:
         """Load model library and tokenizer."""
@@ -72,6 +73,18 @@ class CKModel:
         self.lib.ck_model_free.argtypes = []
         self.lib.ck_model_free.restype = None
 
+        # Optional KV-cache decode API (newer generated runtimes).
+        try:
+            self.lib.ck_model_kv_cache_enable.argtypes = [ctypes.c_int]
+            self.lib.ck_model_kv_cache_enable.restype = ctypes.c_int
+            self.lib.ck_model_kv_cache_reset.argtypes = []
+            self.lib.ck_model_kv_cache_reset.restype = None
+            self.lib.ck_model_decode.argtypes = [ctypes.c_int32, ctypes.POINTER(ctypes.c_float)]
+            self.lib.ck_model_decode.restype = ctypes.c_int
+            self.has_kv_decode = True
+        except AttributeError:
+            self.has_kv_decode = False
+
         # Initialize model
         weights_path = self.model_dir / "weights.bump"
         if not weights_path.exists():
@@ -87,6 +100,18 @@ class CKModel:
         self.context_window = self.lib.ck_model_get_context_window()
 
         return True
+
+    def kv_cache_enable(self, capacity: int | None = None) -> bool:
+        if not self.has_kv_decode:
+            return False
+        if capacity is None:
+            capacity = self.context_window
+        ret = self.lib.ck_model_kv_cache_enable(int(capacity))
+        return ret == 0
+
+    def kv_cache_reset(self):
+        if self.has_kv_decode:
+            self.lib.ck_model_kv_cache_reset()
 
     def encode(self, text: str) -> list:
         """Tokenize text."""
@@ -114,6 +139,22 @@ class CKModel:
         last_logits = logits_array[last_pos_offset:last_pos_offset + self.vocab_size].copy()
 
         return last_logits
+
+    def prefill(self, token_ids: list) -> np.ndarray:
+        """Prefill KV cache by running a full forward once (returns last logits)."""
+        return self.forward(token_ids)
+
+    def decode_step(self, token_id: int) -> np.ndarray:
+        """Decode one token using KV cache (returns logits for that token)."""
+        ret = self.lib.ck_model_decode(ctypes.c_int32(int(token_id)), None)
+        if ret != 0:
+            raise RuntimeError(f"ck_model_decode failed (code {ret})")
+
+        logits_ptr = self.lib.ck_model_get_logits()
+        active_tokens = self.lib.ck_model_get_active_tokens()
+        last_pos_offset = (active_tokens - 1) * self.vocab_size
+        logits_array = np.ctypeslib.as_array(logits_ptr, shape=(active_tokens * self.vocab_size,))
+        return logits_array[last_pos_offset:last_pos_offset + self.vocab_size].copy()
 
     def free(self):
         """Free model resources."""
@@ -155,32 +196,47 @@ def generate(model: CKModel, prompt: str, max_tokens: int = 50,
     generated = []
     start_time = time.time()
 
-    for i in range(max_tokens):
-        # Forward pass
-        t0 = time.time()
-        logits = model.forward(token_ids)
-        fwd_time = time.time() - t0
+    if model.has_kv_decode and model.kv_cache_enable():
+        # KV-cache path: prefill once, then decode token-by-token.
+        logits = model.prefill(token_ids)
+        for i in range(max_tokens):
+            next_token = sample_top_k(logits, k=40, temperature=temperature)
+            if next_token <= 2:
+                break
+            generated.append(next_token)
+            token_ids.append(next_token)
+            token_text = model.decode([next_token])
+            print(token_text, end='', flush=True)
+            if len(token_ids) >= model.context_window - 1:
+                break
+            logits = model.decode_step(next_token)
+    else:
+        for i in range(max_tokens):
+            # Forward pass
+            t0 = time.time()
+            logits = model.forward(token_ids)
+            fwd_time = time.time() - t0
 
-        if verbose and i == 0:
-            print(f"[First forward: {fwd_time:.2f}s]")
+            if verbose and i == 0:
+                print(f"[First forward: {fwd_time:.2f}s]")
 
-        # Sample next token
-        next_token = sample_top_k(logits, k=40, temperature=temperature)
+            # Sample next token
+            next_token = sample_top_k(logits, k=40, temperature=temperature)
 
-        # Check for EOS (typically 0, 1, or 2)
-        if next_token <= 2:
-            break
+            # Check for EOS (typically 0, 1, or 2)
+            if next_token <= 2:
+                break
 
-        generated.append(next_token)
-        token_ids.append(next_token)
+            generated.append(next_token)
+            token_ids.append(next_token)
 
-        # Decode and print incrementally
-        token_text = model.decode([next_token])
-        print(token_text, end='', flush=True)
+            # Decode and print incrementally
+            token_text = model.decode([next_token])
+            print(token_text, end='', flush=True)
 
-        # Check context limit
-        if len(token_ids) >= model.context_window - 1:
-            break
+            # Check context limit
+            if len(token_ids) >= model.context_window - 1:
+                break
 
     total_time = time.time() - start_time
     tokens_per_sec = len(generated) / total_time if total_time > 0 else 0

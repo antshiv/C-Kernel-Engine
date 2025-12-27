@@ -183,6 +183,20 @@ void ck_mlp_swiglu_forward(const float *input,
 void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p);
 void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p);
 
+// Decode-style layer forward for autoregressive generation.
+//
+// Computes only a single token at `token_index`, while attending over the
+// KV-cache stored in `p->k`/`p->v` in head-major cache layout:
+//   k/v: [num_kv_heads, cache_capacity, aligned_head_dim]
+//
+// The caller is responsible for:
+//   - ensuring `p->k`/`p->v` already contain tokens [0..token_index-1]
+//   - setting `p->rope_pos_offset` to the absolute position for this token
+//   - passing a matching `cache_capacity` (usually model context_window)
+void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
+                                           int token_index,
+                                           int cache_capacity);
+
 void ck_residual_add_backward(const float *d_out,
                               float *d_a,
                               float *d_b,

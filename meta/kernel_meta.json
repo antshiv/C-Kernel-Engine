@@ -16,13 +16,14 @@
       "4. Add to 'optimizations_pending' for planned improvements",
       "5. Run 'make report' to see updated status"
     ],
-    "opt_level_values": ["scalar", "simd_avx2", "simd_avx512", "simd_avx512bf16", "simd_amx", "blocked", "parallel", "fused"],
+    "opt_level_values": ["scalar", "simd_avx", "simd_avx2", "simd_avx512", "simd_avx512bf16", "simd_amx", "blocked", "parallel", "fused"],
     "status_values": ["done", "partial", "not_started"]
   },
   "optimization_levels": {
     "none": "Not implemented",
     "scalar": "Scalar C implementation",
-    "simd_avx2": "AVX2 vectorized",
+    "simd_avx": "AVX1 vectorized (256-bit, no FMA)",
+    "simd_avx2": "AVX2 vectorized (256-bit with FMA)",
     "simd_avx512": "AVX-512 vectorized",
     "simd_avx512bf16": "AVX-512 BF16 native instructions",
     "simd_amx": "Intel AMX (matrix accelerator)",
@@ -52,15 +53,19 @@
             "opt_level": [
               "blocked",
               "parallel",
+              "simd_avx",
               "simd_avx512"
             ],
-            "file": "gemm_kernels.c"
+            "file": "gemm_kernels.c",
+            "notes": "AVX1 fallback (no FMA) for Sandy/Ivy Bridge CPUs"
           },
           "backward_dx": {
             "status": "done",
             "opt_level": [
+              "simd_avx",
               "simd_avx512",
-              "blocked"
+              "blocked",
+              "parallel"
             ],
             "file": "gemm_kernels.c",
             "func": "gemm_nn_*"
@@ -68,8 +73,10 @@
           "backward_dw": {
             "status": "done",
             "opt_level": [
+              "simd_avx",
               "simd_avx512",
-              "blocked"
+              "blocked",
+              "parallel"
             ],
             "file": "gemm_kernels.c",
             "func": "gemm_tn_*"
@@ -197,6 +204,22 @@
           "priority": "medium"
         }
       ]
+    },
+    "gemm_fused": {
+      "description": "Fused GEMM + bias + activation (ReLU/GELU/SiLU)",
+      "category": "compute",
+      "critical_path": true,
+      "variants": {
+        "fp32": {
+          "forward": {
+            "status": "done",
+            "opt_level": ["simd_avx", "parallel", "fused"],
+            "file": "gemm_kernels.c",
+            "funcs": ["gemm_bias_relu_fused", "gemm_bias_gelu_fused", "gemm_bias_silu_fused"]
+          }
+        }
+      },
+      "notes": "Based on oneDNN post-ops pattern: compute GEMM, apply bias+activation in registers, then store. Avoids DRAM round-trip between ops. Uses AVX1 (no FMA)."
     },
     "attention": {
       "description": "Multi-head attention with causal mask",

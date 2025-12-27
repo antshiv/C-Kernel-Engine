@@ -1,10 +1,16 @@
-# Auto-pick a compiler unless the user explicitly sets CC.
+# Default to gcc for portability.
+# (icx-built binaries typically depend on the Intel runtime, e.g. `libimf.so`.)
 ifeq ($(origin CC),default)
-CC := $(if $(shell command -v icx 2>/dev/null),icx,gcc)
+CC := gcc
 endif
 # Some environments export CC=cc; treat that like "unset".
 ifeq ($(CC),cc)
-CC := $(if $(shell command -v icx 2>/dev/null),icx,gcc)
+CC := gcc
+endif
+# Opt-in to icx selection if desired:
+#   make CK_USE_ICX=1
+ifeq ($(CK_USE_ICX),1)
+CC := $(if $(shell command -v icx 2>/dev/null),icx,$(CC))
 endif
 # OpenMP flag varies by compiler (icx/icc prefer -qopenmp; gcc/clang use -fopenmp).
 OPENMP_FLAG ?= -fopenmp
@@ -52,6 +58,7 @@ SRCS    := src/backend_native.c \
            src/ckernel_model_layout.c \
            src/ckernel_model_load.c \
             src/kernels/gemm_kernels.c \
+            src/kernels/gemm_fused_kernels.c \
 	           src/kernels/layernorm_kernels.c \
 	           src/kernels/layernorm_kernels_bf16.c \
 	           src/kernels/gelu_kernels.c \
@@ -79,6 +86,7 @@ SRCS    := src/backend_native.c \
 	           src/kernels/vision_kernels_bf16.c \
 	           src/kernels/rope_kernels.c \
 	           src/kernels/rope_kernels_bf16.c \
+	           src/kernels/kv_cache_kernels.c \
 	           src/kernels/dequant_kernels.c \
 	           src/kernels/gemm_kernels_bf16.c \
 	           src/kernels/gemm_kernels_q4_0.c \
@@ -135,6 +143,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_softmax.py \
             unittest/test_softmax_backward.py \
             unittest/test_gemm.py \
+            unittest/test_gemm_fused.py \
             unittest/test_mlp.py \
             unittest/test_rmsnorm.py \
             unittest/test_swiglu.py \
@@ -142,6 +151,8 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_relu.py \
             unittest/test_attention.py \
             unittest/test_attention_backward.py \
+            unittest/test_kv_cache_attention.py \
+            unittest/test_kv_cache_layer_decode.py \
             unittest/test_rope.py \
             unittest/test_embedding.py \
             unittest/test_cross_entropy.py \
@@ -590,6 +601,7 @@ TEST_HARNESS_SRCS := src/backend_native.c \
 	src/kernels/attention_kernels.c \
 	src/kernels/gelu_kernels.c \
 	src/kernels/gemm_kernels.c \
+	src/kernels/gemm_fused_kernels.c \
 	src/kernels/layernorm_kernels.c \
 	src/kernels/mlp_kernels.c \
 	src/kernels/rmsnorm_kernels.c \

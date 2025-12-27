@@ -111,6 +111,36 @@ void gemm_tn_blocked(const float *A,
                      float *C,
                      int M, int N, int K);
 
+// Fused GEMM operations (GEMM + bias + activation in one pass)
+void gemm_bias_relu_fused(const float *A,
+                          const float *B,
+                          const float *bias,
+                          float *C,
+                          int M, int N, int K);
+
+void gemm_bias_gelu_fused(const float *A,
+                          const float *B,
+                          const float *bias,
+                          float *C,
+                          int M, int N, int K);
+
+void gemm_bias_silu_fused(const float *A,
+                          const float *B,
+                          const float *bias,
+                          float *C,
+                          int M, int N, int K);
+
+// Fused GEMM + SwiGLU (LLaMA/SmolLM MLP gate+up projection)
+// Computes: output = SiLU(x @ W_gate + b_gate) * (x @ W_up + b_up)
+// Two GEMMs + SwiGLU fused into one pass - intermediates stay in registers
+void gemm_swiglu_fused(const float *x,
+                       const float *W_gate,
+                       const float *W_up,
+                       const float *b_gate,  // can be NULL
+                       const float *b_up,    // can be NULL
+                       float *output,
+                       int M, int N, int K);
+
 // LayerNorm forward kernels, copied from C-Transformer.
 void layernorm_naive_serial(const float *input,
                             const float *gamma,
@@ -369,6 +399,47 @@ void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
                                                   int head_dim,
                                                   int aligned_head_dim,
                                                   int aligned_context_window);
+
+// Flash-style causal attention forward (no score/weight matrix materialization).
+// Head-major layout:
+//   Q: [num_heads, num_tokens, aligned_head_dim]
+//   K/V: [num_kv_heads, num_tokens, aligned_head_dim]
+//   out: [num_heads, num_tokens, aligned_head_dim]
+void attention_forward_causal_head_major_gqa_flash(const float *q,
+                                                   const float *k,
+                                                   const float *v,
+                                                   float *output,
+                                                   int num_heads,
+                                                   int num_kv_heads,
+                                                   int num_tokens,
+                                                   int head_dim,
+                                                   int aligned_head_dim);
+
+// Decode attention for a single token using a KV cache.
+//   q_token: [num_heads, aligned_head_dim]
+//   k_cache/v_cache: [num_kv_heads, cache_capacity, aligned_head_dim]
+//   out_token: [num_heads, aligned_head_dim]
+void attention_forward_decode_head_major_gqa_flash(const float *q_token,
+                                                   const float *k_cache,
+                                                   const float *v_cache,
+                                                   float *out_token,
+                                                   int num_heads,
+                                                   int num_kv_heads,
+                                                   int kv_tokens,
+                                                   int cache_capacity,
+                                                   int head_dim,
+                                                   int aligned_head_dim);
+
+// KV cache helper (write one token for all KV heads).
+void kv_cache_write_head_major(const float *k_token,
+                               const float *v_token,
+                               float *k_cache,
+                               float *v_cache,
+                               int num_kv_heads,
+                               int token_index,
+                               int cache_capacity,
+                               int head_dim,
+                               int aligned_head_dim);
 
 // MLP forward kernel (FC1 -> GELU -> FC2), generic token-parallel version.
 void mlp_token_parallel(const float *input,
