@@ -13,12 +13,16 @@ def float32_to_bf16(arr: np.ndarray) -> np.ndarray:
     """
     Convert a float32 numpy array to the raw uint16 bit pattern used by BF16.
 
-    The conversion matches `float_to_bf16` in `include/bf16_utils.h` (simply shifts
-    the top 16 bits) so kernels and reference code stay consistent.
+    Uses round-to-nearest-even to match `float_to_bf16` in `include/bf16_utils.h`
+    and PyTorch's BF16 conversion.
     """
     arr = np.ascontiguousarray(arr, dtype=np.float32)
     bits = arr.view(np.uint32)
-    return np.right_shift(bits, 16).astype(np.uint16)
+    # Round-to-nearest-even: add 0x7FFF + LSB of result before truncating
+    lsb = (bits >> 16) & 1
+    rounding = 0x7FFF + lsb
+    rounded = bits + rounding
+    return np.right_shift(rounded, 16).astype(np.uint16)
 
 
 def bf16_to_float32(arr: np.ndarray) -> np.ndarray:

@@ -14,6 +14,7 @@ for path in (ROOT, UNITS):
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from lib_loader import load_lib
 from test_utils import (
