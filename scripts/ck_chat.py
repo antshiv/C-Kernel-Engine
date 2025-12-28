@@ -188,22 +188,34 @@ def sample_top_k(logits: np.ndarray, k: int = 40, temperature: float = 0.7) -> i
 
 
 def generate(model: CKModel, prompt: str, max_tokens: int = 50,
-             temperature: float = 0.7, verbose: bool = False) -> str:
+             temperature: float = 0.7, verbose: bool = False,
+             show_stats: bool = True) -> str:
     """Generate text from prompt."""
     # Tokenize prompt
     token_ids = model.encode(prompt)
+    prompt_tokens = len(token_ids)
 
     if verbose:
-        print(f"[Prompt tokens: {len(token_ids)}]")
+        print(f"[Prompt tokens: {prompt_tokens}]")
 
     generated = []
+    sample_times = []
+    decode_times = []
+    prefill_time = 0.0
     start_time = time.time()
 
     if model.has_kv_decode and model.kv_cache_enable():
         # KV-cache path: prefill once, then decode token-by-token.
+        t0 = time.time()
         logits = model.prefill(token_ids)
+        prefill_time = time.time() - t0
+
         for i in range(max_tokens):
+            # Sample
+            t_sample = time.time()
             next_token = sample_top_k(logits, k=40, temperature=temperature)
+            sample_times.append(time.time() - t_sample)
+
             if next_token <= 2:
                 break
             generated.append(next_token)
@@ -212,19 +224,27 @@ def generate(model: CKModel, prompt: str, max_tokens: int = 50,
             print(token_text, end='', flush=True)
             if len(token_ids) >= model.context_window - 1:
                 break
+
+            # Decode step
+            t_decode = time.time()
             logits = model.decode_step(next_token)
+            decode_times.append(time.time() - t_decode)
     else:
         for i in range(max_tokens):
-            # Forward pass
+            # Forward pass (first is prefill, rest are decode)
             t0 = time.time()
             logits = model.forward(token_ids)
             fwd_time = time.time() - t0
 
-            if verbose and i == 0:
-                print(f"[First forward: {fwd_time:.2f}s]")
+            if i == 0:
+                prefill_time = fwd_time
+            else:
+                decode_times.append(fwd_time)
 
             # Sample next token
+            t_sample = time.time()
             next_token = sample_top_k(logits, k=40, temperature=temperature)
+            sample_times.append(time.time() - t_sample)
 
             # Check for EOS (typically 0, 1, or 2)
             if next_token <= 2:
@@ -242,19 +262,53 @@ def generate(model: CKModel, prompt: str, max_tokens: int = 50,
                 break
 
     total_time = time.time() - start_time
-    tokens_per_sec = len(generated) / total_time if total_time > 0 else 0
+    gen_count = len(generated)
 
-    if verbose:
-        print(f"\n[Generated {len(generated)} tokens in {total_time:.2f}s ({tokens_per_sec:.1f} tok/s)]")
+    # Print statistics (llama.cpp style)
+    if show_stats and gen_count > 0:
+        print()  # newline after generated text
+
+        # Prefill stats
+        prefill_ms = prefill_time * 1000
+        prefill_ms_per_token = prefill_ms / prompt_tokens if prompt_tokens > 0 else 0
+        prefill_tps = prompt_tokens / prefill_time if prefill_time > 0 else 0
+
+        # Decode stats
+        total_decode_time = sum(decode_times) if decode_times else 0
+        decode_ms = total_decode_time * 1000
+        decode_count = len(decode_times)
+        decode_ms_per_token = decode_ms / decode_count if decode_count > 0 else 0
+        decode_tps = decode_count / total_decode_time if total_decode_time > 0 else 0
+
+        # Sample stats
+        total_sample_time = sum(sample_times) if sample_times else 0
+        sample_ms = total_sample_time * 1000
+        sample_count = len(sample_times)
+        sample_ms_per_token = sample_ms / sample_count if sample_count > 0 else 0
+
+        # Total stats
+        total_ms = total_time * 1000
+        total_tokens = prompt_tokens + gen_count
+
+        print(f"\n\033[90m" +
+              f"prompt eval: {prefill_ms:8.2f} ms / {prompt_tokens:4d} tokens ({prefill_ms_per_token:7.2f} ms/tok, {prefill_tps:7.2f} tok/s)\n" +
+              f"      decode: {decode_ms:8.2f} ms / {decode_count:4d} runs   ({decode_ms_per_token:7.2f} ms/tok, {decode_tps:7.2f} tok/s)\n" +
+              f"      sample: {sample_ms:8.2f} ms / {sample_count:4d} runs   ({sample_ms_per_token:7.2f} ms/tok)\n" +
+              f"       total: {total_ms:8.2f} ms / {total_tokens:4d} tokens\033[0m")
+
+    elif verbose:
+        tokens_per_sec = gen_count / total_time if total_time > 0 else 0
+        print(f"\n[Generated {gen_count} tokens in {total_time:.2f}s ({tokens_per_sec:.1f} tok/s)]")
 
     return model.decode(generated)
 
 
-def chat_loop(model: CKModel, temperature: float = 0.7, max_tokens: int = 100):
+def chat_loop(model: CKModel, temperature: float = 0.7, max_tokens: int = 100,
+              show_stats: bool = True):
     """Interactive chat loop."""
     print("\n" + "=" * 60)
     print("  C-Kernel-Engine Chat")
-    print("  Type your message and press Enter. Commands: /exit, /help")
+    print("  Type your message and press Enter. Commands: /exit, /help, /stats")
     print("=" * 60 + "\n")
 
     conversation = []
@@ -274,8 +328,15 @@ def chat_loop(model: CKModel, temperature: float = 0.7, max_tokens: int = 100):
             break
 
         if user_input.lower() == '/help':
-            print("  Commands: /exit, /help")
-            print("  Just type your message to chat with the model.")
+            print("  Commands:")
+            print("    /exit, /quit  - Exit the chat")
+            print("    /stats        - Toggle performance stats display")
+            print("    /help         - Show this help")
+            continue
+
+        if user_input.lower() == '/stats':
+            show_stats = not show_stats
+            print(f"  Performance stats: {'ON' if show_stats else 'OFF'}")
             continue
 
         # Build prompt (simple format)
@@ -284,8 +345,9 @@ def chat_loop(model: CKModel, temperature: float = 0.7, max_tokens: int = 100):
         # Generate response
         print("\033[94mAssistant: \033[0m", end='', flush=True)
         response = generate(model, prompt, max_tokens=max_tokens,
-                          temperature=temperature, verbose=False)
-        print("\n")
+                          temperature=temperature, verbose=False,
+                          show_stats=show_stats)
+        print()
 
 
 def main():
@@ -295,6 +357,10 @@ def main():
     parser.add_argument("--max-tokens", type=int, default=100, help="Max tokens to generate")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--stats", action="store_true", default=True,
+                       help="Show performance stats (default: on)")
+    parser.add_argument("--no-stats", action="store_false", dest="stats",
+                       help="Disable performance stats")
     args = parser.parse_args()
 
     # Load model
@@ -312,11 +378,13 @@ def main():
             print(f"\nPrompt: {args.prompt}")
             print("Response: ", end='', flush=True)
             generate(model, args.prompt, max_tokens=args.max_tokens,
-                    temperature=args.temperature, verbose=args.verbose)
+                    temperature=args.temperature, verbose=args.verbose,
+                    show_stats=args.stats)
             print()
         else:
             # Interactive chat mode
-            chat_loop(model, temperature=args.temperature, max_tokens=args.max_tokens)
+            chat_loop(model, temperature=args.temperature, max_tokens=args.max_tokens,
+                     show_stats=args.stats)
     finally:
         model.free()
 

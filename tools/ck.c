@@ -717,12 +717,22 @@ static int codegen_and_compile(CKConfig *cfg) {
         if (dir_exists(compiler_lib)) {
             snprintf(intel_rpath, sizeof(intel_rpath),
                 "-Wl,-rpath,%s -Wl,-rpath,%s ", compiler_lib, mkl_lib);
+            if (cfg->verbose) {
+                printf(C_DIM "  Intel rpath (from ONEAPI_ROOT): %s\n" C_RESET, compiler_lib);
+            }
+        } else if (cfg->verbose) {
+            printf(C_DIM "  ONEAPI_ROOT set but %s not found\n" C_RESET, compiler_lib);
         }
     } else if (dir_exists("/opt/intel/oneapi/compiler/latest/lib")) {
         /* Fallback to default path */
         snprintf(intel_rpath, sizeof(intel_rpath),
             "-Wl,-rpath,/opt/intel/oneapi/compiler/latest/lib "
             "-Wl,-rpath,/opt/intel/oneapi/mkl/latest/lib/intel64 ");
+        if (cfg->verbose) {
+            printf(C_DIM "  Intel rpath (default): /opt/intel/oneapi/compiler/latest/lib\n" C_RESET);
+        }
+    } else if (cfg->verbose) {
+        printf(C_DIM "  No Intel oneAPI detected, skipping Intel rpaths\n" C_RESET);
     }
 
     snprintf(cmd, sizeof(cmd),
