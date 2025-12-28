@@ -6,6 +6,20 @@
 
 static inline int ck_min(int a, int b) { return a < b ? a : b; }
 
+static inline void ck_gemm_add_bias(float *C, const float *bias, int M, int N)
+{
+    if (!bias) {
+        return;
+    }
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < M; ++i) {
+        float *c_row = C + (size_t)i * (size_t)N;
+        for (int j = 0; j < N; ++j) {
+            c_row[j] += bias[j];
+        }
+    }
+}
+
 // AVX1 horizontal sum helper (no _mm256_reduce_add_ps in AVX1)
 #if defined(__AVX__) && !defined(__AVX512F__)
 static inline float hsum256_ps(__m256 v) {
@@ -585,6 +599,20 @@ void gemm_blocked_serial(const float *A,
         gemm_naive_serial_double(A, B, bias, C, M, N, K);
         return;
     }
+#if defined(__AVX512F__)
+    /*
+     * On AVX-512 targets, the microkernel-based blocked GEMM is substantially
+     * faster for the large, dense shapes that dominate transformer workloads
+     * (QKV/MLP/LM head). For very small M (e.g. decode with M=1), the overhead
+     * of blocking + OpenMP scheduling can outweigh the benefits, so we keep
+     * the simpler dot-product kernel for those cases.
+     */
+    if (M >= 16 && N >= 32 && K >= 128) {
+        gemm_microkernel_blocked_bt(A, B, C, M, N, K);
+        ck_gemm_add_bias(C, bias, M, N);
+        return;
+    }
+#endif
 #if defined(__AVX512F__)
     const int block_size = 64;
 #elif defined(__AVX__)

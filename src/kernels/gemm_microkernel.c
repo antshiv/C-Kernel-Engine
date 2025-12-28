@@ -40,11 +40,17 @@
 
 #if defined(__AVX512F__)
     // AVX-512: 6x32 microkernel (6 rows, 32 cols = 2 ZMM per row = 12 ZMM accumulators)
+    // 32 ZMM registers available - no spilling
     #define MR_FIXED 6
     #define NR_FIXED 32
-#elif defined(__AVX2__) || defined(__AVX__)
-    // AVX/AVX2: 6x16 microkernel
+#elif defined(__FMA__)
+    // AVX2+FMA: 6x16 microkernel - FMA hides latency, some spilling acceptable
     #define MR_FIXED 6
+    #define NR_FIXED 16
+#elif defined(__AVX__)
+    // AVX (no FMA): 4x16 microkernel to avoid register spilling
+    // Only 16 YMM registers: 8 accum + 2 B + 4 A + 2 temp = 16 (fits!)
+    #define MR_FIXED 4
     #define NR_FIXED 16
 #else
     // Scalar fallback
@@ -104,89 +110,74 @@ static inline void gemm_microkernel_6x32_avx512(
     _mm_prefetch((const char*)&B[0], _MM_HINT_T0);
     _mm_prefetch((const char*)&B[64], _MM_HINT_T0);
 
-    // Main K loop - unrolled by 4 for better ILP
+    // Main K loop - unrolled by 8 with software pipelining for better ILP
     int k = 0;
+    for (; k <= K - 8; k += 8) {
+        // Prefetch ahead - 16 rows ahead for L1, 32 for L2
+        _mm_prefetch((const char*)&B[(k + 16) * ldb], _MM_HINT_T0);
+        _mm_prefetch((const char*)&B[(k + 16) * ldb + 64], _MM_HINT_T0);
+        _mm_prefetch((const char*)&B[(k + 32) * ldb], _MM_HINT_T1);
+
+        // Software pipelining: preload first B row
+        __m512 b_lo_next = _mm512_loadu_ps(&B[k * ldb]);
+        __m512 b_hi_next = _mm512_loadu_ps(&B[k * ldb + 16]);
+
+        #define AVX512_ITER(koff) { \
+            __m512 b_lo = b_lo_next; \
+            __m512 b_hi = b_hi_next; \
+            if ((koff) < 7) { \
+                b_lo_next = _mm512_loadu_ps(&B[(k + (koff) + 1) * ldb]); \
+                b_hi_next = _mm512_loadu_ps(&B[(k + (koff) + 1) * ldb + 16]); \
+            } \
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + (koff)]); \
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + (koff)]); \
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + (koff)]); \
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + (koff)]); \
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + (koff)]); \
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + (koff)]); \
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi); \
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi); \
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi); \
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi); \
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi); \
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi); \
+        }
+
+        AVX512_ITER(0);
+        AVX512_ITER(1);
+        AVX512_ITER(2);
+        AVX512_ITER(3);
+        AVX512_ITER(4);
+        AVX512_ITER(5);
+        AVX512_ITER(6);
+        AVX512_ITER(7);
+
+        #undef AVX512_ITER
+    }
+
+    // Handle K % 8 remainder with 4-unroll
     for (; k <= K - 4; k += 4) {
-        // Prefetch ahead for next iteration
-        _mm_prefetch((const char*)&B[(k + 8) * ldb], _MM_HINT_T0);
-        _mm_prefetch((const char*)&B[(k + 8) * ldb + 64], _MM_HINT_T0);
-
-        // Unroll 0
-        {
-            __m512 b_lo = _mm512_loadu_ps(&B[k * ldb]);
-            __m512 b_hi = _mm512_loadu_ps(&B[k * ldb + 16]);
-
-            __m512 a0 = _mm512_set1_ps(A[0 * lda + k]);
-            __m512 a1 = _mm512_set1_ps(A[1 * lda + k]);
-            __m512 a2 = _mm512_set1_ps(A[2 * lda + k]);
-            __m512 a3 = _mm512_set1_ps(A[3 * lda + k]);
-            __m512 a4 = _mm512_set1_ps(A[4 * lda + k]);
-            __m512 a5 = _mm512_set1_ps(A[5 * lda + k]);
-
-            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
-            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
-            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
-            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
-            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
-            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
+        #define AVX512_ITER4(koff) { \
+            __m512 b_lo = _mm512_loadu_ps(&B[(k + koff) * ldb]); \
+            __m512 b_hi = _mm512_loadu_ps(&B[(k + koff) * ldb + 16]); \
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + koff]); \
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + koff]); \
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + koff]); \
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + koff]); \
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + koff]); \
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + koff]); \
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi); \
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi); \
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi); \
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi); \
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi); \
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi); \
         }
-        // Unroll 1
-        {
-            __m512 b_lo = _mm512_loadu_ps(&B[(k+1) * ldb]);
-            __m512 b_hi = _mm512_loadu_ps(&B[(k+1) * ldb + 16]);
-
-            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 1]);
-            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 1]);
-            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 1]);
-            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 1]);
-            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 1]);
-            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 1]);
-
-            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
-            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
-            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
-            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
-            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
-            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
-        }
-        // Unroll 2
-        {
-            __m512 b_lo = _mm512_loadu_ps(&B[(k+2) * ldb]);
-            __m512 b_hi = _mm512_loadu_ps(&B[(k+2) * ldb + 16]);
-
-            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 2]);
-            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 2]);
-            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 2]);
-            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 2]);
-            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 2]);
-            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 2]);
-
-            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
-            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
-            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
-            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
-            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
-            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
-        }
-        // Unroll 3
-        {
-            __m512 b_lo = _mm512_loadu_ps(&B[(k+3) * ldb]);
-            __m512 b_hi = _mm512_loadu_ps(&B[(k+3) * ldb + 16]);
-
-            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 3]);
-            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 3]);
-            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 3]);
-            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 3]);
-            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 3]);
-            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 3]);
-
-            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
-            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
-            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
-            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
-            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
-            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
-        }
+        AVX512_ITER4(0);
+        AVX512_ITER4(1);
+        AVX512_ITER4(2);
+        AVX512_ITER4(3);
+        #undef AVX512_ITER4
     }
 
     // Handle remaining K
@@ -486,6 +477,96 @@ static inline void gemm_microkernel_6x16_avx(
 #endif
 
 // =============================================================================
+// AVX 4x16 Microkernel (for AVX-only CPUs without FMA)
+//
+// This smaller tile avoids register spilling on CPUs with only 16 YMM registers.
+// Register allocation: 8 accumulators + 2 B + 4 A + 2 temp = 16 registers
+// =============================================================================
+
+#if defined(__AVX__) && !defined(__FMA__)
+static inline void gemm_microkernel_4x16_avx(
+    int K,
+    const float * __restrict__ A, int lda,
+    const float * __restrict__ B, int ldb,
+    float * __restrict__ C, int ldc,
+    int first_k
+)
+{
+    // 8 accumulators: 4 rows x 2 YMM (16 floats) per row
+    __m256 c0_lo, c0_hi, c1_lo, c1_hi, c2_lo, c2_hi, c3_lo, c3_hi;
+
+    if (first_k) {
+        c0_lo = _mm256_setzero_ps(); c0_hi = _mm256_setzero_ps();
+        c1_lo = _mm256_setzero_ps(); c1_hi = _mm256_setzero_ps();
+        c2_lo = _mm256_setzero_ps(); c2_hi = _mm256_setzero_ps();
+        c3_lo = _mm256_setzero_ps(); c3_hi = _mm256_setzero_ps();
+    } else {
+        c0_lo = _mm256_loadu_ps(&C[0 * ldc]);      c0_hi = _mm256_loadu_ps(&C[0 * ldc + 8]);
+        c1_lo = _mm256_loadu_ps(&C[1 * ldc]);      c1_hi = _mm256_loadu_ps(&C[1 * ldc + 8]);
+        c2_lo = _mm256_loadu_ps(&C[2 * ldc]);      c2_hi = _mm256_loadu_ps(&C[2 * ldc + 8]);
+        c3_lo = _mm256_loadu_ps(&C[3 * ldc]);      c3_hi = _mm256_loadu_ps(&C[3 * ldc + 8]);
+    }
+
+    _mm_prefetch((const char*)B, _MM_HINT_T0);
+
+    // K loop - unrolled by 4 for better ILP
+    int k = 0;
+    for (; k <= K - 4; k += 4) {
+        _mm_prefetch((const char*)&B[(k + 8) * ldb], _MM_HINT_T0);
+
+        #define AVX4_ITER(koff) { \
+            __m256 b_lo = _mm256_loadu_ps(&B[(k + koff) * ldb]); \
+            __m256 b_hi = _mm256_loadu_ps(&B[(k + koff) * ldb + 8]); \
+            __m256 a0 = _mm256_set1_ps(A[0 * lda + k + koff]); \
+            __m256 a1 = _mm256_set1_ps(A[1 * lda + k + koff]); \
+            __m256 a2 = _mm256_set1_ps(A[2 * lda + k + koff]); \
+            __m256 a3 = _mm256_set1_ps(A[3 * lda + k + koff]); \
+            c0_lo = _mm256_add_ps(c0_lo, _mm256_mul_ps(a0, b_lo)); \
+            c0_hi = _mm256_add_ps(c0_hi, _mm256_mul_ps(a0, b_hi)); \
+            c1_lo = _mm256_add_ps(c1_lo, _mm256_mul_ps(a1, b_lo)); \
+            c1_hi = _mm256_add_ps(c1_hi, _mm256_mul_ps(a1, b_hi)); \
+            c2_lo = _mm256_add_ps(c2_lo, _mm256_mul_ps(a2, b_lo)); \
+            c2_hi = _mm256_add_ps(c2_hi, _mm256_mul_ps(a2, b_hi)); \
+            c3_lo = _mm256_add_ps(c3_lo, _mm256_mul_ps(a3, b_lo)); \
+            c3_hi = _mm256_add_ps(c3_hi, _mm256_mul_ps(a3, b_hi)); \
+        }
+
+        AVX4_ITER(0);
+        AVX4_ITER(1);
+        AVX4_ITER(2);
+        AVX4_ITER(3);
+
+        #undef AVX4_ITER
+    }
+
+    // Handle remaining K
+    for (; k < K; k++) {
+        __m256 b_lo = _mm256_loadu_ps(&B[k * ldb]);
+        __m256 b_hi = _mm256_loadu_ps(&B[k * ldb + 8]);
+
+        __m256 a0 = _mm256_set1_ps(A[0 * lda + k]);
+        __m256 a1 = _mm256_set1_ps(A[1 * lda + k]);
+        __m256 a2 = _mm256_set1_ps(A[2 * lda + k]);
+        __m256 a3 = _mm256_set1_ps(A[3 * lda + k]);
+
+        c0_lo = _mm256_add_ps(c0_lo, _mm256_mul_ps(a0, b_lo));
+        c0_hi = _mm256_add_ps(c0_hi, _mm256_mul_ps(a0, b_hi));
+        c1_lo = _mm256_add_ps(c1_lo, _mm256_mul_ps(a1, b_lo));
+        c1_hi = _mm256_add_ps(c1_hi, _mm256_mul_ps(a1, b_hi));
+        c2_lo = _mm256_add_ps(c2_lo, _mm256_mul_ps(a2, b_lo));
+        c2_hi = _mm256_add_ps(c2_hi, _mm256_mul_ps(a2, b_hi));
+        c3_lo = _mm256_add_ps(c3_lo, _mm256_mul_ps(a3, b_lo));
+        c3_hi = _mm256_add_ps(c3_hi, _mm256_mul_ps(a3, b_hi));
+    }
+
+    _mm256_storeu_ps(&C[0 * ldc], c0_lo);      _mm256_storeu_ps(&C[0 * ldc + 8], c0_hi);
+    _mm256_storeu_ps(&C[1 * ldc], c1_lo);      _mm256_storeu_ps(&C[1 * ldc + 8], c1_hi);
+    _mm256_storeu_ps(&C[2 * ldc], c2_lo);      _mm256_storeu_ps(&C[2 * ldc + 8], c2_hi);
+    _mm256_storeu_ps(&C[3 * ldc], c3_lo);      _mm256_storeu_ps(&C[3 * ldc + 8], c3_hi);
+}
+#endif
+
+// =============================================================================
 // Edge case handler for non-MRxNR aligned tiles
 // =============================================================================
 
@@ -659,9 +740,14 @@ void gemm_microkernel_packed(
                                 const float *Ap_tile = &Ap_local[(m1 / mr) * mr * kb];
                                 const float *Bp_tile = &Bp[(n1 / nr) * nr * kb];
                                 gemm_microkernel_6x32_packed_avx512(kb, Ap_tile, Bp_tile, C_tile, N, first_k);
-#else
-                                // For AVX, fall back to non-packed version
+#elif defined(__FMA__)
+                                // AVX2+FMA: use 6x16 microkernel
                                 gemm_microkernel_6x16_avx(kb, &A[(m0 + m1) * K + k0], K,
+                                                         &B[k0 * N + (n0 + n1)], N,
+                                                         C_tile, N, first_k);
+#elif defined(__AVX__)
+                                // AVX-only: use 4x16 microkernel to avoid register spilling
+                                gemm_microkernel_4x16_avx(kb, &A[(m0 + m1) * K + k0], K,
                                                          &B[k0 * N + (n0 + n1)], N,
                                                          C_tile, N, first_k);
 #endif
@@ -733,8 +819,10 @@ void gemm_microkernel_blocked(
                         if (mr_actual == mr && nr_actual == nr) {
 #if defined(__AVX512F__)
                             gemm_microkernel_6x32_avx512(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
-#elif defined(__AVX__)
+#elif defined(__FMA__)
                             gemm_microkernel_6x16_avx(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
+#elif defined(__AVX__)
+                            gemm_microkernel_4x16_avx(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
 #else
                             gemm_microkernel_edge(mr_actual, nr_actual, kb, A_tile, K, B_tile, N, C_tile, N, first_k);
 #endif

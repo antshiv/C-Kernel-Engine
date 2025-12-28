@@ -24,12 +24,19 @@ endif
 #   make AVX_FLAGS="-mavx2"
 #   make AVX_FLAGS=""            # scalar build
 CPU_FLAGS := $(shell grep -m1 '^flags' /proc/cpuinfo 2>/dev/null)
+# Detect FMA support
+ifneq (,$(findstring fma,$(CPU_FLAGS)))
+FMA_FLAGS := -mfma
+else
+FMA_FLAGS :=
+endif
+# Detect AVX level
 ifneq (,$(findstring avx512f,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx512f
+AVX_FLAGS ?= -mavx512f $(FMA_FLAGS)
 else ifneq (,$(findstring avx2,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx2
+AVX_FLAGS ?= -mavx2 $(FMA_FLAGS)
 else ifneq (,$(findstring avx,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx
+AVX_FLAGS ?= -mavx $(FMA_FLAGS)
 else
 AVX_FLAGS ?=
 endif
