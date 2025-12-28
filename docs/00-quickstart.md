@@ -97,7 +97,7 @@ This produces:
 Compile it into a self-contained shared library:
 
 ```bash
-cc -O3 -fPIC -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm
+cc -O3 -fPIC -fopenmp -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm
 ```
 
 ### 5.1 Inference Call Sequence

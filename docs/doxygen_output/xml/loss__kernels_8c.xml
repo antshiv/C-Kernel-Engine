@@ -68,6 +68,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels.c" line="5" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels.c" bodystart="5" bodyend="59"/>
+        <referencedby refid="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" compoundref="loss__kernels__bf16_8c" startline="8" endline="40">softmax_cross_entropy_loss_bf16</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

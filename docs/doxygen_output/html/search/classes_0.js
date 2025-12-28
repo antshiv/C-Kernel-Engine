@@ -1,16 +1,7 @@
 var searchData=
 [
-  ['ckbufferspec_339',['CKBufferSpec',['../structCKBufferSpec.html',1,'']]],
-  ['ckdimtoken_340',['CKDimToken',['../structCKDimToken.html',1,'']]],
-  ['ckinputref_341',['CKInputRef',['../structCKInputRef.html',1,'']]],
-  ['ckirgraph_342',['CKIRGraph',['../structCKIRGraph.html',1,'']]],
-  ['ckirnode_343',['CKIRNode',['../structCKIRNode.html',1,'']]],
-  ['ckkernelid_344',['CKKernelId',['../structCKKernelId.html',1,'']]],
-  ['ckkernelspec_345',['CKKernelSpec',['../structCKKernelSpec.html',1,'']]],
-  ['cklayerbackwardparams_346',['CKLayerBackwardParams',['../structCKLayerBackwardParams.html',1,'']]],
-  ['cklayerforwardparams_347',['CKLayerForwardParams',['../structCKLayerForwardParams.html',1,'']]],
-  ['cklayerlayout_348',['CKLayerLayout',['../structCKLayerLayout.html',1,'']]],
-  ['ckmathbackend_349',['CKMathBackend',['../structCKMathBackend.html',1,'']]],
-  ['ckmodelconfig_350',['CKModelConfig',['../structCKModelConfig.html',1,'']]],
-  ['ckplanstep_351',['CKPlanStep',['../structCKPlanStep.html',1,'']]]
+  ['block_5fq4_5f0_623',['block_q4_0',['../structblock__q4__0.html',1,'']]],
+  ['block_5fq4_5fk_624',['block_q4_K',['../structblock__q4__K.html',1,'']]],
+  ['block_5fq8_5f0_625',['block_q8_0',['../structblock__q8__0.html',1,'']]],
+  ['block_5fq8_5fk_626',['block_q8_K',['../structblock__q8__K.html',1,'']]]
 ];

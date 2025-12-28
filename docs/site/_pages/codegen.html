@@ -56,6 +56,17 @@ make build/ck_ir_demo
 make ck-emit CONFIG=path/to/config.json OUT=build/model.c</pre>
 </div>
 
+<div class="card">
+    <h3 style="margin-top: 0;">Library Mode (Prefill + Decode)</h3>
+    <p>Library mode emits a generated runtime with an exported ABI suitable for <code>dlopen</code>/<code>ctypes</code>.</p>
+    <pre># Emit a model runtime with exported symbols (prefill + KV-cache decode + training entry points)
+./build/ck_ir_demo path/to/config.json --emit build/model.c --emit-lib
+
+# The generator also writes build/model.c.kernels (one kernel .c per line)
+cc -O3 -fPIC -fopenmp -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm</pre>
+    <p><strong>Inference sequence:</strong> enable KV cache → prefill once → decode token-by-token. Decode is disabled when training is enabled.</p>
+</div>
+
 <h2>Input: Model Config</h2>
 
 <div class="card">

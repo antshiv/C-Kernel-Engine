@@ -29,16 +29,17 @@ var NAVTREE =
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Variables", "functions_vars.html", null ]
+        [ "All", "functions.html", "functions_dup" ],
+        [ "Variables", "functions_vars.html", "functions_vars" ]
       ] ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "Globals", "globals.html", [
         [ "All", "globals.html", "globals_dup" ],
-        [ "Functions", "globals_func.html", null ],
+        [ "Functions", "globals_func.html", "globals_func" ],
         [ "Variables", "globals_vars.html", null ],
+        [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
         [ "Enumerator", "globals_eval.html", null ],
         [ "Macros", "globals_defs.html", null ]
@@ -50,8 +51,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"gelu__kernels_8c.html#a3075b77764b4b408e3c1c9b89a2822ad",
-"structTransformerModel.html#a08ba885dfade40a3910ffba35076a1a3"
+"ckernel__ir_8c.html#acd82d4aceebe2b6c8feafb9d1fc9c8db",
+"gemm__kernels_8c.html#af4f0e756d3ac00b45ce2c7a296b61ae3",
+"structCKIRGraph.html#af12e4b320dee98416c63539b743801f2"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -128,6 +128,7 @@ $(document).ready(function(){initNavTree('sigmoid__kernels_8c.html',''); initRes
 <div class="contents">
 <div class="textblock"><code>#include &lt;math.h&gt;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
 </div>
 <p><a href="sigmoid__kernels_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -179,18 +180,24 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00023">23</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;{</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keywordtype">float</span> x = input[i];</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="keywordtype">float</span> s = <a class="code" href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a>(x);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        <span class="keywordtype">float</span> s_prime = s * (1.0f - s);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        d_input[i] = d_output[i] * s_prime;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    }</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;}</div>
-<div class="ttc" id="asigmoid__kernels_8c_html_aaa76ef661048368434b452a237bc3669"><div class="ttname"><a href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a></div><div class="ttdeci">float sigmoid_scalar(float x)</div><div class="ttdef"><b>Definition:</b> <a href="sigmoid__kernels_8c_source.html#l00005">sigmoid_kernels.c:5</a></div></div>
+<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00123">123</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;{</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#if defined(__AVX512F__)</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    sigmoid_backward_avx512(input, d_output, d_input, n);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        <span class="keywordtype">float</span> x = input[i];</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordtype">float</span> s = <a class="code" href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a>(x);</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;        <span class="keywordtype">float</span> s_prime = s * (1.0f - s);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        d_input[i] = d_output[i] * s_prime;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    }</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;}</div>
+<div class="ttc" id="asigmoid__kernels_8c_html_aaa76ef661048368434b452a237bc3669"><div class="ttname"><a href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a></div><div class="ttdeci">float sigmoid_scalar(float x)</div><div class="ttdef"><b>Definition:</b> <a href="sigmoid__kernels_8c_source.html#l00011">sigmoid_kernels.c:11</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="sigmoid__kernels_8c_source.html#l00005">sigmoid_scalar()</a>.</p>
+<p class="reference">References <a class="el" href="sigmoid__kernels_8c_source.html#l00011">sigmoid_scalar()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="sigmoid__kernels__bf16_8c_source.html#l00037">sigmoid_backward_bf16()</a>.</p>
 
 </div>
 </div>
@@ -226,14 +233,20 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00011">11</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;{</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        output[i] = <a class="code" href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a>(input[i]);</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    }</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00107">107</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;{</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor">#if defined(__AVX512F__)</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    sigmoid_forward_avx512(input, output, n);</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        output[i] = <a class="code" href="sigmoid__kernels_8c.html#aaa76ef661048368434b452a237bc3669">sigmoid_scalar</a>(input[i]);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    }</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="sigmoid__kernels_8c_source.html#l00005">sigmoid_scalar()</a>.</p>
+<p class="reference">References <a class="el" href="sigmoid__kernels_8c_source.html#l00011">sigmoid_scalar()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="sigmoid__kernels__bf16_8c_source.html#l00013">sigmoid_forward_bf16()</a>.</p>
 
 </div>
 </div>
@@ -253,12 +266,12 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00005">5</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;{</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="keywordflow">return</span> 1.0f / (1.0f + expf(-x));</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="sigmoid__kernels_8c_source.html#l00011">11</a> of file <a class="el" href="sigmoid__kernels_8c_source.html">sigmoid_kernels.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;{</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keywordflow">return</span> 1.0f / (1.0f + expf(-x));</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">Referenced by <a class="el" href="sigmoid__kernels_8c_source.html#l00023">sigmoid_backward()</a>, <a class="el" href="sigmoid__kernels_8c_source.html#l00011">sigmoid_forward()</a>, <a class="el" href="swiglu__kernels_8c_source.html#l00045">swiglu_backward()</a>, and <a class="el" href="swiglu__kernels_8c_source.html#l00013">swiglu_forward()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="sigmoid__kernels_8c_source.html#l00123">sigmoid_backward()</a>, <a class="el" href="sigmoid__kernels_8c_source.html#l00107">sigmoid_forward()</a>, <a class="el" href="swiglu__kernels_8c_source.html#l00045">swiglu_backward()</a>, <a class="el" href="swiglu__kernels__bf16_8c_source.html#l00032">swiglu_backward_bf16()</a>, <a class="el" href="swiglu__kernels_8c_source.html#l00013">swiglu_forward()</a>, and <a class="el" href="swiglu__kernels__bf16_8c_source.html#l00006">swiglu_forward_bf16()</a>.</p>
 
 </div>
 </div>

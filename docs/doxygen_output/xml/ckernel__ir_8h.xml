@@ -238,7 +238,7 @@
         <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="75">CKIRGraph::nodes</references>
         <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="74">CKIRGraph::num_nodes</references>
         <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="65">CKIRNode::op</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1a172c72d0dd9688733a74dcb3b7b307d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -283,7 +283,7 @@
         <references refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" compoundref="ckernel__ir_8h" startline="65">CKIRNode::op</references>
         <references refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" compoundref="ckernel__ir_8h" startline="60">CKInputRef::out_index</references>
         <references refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" compoundref="ckernel__ir_8h" startline="59">CKInputRef::producer</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -327,7 +327,7 @@
         <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
         <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1af2230a5c67cf1229dd5ce94f0f7ce5fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -348,7 +348,7 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="124" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_ir.c" bodystart="493" bodyend="501" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" declline="124" declcolumn="6"/>
         <references refid="structCKIRGraph_1aab28fe3564ea6a66b72b4226d05ffb2f" compoundref="ckernel__ir_8h" startline="75">CKIRGraph::nodes</references>
         <references refid="structCKIRGraph_1ac761026b9b84254516bce9995dd04465" compoundref="ckernel__ir_8h" startline="74">CKIRGraph::num_nodes</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -397,7 +397,7 @@
         <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
         <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -444,7 +444,7 @@
         <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
         <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -493,7 +493,7 @@
         <references refid="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" compoundref="ckernel__ir_8h" startline="31">CKModelConfig::rms_norm_eps</references>
         <references refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" compoundref="ckernel__ir_8h" startline="32">CKModelConfig::rope_theta</references>
         <references refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" compoundref="ckernel__ir_8h" startline="29">CKModelConfig::vocab_size</references>
-        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="92">main</referencedby>
+        <referencedby refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="ckernel__ir__demo_8c" startline="7" endline="101">main</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['gelu_5fkernels_2ec_374',['gelu_kernels.c',['../gelu__kernels_8c.html',1,'']]],
-  ['gemm_5fkernels_2ec_375',['gemm_kernels.c',['../gemm__kernels_8c.html',1,'']]]
+  ['embedding_5fkernels_2ec_672',['embedding_kernels.c',['../embedding__kernels_8c.html',1,'']]],
+  ['embedding_5fkernels_5fbf16_2ec_673',['embedding_kernels_bf16.c',['../embedding__kernels__bf16_8c.html',1,'']]]
 ];

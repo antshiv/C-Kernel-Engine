@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['v_627',['v',['../structCKLayerForwardParams.html#ac49cad0850ce2e111044fc2114783d16',1,'CKLayerForwardParams::v()'],['../structCKLayerBackwardParams.html#ada3ee32dfad069f78687e2632f024837',1,'CKLayerBackwardParams::v()']]],
-  ['vocab_5fsize_628',['vocab_size',['../structCKModelConfig.html#ad2b6c5944307859fe26f4d915d089027',1,'CKModelConfig']]]
+  ['unk_5fid_1150',['unk_id',['../structCKTokenizer.html#a35f73551a504361ab117452f40fe81bf',1,'CKTokenizer']]],
+  ['used_1151',['used',['../structCKPoolBlock.html#ad15144404362a0676f0c46a5b5a8d0ba',1,'CKPoolBlock']]]
 ];

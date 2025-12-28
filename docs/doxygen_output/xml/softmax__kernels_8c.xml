@@ -47,6 +47,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" line="51" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="51" bodyend="83"/>
+        <referencedby refid="ckernel__engine_8h_1afe83b7a562f3b21fef1993782ff3792b" compoundref="softmax__kernels__bf16_8c" startline="36" endline="64">backward_causal_softmax_head_major_bf16</referencedby>
       </memberdef>
       <memberdef kind="function" id="softmax__kernels_8c_1a920868f80137fe3e0c9cd11acb7ba567" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -76,8 +77,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" line="10" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="10" bodyend="46"/>
-        <referencedby refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" compoundref="attention__kernels_8c" startline="42" endline="106">attention_forward_causal_head_major</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" compoundref="attention__kernels_8c" startline="110" endline="168">attention_forward_causal_head_major_gqa</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" compoundref="attention__kernels_8c" startline="56" endline="120">attention_forward_causal_head_major</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" compoundref="attention__kernels_8c" startline="124" endline="182">attention_forward_causal_head_major_gqa</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a1cc637a888846ddbcf1a58ac72b4aaf6" compoundref="softmax__kernels__bf16_8c" startline="12" endline="34">causal_softmax_head_major_bf16</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

@@ -21,14 +21,12 @@ make
 # Build small, kernel-specific libraries
 make libckernel_gelu.so
 make libckernel_rmsnorm.so
-make libckernel_layernorm.so   # requires AVX-512 CPU
-make libckernel_softmax.so     # requires AVX-512 CPU
+make libckernel_layernorm.so
+make libckernel_softmax.so
 ```
 
-On machines without AVX-512 (e.g., older laptops), only `libckernel_gelu.so`
-and `libckernel_rmsnorm.so` are safe to execute. The LayerNorm and Softmax
-libraries use AVX-512 intrinsics and should be run on a Xeon or other
-AVX-512-capable CPU.
+All kernel-specific libs are compiled with the same ISA flags as the main build
+(AVX / AVX2 / AVX-512), so they are safe to run on the current CPU.
 
 There is also a helper target that builds all kernel-specific libs:
 
@@ -36,7 +34,16 @@ There is also a helper target that builds all kernel-specific libs:
 make test-libs
 ```
 
-This is automatically invoked by `make test` on AVX-512 machines.
+This is invoked by `make test`.
+
+BF16 kernels require AVX-512 BF16 hardware support. You can run the BF16 test
+suite with:
+
+```bash
+make test-bf16
+```
+
+On unsupported CPUs, BF16 tests print a clear skip message.
 
 ---
 
@@ -87,7 +94,7 @@ This script checks:
 
 ### 2.3 LayerNorm
 
-Requires AVX-512 CPU.
+Build uses the best available implementation for your CPU (AVX / AVX2 / AVX-512).
 
 ```bash
 make libckernel_layernorm.so
@@ -105,8 +112,6 @@ Checks:
   - `layernorm_backward_kernel` vs PyTorch autograd for `dX`, `dGamma`, `dBeta`.
 
 ### 2.4 Softmax (Causal)
-
-Requires AVX-512 CPU.
 
 ```bash
 make libckernel_softmax.so
@@ -178,11 +183,23 @@ Checks:
 - Forward: `sigmoid_forward` vs `torch.sigmoid`.
 - Backward: `sigmoid_backward` vs PyTorch autograd for `dX`.
 
+### 2.8 Flash Attention + KV Cache (Inference Decode Path)
+
+These tests validate the new inference-oriented attention path:
+
+```bash
+python3 unittest/test_kv_cache_attention.py
+python3 unittest/test_kv_cache_layer_decode.py
+```
+
+They check:
+- Flash-style prefill attention matches the reference score-matrix attention.
+- KV-cache decode attention matches full causal attention token-by-token.
+- Full layer output matches prefill+decode stitching (and KV padded lanes are zeroed).
+
 ---
 
 ## 3. Running the Full Test Suite
-
-On an AVX-512-capable machine:
 
 ```bash
 cd C-Kernel-Engine
@@ -194,17 +211,7 @@ This will:
 
 - Build the full engine library (`libckernel_engine.so`).
 - Build all kernel-specific libs (`make test-libs`).
-- Run all unittest scripts:
-  - `test_layernorm.py`
-  - `test_gelu.py`
-  - `test_softmax.py`
-  - `test_softmax_backward.py`
-  - `test_gemm.py`
-  - `test_mlp.py`
-  - `test_rmsnorm.py`
-
-On machines **without AVX-512**, only run the tests whose `.so` libraries
-do not use AVX-512 (GELU, RMSNorm), as shown above.
+- Run all Python unit tests listed in `make tests-list`.
 
 ---
 

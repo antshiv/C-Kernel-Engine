@@ -342,6 +342,8 @@ tests-list:
 	@echo "  unittest/test_swiglu.py            - SwiGLU activation forward/backward"
 	@echo "  unittest/test_attention.py         - Multi-head attention forward vs PyTorch"
 	@echo "  unittest/test_attention_backward.py - Attention backward (MHA/GQA)"
+	@echo "  unittest/test_kv_cache_attention.py - Flash prefill + KV-cache decode attention"
+	@echo "  unittest/test_kv_cache_layer_decode.py - Layer prefill+decode parity (KV cache)"
 	@echo "  unittest/test_rope.py              - RoPE forward/backward vs PyTorch"
 	@echo "  unittest/test_embedding.py         - Embedding forward/backward vs PyTorch"
 	@echo "  unittest/test_cross_entropy.py     - Cross-entropy loss vs PyTorch"

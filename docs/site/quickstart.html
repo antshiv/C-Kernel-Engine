@@ -686,10 +686,6 @@
                         Kernel Reference
                         <small>All forward/backward kernels</small>
                     </a>
-                    <a href="gemm-optimization.html">
-                        GEMM Optimization
-                        <small>Microkernel, packing, 1.44x faster than MKL</small>
-                    </a>
                     <a href="codegen.html">
                         Code Generation
                         <small>IR to C compilation</small>
@@ -705,10 +701,6 @@
                     <a href="concepts.html">
                         Deep Dive Concepts
                         <small>RoPE, Flash Attention, GQA</small>
-                    </a>
-                    <a href="quantization.html">
-                        Quantization
-                        <small>GGML formats, grouping, memory</small>
                     </a>
                     <a href="testing.html">
                         Testing Methodology
@@ -757,6 +749,7 @@
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#building">Building</a></li>
         <li><a href="#make-targets">Make Targets Reference</a></li>
+        <li><a href="#prefill-decode">Prefill + Decode (KV Cache)</a></li>
         <li><a href="#first-run">Your First Run</a></li>
         <li><a href="#training-parity">Training Parity Test</a></li>
         <li><a href="#profiling-quick">Quick Profiling</a></li>
@@ -800,15 +793,17 @@ sudo apt install doxygen</pre>
 <div class="card card-accent">
     <h3 style="margin-top: 0;">Basic Build</h3>
     <pre># Clone the repository
-git clone https://github.com/anthropics/c-kernel-engine.git
-cd c-kernel-engine
+git clone https://github.com/antshiv/C-Kernel-Engine.git
+cd C-Kernel-Engine
 
 # Build the main library
 make
 
-# This creates:
-#   build/libckernel_engine.so  - Main runtime library
-#   build/ck_ir_demo            - IR + codegen tool</pre>
+# Build the IR + codegen tool (HF config.json -> generated C)
+make build/ck_ir_demo
+
+# Optional: build the orchestrator CLI ("ck")
+make ck-cli</pre>
 </div>
 
 <div class="card">
@@ -852,6 +847,10 @@ make CFLAGS="-O0 -g -fPIC -fopenmp -Wall"</pre>
                 <td>Build the IR + codegen tool</td>
             </tr>
             <tr>
+                <td><code>make ck-cli</code></td>
+                <td>Build the orchestrator CLI (<code>build/ck</code>)</td>
+            </tr>
+            <tr>
                 <td><code>make test-libs</code></td>
                 <td>Build per-kernel shared libraries for Python tests</td>
             </tr>
@@ -874,6 +873,14 @@ make CFLAGS="-O0 -g -fPIC -fopenmp -Wall"</pre>
             <tr>
                 <td><code>make test</code></td>
                 <td>Run all Python kernel unit tests (GELU, RMSNorm, Attention, etc.)</td>
+            </tr>
+            <tr>
+                <td><code>make test-bf16</code></td>
+                <td>Run BF16 kernel unit tests (skips on unsupported CPUs)</td>
+            </tr>
+            <tr>
+                <td><code>make tests-list</code></td>
+                <td>Print the full list of Python kernel tests</td>
             </tr>
             <tr>
                 <td><code>make test-quick</code></td>
@@ -981,6 +988,36 @@ make CFLAGS="-O0 -g -fPIC -fopenmp -Wall"</pre>
             </tr>
         </tbody>
     </table>
+</div>
+
+<h2 id="prefill-decode">Prefill + Decode (KV Cache)</h2>
+
+<p>For autoregressive inference, the generated runtime supports a fast <strong>prefill → decode</strong> mode using a per-layer KV cache.</p>
+
+<div class="card card-accent">
+    <h3 style="margin-top: 0;">Generate a <code>libmodel.so</code> (library mode)</h3>
+    <pre># Generate a model runtime with an exported C ABI (dlopen/ctypes)
+./build/ck_ir_demo path/to/config.json --emit build/model.c --emit-lib
+
+# Compile into a self-contained shared library (link kernel sources from the manifest)
+cc -O3 -fPIC -fopenmp -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm</pre>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0;">Inference Call Sequence</h3>
+    <pre># 1) Init weights
+ck_model_init("weights.bump");
+
+# 2) Enable KV cache (inference-only)
+ck_model_kv_cache_enable(context_window);
+
+# 3) Prefill prompt (full forward once)
+ck_model_embed_tokens(prompt_tokens, n);
+ck_model_forward(NULL);
+
+# 4) Decode tokens (one token per step, uses KV cache)
+ck_model_decode(next_token, NULL);</pre>
+    <p>Training/backprop uses the full forward+backward path and does not use KV-cache decode.</p>
 </div>
 
 <h2 id="first-run">Your First Run</h2>
@@ -1094,15 +1131,7 @@ firefox build/flamegraph.svg</pre>
 <ul>
     <li><a href="architecture.html">Architecture Overview</a> - Understand the system design</li>
     <li><a href="kernels.html">Kernel Reference</a> - All available kernels</li>
-                    <a href="gemm-optimization.html">
-                        GEMM Optimization
-                        <small>Microkernel, packing, 1.44x faster than MKL</small>
-                    </a>
     <li><a href="codegen.html">Code Generation</a> - How IR becomes C code</li>
-                    <a href="gemm-optimization.html">
-                        GEMM Optimization
-                        <small>Microkernel, packing, 1.44x faster than MKL</small>
-                    </a>
     <li><a href="pytorch-parity.html">PyTorch Parity</a> - Detailed parity testing</li>
     <li><a href="profiling.html">Profiling Guide</a> - Advanced profiling techniques</li>
 </ul>
@@ -1266,7 +1295,7 @@ firefox build/flamegraph.svg</pre>
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-22</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-27</p>
             </div>
         </div>
     </footer>

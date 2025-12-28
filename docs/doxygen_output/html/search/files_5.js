@@ -1,5 +1,13 @@
 var searchData=
 [
-  ['layernorm_5fkernels_2ec_376',['layernorm_kernels.c',['../layernorm__kernels_8c.html',1,'']]],
-  ['loss_5fkernels_2ec_377',['loss_kernels.c',['../loss__kernels_8c.html',1,'']]]
+  ['gelu_5fkernels_2ec_674',['gelu_kernels.c',['../gelu__kernels_8c.html',1,'']]],
+  ['gelu_5fkernels_5fbf16_2ec_675',['gelu_kernels_bf16.c',['../gelu__kernels__bf16_8c.html',1,'']]],
+  ['gemm_5ffused_5fkernels_2ec_676',['gemm_fused_kernels.c',['../gemm__fused__kernels_8c.html',1,'']]],
+  ['gemm_5fkernels_2ec_677',['gemm_kernels.c',['../gemm__kernels_8c.html',1,'']]],
+  ['gemm_5fkernels_5fbf16_2ec_678',['gemm_kernels_bf16.c',['../gemm__kernels__bf16_8c.html',1,'']]],
+  ['gemm_5fkernels_5ff16_2ec_679',['gemm_kernels_f16.c',['../gemm__kernels__f16_8c.html',1,'']]],
+  ['gemm_5fkernels_5fq4_5f0_2ec_680',['gemm_kernels_q4_0.c',['../gemm__kernels__q4__0_8c.html',1,'']]],
+  ['gemm_5fkernels_5fq4k_2ec_681',['gemm_kernels_q4k.c',['../gemm__kernels__q4k_8c.html',1,'']]],
+  ['gemm_5fkernels_5fq8_5f0_2ec_682',['gemm_kernels_q8_0.c',['../gemm__kernels__q8__0_8c.html',1,'']]],
+  ['gemm_5fmicrokernel_2ec_683',['gemm_microkernel.c',['../gemm__microkernel_8c.html',1,'']]]
 ];

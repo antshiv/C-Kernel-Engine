@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structblock__q8__0" kind="struct" language="C++" prot="public">
+    <compoundname>block_q8_0</compoundname>
+    <includes refid="ckernel__quant_8h" local="no">ckernel_quant.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__quant_8h_1a6519446e531e4f1f13522326934a938f" kindref="member">ck_half</ref></type>
+        <definition>ck_half block_q8_0::d</definition>
+        <argsstring></argsstring>
+        <name>d</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="52" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="52" bodyend="-1"/>
+        <referencedby refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" compoundref="dequant__kernels_8c" startline="105" endline="112">dequant_q8_0_block</referencedby>
+        <referencedby refid="gemm__kernels__q8__0_8c_1af81f5e920a8025d1f3034b56b43f42dc" compoundref="gemm__kernels__q8__0_8c" startline="155" endline="180">gemv_q8_0_backward_ref</referencedby>
+        <referencedby refid="gemm__kernels__q8__0_8c_1aff97d7ac8b3cd0813a79aad642bc1263" compoundref="gemm__kernels__q8__0_8c" startline="41" endline="64">gemv_q8_0_ref</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" prot="public" static="no" mutable="no">
+        <type>int8_t</type>
+        <definition>int8_t block_q8_0::qs[32]</definition>
+        <argsstring>[32]</argsstring>
+        <name>qs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="53" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="53" bodyend="-1"/>
+        <referencedby refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" compoundref="dequant__kernels_8c" startline="105" endline="112">dequant_q8_0_block</referencedby>
+        <referencedby refid="gemm__kernels__q8__0_8c_1af81f5e920a8025d1f3034b56b43f42dc" compoundref="gemm__kernels__q8__0_8c" startline="155" endline="180">gemv_q8_0_backward_ref</referencedby>
+        <referencedby refid="gemm__kernels__q8__0_8c_1aff97d7ac8b3cd0813a79aad642bc1263" compoundref="gemm__kernels__q8__0_8c" startline="41" endline="64">gemv_q8_0_ref</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="51" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="51" bodyend="54"/>
+    <listofallmembers>
+      <member refid="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" prot="public" virt="non-virtual"><scope>block_q8_0</scope><name>d</name></member>
+      <member refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" prot="public" virt="non-virtual"><scope>block_q8_0</scope><name>qs</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

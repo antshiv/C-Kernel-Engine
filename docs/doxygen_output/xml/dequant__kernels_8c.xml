@@ -1,0 +1,666 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dequant__kernels_8c" kind="file" language="C++">
+    <compoundname>dequant_kernels.c</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">immintrin.h</includes>
+    <includes refid="ckernel__quant_8h" local="yes">ckernel_quant.h</includes>
+    <includes refid="ckernel__dtype_8h" local="yes">ckernel_dtype.h</includes>
+    <incdepgraph>
+      <node id="5">
+        <label>ckernel_quant.h</label>
+        <link refid="ckernel__quant_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+      <node id="4">
+        <label>immintrin.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>dequant_kernels.c</label>
+        <link refid="dequant__kernels_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q4_0_block</definition>
+        <argsstring>(const block_q4_0 *block, float *output)</argsstring>
+        <name>dequant_q4_0_block</name>
+        <param>
+          <type>const <ref refid="structblock__q4__0" kindref="compound">block_q4_0</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize a single Q4_0 block to FP32. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>block</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Q4_0 block (18 bytes) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output FP32 array (32 floats) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="28" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="28" bodyend="43"/>
+        <references refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" compoundref="ckernel__quant_8h" startline="37">block_q4_0::d</references>
+        <references refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" compoundref="ckernel__quant_8h" startline="253">GGML_FP16_TO_FP32</references>
+        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="34">QK4_0</references>
+        <references refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" compoundref="ckernel__quant_8h" startline="38">block_q4_0::qs</references>
+        <referencedby refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" compoundref="dequant__kernels_8c" startline="51" endline="59">dequant_q4_0_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q4_0_row</definition>
+        <argsstring>(const void *src, float *dst, size_t n_elements)</argsstring>
+        <name>dequant_q4_0_row</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_elements</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize Q4_0 row (multiple blocks) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Q4_0 data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FP32 output </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements to dequantize </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="51" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="51" bodyend="59"/>
+        <references refid="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" compoundref="dequant__kernels_8c" startline="28" endline="43">dequant_q4_0_block</references>
+        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="34">QK4_0</references>
+        <referencedby refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" compoundref="dequant__kernels_8c" startline="295" endline="311">dequant_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q4_k_block</definition>
+        <argsstring>(const block_q4_K *block, float *output)</argsstring>
+        <name>dequant_q4_k_block</name>
+        <param>
+          <type>const <ref refid="structblock__q4__K" kindref="compound">block_q4_K</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize a single Q4_K block to FP32. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Q4_K uses nested scales: w_fp32 = q * (d * sub_scale) + dmin * sub_min</para>
+<para>Where:<itemizedlist>
+<listitem><para>d, dmin are FP16 super-block values</para>
+</listitem><listitem><para>sub_scale, sub_min are 6-bit values packed in scales[12]</para>
+</listitem><listitem><para>q is the 4-bit quantized weight (-8 to +7 after offset) </para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="167" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="167" bodyend="197"/>
+        <references refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" compoundref="ckernel__quant_8h" startline="72">block_q4_K::d</references>
+        <references refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" compoundref="ckernel__quant_8h" startline="73">block_q4_K::dmin</references>
+        <references refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" compoundref="ckernel__quant_8h" startline="253">GGML_FP16_TO_FP32</references>
+        <references refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" compoundref="ckernel__quant_8h" startline="75">block_q4_K::qs</references>
+        <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="74">block_q4_K::scales</references>
+        <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="145" endline="171">unpack_q4_k_scales</references>
+        <referencedby refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" compoundref="dequant__kernels_8c" startline="202" endline="210">dequant_q4_k_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q4_k_row</definition>
+        <argsstring>(const void *src, float *dst, size_t n_elements)</argsstring>
+        <name>dequant_q4_k_row</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_elements</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize Q4_K row (multiple blocks) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="202" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="202" bodyend="210"/>
+        <references refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</references>
+        <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="68">QK_K</references>
+        <referencedby refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" compoundref="dequant__kernels_8c" startline="295" endline="311">dequant_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q8_0_block</definition>
+        <argsstring>(const block_q8_0 *block, float *output)</argsstring>
+        <name>dequant_q8_0_block</name>
+        <param>
+          <type>const <ref refid="structblock__q8__0" kindref="compound">block_q8_0</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize a single Q8_0 block to FP32. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="105" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="105" bodyend="112"/>
+        <references refid="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" compoundref="ckernel__quant_8h" startline="52">block_q8_0::d</references>
+        <references refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" compoundref="ckernel__quant_8h" startline="253">GGML_FP16_TO_FP32</references>
+        <references refid="ckernel__quant_8h_1af13e8b7fd92d0f48c1cfca7161552d4a" compoundref="ckernel__quant_8h" startline="49">QK8_0</references>
+        <references refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" compoundref="ckernel__quant_8h" startline="53">block_q8_0::qs</references>
+        <referencedby refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" compoundref="dequant__kernels_8c" startline="117" endline="125">dequant_q8_0_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_q8_0_row</definition>
+        <argsstring>(const void *src, float *dst, size_t n_elements)</argsstring>
+        <name>dequant_q8_0_row</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_elements</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize Q8_0 row (multiple blocks) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="117" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="117" bodyend="125"/>
+        <references refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" compoundref="dequant__kernels_8c" startline="105" endline="112">dequant_q8_0_block</references>
+        <references refid="ckernel__quant_8h_1af13e8b7fd92d0f48c1cfca7161552d4a" compoundref="ckernel__quant_8h" startline="49">QK8_0</references>
+        <referencedby refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" compoundref="dequant__kernels_8c" startline="295" endline="311">dequant_row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void dequant_row</definition>
+        <argsstring>(CKDataType dtype, const void *src, float *dst, size_t n_elements)</argsstring>
+        <name>dequant_row</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dtype</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_elements</declname>
+        </param>
+        <briefdescription>
+<para>Dequantize a row of quantized data to FP32. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dtype</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type (must be quantized type) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source quantized data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination FP32 buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" line="295" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c" bodystart="295" bodyend="311"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" compoundref="ckernel__dtype_8h" startline="35">CK_DT_Q4_0</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" compoundref="ckernel__dtype_8h" startline="36">CK_DT_Q4_K</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" compoundref="ckernel__dtype_8h" startline="37">CK_DT_Q8_0</references>
+        <references refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" compoundref="dequant__kernels_8c" startline="51" endline="59">dequant_q4_0_row</references>
+        <references refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" compoundref="dequant__kernels_8c" startline="202" endline="210">dequant_q4_k_row</references>
+        <references refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" compoundref="dequant__kernels_8c" startline="117" endline="125">dequant_q8_0_row</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Dequantization kernels for GGML-compatible formats. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements dequantization from Q4_0, Q4_K, Q8_0 to FP32. These kernels are used as building blocks for quantized GEMM/GEMV.</para>
+<para>Key optimization: Dequantize into registers, use immediately in FMA, never write intermediate FP32 values to memory. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>@file<sp/>dequant_kernels.c</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantization<sp/>kernels<sp/>for<sp/>GGML-compatible<sp/>formats</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Implements<sp/>dequantization<sp/>from<sp/>Q4_0,<sp/>Q4_K,<sp/>Q8_0<sp/>to<sp/>FP32.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>These<sp/>kernels<sp/>are<sp/>used<sp/>as<sp/>building<sp/>blocks<sp/>for<sp/>quantized<sp/>GEMM/GEMV.</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>Key<sp/>optimization:<sp/>Dequantize<sp/>into<sp/>registers,<sp/>use<sp/>immediately<sp/>in<sp/>FMA,</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>never<sp/>write<sp/>intermediate<sp/>FP32<sp/>values<sp/>to<sp/>memory.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;immintrin.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="ckernel__quant_8h" kindref="compound">ckernel_quant.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>============================================================================</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>Q4_0<sp/>Dequantization</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>-<sp/>32<sp/>weights<sp/>per<sp/>block,<sp/>1<sp/>FP16<sp/>scale</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>-<sp/>Weights<sp/>stored<sp/>as<sp/>signed<sp/>4-bit<sp/>(-8<sp/>to<sp/>+7)</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>============================================================================<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="23"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>a<sp/>single<sp/>Q4_0<sp/>block<sp/>to<sp/>FP32</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>@param<sp/>block<sp/>Pointer<sp/>to<sp/>Q4_0<sp/>block<sp/>(18<sp/>bytes)</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>@param<sp/>output<sp/>Output<sp/>FP32<sp/>array<sp/>(32<sp/>floats)</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" kindref="member">dequant_q4_0_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__0" kindref="compound">block_q4_0</ref><sp/>*block,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>d<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" kindref="member">d</ref>);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" kindref="member">QK4_0</ref><sp/>/<sp/>2;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>packed<sp/>=<sp/>block-&gt;<ref refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" kindref="member">qs</ref>[i];</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Lower<sp/>nibble:<sp/>subtract<sp/>8<sp/>to<sp/>get<sp/>signed<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int8_t<sp/>q0<sp/>=<sp/>(packed<sp/>&amp;<sp/>0x0F)<sp/>-<sp/>8;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Upper<sp/>nibble:<sp/>subtract<sp/>8<sp/>to<sp/>get<sp/>signed<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int8_t<sp/>q1<sp/>=<sp/>(packed<sp/>&gt;&gt;<sp/>4)<sp/>-<sp/>8;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output[2*i<sp/>+<sp/>0]<sp/>=<sp/>d<sp/>*<sp/>(float)q0;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output[2*i<sp/>+<sp/>1]<sp/>=<sp/>d<sp/>*<sp/>(float)q1;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="45"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>Q4_0<sp/>row<sp/>(multiple<sp/>blocks)</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>@param<sp/>src<sp/>Q4_0<sp/>data</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*<sp/>@param<sp/>dst<sp/>FP32<sp/>output</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/>*<sp/>@param<sp/>n_elements<sp/>Number<sp/>of<sp/>elements<sp/>to<sp/>dequantize</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" kindref="member">dequant_q4_0_row</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_elements)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__0" kindref="compound">block_q4_0</ref><sp/>*blocks<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__0" kindref="compound">block_q4_0</ref><sp/>*)src;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_blocks<sp/>=<sp/>n_elements<sp/>/<sp/><ref refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" kindref="member">QK4_0</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>b<sp/>=<sp/>0;<sp/>b<sp/>&lt;<sp/>n_blocks;<sp/>b++)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" kindref="member">dequant_q4_0_block</ref>(&amp;blocks[b],<sp/>&amp;dst[b<sp/>*<sp/><ref refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" kindref="member">QK4_0</ref>]);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__AVX512F__</highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="62"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="63"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>Q4_0<sp/>block<sp/>using<sp/>AVX-512<sp/>(16<sp/>floats<sp/>at<sp/>a<sp/>time)</highlight></codeline>
+<codeline lineno="64"><highlight class="comment"><sp/>*<sp/>@param<sp/>block<sp/>Pointer<sp/>to<sp/>Q4_0<sp/>block</highlight></codeline>
+<codeline lineno="65"><highlight class="comment"><sp/>*<sp/>@param<sp/>out_lo<sp/>Lower<sp/>16<sp/>floats<sp/>(weights<sp/>0-15)</highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/>*<sp/>@param<sp/>out_hi<sp/>Upper<sp/>16<sp/>floats<sp/>(weights<sp/>16-31)</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>dequant_q4_0_block_avx512(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__0" kindref="compound">block_q4_0</ref><sp/>*block,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__m512<sp/>*out_lo,<sp/>__m512<sp/>*out_hi)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512<sp/>scale<sp/>=<sp/>_mm512_set1_ps(<ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" kindref="member">d</ref>));</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512i<sp/>offset<sp/>=<sp/>_mm512_set1_epi32(8);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Load<sp/>16<sp/>bytes<sp/>=<sp/>32<sp/>x<sp/>4-bit<sp/>weights<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>__m128i<sp/>packed<sp/>=<sp/>_mm_loadu_si128((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m128i<sp/>*)block-&gt;<ref refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" kindref="member">qs</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unpack<sp/>lower<sp/>nibbles<sp/>(weights<sp/>0,<sp/>2,<sp/>4,<sp/>...)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>lo_nibbles<sp/>=<sp/>_mm512_cvtepu8_epi32(packed);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>lo_nibbles<sp/>=<sp/>_mm512_and_epi32(lo_nibbles,<sp/>_mm512_set1_epi32(0x0F));</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>lo_nibbles<sp/>=<sp/>_mm512_sub_epi32(lo_nibbles,<sp/>offset);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unpack<sp/>upper<sp/>nibbles<sp/>(weights<sp/>1,<sp/>3,<sp/>5,<sp/>...)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>hi_nibbles<sp/>=<sp/>_mm512_cvtepu8_epi32(packed);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>hi_nibbles<sp/>=<sp/>_mm512_srli_epi32(hi_nibbles,<sp/>4);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>hi_nibbles<sp/>=<sp/>_mm512_sub_epi32(hi_nibbles,<sp/>offset);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Convert<sp/>to<sp/>float<sp/>and<sp/>scale<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_lo<sp/>=<sp/>_mm512_mul_ps(_mm512_cvtepi32_ps(lo_nibbles),<sp/>scale);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_hi<sp/>=<sp/>_mm512_mul_ps(_mm512_cvtepi32_ps(hi_nibbles),<sp/>scale);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Note:<sp/>This<sp/>gives<sp/>interleaved<sp/>output<sp/>(0,2,4...<sp/>and<sp/>1,3,5...)</highlight></codeline>
+<codeline lineno="92"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>For<sp/>proper<sp/>sequential<sp/>order,<sp/>would<sp/>need<sp/>shuffle/blend<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__AVX512F__<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>============================================================================</highlight></codeline>
+<codeline lineno="97"><highlight class="comment"><sp/>*<sp/>Q8_0<sp/>Dequantization</highlight></codeline>
+<codeline lineno="98"><highlight class="comment"><sp/>*<sp/>-<sp/>32<sp/>weights<sp/>per<sp/>block,<sp/>1<sp/>FP16<sp/>scale</highlight></codeline>
+<codeline lineno="99"><highlight class="comment"><sp/>*<sp/>-<sp/>Weights<sp/>stored<sp/>as<sp/>signed<sp/>8-bit</highlight></codeline>
+<codeline lineno="100"><highlight class="comment"><sp/>*<sp/>============================================================================<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="102"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="103"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>a<sp/>single<sp/>Q8_0<sp/>block<sp/>to<sp/>FP32</highlight></codeline>
+<codeline lineno="104"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" kindref="member">dequant_q8_0_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q8__0" kindref="compound">block_q8_0</ref><sp/>*block,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>d<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" kindref="member">d</ref>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="ckernel__quant_8h_1af13e8b7fd92d0f48c1cfca7161552d4a" kindref="member">QK8_0</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output[i]<sp/>=<sp/>d<sp/>*<sp/>(float)block-&gt;<ref refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" kindref="member">qs</ref>[i];</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="114"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="115"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>Q8_0<sp/>row<sp/>(multiple<sp/>blocks)</highlight></codeline>
+<codeline lineno="116"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" kindref="member">dequant_q8_0_row</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_elements)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q8__0" kindref="compound">block_q8_0</ref><sp/>*blocks<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q8__0" kindref="compound">block_q8_0</ref><sp/>*)src;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_blocks<sp/>=<sp/>n_elements<sp/>/<sp/><ref refid="ckernel__quant_8h_1af13e8b7fd92d0f48c1cfca7161552d4a" kindref="member">QK8_0</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>b<sp/>=<sp/>0;<sp/>b<sp/>&lt;<sp/>n_blocks;<sp/>b++)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" kindref="member">dequant_q8_0_block</ref>(&amp;blocks[b],<sp/>&amp;dst[b<sp/>*<sp/><ref refid="ckernel__quant_8h_1af13e8b7fd92d0f48c1cfca7161552d4a" kindref="member">QK8_0</ref>]);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__AVX512F__</highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="128"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="129"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>Q8_0<sp/>block<sp/>using<sp/>AVX-512</highlight></codeline>
+<codeline lineno="130"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>dequant_q8_0_block_avx512(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q8__0" kindref="compound">block_q8_0</ref><sp/>*block,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__m512<sp/>*out0,<sp/>__m512<sp/>*out1)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512<sp/>scale<sp/>=<sp/>_mm512_set1_ps(<ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" kindref="member">d</ref>));</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Load<sp/>32<sp/>x<sp/>int8<sp/>as<sp/>two<sp/>__m128i<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>__m128i<sp/>q0<sp/>=<sp/>_mm_loadu_si128((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m128i<sp/>*)&amp;block-&gt;<ref refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" kindref="member">qs</ref>[0]);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>__m128i<sp/>q1<sp/>=<sp/>_mm_loadu_si128((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m128i<sp/>*)&amp;block-&gt;<ref refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" kindref="member">qs</ref>[16]);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sign-extend<sp/>to<sp/>32-bit<sp/>and<sp/>convert<sp/>to<sp/>float<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>i0<sp/>=<sp/>_mm512_cvtepi8_epi32(q0);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>i1<sp/>=<sp/>_mm512_cvtepi8_epi32(q1);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>*out0<sp/>=<sp/>_mm512_mul_ps(_mm512_cvtepi32_ps(i0),<sp/>scale);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>*out1<sp/>=<sp/>_mm512_mul_ps(_mm512_cvtepi32_ps(i1),<sp/>scale);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__AVX512F__<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>============================================================================</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/>*<sp/>Q4_K<sp/>Dequantization<sp/>(Primary<sp/>Target<sp/>for<sp/>Q4_K_M)</highlight></codeline>
+<codeline lineno="151"><highlight class="comment"><sp/>*<sp/>-<sp/>256<sp/>weights<sp/>per<sp/>super-block</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/>*<sp/>-<sp/>8<sp/>sub-blocks<sp/>of<sp/>32<sp/>weights<sp/>each</highlight></codeline>
+<codeline lineno="153"><highlight class="comment"><sp/>*<sp/>-<sp/>Two-level<sp/>scaling:<sp/>super-block<sp/>d/dmin<sp/>+<sp/>sub-block<sp/>6-bit<sp/>scales</highlight></codeline>
+<codeline lineno="154"><highlight class="comment"><sp/>*<sp/>============================================================================<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="156"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="157"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>a<sp/>single<sp/>Q4_K<sp/>block<sp/>to<sp/>FP32</highlight></codeline>
+<codeline lineno="158"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="159"><highlight class="comment"><sp/>*<sp/>Q4_K<sp/>uses<sp/>nested<sp/>scales:</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/>*<sp/><sp/><sp/>w_fp32<sp/>=<sp/>q<sp/>*<sp/>(d<sp/>*<sp/>sub_scale)<sp/>+<sp/>dmin<sp/>*<sp/>sub_min</highlight></codeline>
+<codeline lineno="161"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="162"><highlight class="comment"><sp/>*<sp/>Where:</highlight></codeline>
+<codeline lineno="163"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>d,<sp/>dmin<sp/>are<sp/>FP16<sp/>super-block<sp/>values</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>sub_scale,<sp/>sub_min<sp/>are<sp/>6-bit<sp/>values<sp/>packed<sp/>in<sp/>scales[12]</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>q<sp/>is<sp/>the<sp/>4-bit<sp/>quantized<sp/>weight<sp/>(-8<sp/>to<sp/>+7<sp/>after<sp/>offset)</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167" refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" kindref="member">dequant_q4_k_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__K" kindref="compound">block_q4_K</ref><sp/>*block,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output)</highlight></codeline>
+<codeline lineno="168"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>d<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" kindref="member">d</ref>);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>dmin<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" kindref="member">dmin</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unpack<sp/>the<sp/>6-bit<sp/>sub-block<sp/>scales<sp/>and<sp/>mins<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>sc[8],<sp/>m[8];</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" kindref="member">unpack_q4_k_scales</ref>(block-&gt;<ref refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" kindref="member">scales</ref>,<sp/>sc,<sp/>m);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>8<sp/>sub-blocks<sp/>of<sp/>32<sp/>weights<sp/>each<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sub<sp/>=<sp/>0;<sp/>sub<sp/>&lt;<sp/>8;<sp/>sub++)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>scale<sp/>=<sp/>d<sp/>*<sp/>(float)sc[sub];</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>min_val<sp/>=<sp/>dmin<sp/>*<sp/>(float)m[sub];</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Each<sp/>sub-block<sp/>has<sp/>32<sp/>weights<sp/>=<sp/>16<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*qs<sp/>=<sp/>&amp;block-&gt;<ref refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" kindref="member">qs</ref>[sub<sp/>*<sp/>16];</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*out<sp/>=<sp/>&amp;output[sub<sp/>*<sp/>32];</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>16;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>packed<sp/>=<sp/>qs[i];</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Lower<sp/>nibble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int8_t<sp/>q0<sp/>=<sp/>(packed<sp/>&amp;<sp/>0x0F)<sp/>-<sp/>8;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Upper<sp/>nibble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int8_t<sp/>q1<sp/>=<sp/>(packed<sp/>&gt;&gt;<sp/>4)<sp/>-<sp/>8;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[2*i<sp/>+<sp/>0]<sp/>=<sp/>scale<sp/>*<sp/>(float)q0<sp/>+<sp/>min_val;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[2*i<sp/>+<sp/>1]<sp/>=<sp/>scale<sp/>*<sp/>(float)q1<sp/>+<sp/>min_val;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="199"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="200"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>Q4_K<sp/>row<sp/>(multiple<sp/>blocks)</highlight></codeline>
+<codeline lineno="201"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202" refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" kindref="member">dequant_q4_k_row</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_elements)</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__K" kindref="compound">block_q4_K</ref><sp/>*blocks<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__K" kindref="compound">block_q4_K</ref><sp/>*)src;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_blocks<sp/>=<sp/>n_elements<sp/>/<sp/><ref refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" kindref="member">QK_K</ref>;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>b<sp/>=<sp/>0;<sp/>b<sp/>&lt;<sp/>n_blocks;<sp/>b++)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" kindref="member">dequant_q4_k_block</ref>(&amp;blocks[b],<sp/>&amp;dst[b<sp/>*<sp/><ref refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" kindref="member">QK_K</ref>]);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__AVX512F__</highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="213"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="214"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>one<sp/>Q4_K<sp/>sub-block<sp/>(32<sp/>weights)<sp/>using<sp/>AVX-512</highlight></codeline>
+<codeline lineno="215"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="216"><highlight class="comment"><sp/>*<sp/>@param<sp/>qs<sp/>Pointer<sp/>to<sp/>16<sp/>bytes<sp/>of<sp/>packed<sp/>4-bit<sp/>weights</highlight></codeline>
+<codeline lineno="217"><highlight class="comment"><sp/>*<sp/>@param<sp/>scale<sp/>Pre-computed<sp/>d<sp/>*<sp/>sub_scale</highlight></codeline>
+<codeline lineno="218"><highlight class="comment"><sp/>*<sp/>@param<sp/>min_val<sp/>Pre-computed<sp/>dmin<sp/>*<sp/>sub_min</highlight></codeline>
+<codeline lineno="219"><highlight class="comment"><sp/>*<sp/>@param<sp/>out0<sp/>Output:<sp/>weights<sp/>0-15</highlight></codeline>
+<codeline lineno="220"><highlight class="comment"><sp/>*<sp/>@param<sp/>out1<sp/>Output:<sp/>weights<sp/>16-31</highlight></codeline>
+<codeline lineno="221"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>dequant_q4_k_subblock_avx512(</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*qs,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>scale,</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>min_val,</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512<sp/>*out0,</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512<sp/>*out1)</highlight></codeline>
+<codeline lineno="228"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512<sp/>vscale<sp/>=<sp/>_mm512_set1_ps(scale);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512<sp/>vmin<sp/>=<sp/>_mm512_set1_ps(min_val);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512i<sp/>offset<sp/>=<sp/>_mm512_set1_epi32(8);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m512i<sp/>mask_lo<sp/>=<sp/>_mm512_set1_epi32(0x0F);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Load<sp/>16<sp/>bytes<sp/>=<sp/>32<sp/>x<sp/>4-bit<sp/>weights<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>__m128i<sp/>packed<sp/>=<sp/>_mm_loadu_si128((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>__m128i<sp/>*)qs);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Expand<sp/>to<sp/>32-bit<sp/>for<sp/>lower<sp/>and<sp/>upper<sp/>nibbles<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>bytes<sp/>=<sp/>_mm512_cvtepu8_epi32(packed);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>lower<sp/>nibbles<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>lo<sp/>=<sp/>_mm512_and_epi32(bytes,<sp/>mask_lo);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>lo<sp/>=<sp/>_mm512_sub_epi32(lo,<sp/>offset);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>upper<sp/>nibbles<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>__m512i<sp/>hi<sp/>=<sp/>_mm512_srli_epi32(bytes,<sp/>4);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>hi<sp/>=<sp/>_mm512_sub_epi32(hi,<sp/>offset);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Convert<sp/>to<sp/>float,<sp/>scale,<sp/>and<sp/>add<sp/>min<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>*out0<sp/>=<sp/>_mm512_fmadd_ps(_mm512_cvtepi32_ps(lo),<sp/>vscale,<sp/>vmin);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>*out1<sp/>=<sp/>_mm512_fmadd_ps(_mm512_cvtepi32_ps(hi),<sp/>vscale,<sp/>vmin);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="253"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="254"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>full<sp/>Q4_K<sp/>block<sp/>using<sp/>AVX-512</highlight></codeline>
+<codeline lineno="255"><highlight class="comment"><sp/>*<sp/>@param<sp/>block<sp/>Q4_K<sp/>block<sp/>(144<sp/>bytes)</highlight></codeline>
+<codeline lineno="256"><highlight class="comment"><sp/>*<sp/>@param<sp/>output<sp/>256<sp/>floats<sp/>output</highlight></codeline>
+<codeline lineno="257"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>dequant_q4_k_block_avx512(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structblock__q4__K" kindref="compound">block_q4_K</ref><sp/>*block,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output)</highlight></codeline>
+<codeline lineno="259"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>d<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" kindref="member">d</ref>);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>dmin<sp/>=<sp/><ref refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" kindref="member">GGML_FP16_TO_FP32</ref>(block-&gt;<ref refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" kindref="member">dmin</ref>);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>sc[8],<sp/>m[8];</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" kindref="member">unpack_q4_k_scales</ref>(block-&gt;<ref refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" kindref="member">scales</ref>,<sp/>sc,<sp/>m);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sub<sp/>=<sp/>0;<sp/>sub<sp/>&lt;<sp/>8;<sp/>sub++)<sp/>{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>scale<sp/>=<sp/>d<sp/>*<sp/>(float)sc[sub];</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>min_val<sp/>=<sp/>dmin<sp/>*<sp/>(float)m[sub];</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__m512<sp/>out0,<sp/>out1;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dequant_q4_k_subblock_avx512(&amp;block-&gt;<ref refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" kindref="member">qs</ref>[sub<sp/>*<sp/>16],<sp/>scale,<sp/>min_val,</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;out0,<sp/>&amp;out1);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Store<sp/>interleaved<sp/>-<sp/>need<sp/>to<sp/>de-interleave<sp/>for<sp/>correct<sp/>order<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>For<sp/>now,<sp/>store<sp/>as-is<sp/>(caller<sp/>must<sp/>handle<sp/>interleaving)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_mm512_storeu_ps(&amp;output[sub<sp/>*<sp/>32],<sp/>out0);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_mm512_storeu_ps(&amp;output[sub<sp/>*<sp/>32<sp/>+<sp/>16],<sp/>out1);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__AVX512F__<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>============================================================================</highlight></codeline>
+<codeline lineno="283"><highlight class="comment"><sp/>*<sp/>Generic<sp/>Dequantization<sp/>Dispatch</highlight></codeline>
+<codeline lineno="284"><highlight class="comment"><sp/>*<sp/>============================================================================<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="ckernel__dtype_8h" kindref="compound">ckernel_dtype.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="288"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="289"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Dequantize<sp/>a<sp/>row<sp/>of<sp/>quantized<sp/>data<sp/>to<sp/>FP32</highlight></codeline>
+<codeline lineno="290"><highlight class="comment"><sp/>*<sp/>@param<sp/>dtype<sp/>Data<sp/>type<sp/>(must<sp/>be<sp/>quantized<sp/>type)</highlight></codeline>
+<codeline lineno="291"><highlight class="comment"><sp/>*<sp/>@param<sp/>src<sp/>Source<sp/>quantized<sp/>data</highlight></codeline>
+<codeline lineno="292"><highlight class="comment"><sp/>*<sp/>@param<sp/>dst<sp/>Destination<sp/>FP32<sp/>buffer</highlight></codeline>
+<codeline lineno="293"><highlight class="comment"><sp/>*<sp/>@param<sp/>n_elements<sp/>Number<sp/>of<sp/>elements</highlight></codeline>
+<codeline lineno="294"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295" refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" kindref="member">dequant_row</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dtype,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_elements)</highlight></codeline>
+<codeline lineno="296"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(dtype)<sp/>{</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kindref="member">CK_DT_Q4_0</ref>:</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" kindref="member">dequant_q4_0_row</ref>(src,<sp/>dst,<sp/>n_elements);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kindref="member">CK_DT_Q4_K</ref>:</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" kindref="member">dequant_q4_k_row</ref>(src,<sp/>dst,<sp/>n_elements);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kindref="member">CK_DT_Q8_0</ref>:</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" kindref="member">dequant_q8_0_row</ref>(src,<sp/>dst,<sp/>n_elements);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>a<sp/>quantized<sp/>type<sp/>-<sp/>no-op<sp/>or<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/dequant_kernels.c"/>
+  </compounddef>
+</doxygen>

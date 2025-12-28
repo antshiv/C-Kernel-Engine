@@ -269,7 +269,44 @@ takes through the model.
 
 ---
 
-## 6. Relation to Existing Kernels
+## 6. Library Mode: Prefill + KV-Cache Decode + Backprop
+
+In addition to emitting a standalone `main`, the codegen tool supports a
+**library mode** (`--emit-lib`) that generates a `model.c` exporting a small,
+stable ABI for `dlopen` / `ctypes` use:
+
+```bash
+./build/ck_ir_demo path/to/config.json --emit build/model.c --emit-lib
+```
+
+Alongside `build/model.c`, codegen writes a `build/model.c.kernels` manifest
+(one kernel source path per line) so you can build a self-contained shared object:
+
+```bash
+cc -O3 -fPIC -fopenmp -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm
+```
+
+**Exported API (high level):**
+- Common: `ck_model_init`, `ck_model_embed_tokens`, `ck_model_forward`, `ck_model_get_logits`, `ck_model_get_active_tokens`, `ck_model_free`
+- Inference (KV cache): `ck_model_kv_cache_enable/reset/get_tokens`, `ck_model_decode`
+- Training: `ck_model_enable_training`, `ck_model_disable_training`, `ck_model_backward`
+
+**Prefill vs decode:**
+- **Prefill** runs the full forward pass over `T` prompt tokens.
+- **Decode** runs a *single-token* forward step using a KV cache (fast path).
+
+Decode expects KV in a fixed-stride cache layout:
+`[kv_head, cache_capacity, aligned_head_dim]`. Prefill kernels naturally write a
+packed layout of `[kv_head, tokens, aligned_head_dim]`, so when KV-cache is
+enabled the generated forward code repacks K/V into the cache layout once after
+prefill.
+
+KV-cache decode is explicitly **disabled when training is enabled** so the
+training forward/backward graph stays consistent.
+
+---
+
+## 7. Relation to Existing Kernels
 
 C-Kernel-Engine already provides optimized kernels in `src/kernels/*.c` and the
 math backend interface in `ckernel_engine.h`:
@@ -292,7 +329,7 @@ This keeps:
 
 ---
 
-## 7. Future Work
+## 8. Future Work
 
 Short-term:
 
@@ -313,4 +350,3 @@ Long-term:
 
 - Support for encoder-decoders and vision+text models by extending the header
   and footer sections, while keeping the block design for the core decoder.
-

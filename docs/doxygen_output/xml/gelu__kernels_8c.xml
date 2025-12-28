@@ -49,6 +49,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="22" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="22" bodyend="46"/>
+        <referencedby refid="ckernel__engine_8h_1ac8572265a21098caf2060797cb18a978" compoundref="gelu__kernels__bf16_8c" startline="35" endline="60">gelu_backward_exact_bf16</referencedby>
       </memberdef>
       <memberdef kind="function" id="gelu__kernels_8c_1aeaf518a5239f4588f8c28b05b96d5478" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -78,6 +79,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="49" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="49" bodyend="60"/>
+        <referencedby refid="ckernel__engine_8h_1a27adb4761d436aeea3317ce0595dc67a" compoundref="gelu__kernels__bf16_8c" startline="62" endline="87">gelu_backward_fast_bf16</referencedby>
       </memberdef>
       <memberdef kind="function" id="gelu__kernels_8c_1abc5977fca1e95c2406a779657c4d2365" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -99,7 +101,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" line="6" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels.c" bodystart="6" bodyend="17"/>
-        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="21" endline="52">mlp_token_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1aa64dae6724ac5d649be339cad62126cb" compoundref="gelu__kernels__bf16_8c" startline="21" endline="33">gelu_fast_inplace_bf16</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" compoundref="mlp__kernels_8c" startline="22" endline="53">mlp_token_parallel</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

@@ -1,8 +1,16 @@
 var searchData=
 [
-  ['op_272',['op',['../structCKIRNode.html#a52b9fe87f82269da8533cefeff20057d',1,'CKIRNode']]],
-  ['op_5fname_273',['op_name',['../ckernel__codegen_8c.html#a2b6e6d4584a3004711ed6950fd8e72f4',1,'op_name(CKOpType op):&#160;ckernel_codegen.c'],['../ckernel__ir_8c.html#a2b6e6d4584a3004711ed6950fd8e72f4',1,'op_name(CKOpType op):&#160;ckernel_ir.c']]],
-  ['optional_274',['optional',['../structCKBufferSpec.html#a557043a61f56575dfa44c4f13b31cddb',1,'CKBufferSpec']]],
-  ['out_5findex_275',['out_index',['../structCKInputRef.html#ae1ae7d92ed1362d599e30bf5aff958e3',1,'CKInputRef']]],
-  ['output_276',['output',['../structCKLayerForwardParams.html#a61d1bcef2bcffd12c7a49d243a6c51d1',1,'CKLayerForwardParams']]]
+  ['n_5finputs_486',['n_inputs',['../structCKIRNode.html#abf6244a44982d225b1f19abfa2906e8c',1,'CKIRNode']]],
+  ['n_5foutputs_487',['n_outputs',['../structCKIRNode.html#ac80c87853b9a0b35958d643481e95fc7',1,'CKIRNode']]],
+  ['name_488',['name',['../structCKBufferSpec.html#a92c6aec4e6937bbec34f20ddc341b14c',1,'CKBufferSpec::name()'],['../structCKKernelSpec.html#ab6e588e0f3701c3c63904c231325185d',1,'CKKernelSpec::name()']]],
+  ['nc_489',['NC',['../gemm__microkernel_8c.html#a1fa2460e32327ade49189c95740bc1b5',1,'gemm_microkernel.c']]],
+  ['next_490',['next',['../structCKPoolBlock.html#a39f197d57191d7ab700d17ad918d03c5',1,'CKPoolBlock::next()'],['../structCKVocabEntry.html#a2d8a45dd0e89ae71a3a97e0bc02632df',1,'CKVocabEntry::next()']]],
+  ['node_491',['node',['../structCKKernelId.html#aaa58279e743ef1ec7a4c9cce3dc67c79',1,'CKKernelId']]],
+  ['nodes_492',['nodes',['../structCKIRGraph.html#aab28fe3564ea6a66b72b4226d05ffb2f',1,'CKIRGraph']]],
+  ['nr_493',['NR',['../gemm__microkernel_8c.html#af146485306ae74a2edf18636300fd107',1,'gemm_microkernel.c']]],
+  ['num_5fheads_494',['num_heads',['../structCKLayerBackwardParams.html#a763a742b7a501fec6ff59e1237b7bec4',1,'CKLayerBackwardParams::num_heads()'],['../structCKLayerForwardParams.html#a6ef0a14fb20cf0840ecc43d05ece08a5',1,'CKLayerForwardParams::num_heads()'],['../structCKModelConfig.html#a3e5c8e6d2da07805365ec6b4db29b9ea',1,'CKModelConfig::num_heads()']]],
+  ['num_5fkv_5fheads_495',['num_kv_heads',['../structCKModelConfig.html#a902b19335449fa61c1e532d9999aa342',1,'CKModelConfig::num_kv_heads()'],['../structCKLayerForwardParams.html#a16731d5e0724c25e7b807955d41be75a',1,'CKLayerForwardParams::num_kv_heads()'],['../structCKLayerBackwardParams.html#afb6c0da50e07fdc05e2ad5c3e160f388',1,'CKLayerBackwardParams::num_kv_heads()']]],
+  ['num_5flayers_496',['num_layers',['../structCKModelConfig.html#a01453afe2f69986d9ca04a10f7b9d0a4',1,'CKModelConfig']]],
+  ['num_5fmerges_497',['num_merges',['../structCKTokenizer.html#ad5b185154ee2ab0a381c7bf49918d836',1,'CKTokenizer']]],
+  ['num_5fnodes_498',['num_nodes',['../structCKIRGraph.html#ac761026b9b84254516bce9995dd04465',1,'CKIRGraph']]]
 ];

@@ -1,5 +1,9 @@
 var annotated_dup =
 [
+    [ "block_q4_0", "structblock__q4__0.html", "structblock__q4__0" ],
+    [ "block_q4_K", "structblock__q4__K.html", "structblock__q4__K" ],
+    [ "block_q8_0", "structblock__q8__0.html", "structblock__q8__0" ],
+    [ "block_q8_K", "structblock__q8__K.html", "structblock__q8__K" ],
     [ "CKBufferSpec", "structCKBufferSpec.html", "structCKBufferSpec" ],
     [ "CKDimToken", "structCKDimToken.html", "structCKDimToken" ],
     [ "CKInputRef", "structCKInputRef.html", "structCKInputRef" ],
@@ -11,7 +15,12 @@ var annotated_dup =
     [ "CKLayerForwardParams", "structCKLayerForwardParams.html", "structCKLayerForwardParams" ],
     [ "CKLayerLayout", "structCKLayerLayout.html", "structCKLayerLayout" ],
     [ "CKMathBackend", "structCKMathBackend.html", "structCKMathBackend" ],
+    [ "CKMemPool", "structCKMemPool.html", "structCKMemPool" ],
+    [ "CKMergeRule", "structCKMergeRule.html", "structCKMergeRule" ],
     [ "CKModelConfig", "structCKModelConfig.html", "structCKModelConfig" ],
     [ "CKPlanStep", "structCKPlanStep.html", "structCKPlanStep" ],
+    [ "CKPoolBlock", "structCKPoolBlock.html", "structCKPoolBlock" ],
+    [ "CKTokenizer", "structCKTokenizer.html", "structCKTokenizer" ],
+    [ "CKVocabEntry", "structCKVocabEntry.html", "structCKVocabEntry" ],
     [ "TransformerModel", "structTransformerModel.html", "structTransformerModel" ]
 ];

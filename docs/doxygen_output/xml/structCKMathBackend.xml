@@ -16,7 +16,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="24" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" bodystart="24" bodyend="-1"/>
-        <referencedby refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" compoundref="backend__native_8c" startline="30" endline="35">ckernel_backend_native</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" compoundref="backend__native_8c" startline="39" endline="44">ckernel_backend_native</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

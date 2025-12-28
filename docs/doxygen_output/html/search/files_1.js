@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['backend_5fnative_2ec_354',['backend_native.c',['../backend__native_8c.html',1,'']]]
+  ['backend_5fnative_2ec_647',['backend_native.c',['../backend__native_8c.html',1,'']]],
+  ['bf16_5futils_2eh_648',['bf16_utils.h',['../bf16__utils_8h.html',1,'']]]
 ];

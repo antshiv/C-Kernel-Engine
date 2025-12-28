@@ -13,3 +13,10 @@ This project focuses on a **small, high-impact set of kernel shapes** that appea
 - Keep the implementation understandable and hackable for systems and HPC engineers.
 
 See `docs/01-llm-kernel-shapes.md` for the core math that drives the design.
+
+**Start here:** `docs/00-quickstart.md` (build, tests, and codegen).
+
+The code generator (`build/ck_ir_demo`) can emit a `libmodel.so` that supports:
+- Prompt **prefill** (full forward)
+- Autoregressive **decode** with KV cache (inference-only)
+- **Backward** / training (teacher forcing full forward+backward)

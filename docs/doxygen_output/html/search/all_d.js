@@ -1,12 +1,20 @@
 var searchData=
 [
-  ['n_5finputs_263',['n_inputs',['../structCKIRNode.html#abf6244a44982d225b1f19abfa2906e8c',1,'CKIRNode']]],
-  ['n_5foutputs_264',['n_outputs',['../structCKIRNode.html#ac80c87853b9a0b35958d643481e95fc7',1,'CKIRNode']]],
-  ['name_265',['name',['../structCKBufferSpec.html#a92c6aec4e6937bbec34f20ddc341b14c',1,'CKBufferSpec::name()'],['../structCKKernelSpec.html#ab6e588e0f3701c3c63904c231325185d',1,'CKKernelSpec::name()']]],
-  ['node_266',['node',['../structCKKernelId.html#aaa58279e743ef1ec7a4c9cce3dc67c79',1,'CKKernelId']]],
-  ['nodes_267',['nodes',['../structCKIRGraph.html#aab28fe3564ea6a66b72b4226d05ffb2f',1,'CKIRGraph']]],
-  ['num_5fheads_268',['num_heads',['../structCKModelConfig.html#a3e5c8e6d2da07805365ec6b4db29b9ea',1,'CKModelConfig::num_heads()'],['../structCKLayerForwardParams.html#a6ef0a14fb20cf0840ecc43d05ece08a5',1,'CKLayerForwardParams::num_heads()'],['../structCKLayerBackwardParams.html#a763a742b7a501fec6ff59e1237b7bec4',1,'CKLayerBackwardParams::num_heads()']]],
-  ['num_5fkv_5fheads_269',['num_kv_heads',['../structCKModelConfig.html#a902b19335449fa61c1e532d9999aa342',1,'CKModelConfig::num_kv_heads()'],['../structCKLayerForwardParams.html#a16731d5e0724c25e7b807955d41be75a',1,'CKLayerForwardParams::num_kv_heads()'],['../structCKLayerBackwardParams.html#afb6c0da50e07fdc05e2ad5c3e160f388',1,'CKLayerBackwardParams::num_kv_heads()']]],
-  ['num_5flayers_270',['num_layers',['../structCKModelConfig.html#a01453afe2f69986d9ca04a10f7b9d0a4',1,'CKModelConfig']]],
-  ['num_5fnodes_271',['num_nodes',['../structCKIRGraph.html#ac761026b9b84254516bce9995dd04465',1,'CKIRGraph']]]
+  ['m_5fpi_469',['M_PI',['../rope__kernels_8c.html#ae71449b1cc6e6250b91f539153a7a0d3',1,'rope_kernels.c']]],
+  ['main_470',['main',['../ckernel__ir__demo_8c.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'ckernel_ir_demo.c']]],
+  ['map_5fforward_5fto_5fbackward_471',['map_forward_to_backward',['../ckernel__ir_8c.html#ab7340ed7d61056b7ad5ebb1b8a088a65',1,'ckernel_ir.c']]],
+  ['mc_472',['MC',['../gemm__microkernel_8c.html#a71d9e511e7e302cd831e83581219e70d',1,'gemm_microkernel.c']]],
+  ['memory_5fbase_473',['memory_base',['../structTransformerModel.html#a955d1efe9f4e9e8bedca00a5a85a5d18',1,'TransformerModel']]],
+  ['merge_5fhash_474',['merge_hash',['../structCKTokenizer.html#ae92078c4ca97a78a2fcce8d3193d4cd1',1,'CKTokenizer']]],
+  ['merge_5fhash_5fsize_475',['merge_hash_size',['../structCKTokenizer.html#a9b7a80f60b651e50d40ffb9b1130eccc',1,'CKTokenizer']]],
+  ['merged_476',['merged',['../structCKMergeRule.html#adacd50b760f95bfe3bd04d8618fb4c19',1,'CKMergeRule']]],
+  ['merges_477',['merges',['../structCKTokenizer.html#a9fbb827cf89c461569b0dfc2b8ef5fe9',1,'CKTokenizer']]],
+  ['mlp_5fkernels_2ec_478',['mlp_kernels.c',['../mlp__kernels_8c.html',1,'']]],
+  ['mlp_5fkernels_5fbf16_2ec_479',['mlp_kernels_bf16.c',['../mlp__kernels__bf16_8c.html',1,'']]],
+  ['mlp_5fout_480',['mlp_out',['../structCKLayerForwardParams.html#a86060e45304124966b764eb8db0365b7',1,'CKLayerForwardParams']]],
+  ['mlp_5ftoken_5fparallel_481',['mlp_token_parallel',['../ckernel__engine_8h.html#a5b4ac7df82788956de18c6e1b4f37609',1,'mlp_token_parallel(const float *input, const float *W_fc1, const float *b_fc1, const float *W_fc2, const float *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads):&#160;mlp_kernels.c'],['../mlp__kernels_8c.html#a5b4ac7df82788956de18c6e1b4f37609',1,'mlp_token_parallel(const float *input, const float *W_fc1, const float *b_fc1, const float *W_fc2, const float *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads):&#160;mlp_kernels.c']]],
+  ['mlp_5ftoken_5fparallel_5fbf16_482',['mlp_token_parallel_bf16',['../ckernel__engine_8h.html#a488697bbc4656ba8037ab3eb79314e5e',1,'mlp_token_parallel_bf16(const uint16_t *input, const uint16_t *W_fc1, const uint16_t *b_fc1, const uint16_t *W_fc2, const uint16_t *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads):&#160;mlp_kernels_bf16.c'],['../mlp__kernels__bf16_8c.html#a488697bbc4656ba8037ab3eb79314e5e',1,'mlp_token_parallel_bf16(const uint16_t *input, const uint16_t *W_fc1, const uint16_t *b_fc1, const uint16_t *W_fc2, const uint16_t *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads):&#160;mlp_kernels_bf16.c']]],
+  ['mlp_5ftoken_5fparallel_5fbf16_5ffp32act_483',['mlp_token_parallel_bf16_fp32act',['../mlp__kernels__bf16_8c.html#ad863c8765e72bbaf7d00c2ec7a577fd4',1,'mlp_kernels_bf16.c']]],
+  ['mr_484',['MR',['../gemm__microkernel_8c.html#a9ecbd9f86f95534f1bcf71015d5ae81a',1,'gemm_microkernel.c']]],
+  ['mult_485',['mult',['../structCKDimToken.html#a984c6bca0fce2bd1893a21834837fc7f',1,'CKDimToken']]]
 ];

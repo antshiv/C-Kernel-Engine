@@ -1,0 +1,457 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="ckernel__dtype_8h" kind="file" language="C++">
+    <compoundname>ckernel_dtype.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="ckernel__kernel__specs_8h" local="yes">ckernel_kernel_specs.h</includedby>
+    <includedby refid="dequant__kernels_8c" local="yes">dequant_kernels.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ckernel_kernel_specs.h</label>
+        <link refid="ckernel__kernel__specs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>dequant_kernels.c</label>
+        <link refid="dequant__kernels_8c"/>
+      </node>
+      <node id="4">
+        <label>ckernel_kernel_specs.c</label>
+        <link refid="ckernel__kernel__specs_8c"/>
+      </node>
+      <node id="3">
+        <label>ckernel_codegen.c</label>
+        <link refid="ckernel__codegen_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="ckernel__dtype_8h_1a15aeea2b64a849105b76d7b10244c4fb" prot="public" static="no">
+        <name>CK_DT_MASK</name>
+        <param><defname>dt</defname></param>
+        <initializer>(1u &lt;&lt; (uint32_t)(dt))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="44" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CKDataType</name>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b" prot="public">
+          <name>CK_DT_FP32</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6" prot="public">
+          <name>CK_DT_BF16</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7" prot="public">
+          <name>CK_DT_FP16</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b" prot="public">
+          <name>CK_DT_INT8</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" prot="public">
+          <name>CK_DT_INT4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" prot="public">
+          <name>CK_DT_Q4_0</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" prot="public">
+          <name>CK_DT_Q4_K</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" prot="public">
+          <name>CK_DT_Q8_0</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218" prot="public">
+          <name>CK_DT_COUNT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Supported data types in C-Kernel-Engine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard types:<itemizedlist>
+<listitem><para>CK_DT_FP32: 32-bit float (baseline, full precision)</para>
+</listitem><listitem><para>CK_DT_BF16: Brain Float 16 (1+8+7 bits)</para>
+</listitem><listitem><para>CK_DT_FP16: IEEE Half Precision (1+5+10 bits)</para>
+</listitem></itemizedlist>
+</para>
+<para>Simple quantization:<itemizedlist>
+<listitem><para>CK_DT_INT8: 8-bit signed integer</para>
+</listitem><listitem><para>CK_DT_INT4: 4-bit signed integer (simple, no scales)</para>
+</listitem></itemizedlist>
+</para>
+<para>GGML-compatible quantization (block-based with scales):<itemizedlist>
+<listitem><para>CK_DT_Q4_0: 4-bit, 32 weights/block, 1 FP16 scale</para>
+</listitem><listitem><para>CK_DT_Q4_K: 4-bit k-quant, 256 weights/block, nested scales (Q4_K_M)</para>
+</listitem><listitem><para>CK_DT_Q8_0: 8-bit, 32 weights/block, 1 FP16 scale </para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="24" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="24" bodyend="40"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" prot="public" static="no">
+        <type>uint32_t</type>
+        <definition>typedef uint32_t CKDataTypeMask</definition>
+        <argsstring></argsstring>
+        <name>CKDataTypeMask</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="42" column="18" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t ck_dtype_block_bytes</definition>
+        <argsstring>(CKDataType dt)</argsstring>
+        <name>ck_dtype_block_bytes</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Get bytes per block for quantized types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="93" column="22" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="93" bodyend="105"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" compoundref="ckernel__dtype_8h" startline="35">CK_DT_Q4_0</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" compoundref="ckernel__dtype_8h" startline="36">CK_DT_Q4_K</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" compoundref="ckernel__dtype_8h" startline="37">CK_DT_Q8_0</references>
+        <references refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" compoundref="ckernel__dtype_8h" startline="58" endline="72">ck_dtype_bytes</references>
+        <referencedby refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" compoundref="ckernel__dtype_8h" startline="110" endline="118">ck_dtype_row_bytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t ck_dtype_block_size</definition>
+        <argsstring>(CKDataType dt)</argsstring>
+        <name>ck_dtype_block_size</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Get the number of elements per quantization block. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="77" column="22" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="77" bodyend="88"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" compoundref="ckernel__dtype_8h" startline="35">CK_DT_Q4_0</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" compoundref="ckernel__dtype_8h" startline="36">CK_DT_Q4_K</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" compoundref="ckernel__dtype_8h" startline="37">CK_DT_Q8_0</references>
+        <referencedby refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" compoundref="ckernel__dtype_8h" startline="110" endline="118">ck_dtype_row_bytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t ck_dtype_bytes</definition>
+        <argsstring>(CKDataType dt)</argsstring>
+        <name>ck_dtype_bytes</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Get bytes per element for non-quantized types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>For quantized types, use <ref refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" kindref="member">ck_dtype_block_bytes()</ref> and <ref refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" kindref="member">ck_dtype_block_size()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="58" column="22" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="58" bodyend="72"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6" compoundref="ckernel__dtype_8h" startline="27">CK_DT_BF16</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7" compoundref="ckernel__dtype_8h" startline="28">CK_DT_FP16</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b" compoundref="ckernel__dtype_8h" startline="26">CK_DT_FP32</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" compoundref="ckernel__dtype_8h" startline="32">CK_DT_INT4</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b" compoundref="ckernel__dtype_8h" startline="31">CK_DT_INT8</references>
+        <referencedby refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" compoundref="ckernel__dtype_8h" startline="93" endline="105">ck_dtype_block_bytes</referencedby>
+        <referencedby refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" compoundref="ckernel__dtype_8h" startline="110" endline="118">ck_dtype_row_bytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int ck_dtype_is_quantized</definition>
+        <argsstring>(CKDataType dt)</argsstring>
+        <name>ck_dtype_is_quantized</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Check if a data type is block-quantized (GGML-style) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="49" column="19" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="49" bodyend="52"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" compoundref="ckernel__dtype_8h" startline="35">CK_DT_Q4_0</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" compoundref="ckernel__dtype_8h" startline="36">CK_DT_Q4_K</references>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" compoundref="ckernel__dtype_8h" startline="37">CK_DT_Q8_0</references>
+        <referencedby refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" compoundref="ckernel__dtype_8h" startline="110" endline="118">ck_dtype_row_bytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t ck_dtype_row_bytes</definition>
+        <argsstring>(CKDataType dt, size_t n_elements)</argsstring>
+        <name>ck_dtype_row_bytes</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_elements</declname>
+        </param>
+        <briefdescription>
+<para>Calculate total bytes for n_elements of given dtype. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="110" column="22" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="110" bodyend="118"/>
+        <references refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" compoundref="ckernel__dtype_8h" startline="93" endline="105">ck_dtype_block_bytes</references>
+        <references refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" compoundref="ckernel__dtype_8h" startline="77" endline="88">ck_dtype_block_size</references>
+        <references refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" compoundref="ckernel__dtype_8h" startline="58" endline="72">ck_dtype_bytes</references>
+        <references refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" compoundref="ckernel__dtype_8h" startline="49" endline="52">ck_dtype_is_quantized</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int ck_dtype_supported</definition>
+        <argsstring>(CKDataTypeMask mask, CKDataType dt)</argsstring>
+        <name>ck_dtype_supported</name>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" kindref="member">CKDataTypeMask</ref></type>
+          <declname>mask</declname>
+        </param>
+        <param>
+          <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" line="120" column="19" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h" bodystart="120" bodyend="123"/>
+        <references refid="ckernel__dtype_8h_1a15aeea2b64a849105b76d7b10244c4fb" compoundref="ckernel__dtype_8h" startline="44">CK_DT_MASK</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>CKERNEL_DTYPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CKERNEL_DTYPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="7"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Supported<sp/>data<sp/>types<sp/>in<sp/>C-Kernel-Engine</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Standard<sp/>types:</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_FP32:<sp/>32-bit<sp/>float<sp/>(baseline,<sp/>full<sp/>precision)</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_BF16:<sp/>Brain<sp/>Float<sp/>16<sp/>(1+8+7<sp/>bits)</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_FP16:<sp/>IEEE<sp/>Half<sp/>Precision<sp/>(1+5+10<sp/>bits)</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>Simple<sp/>quantization:</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_INT8:<sp/>8-bit<sp/>signed<sp/>integer</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_INT4:<sp/>4-bit<sp/>signed<sp/>integer<sp/>(simple,<sp/>no<sp/>scales)</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>GGML-compatible<sp/>quantization<sp/>(block-based<sp/>with<sp/>scales):</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_Q4_0:<sp/>4-bit,<sp/>32<sp/>weights/block,<sp/>1<sp/>FP16<sp/>scale</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_Q4_K:<sp/>4-bit<sp/>k-quant,<sp/>256<sp/>weights/block,<sp/>nested<sp/>scales<sp/>(Q4_K_M)</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>CK_DT_Q8_0:<sp/>8-bit,<sp/>32<sp/>weights/block,<sp/>1<sp/>FP16<sp/>scale</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Standard<sp/>floating-point<sp/>types<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b" kindref="member">CK_DT_FP32</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>4<sp/>bytes<sp/>per<sp/>element<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6" kindref="member">CK_DT_BF16</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2<sp/>bytes<sp/>per<sp/>element<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7" kindref="member">CK_DT_FP16</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2<sp/>bytes<sp/>per<sp/>element<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Simple<sp/>integer<sp/>types<sp/>(legacy)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b" kindref="member">CK_DT_INT8</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>1<sp/>byte<sp/>per<sp/>element<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" kindref="member">CK_DT_INT4</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>0.5<sp/>bytes<sp/>per<sp/>element<sp/>(packed)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>GGML-compatible<sp/>block<sp/>quantization<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kindref="member">CK_DT_Q4_0</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>4.5<sp/>bits/weight<sp/>(18<sp/>bytes<sp/>per<sp/>32<sp/>weights)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kindref="member">CK_DT_Q4_K</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>4.5<sp/>bits/weight<sp/>(144<sp/>bytes<sp/>per<sp/>256<sp/>weights)<sp/>-<sp/>Q4_K_M<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kindref="member">CK_DT_Q8_0</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>8.5<sp/>bits/weight<sp/>(34<sp/>bytes<sp/>per<sp/>32<sp/>weights)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218" kindref="member">CK_DT_COUNT</ref></highlight></codeline>
+<codeline lineno="40" refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218" refkind="member"><highlight class="normal">}<sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" kindref="member">CKDataTypeMask</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="ckernel__dtype_8h_1a15aeea2b64a849105b76d7b10244c4fb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CK_DT_MASK(dt)<sp/>(1u<sp/>&lt;&lt;<sp/>(uint32_t)(dt))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="46"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Check<sp/>if<sp/>a<sp/>data<sp/>type<sp/>is<sp/>block-quantized<sp/>(GGML-style)</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" kindref="member">ck_dtype_is_quantized</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dt<sp/>==<sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kindref="member">CK_DT_Q4_0</ref><sp/>||<sp/>dt<sp/>==<sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kindref="member">CK_DT_Q4_K</ref><sp/>||<sp/>dt<sp/>==<sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kindref="member">CK_DT_Q8_0</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="54"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Get<sp/>bytes<sp/>per<sp/>element<sp/>for<sp/>non-quantized<sp/>types</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/>*<sp/>@note<sp/>For<sp/>quantized<sp/>types,<sp/>use<sp/>ck_dtype_block_bytes()<sp/>and<sp/>ck_dtype_block_size()</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" kindref="member">ck_dtype_bytes</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(dt)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6" kindref="member">CK_DT_BF16</ref>:</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7" kindref="member">CK_DT_FP16</ref>:</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b" kindref="member">CK_DT_INT8</ref>:</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" kindref="member">CK_DT_INT4</ref>:</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Note:<sp/>actually<sp/>0.5,<sp/>but<sp/>stored<sp/>as<sp/>pairs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b" kindref="member">CK_DT_FP32</ref>:</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>4;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="74"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="75"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Get<sp/>the<sp/>number<sp/>of<sp/>elements<sp/>per<sp/>quantization<sp/>block</highlight></codeline>
+<codeline lineno="76"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" kindref="member">ck_dtype_block_size</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(dt)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kindref="member">CK_DT_Q4_0</ref>:</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kindref="member">CK_DT_Q8_0</ref>:</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>32;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kindref="member">CK_DT_Q4_K</ref>:</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>256;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Non-quantized<sp/>types:<sp/>1<sp/>element<sp/>per<sp/>&quot;block&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="90"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="91"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Get<sp/>bytes<sp/>per<sp/>block<sp/>for<sp/>quantized<sp/>types</highlight></codeline>
+<codeline lineno="92"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" kindref="member">ck_dtype_block_bytes</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(dt)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kindref="member">CK_DT_Q4_0</ref>:</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>18;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2<sp/>(scale)<sp/>+<sp/>16<sp/>(32<sp/>x<sp/>4-bit)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kindref="member">CK_DT_Q4_K</ref>:</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>144;<sp/><sp/></highlight><highlight class="comment">/*<sp/>2<sp/>+<sp/>2<sp/>+<sp/>12<sp/>+<sp/>128<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kindref="member">CK_DT_Q8_0</ref>:</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>34;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2<sp/>(scale)<sp/>+<sp/>32<sp/>(32<sp/>x<sp/>8-bit)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" kindref="member">ck_dtype_bytes</ref>(dt);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="comment"></highlight></codeline>
+<codeline lineno="107"><highlight class="comment">/**</highlight></codeline>
+<codeline lineno="108"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Calculate<sp/>total<sp/>bytes<sp/>for<sp/>n_elements<sp/>of<sp/>given<sp/>dtype</highlight></codeline>
+<codeline lineno="109"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" kindref="member">ck_dtype_row_bytes</ref>(<ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_elements)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" kindref="member">ck_dtype_is_quantized</ref>(dt))<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>block_size<sp/>=<sp/><ref refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" kindref="member">ck_dtype_block_size</ref>(dt);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_blocks<sp/>=<sp/>(n_elements<sp/>+<sp/>block_size<sp/>-<sp/>1)<sp/>/<sp/>block_size;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>n_blocks<sp/>*<sp/><ref refid="ckernel__dtype_8h_1a5c8c0745aaf531bc18faf5fbabe496e3" kindref="member">ck_dtype_block_bytes</ref>(dt);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>n_elements<sp/>*<sp/><ref refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" kindref="member">ck_dtype_bytes</ref>(dt);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" kindref="member">ck_dtype_supported</ref>(<ref refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" kindref="member">CKDataTypeMask</ref><sp/>mask,<sp/><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(mask<sp/>&amp;<sp/><ref refid="ckernel__dtype_8h_1a15aeea2b64a849105b76d7b10244c4fb" kindref="member">CK_DT_MASK</ref>(dt))<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>CKERNEL_DTYPE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_dtype.h"/>
+  </compounddef>
+</doxygen>

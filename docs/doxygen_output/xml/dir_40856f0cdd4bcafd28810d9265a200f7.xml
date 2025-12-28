@@ -3,17 +3,42 @@
   <compounddef id="dir_40856f0cdd4bcafd28810d9265a200f7" kind="dir">
     <compoundname>kernels</compoundname>
     <innerfile refid="attention__kernels_8c">attention_kernels.c</innerfile>
+    <innerfile refid="dequant__kernels_8c">dequant_kernels.c</innerfile>
     <innerfile refid="embedding__kernels_8c">embedding_kernels.c</innerfile>
+    <innerfile refid="embedding__kernels__bf16_8c">embedding_kernels_bf16.c</innerfile>
     <innerfile refid="gelu__kernels_8c">gelu_kernels.c</innerfile>
+    <innerfile refid="gelu__kernels__bf16_8c">gelu_kernels_bf16.c</innerfile>
+    <innerfile refid="gemm__fused__kernels_8c">gemm_fused_kernels.c</innerfile>
     <innerfile refid="gemm__kernels_8c">gemm_kernels.c</innerfile>
+    <innerfile refid="gemm__kernels__bf16_8c">gemm_kernels_bf16.c</innerfile>
+    <innerfile refid="gemm__kernels__f16_8c">gemm_kernels_f16.c</innerfile>
+    <innerfile refid="gemm__kernels__q4__0_8c">gemm_kernels_q4_0.c</innerfile>
+    <innerfile refid="gemm__kernels__q4k_8c">gemm_kernels_q4k.c</innerfile>
+    <innerfile refid="gemm__kernels__q8__0_8c">gemm_kernels_q8_0.c</innerfile>
+    <innerfile refid="gemm__microkernel_8c">gemm_microkernel.c</innerfile>
+    <innerfile refid="kv__cache__kernels_8c">kv_cache_kernels.c</innerfile>
     <innerfile refid="layernorm__kernels_8c">layernorm_kernels.c</innerfile>
+    <innerfile refid="layernorm__kernels__bf16_8c">layernorm_kernels_bf16.c</innerfile>
     <innerfile refid="loss__kernels_8c">loss_kernels.c</innerfile>
+    <innerfile refid="loss__kernels__bf16_8c">loss_kernels_bf16.c</innerfile>
     <innerfile refid="mlp__kernels_8c">mlp_kernels.c</innerfile>
+    <innerfile refid="mlp__kernels__bf16_8c">mlp_kernels_bf16.c</innerfile>
+    <innerfile refid="relu__kernels_8c">relu_kernels.c</innerfile>
+    <innerfile refid="relu__kernels__bf16_8c">relu_kernels_bf16.c</innerfile>
     <innerfile refid="rmsnorm__kernels_8c">rmsnorm_kernels.c</innerfile>
+    <innerfile refid="rmsnorm__kernels__bf16_8c">rmsnorm_kernels_bf16.c</innerfile>
+    <innerfile refid="rmsnorm__kernels__int4_8c">rmsnorm_kernels_int4.c</innerfile>
+    <innerfile refid="rmsnorm__kernels__int8_8c">rmsnorm_kernels_int8.c</innerfile>
     <innerfile refid="rope__kernels_8c">rope_kernels.c</innerfile>
+    <innerfile refid="rope__kernels__bf16_8c">rope_kernels_bf16.c</innerfile>
     <innerfile refid="sigmoid__kernels_8c">sigmoid_kernels.c</innerfile>
+    <innerfile refid="sigmoid__kernels__bf16_8c">sigmoid_kernels_bf16.c</innerfile>
     <innerfile refid="softmax__kernels_8c">softmax_kernels.c</innerfile>
+    <innerfile refid="softmax__kernels__bf16_8c">softmax_kernels_bf16.c</innerfile>
     <innerfile refid="swiglu__kernels_8c">swiglu_kernels.c</innerfile>
+    <innerfile refid="swiglu__kernels__bf16_8c">swiglu_kernels_bf16.c</innerfile>
+    <innerfile refid="vision__kernels_8c">vision_kernels.c</innerfile>
+    <innerfile refid="vision__kernels__bf16_8c">vision_kernels_bf16.c</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

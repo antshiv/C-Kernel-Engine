@@ -297,6 +297,7 @@ permalink: /testing/
       <tr><td><code>test_rmsnorm.py</code></td><td>RMS normalization</td><td>✓</td><td>✓</td></tr>
       <tr><td><code>test_attention.py</code></td><td>Causal attention (MHA, GQA)</td><td>✓</td><td>-</td></tr>
       <tr><td><code>test_attention_backward.py</code></td><td>Attention gradients</td><td>-</td><td>✓</td></tr>
+      <tr><td><code>test_kv_cache_attention.py</code></td><td>Flash prefill + KV-cache decode attention</td><td>✓</td><td>-</td></tr>
       <tr><td><code>test_gemm.py</code></td><td>Matrix multiplication</td><td>✓</td><td>-</td></tr>
       <tr><td><code>test_mlp.py</code></td><td>Feed-forward layers</td><td>✓</td><td>✓</td></tr>
       <tr><td><code>test_gelu.py</code></td><td>GELU activation</td><td>✓</td><td>✓</td></tr>
@@ -319,6 +320,7 @@ permalink: /testing/
   <h3>Running</h3>
   <pre class="code-block">
 make test              # Run all kernel unit tests
+make test-bf16         # Run BF16 tests (skips on unsupported CPUs)
 python unittest/test_rope.py  # Run specific test
   </pre>
 
@@ -339,6 +341,13 @@ python unittest/test_rope.py  # Run specific test
 - Uses ck_layer_forward_rmsnorm_swiglu()
 - Uses ck_layer_backward_rmsnorm_swiglu()
 - Compares output and all intermediate buffers
+  </pre>
+
+  <pre class="code-block">
+# unittest/test_kv_cache_layer_decode.py
+- Prefill with ck_layer_forward_rmsnorm_swiglu()
+- Decode with ck_layer_forward_rmsnorm_swiglu_decode()
+- Compares full-layer outputs (prefill+decode vs full forward)
   </pre>
 
   <hr>
