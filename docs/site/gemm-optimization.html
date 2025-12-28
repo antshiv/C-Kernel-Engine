@@ -1106,7 +1106,10 @@ gemm_microkernel_packed(A, B, C, M, N, K);</code></pre>
 
     <!-- Footer -->
     <footer class="site-footer">
-        <p>C-Kernel-Engine &copy; 2024 | High-Performance ML Kernels in Pure C</p>
+        <p>C-Kernel-Engine &copy; <span id="copyright-year"></span> | High-Performance ML Kernels in Pure C</p>
     </footer>
+    <script>
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>

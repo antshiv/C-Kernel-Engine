@@ -5,22 +5,23 @@
  * The key insight: keep all accumulator values in registers across the K loop.
  *
  * Architecture:
- * 1. Microkernel: Fixed-size tile (8x8) computed entirely in registers
- * 2. Cache blocking: Outer loops tile for L1/L2/L3 cache
- * 3. Packing: Optional A/B packing for better memory access patterns
+ * 1. Microkernel: Fixed-size tile computed entirely in registers
+ *    - AVX-512: 6x32 (uses 24 ZMM registers for accumulators)
+ *    - AVX2: 6x16 (uses 12 YMM registers for accumulators)
+ * 2. Cache blocking: Auto-tuned based on detected CPU cache sizes
+ * 3. Packing: Parallel A/B packing for optimal memory access
+ * 4. Threading: 2D thread partitioning across M and N
  *
- * Supported configurations:
- * - AVX1 (256-bit, no FMA): 8x8 microkernel using mul+add
- * - AVX2 (256-bit, FMA): 8x8 microkernel using FMA
- * - AVX-512 (512-bit, FMA): 8x16 or 16x16 microkernel
+ * Reference: oneDNN BRGEMM, BLIS framework
  *
  * Layout: C[M,N] = A[M,K] @ B[K,N] (row-major)
- * For transposed B: C[M,N] = A[M,K] @ B[N,K].T
  */
 
 #include "ckernel_engine.h"
+#include "cpu_features.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #if defined(__AVX512F__) || defined(__AVX2__) || defined(__AVX__)
 #include <immintrin.h>
@@ -32,223 +33,455 @@
 
 // =============================================================================
 // Microkernel Configuration
+//
+// MR/NR are fixed at compile time (microkernel register usage)
+// MC/NC/KC are determined at runtime based on detected cache sizes
 // =============================================================================
 
-// Microkernel tile sizes
-#define MR 8   // Rows per microkernel
-#define NR 8   // Cols per microkernel (AVX: 8 floats per register)
+#if defined(__AVX512F__)
+    // AVX-512: 6x32 microkernel (6 rows, 32 cols = 2 ZMM per row = 12 ZMM accumulators)
+    #define MR_FIXED 6
+    #define NR_FIXED 32
+#elif defined(__AVX2__) || defined(__AVX__)
+    // AVX/AVX2: 6x16 microkernel
+    #define MR_FIXED 6
+    #define NR_FIXED 16
+#else
+    // Scalar fallback
+    #define MR_FIXED 4
+    #define NR_FIXED 4
+#endif
 
-// Cache blocking sizes (tuned for typical L1=32KB, L2=256KB, L3=shared)
-#define MC 64   // M block size (fits in L2)
-#define NC 256  // N block size (fits in L3)
-#define KC 256  // K block size (fits in L1)
+// These macros use runtime-detected values (initialized once at startup)
+#define MR (MR_FIXED)
+#define NR (NR_FIXED)
+#define MC (get_gemm_params()->MC)
+#define NC (get_gemm_params()->NC)
+#define KC (get_gemm_params()->KC)
 
 // =============================================================================
-// 8x8 Microkernel - AVX1 (no FMA)
+// AVX-512 6x32 Microkernel - oneDNN style
 //
-// Computes: C[0:8, 0:8] += A[0:8, 0:K] @ B[0:K, 0:8]
+// Computes: C[0:6, 0:32] += A[0:6, 0:K] @ B[0:K, 0:32]
 //
-// Register usage (16 YMM registers available):
-// - c0-c7: 8 accumulators (one per row of C)
-// - b: loaded B values
-// - a: broadcast A values
+// Register usage (32 ZMM registers available):
+// - c0_lo, c0_hi, c1_lo, c1_hi, ... c5_hi: 12 accumulators (2 per row)
+// - b_lo, b_hi: 2 registers for B row
+// - a0-a5: 6 registers for A broadcasts
+// - Remaining for prefetch and temp
+// =============================================================================
+
+#if defined(__AVX512F__)
+static inline void gemm_microkernel_6x32_avx512(
+    int K,
+    const float * __restrict__ A, int lda,
+    const float * __restrict__ B, int ldb,
+    float * __restrict__ C, int ldc,
+    int first_k
+)
+{
+    // 12 accumulators: 6 rows x 2 ZMM (32 floats) per row
+    __m512 c0_lo, c0_hi, c1_lo, c1_hi, c2_lo, c2_hi;
+    __m512 c3_lo, c3_hi, c4_lo, c4_hi, c5_lo, c5_hi;
+
+    if (first_k) {
+        c0_lo = _mm512_setzero_ps(); c0_hi = _mm512_setzero_ps();
+        c1_lo = _mm512_setzero_ps(); c1_hi = _mm512_setzero_ps();
+        c2_lo = _mm512_setzero_ps(); c2_hi = _mm512_setzero_ps();
+        c3_lo = _mm512_setzero_ps(); c3_hi = _mm512_setzero_ps();
+        c4_lo = _mm512_setzero_ps(); c4_hi = _mm512_setzero_ps();
+        c5_lo = _mm512_setzero_ps(); c5_hi = _mm512_setzero_ps();
+    } else {
+        c0_lo = _mm512_loadu_ps(&C[0 * ldc]);      c0_hi = _mm512_loadu_ps(&C[0 * ldc + 16]);
+        c1_lo = _mm512_loadu_ps(&C[1 * ldc]);      c1_hi = _mm512_loadu_ps(&C[1 * ldc + 16]);
+        c2_lo = _mm512_loadu_ps(&C[2 * ldc]);      c2_hi = _mm512_loadu_ps(&C[2 * ldc + 16]);
+        c3_lo = _mm512_loadu_ps(&C[3 * ldc]);      c3_hi = _mm512_loadu_ps(&C[3 * ldc + 16]);
+        c4_lo = _mm512_loadu_ps(&C[4 * ldc]);      c4_hi = _mm512_loadu_ps(&C[4 * ldc + 16]);
+        c5_lo = _mm512_loadu_ps(&C[5 * ldc]);      c5_hi = _mm512_loadu_ps(&C[5 * ldc + 16]);
+    }
+
+    // Prefetch first cache lines
+    _mm_prefetch((const char*)&B[0], _MM_HINT_T0);
+    _mm_prefetch((const char*)&B[64], _MM_HINT_T0);
+
+    // Main K loop - unrolled by 4 for better ILP
+    int k = 0;
+    for (; k <= K - 4; k += 4) {
+        // Prefetch ahead for next iteration
+        _mm_prefetch((const char*)&B[(k + 8) * ldb], _MM_HINT_T0);
+        _mm_prefetch((const char*)&B[(k + 8) * ldb + 64], _MM_HINT_T0);
+
+        // Unroll 0
+        {
+            __m512 b_lo = _mm512_loadu_ps(&B[k * ldb]);
+            __m512 b_hi = _mm512_loadu_ps(&B[k * ldb + 16]);
+
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k]);
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k]);
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k]);
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k]);
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k]);
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k]);
+
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
+        }
+        // Unroll 1
+        {
+            __m512 b_lo = _mm512_loadu_ps(&B[(k+1) * ldb]);
+            __m512 b_hi = _mm512_loadu_ps(&B[(k+1) * ldb + 16]);
+
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 1]);
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 1]);
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 1]);
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 1]);
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 1]);
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 1]);
+
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
+        }
+        // Unroll 2
+        {
+            __m512 b_lo = _mm512_loadu_ps(&B[(k+2) * ldb]);
+            __m512 b_hi = _mm512_loadu_ps(&B[(k+2) * ldb + 16]);
+
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 2]);
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 2]);
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 2]);
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 2]);
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 2]);
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 2]);
+
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
+        }
+        // Unroll 3
+        {
+            __m512 b_lo = _mm512_loadu_ps(&B[(k+3) * ldb]);
+            __m512 b_hi = _mm512_loadu_ps(&B[(k+3) * ldb + 16]);
+
+            __m512 a0 = _mm512_set1_ps(A[0 * lda + k + 3]);
+            __m512 a1 = _mm512_set1_ps(A[1 * lda + k + 3]);
+            __m512 a2 = _mm512_set1_ps(A[2 * lda + k + 3]);
+            __m512 a3 = _mm512_set1_ps(A[3 * lda + k + 3]);
+            __m512 a4 = _mm512_set1_ps(A[4 * lda + k + 3]);
+            __m512 a5 = _mm512_set1_ps(A[5 * lda + k + 3]);
+
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi);
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi);
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi);
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi);
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi);
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi);
+        }
+    }
+
+    // Handle remaining K
+    for (; k < K; k++) {
+        __m512 b_lo = _mm512_loadu_ps(&B[k * ldb]);
+        __m512 b_hi = _mm512_loadu_ps(&B[k * ldb + 16]);
+
+        c0_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[0 * lda + k]), b_lo, c0_lo);
+        c0_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[0 * lda + k]), b_hi, c0_hi);
+        c1_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[1 * lda + k]), b_lo, c1_lo);
+        c1_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[1 * lda + k]), b_hi, c1_hi);
+        c2_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[2 * lda + k]), b_lo, c2_lo);
+        c2_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[2 * lda + k]), b_hi, c2_hi);
+        c3_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[3 * lda + k]), b_lo, c3_lo);
+        c3_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[3 * lda + k]), b_hi, c3_hi);
+        c4_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[4 * lda + k]), b_lo, c4_lo);
+        c4_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[4 * lda + k]), b_hi, c4_hi);
+        c5_lo = _mm512_fmadd_ps(_mm512_set1_ps(A[5 * lda + k]), b_lo, c5_lo);
+        c5_hi = _mm512_fmadd_ps(_mm512_set1_ps(A[5 * lda + k]), b_hi, c5_hi);
+    }
+
+    // Store results
+    _mm512_storeu_ps(&C[0 * ldc], c0_lo);      _mm512_storeu_ps(&C[0 * ldc + 16], c0_hi);
+    _mm512_storeu_ps(&C[1 * ldc], c1_lo);      _mm512_storeu_ps(&C[1 * ldc + 16], c1_hi);
+    _mm512_storeu_ps(&C[2 * ldc], c2_lo);      _mm512_storeu_ps(&C[2 * ldc + 16], c2_hi);
+    _mm512_storeu_ps(&C[3 * ldc], c3_lo);      _mm512_storeu_ps(&C[3 * ldc + 16], c3_hi);
+    _mm512_storeu_ps(&C[4 * ldc], c4_lo);      _mm512_storeu_ps(&C[4 * ldc + 16], c4_hi);
+    _mm512_storeu_ps(&C[5 * ldc], c5_lo);      _mm512_storeu_ps(&C[5 * ldc + 16], c5_hi);
+}
+
+// Packed version for large matrices
+static inline void gemm_microkernel_6x32_packed_avx512(
+    int K,
+    const float * __restrict__ Ap,  // Packed A: [MR, K] contiguous
+    const float * __restrict__ Bp,  // Packed B: [K, NR] contiguous
+    float * __restrict__ C, int ldc,
+    int first_k
+)
+{
+    __m512 c0_lo, c0_hi, c1_lo, c1_hi, c2_lo, c2_hi;
+    __m512 c3_lo, c3_hi, c4_lo, c4_hi, c5_lo, c5_hi;
+
+    if (first_k) {
+        c0_lo = _mm512_setzero_ps(); c0_hi = _mm512_setzero_ps();
+        c1_lo = _mm512_setzero_ps(); c1_hi = _mm512_setzero_ps();
+        c2_lo = _mm512_setzero_ps(); c2_hi = _mm512_setzero_ps();
+        c3_lo = _mm512_setzero_ps(); c3_hi = _mm512_setzero_ps();
+        c4_lo = _mm512_setzero_ps(); c4_hi = _mm512_setzero_ps();
+        c5_lo = _mm512_setzero_ps(); c5_hi = _mm512_setzero_ps();
+    } else {
+        c0_lo = _mm512_loadu_ps(&C[0 * ldc]);      c0_hi = _mm512_loadu_ps(&C[0 * ldc + 16]);
+        c1_lo = _mm512_loadu_ps(&C[1 * ldc]);      c1_hi = _mm512_loadu_ps(&C[1 * ldc + 16]);
+        c2_lo = _mm512_loadu_ps(&C[2 * ldc]);      c2_hi = _mm512_loadu_ps(&C[2 * ldc + 16]);
+        c3_lo = _mm512_loadu_ps(&C[3 * ldc]);      c3_hi = _mm512_loadu_ps(&C[3 * ldc + 16]);
+        c4_lo = _mm512_loadu_ps(&C[4 * ldc]);      c4_hi = _mm512_loadu_ps(&C[4 * ldc + 16]);
+        c5_lo = _mm512_loadu_ps(&C[5 * ldc]);      c5_hi = _mm512_loadu_ps(&C[5 * ldc + 16]);
+    }
+
+    // Packed B is contiguous: B[k, 0:32] at Bp[k * 32]
+    _mm_prefetch((const char*)Bp, _MM_HINT_T0);
+    _mm_prefetch((const char*)(Bp + 16), _MM_HINT_T0);
+
+    int k = 0;
+    for (; k <= K - 4; k += 4) {
+        _mm_prefetch((const char*)(Bp + (k + 8) * NR), _MM_HINT_T0);
+        _mm_prefetch((const char*)(Bp + (k + 8) * NR + 16), _MM_HINT_T0);
+
+        #define PACKED_ITER(koff) { \
+            __m512 b_lo = _mm512_load_ps(&Bp[(k + koff) * NR]); \
+            __m512 b_hi = _mm512_load_ps(&Bp[(k + koff) * NR + 16]); \
+            __m512 a0 = _mm512_set1_ps(Ap[0 * K + k + koff]); \
+            __m512 a1 = _mm512_set1_ps(Ap[1 * K + k + koff]); \
+            __m512 a2 = _mm512_set1_ps(Ap[2 * K + k + koff]); \
+            __m512 a3 = _mm512_set1_ps(Ap[3 * K + k + koff]); \
+            __m512 a4 = _mm512_set1_ps(Ap[4 * K + k + koff]); \
+            __m512 a5 = _mm512_set1_ps(Ap[5 * K + k + koff]); \
+            c0_lo = _mm512_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm512_fmadd_ps(a0, b_hi, c0_hi); \
+            c1_lo = _mm512_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm512_fmadd_ps(a1, b_hi, c1_hi); \
+            c2_lo = _mm512_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm512_fmadd_ps(a2, b_hi, c2_hi); \
+            c3_lo = _mm512_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm512_fmadd_ps(a3, b_hi, c3_hi); \
+            c4_lo = _mm512_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm512_fmadd_ps(a4, b_hi, c4_hi); \
+            c5_lo = _mm512_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm512_fmadd_ps(a5, b_hi, c5_hi); \
+        }
+
+        PACKED_ITER(0);
+        PACKED_ITER(1);
+        PACKED_ITER(2);
+        PACKED_ITER(3);
+
+        #undef PACKED_ITER
+    }
+
+    for (; k < K; k++) {
+        __m512 b_lo = _mm512_load_ps(&Bp[k * NR]);
+        __m512 b_hi = _mm512_load_ps(&Bp[k * NR + 16]);
+
+        c0_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[0 * K + k]), b_lo, c0_lo);
+        c0_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[0 * K + k]), b_hi, c0_hi);
+        c1_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[1 * K + k]), b_lo, c1_lo);
+        c1_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[1 * K + k]), b_hi, c1_hi);
+        c2_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[2 * K + k]), b_lo, c2_lo);
+        c2_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[2 * K + k]), b_hi, c2_hi);
+        c3_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[3 * K + k]), b_lo, c3_lo);
+        c3_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[3 * K + k]), b_hi, c3_hi);
+        c4_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[4 * K + k]), b_lo, c4_lo);
+        c4_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[4 * K + k]), b_hi, c4_hi);
+        c5_lo = _mm512_fmadd_ps(_mm512_set1_ps(Ap[5 * K + k]), b_lo, c5_lo);
+        c5_hi = _mm512_fmadd_ps(_mm512_set1_ps(Ap[5 * K + k]), b_hi, c5_hi);
+    }
+
+    _mm512_storeu_ps(&C[0 * ldc], c0_lo);      _mm512_storeu_ps(&C[0 * ldc + 16], c0_hi);
+    _mm512_storeu_ps(&C[1 * ldc], c1_lo);      _mm512_storeu_ps(&C[1 * ldc + 16], c1_hi);
+    _mm512_storeu_ps(&C[2 * ldc], c2_lo);      _mm512_storeu_ps(&C[2 * ldc + 16], c2_hi);
+    _mm512_storeu_ps(&C[3 * ldc], c3_lo);      _mm512_storeu_ps(&C[3 * ldc + 16], c3_hi);
+    _mm512_storeu_ps(&C[4 * ldc], c4_lo);      _mm512_storeu_ps(&C[4 * ldc + 16], c4_hi);
+    _mm512_storeu_ps(&C[5 * ldc], c5_lo);      _mm512_storeu_ps(&C[5 * ldc + 16], c5_hi);
+}
+#endif // __AVX512F__
+
+// =============================================================================
+// AVX/AVX2 6x16 Microkernel with FMA
 //
-// This keeps 8 rows x 8 cols = 64 floats in registers!
+// KEY FIX: Use _mm256_fmadd_ps instead of separate mul+add
+// FMA fuses multiply-add into single instruction: c = a*b + c
+// This gives ~2x throughput improvement on FMA-capable CPUs
 // =============================================================================
 
 #if defined(__AVX__)
-static inline void gemm_microkernel_8x8_avx(
+static inline void gemm_microkernel_6x16_avx(
     int K,
-    const float *A, int lda,  // A is [MR, K], lda = stride between rows
-    const float *B, int ldb,  // B is [K, NR], ldb = stride between rows
-    float *C, int ldc,        // C is [MR, NR], ldc = stride between rows
-    int first_k               // If true, zero C; else accumulate
+    const float * __restrict__ A, int lda,
+    const float * __restrict__ B, int ldb,
+    float * __restrict__ C, int ldc,
+    int first_k
 )
 {
-    // Initialize accumulators - one __m256 per row of C
-    __m256 c0, c1, c2, c3, c4, c5, c6, c7;
+    // 12 accumulators: 6 rows x 2 YMM (16 floats) per row
+    __m256 c0_lo, c0_hi, c1_lo, c1_hi, c2_lo, c2_hi;
+    __m256 c3_lo, c3_hi, c4_lo, c4_hi, c5_lo, c5_hi;
 
     if (first_k) {
-        c0 = _mm256_setzero_ps();
-        c1 = _mm256_setzero_ps();
-        c2 = _mm256_setzero_ps();
-        c3 = _mm256_setzero_ps();
-        c4 = _mm256_setzero_ps();
-        c5 = _mm256_setzero_ps();
-        c6 = _mm256_setzero_ps();
-        c7 = _mm256_setzero_ps();
+        c0_lo = _mm256_setzero_ps(); c0_hi = _mm256_setzero_ps();
+        c1_lo = _mm256_setzero_ps(); c1_hi = _mm256_setzero_ps();
+        c2_lo = _mm256_setzero_ps(); c2_hi = _mm256_setzero_ps();
+        c3_lo = _mm256_setzero_ps(); c3_hi = _mm256_setzero_ps();
+        c4_lo = _mm256_setzero_ps(); c4_hi = _mm256_setzero_ps();
+        c5_lo = _mm256_setzero_ps(); c5_hi = _mm256_setzero_ps();
     } else {
-        // Load existing C values
-        c0 = _mm256_loadu_ps(&C[0 * ldc]);
-        c1 = _mm256_loadu_ps(&C[1 * ldc]);
-        c2 = _mm256_loadu_ps(&C[2 * ldc]);
-        c3 = _mm256_loadu_ps(&C[3 * ldc]);
-        c4 = _mm256_loadu_ps(&C[4 * ldc]);
-        c5 = _mm256_loadu_ps(&C[5 * ldc]);
-        c6 = _mm256_loadu_ps(&C[6 * ldc]);
-        c7 = _mm256_loadu_ps(&C[7 * ldc]);
+        c0_lo = _mm256_loadu_ps(&C[0 * ldc]);      c0_hi = _mm256_loadu_ps(&C[0 * ldc + 8]);
+        c1_lo = _mm256_loadu_ps(&C[1 * ldc]);      c1_hi = _mm256_loadu_ps(&C[1 * ldc + 8]);
+        c2_lo = _mm256_loadu_ps(&C[2 * ldc]);      c2_hi = _mm256_loadu_ps(&C[2 * ldc + 8]);
+        c3_lo = _mm256_loadu_ps(&C[3 * ldc]);      c3_hi = _mm256_loadu_ps(&C[3 * ldc + 8]);
+        c4_lo = _mm256_loadu_ps(&C[4 * ldc]);      c4_hi = _mm256_loadu_ps(&C[4 * ldc + 8]);
+        c5_lo = _mm256_loadu_ps(&C[5 * ldc]);      c5_hi = _mm256_loadu_ps(&C[5 * ldc + 8]);
     }
 
-    // Main K loop - this is where the magic happens
-    // All 64 accumulator values stay in registers!
-    for (int k = 0; k < K; k++) {
-        // Load one row of B: B[k, 0:8]
-        __m256 b = _mm256_loadu_ps(&B[k * ldb]);
+    // Prefetch first cache lines of B
+    _mm_prefetch((const char*)B, _MM_HINT_T0);
+    _mm_prefetch((const char*)(B + 32), _MM_HINT_T0);
 
-        // For each row of A, broadcast A[row, k] and multiply-accumulate
-        // AVX1: use mul + add (no FMA)
+    // Main K loop - unrolled by 8 for better ILP and prefetch hiding
+    int k = 0;
+
+#if defined(__FMA__)
+    // FMA path - uses fused multiply-add (single instruction)
+    for (; k <= K - 8; k += 8) {
+        // Prefetch ahead - 16 rows ahead for L1
+        _mm_prefetch((const char*)&B[(k + 16) * ldb], _MM_HINT_T0);
+        _mm_prefetch((const char*)&B[(k + 16) * ldb + 32], _MM_HINT_T0);
+        _mm_prefetch((const char*)&B[(k + 17) * ldb], _MM_HINT_T0);
+
+        // Software pipelining: load B for iteration 0 before the loop body
+        __m256 b_lo_next = _mm256_loadu_ps(&B[k * ldb]);
+        __m256 b_hi_next = _mm256_loadu_ps(&B[k * ldb + 8]);
+
+        #define FMA_ITER(koff) { \
+            __m256 b_lo = b_lo_next; \
+            __m256 b_hi = b_hi_next; \
+            if ((koff) < 7) { \
+                b_lo_next = _mm256_loadu_ps(&B[(k + (koff) + 1) * ldb]); \
+                b_hi_next = _mm256_loadu_ps(&B[(k + (koff) + 1) * ldb + 8]); \
+            } \
+            __m256 a0 = _mm256_set1_ps(A[0 * lda + k + (koff)]); \
+            __m256 a1 = _mm256_set1_ps(A[1 * lda + k + (koff)]); \
+            __m256 a2 = _mm256_set1_ps(A[2 * lda + k + (koff)]); \
+            __m256 a3 = _mm256_set1_ps(A[3 * lda + k + (koff)]); \
+            __m256 a4 = _mm256_set1_ps(A[4 * lda + k + (koff)]); \
+            __m256 a5 = _mm256_set1_ps(A[5 * lda + k + (koff)]); \
+            c0_lo = _mm256_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm256_fmadd_ps(a0, b_hi, c0_hi); \
+            c1_lo = _mm256_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm256_fmadd_ps(a1, b_hi, c1_hi); \
+            c2_lo = _mm256_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm256_fmadd_ps(a2, b_hi, c2_hi); \
+            c3_lo = _mm256_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm256_fmadd_ps(a3, b_hi, c3_hi); \
+            c4_lo = _mm256_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm256_fmadd_ps(a4, b_hi, c4_hi); \
+            c5_lo = _mm256_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm256_fmadd_ps(a5, b_hi, c5_hi); \
+        }
+
+        FMA_ITER(0);
+        FMA_ITER(1);
+        FMA_ITER(2);
+        FMA_ITER(3);
+        FMA_ITER(4);
+        FMA_ITER(5);
+        FMA_ITER(6);
+        FMA_ITER(7);
+
+        #undef FMA_ITER
+    }
+
+    // Handle remaining K with FMA
+    for (; k < K; k++) {
+        __m256 b_lo = _mm256_loadu_ps(&B[k * ldb]);
+        __m256 b_hi = _mm256_loadu_ps(&B[k * ldb + 8]);
+
         __m256 a0 = _mm256_set1_ps(A[0 * lda + k]);
         __m256 a1 = _mm256_set1_ps(A[1 * lda + k]);
         __m256 a2 = _mm256_set1_ps(A[2 * lda + k]);
         __m256 a3 = _mm256_set1_ps(A[3 * lda + k]);
         __m256 a4 = _mm256_set1_ps(A[4 * lda + k]);
         __m256 a5 = _mm256_set1_ps(A[5 * lda + k]);
-        __m256 a6 = _mm256_set1_ps(A[6 * lda + k]);
-        __m256 a7 = _mm256_set1_ps(A[7 * lda + k]);
 
-        c0 = _mm256_add_ps(c0, _mm256_mul_ps(a0, b));
-        c1 = _mm256_add_ps(c1, _mm256_mul_ps(a1, b));
-        c2 = _mm256_add_ps(c2, _mm256_mul_ps(a2, b));
-        c3 = _mm256_add_ps(c3, _mm256_mul_ps(a3, b));
-        c4 = _mm256_add_ps(c4, _mm256_mul_ps(a4, b));
-        c5 = _mm256_add_ps(c5, _mm256_mul_ps(a5, b));
-        c6 = _mm256_add_ps(c6, _mm256_mul_ps(a6, b));
-        c7 = _mm256_add_ps(c7, _mm256_mul_ps(a7, b));
+        c0_lo = _mm256_fmadd_ps(a0, b_lo, c0_lo); c0_hi = _mm256_fmadd_ps(a0, b_hi, c0_hi);
+        c1_lo = _mm256_fmadd_ps(a1, b_lo, c1_lo); c1_hi = _mm256_fmadd_ps(a1, b_hi, c1_hi);
+        c2_lo = _mm256_fmadd_ps(a2, b_lo, c2_lo); c2_hi = _mm256_fmadd_ps(a2, b_hi, c2_hi);
+        c3_lo = _mm256_fmadd_ps(a3, b_lo, c3_lo); c3_hi = _mm256_fmadd_ps(a3, b_hi, c3_hi);
+        c4_lo = _mm256_fmadd_ps(a4, b_lo, c4_lo); c4_hi = _mm256_fmadd_ps(a4, b_hi, c4_hi);
+        c5_lo = _mm256_fmadd_ps(a5, b_lo, c5_lo); c5_hi = _mm256_fmadd_ps(a5, b_hi, c5_hi);
+    }
+#else
+    // Non-FMA fallback (older CPUs without FMA)
+    for (; k <= K - 4; k += 4) {
+        _mm_prefetch((const char*)&B[(k + 8) * ldb], _MM_HINT_T0);
+
+        #define AVX_ITER(koff) { \
+            __m256 b_lo = _mm256_loadu_ps(&B[(k + koff) * ldb]); \
+            __m256 b_hi = _mm256_loadu_ps(&B[(k + koff) * ldb + 8]); \
+            __m256 a0 = _mm256_set1_ps(A[0 * lda + k + koff]); \
+            __m256 a1 = _mm256_set1_ps(A[1 * lda + k + koff]); \
+            __m256 a2 = _mm256_set1_ps(A[2 * lda + k + koff]); \
+            __m256 a3 = _mm256_set1_ps(A[3 * lda + k + koff]); \
+            __m256 a4 = _mm256_set1_ps(A[4 * lda + k + koff]); \
+            __m256 a5 = _mm256_set1_ps(A[5 * lda + k + koff]); \
+            c0_lo = _mm256_add_ps(c0_lo, _mm256_mul_ps(a0, b_lo)); \
+            c0_hi = _mm256_add_ps(c0_hi, _mm256_mul_ps(a0, b_hi)); \
+            c1_lo = _mm256_add_ps(c1_lo, _mm256_mul_ps(a1, b_lo)); \
+            c1_hi = _mm256_add_ps(c1_hi, _mm256_mul_ps(a1, b_hi)); \
+            c2_lo = _mm256_add_ps(c2_lo, _mm256_mul_ps(a2, b_lo)); \
+            c2_hi = _mm256_add_ps(c2_hi, _mm256_mul_ps(a2, b_hi)); \
+            c3_lo = _mm256_add_ps(c3_lo, _mm256_mul_ps(a3, b_lo)); \
+            c3_hi = _mm256_add_ps(c3_hi, _mm256_mul_ps(a3, b_hi)); \
+            c4_lo = _mm256_add_ps(c4_lo, _mm256_mul_ps(a4, b_lo)); \
+            c4_hi = _mm256_add_ps(c4_hi, _mm256_mul_ps(a4, b_hi)); \
+            c5_lo = _mm256_add_ps(c5_lo, _mm256_mul_ps(a5, b_lo)); \
+            c5_hi = _mm256_add_ps(c5_hi, _mm256_mul_ps(a5, b_hi)); \
+        }
+
+        AVX_ITER(0);
+        AVX_ITER(1);
+        AVX_ITER(2);
+        AVX_ITER(3);
+
+        #undef AVX_ITER
     }
 
-    // Store results back to C
-    _mm256_storeu_ps(&C[0 * ldc], c0);
-    _mm256_storeu_ps(&C[1 * ldc], c1);
-    _mm256_storeu_ps(&C[2 * ldc], c2);
-    _mm256_storeu_ps(&C[3 * ldc], c3);
-    _mm256_storeu_ps(&C[4 * ldc], c4);
-    _mm256_storeu_ps(&C[5 * ldc], c5);
-    _mm256_storeu_ps(&C[6 * ldc], c6);
-    _mm256_storeu_ps(&C[7 * ldc], c7);
-}
+    for (; k < K; k++) {
+        __m256 b_lo = _mm256_loadu_ps(&B[k * ldb]);
+        __m256 b_hi = _mm256_loadu_ps(&B[k * ldb + 8]);
+
+        __m256 a0 = _mm256_set1_ps(A[0 * lda + k]);
+        __m256 a1 = _mm256_set1_ps(A[1 * lda + k]);
+        __m256 a2 = _mm256_set1_ps(A[2 * lda + k]);
+        __m256 a3 = _mm256_set1_ps(A[3 * lda + k]);
+        __m256 a4 = _mm256_set1_ps(A[4 * lda + k]);
+        __m256 a5 = _mm256_set1_ps(A[5 * lda + k]);
+
+        c0_lo = _mm256_add_ps(c0_lo, _mm256_mul_ps(a0, b_lo));
+        c0_hi = _mm256_add_ps(c0_hi, _mm256_mul_ps(a0, b_hi));
+        c1_lo = _mm256_add_ps(c1_lo, _mm256_mul_ps(a1, b_lo));
+        c1_hi = _mm256_add_ps(c1_hi, _mm256_mul_ps(a1, b_hi));
+        c2_lo = _mm256_add_ps(c2_lo, _mm256_mul_ps(a2, b_lo));
+        c2_hi = _mm256_add_ps(c2_hi, _mm256_mul_ps(a2, b_hi));
+        c3_lo = _mm256_add_ps(c3_lo, _mm256_mul_ps(a3, b_lo));
+        c3_hi = _mm256_add_ps(c3_hi, _mm256_mul_ps(a3, b_hi));
+        c4_lo = _mm256_add_ps(c4_lo, _mm256_mul_ps(a4, b_lo));
+        c4_hi = _mm256_add_ps(c4_hi, _mm256_mul_ps(a4, b_hi));
+        c5_lo = _mm256_add_ps(c5_lo, _mm256_mul_ps(a5, b_lo));
+        c5_hi = _mm256_add_ps(c5_hi, _mm256_mul_ps(a5, b_hi));
+    }
 #endif
 
-// =============================================================================
-// 8x8 Microkernel - AVX2/FMA
-//
-// Same as AVX1 but uses FMA instructions for better performance
-// =============================================================================
-
-#if defined(__AVX2__) && defined(__FMA__)
-static inline void gemm_microkernel_8x8_fma(
-    int K,
-    const float *A, int lda,
-    const float *B, int ldb,
-    float *C, int ldc,
-    int first_k
-)
-{
-    __m256 c0, c1, c2, c3, c4, c5, c6, c7;
-
-    if (first_k) {
-        c0 = _mm256_setzero_ps();
-        c1 = _mm256_setzero_ps();
-        c2 = _mm256_setzero_ps();
-        c3 = _mm256_setzero_ps();
-        c4 = _mm256_setzero_ps();
-        c5 = _mm256_setzero_ps();
-        c6 = _mm256_setzero_ps();
-        c7 = _mm256_setzero_ps();
-    } else {
-        c0 = _mm256_loadu_ps(&C[0 * ldc]);
-        c1 = _mm256_loadu_ps(&C[1 * ldc]);
-        c2 = _mm256_loadu_ps(&C[2 * ldc]);
-        c3 = _mm256_loadu_ps(&C[3 * ldc]);
-        c4 = _mm256_loadu_ps(&C[4 * ldc]);
-        c5 = _mm256_loadu_ps(&C[5 * ldc]);
-        c6 = _mm256_loadu_ps(&C[6 * ldc]);
-        c7 = _mm256_loadu_ps(&C[7 * ldc]);
-    }
-
-    for (int k = 0; k < K; k++) {
-        __m256 b = _mm256_loadu_ps(&B[k * ldb]);
-
-        // Use FMA: c = a * b + c
-        c0 = _mm256_fmadd_ps(_mm256_set1_ps(A[0 * lda + k]), b, c0);
-        c1 = _mm256_fmadd_ps(_mm256_set1_ps(A[1 * lda + k]), b, c1);
-        c2 = _mm256_fmadd_ps(_mm256_set1_ps(A[2 * lda + k]), b, c2);
-        c3 = _mm256_fmadd_ps(_mm256_set1_ps(A[3 * lda + k]), b, c3);
-        c4 = _mm256_fmadd_ps(_mm256_set1_ps(A[4 * lda + k]), b, c4);
-        c5 = _mm256_fmadd_ps(_mm256_set1_ps(A[5 * lda + k]), b, c5);
-        c6 = _mm256_fmadd_ps(_mm256_set1_ps(A[6 * lda + k]), b, c6);
-        c7 = _mm256_fmadd_ps(_mm256_set1_ps(A[7 * lda + k]), b, c7);
-    }
-
-    _mm256_storeu_ps(&C[0 * ldc], c0);
-    _mm256_storeu_ps(&C[1 * ldc], c1);
-    _mm256_storeu_ps(&C[2 * ldc], c2);
-    _mm256_storeu_ps(&C[3 * ldc], c3);
-    _mm256_storeu_ps(&C[4 * ldc], c4);
-    _mm256_storeu_ps(&C[5 * ldc], c5);
-    _mm256_storeu_ps(&C[6 * ldc], c6);
-    _mm256_storeu_ps(&C[7 * ldc], c7);
-}
-#endif
-
-// =============================================================================
-// 8x16 Microkernel - AVX-512
-//
-// AVX-512 has 512-bit registers (16 floats), so we can do 8x16 tiles
-// Uses 8 ZMM registers for C, leaving plenty for A/B loads
-// =============================================================================
-
-#if defined(__AVX512F__)
-static inline void gemm_microkernel_8x16_avx512(
-    int K,
-    const float *A, int lda,
-    const float *B, int ldb,
-    float *C, int ldc,
-    int first_k
-)
-{
-    __m512 c0, c1, c2, c3, c4, c5, c6, c7;
-
-    if (first_k) {
-        c0 = _mm512_setzero_ps();
-        c1 = _mm512_setzero_ps();
-        c2 = _mm512_setzero_ps();
-        c3 = _mm512_setzero_ps();
-        c4 = _mm512_setzero_ps();
-        c5 = _mm512_setzero_ps();
-        c6 = _mm512_setzero_ps();
-        c7 = _mm512_setzero_ps();
-    } else {
-        c0 = _mm512_loadu_ps(&C[0 * ldc]);
-        c1 = _mm512_loadu_ps(&C[1 * ldc]);
-        c2 = _mm512_loadu_ps(&C[2 * ldc]);
-        c3 = _mm512_loadu_ps(&C[3 * ldc]);
-        c4 = _mm512_loadu_ps(&C[4 * ldc]);
-        c5 = _mm512_loadu_ps(&C[5 * ldc]);
-        c6 = _mm512_loadu_ps(&C[6 * ldc]);
-        c7 = _mm512_loadu_ps(&C[7 * ldc]);
-    }
-
-    for (int k = 0; k < K; k++) {
-        __m512 b = _mm512_loadu_ps(&B[k * ldb]);
-
-        c0 = _mm512_fmadd_ps(_mm512_set1_ps(A[0 * lda + k]), b, c0);
-        c1 = _mm512_fmadd_ps(_mm512_set1_ps(A[1 * lda + k]), b, c1);
-        c2 = _mm512_fmadd_ps(_mm512_set1_ps(A[2 * lda + k]), b, c2);
-        c3 = _mm512_fmadd_ps(_mm512_set1_ps(A[3 * lda + k]), b, c3);
-        c4 = _mm512_fmadd_ps(_mm512_set1_ps(A[4 * lda + k]), b, c4);
-        c5 = _mm512_fmadd_ps(_mm512_set1_ps(A[5 * lda + k]), b, c5);
-        c6 = _mm512_fmadd_ps(_mm512_set1_ps(A[6 * lda + k]), b, c6);
-        c7 = _mm512_fmadd_ps(_mm512_set1_ps(A[7 * lda + k]), b, c7);
-    }
-
-    _mm512_storeu_ps(&C[0 * ldc], c0);
-    _mm512_storeu_ps(&C[1 * ldc], c1);
-    _mm512_storeu_ps(&C[2 * ldc], c2);
-    _mm512_storeu_ps(&C[3 * ldc], c3);
-    _mm512_storeu_ps(&C[4 * ldc], c4);
-    _mm512_storeu_ps(&C[5 * ldc], c5);
-    _mm512_storeu_ps(&C[6 * ldc], c6);
-    _mm512_storeu_ps(&C[7 * ldc], c7);
+    _mm256_storeu_ps(&C[0 * ldc], c0_lo);      _mm256_storeu_ps(&C[0 * ldc + 8], c0_hi);
+    _mm256_storeu_ps(&C[1 * ldc], c1_lo);      _mm256_storeu_ps(&C[1 * ldc + 8], c1_hi);
+    _mm256_storeu_ps(&C[2 * ldc], c2_lo);      _mm256_storeu_ps(&C[2 * ldc + 8], c2_hi);
+    _mm256_storeu_ps(&C[3 * ldc], c3_lo);      _mm256_storeu_ps(&C[3 * ldc + 8], c3_hi);
+    _mm256_storeu_ps(&C[4 * ldc], c4_lo);      _mm256_storeu_ps(&C[4 * ldc + 8], c4_hi);
+    _mm256_storeu_ps(&C[5 * ldc], c5_lo);      _mm256_storeu_ps(&C[5 * ldc + 8], c5_hi);
 }
 #endif
 
@@ -264,7 +497,6 @@ static void gemm_microkernel_edge(
     int first_k
 )
 {
-    // Simple scalar fallback for edge tiles
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             float sum = first_k ? 0.0f : C[i * ldc + j];
@@ -277,213 +509,87 @@ static void gemm_microkernel_edge(
 }
 
 // =============================================================================
-// Matrix Packing Functions
-//
-// Packing transforms matrices into contiguous layouts optimized for the
-// microkernel access pattern. This is critical for large matrix performance.
+// Matrix Packing Functions - Parallel for large matrices
 // =============================================================================
 
 // Pack A panel: A[m0:m0+mc, k0:k0+kc] -> Ap[mc, kc] in row-panel format
-// Packed layout: for each MR-row panel, store rows contiguously
 static void pack_a_panel(
     const float *A, int lda,
     float *Ap,
     int mc, int kc, int mr
 )
 {
+    #pragma omp parallel for schedule(static) if(mc > 64)
     for (int i = 0; i < mc; i += mr) {
         int rows = (i + mr <= mc) ? mr : (mc - i);
+        float *Ap_panel = &Ap[(i / mr) * mr * kc];
+
         for (int p = 0; p < rows; p++) {
-            for (int k = 0; k < kc; k++) {
-                Ap[(i / mr) * mr * kc + p * kc + k] = A[(i + p) * lda + k];
+            const float *A_row = &A[(i + p) * lda];
+            float *Ap_row = &Ap_panel[p * kc];
+
+            // Vectorized copy
+            int k = 0;
+#if defined(__AVX__)
+            for (; k <= kc - 8; k += 8) {
+                _mm256_storeu_ps(&Ap_row[k], _mm256_loadu_ps(&A_row[k]));
+            }
+#endif
+            for (; k < kc; k++) {
+                Ap_row[k] = A_row[k];
             }
         }
         // Zero pad if partial panel
         for (int p = rows; p < mr; p++) {
-            for (int k = 0; k < kc; k++) {
-                Ap[(i / mr) * mr * kc + p * kc + k] = 0.0f;
-            }
+            memset(&Ap_panel[p * kc], 0, kc * sizeof(float));
         }
     }
 }
 
 // Pack B panel: B[k0:k0+kc, n0:n0+nc] -> Bp[kc, nc] in column-panel format
-// Packed layout: for each NR-column panel, store columns contiguously by K
 static void pack_b_panel(
     const float *B, int ldb,
     float *Bp,
     int kc, int nc, int nr
 )
 {
+    #pragma omp parallel for schedule(static) if(nc > 128)
     for (int j = 0; j < nc; j += nr) {
         int cols = (j + nr <= nc) ? nr : (nc - j);
+        float *Bp_panel = &Bp[(j / nr) * nr * kc];
+
         for (int k = 0; k < kc; k++) {
-            for (int q = 0; q < cols; q++) {
-                Bp[(j / nr) * nr * kc + k * nr + q] = B[k * ldb + (j + q)];
+            const float *B_row = &B[k * ldb + j];
+            float *Bp_row = &Bp_panel[k * nr];
+
+            // Copy cols and zero-pad
+            int c = 0;
+#if defined(__AVX512F__)
+            for (; c <= cols - 16; c += 16) {
+                _mm512_store_ps(&Bp_row[c], _mm512_loadu_ps(&B_row[c]));
             }
-            // Zero pad if partial panel
-            for (int q = cols; q < nr; q++) {
-                Bp[(j / nr) * nr * kc + k * nr + q] = 0.0f;
+#elif defined(__AVX__)
+            for (; c <= cols - 8; c += 8) {
+                _mm256_store_ps(&Bp_row[c], _mm256_loadu_ps(&B_row[c]));
             }
-        }
-    }
-}
-
-// =============================================================================
-// Optimized 8x8 Microkernel for Packed Matrices (AVX1)
-//
-// A is packed: [MR, KC] contiguous
-// B is packed: [KC, NR] contiguous (column-panel)
-// =============================================================================
-
-#if defined(__AVX__)
-static inline void gemm_microkernel_8x8_packed_avx(
-    int K,
-    const float *Ap,   // Packed A: [MR, K] contiguous
-    const float *Bp,   // Packed B: [K, NR] contiguous
-    float *C, int ldc,
-    int first_k
-)
-{
-    __m256 c0, c1, c2, c3, c4, c5, c6, c7;
-
-    if (first_k) {
-        c0 = _mm256_setzero_ps();
-        c1 = _mm256_setzero_ps();
-        c2 = _mm256_setzero_ps();
-        c3 = _mm256_setzero_ps();
-        c4 = _mm256_setzero_ps();
-        c5 = _mm256_setzero_ps();
-        c6 = _mm256_setzero_ps();
-        c7 = _mm256_setzero_ps();
-    } else {
-        c0 = _mm256_loadu_ps(&C[0 * ldc]);
-        c1 = _mm256_loadu_ps(&C[1 * ldc]);
-        c2 = _mm256_loadu_ps(&C[2 * ldc]);
-        c3 = _mm256_loadu_ps(&C[3 * ldc]);
-        c4 = _mm256_loadu_ps(&C[4 * ldc]);
-        c5 = _mm256_loadu_ps(&C[5 * ldc]);
-        c6 = _mm256_loadu_ps(&C[6 * ldc]);
-        c7 = _mm256_loadu_ps(&C[7 * ldc]);
-    }
-
-    // Prefetch first B line
-    _mm_prefetch((const char*)Bp, _MM_HINT_T0);
-
-    // Unrolled K loop by 4 for better ILP
-    int k = 0;
-    for (; k <= K - 4; k += 4) {
-        // Prefetch ahead
-        _mm_prefetch((const char*)(Bp + (k + 8) * NR), _MM_HINT_T0);
-
-        // Iteration 0
-        {
-            __m256 b = _mm256_load_ps(&Bp[k * NR]);  // Aligned load from packed B
-            __m256 a0 = _mm256_set1_ps(Ap[0 * K + k]);
-            __m256 a1 = _mm256_set1_ps(Ap[1 * K + k]);
-            __m256 a2 = _mm256_set1_ps(Ap[2 * K + k]);
-            __m256 a3 = _mm256_set1_ps(Ap[3 * K + k]);
-            __m256 a4 = _mm256_set1_ps(Ap[4 * K + k]);
-            __m256 a5 = _mm256_set1_ps(Ap[5 * K + k]);
-            __m256 a6 = _mm256_set1_ps(Ap[6 * K + k]);
-            __m256 a7 = _mm256_set1_ps(Ap[7 * K + k]);
-            c0 = _mm256_add_ps(c0, _mm256_mul_ps(a0, b));
-            c1 = _mm256_add_ps(c1, _mm256_mul_ps(a1, b));
-            c2 = _mm256_add_ps(c2, _mm256_mul_ps(a2, b));
-            c3 = _mm256_add_ps(c3, _mm256_mul_ps(a3, b));
-            c4 = _mm256_add_ps(c4, _mm256_mul_ps(a4, b));
-            c5 = _mm256_add_ps(c5, _mm256_mul_ps(a5, b));
-            c6 = _mm256_add_ps(c6, _mm256_mul_ps(a6, b));
-            c7 = _mm256_add_ps(c7, _mm256_mul_ps(a7, b));
-        }
-        // Iteration 1
-        {
-            __m256 b = _mm256_load_ps(&Bp[(k+1) * NR]);
-            __m256 a0 = _mm256_set1_ps(Ap[0 * K + k + 1]);
-            __m256 a1 = _mm256_set1_ps(Ap[1 * K + k + 1]);
-            __m256 a2 = _mm256_set1_ps(Ap[2 * K + k + 1]);
-            __m256 a3 = _mm256_set1_ps(Ap[3 * K + k + 1]);
-            __m256 a4 = _mm256_set1_ps(Ap[4 * K + k + 1]);
-            __m256 a5 = _mm256_set1_ps(Ap[5 * K + k + 1]);
-            __m256 a6 = _mm256_set1_ps(Ap[6 * K + k + 1]);
-            __m256 a7 = _mm256_set1_ps(Ap[7 * K + k + 1]);
-            c0 = _mm256_add_ps(c0, _mm256_mul_ps(a0, b));
-            c1 = _mm256_add_ps(c1, _mm256_mul_ps(a1, b));
-            c2 = _mm256_add_ps(c2, _mm256_mul_ps(a2, b));
-            c3 = _mm256_add_ps(c3, _mm256_mul_ps(a3, b));
-            c4 = _mm256_add_ps(c4, _mm256_mul_ps(a4, b));
-            c5 = _mm256_add_ps(c5, _mm256_mul_ps(a5, b));
-            c6 = _mm256_add_ps(c6, _mm256_mul_ps(a6, b));
-            c7 = _mm256_add_ps(c7, _mm256_mul_ps(a7, b));
-        }
-        // Iteration 2
-        {
-            __m256 b = _mm256_load_ps(&Bp[(k+2) * NR]);
-            __m256 a0 = _mm256_set1_ps(Ap[0 * K + k + 2]);
-            __m256 a1 = _mm256_set1_ps(Ap[1 * K + k + 2]);
-            __m256 a2 = _mm256_set1_ps(Ap[2 * K + k + 2]);
-            __m256 a3 = _mm256_set1_ps(Ap[3 * K + k + 2]);
-            __m256 a4 = _mm256_set1_ps(Ap[4 * K + k + 2]);
-            __m256 a5 = _mm256_set1_ps(Ap[5 * K + k + 2]);
-            __m256 a6 = _mm256_set1_ps(Ap[6 * K + k + 2]);
-            __m256 a7 = _mm256_set1_ps(Ap[7 * K + k + 2]);
-            c0 = _mm256_add_ps(c0, _mm256_mul_ps(a0, b));
-            c1 = _mm256_add_ps(c1, _mm256_mul_ps(a1, b));
-            c2 = _mm256_add_ps(c2, _mm256_mul_ps(a2, b));
-            c3 = _mm256_add_ps(c3, _mm256_mul_ps(a3, b));
-            c4 = _mm256_add_ps(c4, _mm256_mul_ps(a4, b));
-            c5 = _mm256_add_ps(c5, _mm256_mul_ps(a5, b));
-            c6 = _mm256_add_ps(c6, _mm256_mul_ps(a6, b));
-            c7 = _mm256_add_ps(c7, _mm256_mul_ps(a7, b));
-        }
-        // Iteration 3
-        {
-            __m256 b = _mm256_load_ps(&Bp[(k+3) * NR]);
-            __m256 a0 = _mm256_set1_ps(Ap[0 * K + k + 3]);
-            __m256 a1 = _mm256_set1_ps(Ap[1 * K + k + 3]);
-            __m256 a2 = _mm256_set1_ps(Ap[2 * K + k + 3]);
-            __m256 a3 = _mm256_set1_ps(Ap[3 * K + k + 3]);
-            __m256 a4 = _mm256_set1_ps(Ap[4 * K + k + 3]);
-            __m256 a5 = _mm256_set1_ps(Ap[5 * K + k + 3]);
-            __m256 a6 = _mm256_set1_ps(Ap[6 * K + k + 3]);
-            __m256 a7 = _mm256_set1_ps(Ap[7 * K + k + 3]);
-            c0 = _mm256_add_ps(c0, _mm256_mul_ps(a0, b));
-            c1 = _mm256_add_ps(c1, _mm256_mul_ps(a1, b));
-            c2 = _mm256_add_ps(c2, _mm256_mul_ps(a2, b));
-            c3 = _mm256_add_ps(c3, _mm256_mul_ps(a3, b));
-            c4 = _mm256_add_ps(c4, _mm256_mul_ps(a4, b));
-            c5 = _mm256_add_ps(c5, _mm256_mul_ps(a5, b));
-            c6 = _mm256_add_ps(c6, _mm256_mul_ps(a6, b));
-            c7 = _mm256_add_ps(c7, _mm256_mul_ps(a7, b));
-        }
-    }
-
-    // Handle remaining K
-    for (; k < K; k++) {
-        __m256 b = _mm256_load_ps(&Bp[k * NR]);
-        c0 = _mm256_add_ps(c0, _mm256_mul_ps(_mm256_set1_ps(Ap[0 * K + k]), b));
-        c1 = _mm256_add_ps(c1, _mm256_mul_ps(_mm256_set1_ps(Ap[1 * K + k]), b));
-        c2 = _mm256_add_ps(c2, _mm256_mul_ps(_mm256_set1_ps(Ap[2 * K + k]), b));
-        c3 = _mm256_add_ps(c3, _mm256_mul_ps(_mm256_set1_ps(Ap[3 * K + k]), b));
-        c4 = _mm256_add_ps(c4, _mm256_mul_ps(_mm256_set1_ps(Ap[4 * K + k]), b));
-        c5 = _mm256_add_ps(c5, _mm256_mul_ps(_mm256_set1_ps(Ap[5 * K + k]), b));
-        c6 = _mm256_add_ps(c6, _mm256_mul_ps(_mm256_set1_ps(Ap[6 * K + k]), b));
-        c7 = _mm256_add_ps(c7, _mm256_mul_ps(_mm256_set1_ps(Ap[7 * K + k]), b));
-    }
-
-    _mm256_storeu_ps(&C[0 * ldc], c0);
-    _mm256_storeu_ps(&C[1 * ldc], c1);
-    _mm256_storeu_ps(&C[2 * ldc], c2);
-    _mm256_storeu_ps(&C[3 * ldc], c3);
-    _mm256_storeu_ps(&C[4 * ldc], c4);
-    _mm256_storeu_ps(&C[5 * ldc], c5);
-    _mm256_storeu_ps(&C[6 * ldc], c6);
-    _mm256_storeu_ps(&C[7 * ldc], c7);
-}
 #endif
+            for (; c < cols; c++) {
+                Bp_row[c] = B_row[c];
+            }
+            for (; c < nr; c++) {
+                Bp_row[c] = 0.0f;
+            }
+        }
+    }
+}
 
 // =============================================================================
-// Optimized GEMM with Matrix Packing (for large matrices)
+// High-Performance GEMM with 2D Threading and Packing
+//
+// This is the main entry point for large matrices. Uses:
+// 1. 2D thread partitioning (across M and N blocks)
+// 2. Parallel matrix packing
+// 3. Optimized microkernels
 // =============================================================================
 
 void gemm_microkernel_packed(
@@ -493,32 +599,25 @@ void gemm_microkernel_packed(
     int M, int N, int K
 )
 {
-#if defined(__AVX__)
+#if defined(__AVX512F__) || defined(__AVX__)
     const int mr = MR;
     const int nr = NR;
 
-    // Allocate packing buffers (thread-local for OpenMP)
-    // Ap: MC x KC, Bp: KC x NC
-    float *Ap = NULL;
-    float *Bp = NULL;
+    // Zero C once at the start
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < M; i++) {
+        memset(&C[i * N], 0, N * sizeof(float));
+    }
 
-    // For simplicity, allocate max size buffers
-    // In production, use thread-local storage
-    Ap = (float*)aligned_alloc(32, MC * KC * sizeof(float));
-    Bp = (float*)aligned_alloc(32, KC * NC * sizeof(float));
-
-    if (!Ap || !Bp) {
-        // Fallback to non-packed version
-        if (Ap) free(Ap);
-        if (Bp) free(Bp);
+    // Allocate per-thread packing buffers
+    // Each thread gets its own Ap buffer, Bp is shared (packed once per N block)
+    float *Bp = (float*)aligned_alloc(64, (size_t)KC * NC * sizeof(float));
+    if (!Bp) {
         gemm_microkernel_blocked(A, B, C, M, N, K);
         return;
     }
 
-    // Zero C once at the start
-    memset(C, 0, (size_t)M * N * sizeof(float));
-
-    // Block over K (outermost for B panel reuse)
+    // Block over K (outermost for B panel reuse across M blocks)
     for (int k0 = 0; k0 < K; k0 += KC) {
         int kb = (k0 + KC <= K) ? KC : (K - k0);
         int first_k = (k0 == 0);
@@ -527,70 +626,69 @@ void gemm_microkernel_packed(
         for (int n0 = 0; n0 < N; n0 += NC) {
             int nb = (n0 + NC <= N) ? NC : (N - n0);
 
-            // Pack B panel: B[k0:k0+kb, n0:n0+nb]
+            // Pack B panel (parallel)
             pack_b_panel(&B[k0 * N + n0], N, Bp, kb, nb, nr);
 
-            // Block over M (parallelize this loop)
-            #pragma omp parallel for schedule(static) firstprivate(Ap)
-            for (int m0 = 0; m0 < M; m0 += MC) {
-                int mb = (m0 + MC <= M) ? MC : (M - m0);
+            // 2D parallel loop over M blocks
+            // Each thread processes a subset of M blocks
+            #pragma omp parallel
+            {
+                // Thread-local A packing buffer
+                float *Ap_local = (float*)aligned_alloc(64, (size_t)MC * KC * sizeof(float));
 
-                // Each thread needs its own Ap buffer
-                float *Ap_local = (float*)aligned_alloc(32, MC * KC * sizeof(float));
-                if (!Ap_local) continue;
+                #pragma omp for schedule(dynamic, 1)
+                for (int m0 = 0; m0 < M; m0 += MC) {
+                    int mb = (m0 + MC <= M) ? MC : (M - m0);
 
-                // Pack A panel: A[m0:m0+mb, k0:k0+kb]
-                pack_a_panel(&A[m0 * K + k0], K, Ap_local, mb, kb, mr);
+                    if (!Ap_local) continue;
 
-                // Micro-kernel loop
-                for (int m1 = 0; m1 < mb; m1 += mr) {
-                    int mr_actual = (m1 + mr <= mb) ? mr : (mb - m1);
+                    // Pack A panel for this M block
+                    pack_a_panel(&A[m0 * K + k0], K, Ap_local, mb, kb, mr);
 
-                    for (int n1 = 0; n1 < nb; n1 += nr) {
-                        int nr_actual = (n1 + nr <= nb) ? nr : (nb - n1);
+                    // Microkernel loop over tiles
+                    for (int m1 = 0; m1 < mb; m1 += mr) {
+                        int mr_actual = (m1 + mr <= mb) ? mr : (mb - m1);
 
-                        float *C_tile = &C[(m0 + m1) * N + (n0 + n1)];
+                        for (int n1 = 0; n1 < nb; n1 += nr) {
+                            int nr_actual = (n1 + nr <= nb) ? nr : (nb - n1);
 
-                        // Packed A: offset by panel index
-                        const float *Ap_tile = &Ap_local[(m1 / mr) * mr * kb];
-                        // Packed B: offset by panel index
-                        const float *Bp_tile = &Bp[(n1 / nr) * nr * kb];
+                            float *C_tile = &C[(m0 + m1) * N + (n0 + n1)];
 
-                        if (mr_actual == mr && nr_actual == nr) {
-                            gemm_microkernel_8x8_packed_avx(kb, Ap_tile, Bp_tile, C_tile, N, first_k);
-                        } else {
-                            // Edge case - use scalar
-                            gemm_microkernel_edge(mr_actual, nr_actual, kb,
-                                                  &A[(m0 + m1) * K + k0], K,
-                                                  &B[k0 * N + (n0 + n1)], N,
-                                                  C_tile, N, first_k);
+                            if (mr_actual == mr && nr_actual == nr) {
+#if defined(__AVX512F__)
+                                const float *Ap_tile = &Ap_local[(m1 / mr) * mr * kb];
+                                const float *Bp_tile = &Bp[(n1 / nr) * nr * kb];
+                                gemm_microkernel_6x32_packed_avx512(kb, Ap_tile, Bp_tile, C_tile, N, first_k);
+#else
+                                // For AVX, fall back to non-packed version
+                                gemm_microkernel_6x16_avx(kb, &A[(m0 + m1) * K + k0], K,
+                                                         &B[k0 * N + (n0 + n1)], N,
+                                                         C_tile, N, first_k);
+#endif
+                            } else {
+                                // Edge tiles
+                                gemm_microkernel_edge(mr_actual, nr_actual, kb,
+                                                      &A[(m0 + m1) * K + k0], K,
+                                                      &B[k0 * N + (n0 + n1)], N,
+                                                      C_tile, N, first_k);
+                            }
                         }
                     }
                 }
 
-                free(Ap_local);
+                if (Ap_local) free(Ap_local);
             }
         }
     }
 
-    free(Ap);
     free(Bp);
 #else
-    // Fallback
     gemm_microkernel_blocked(A, B, C, M, N, K);
 #endif
 }
 
 // =============================================================================
-// Cache-Blocked GEMM using Microkernels (original, no packing)
-//
-// C[M,N] = A[M,K] @ B[K,N]
-//
-// The blocking strategy:
-// 1. Block K into KC chunks (fits A block in L1)
-// 2. Block N into NC chunks (fits B block in L2)
-// 3. Block M into MC chunks (fits C block in L2)
-// 4. Call microkernel for each MRxNR tile
+// Cache-Blocked GEMM without packing (for medium-sized matrices)
 // =============================================================================
 
 void gemm_microkernel_blocked(
@@ -601,30 +699,27 @@ void gemm_microkernel_blocked(
 )
 {
     // Zero output first
-    memset(C, 0, (size_t)M * N * sizeof(float));
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < M; i++) {
+        memset(&C[i * N], 0, N * sizeof(float));
+    }
 
-#if defined(__AVX512F__)
-    const int nr = 16;  // AVX-512: 16 floats per register
-#else
-    const int nr = NR;  // AVX/AVX2: 8 floats per register
-#endif
     const int mr = MR;
+    const int nr = NR;
 
-    // Block over K (for L1 cache - A panel)
+    // Block over K
     for (int k0 = 0; k0 < K; k0 += KC) {
         int kb = (k0 + KC <= K) ? KC : (K - k0);
         int first_k = (k0 == 0);
 
-        // Block over N (for L2/L3 cache - B panel)
+        // Parallel over N blocks (good cache reuse of A)
         #pragma omp parallel for schedule(dynamic)
         for (int n0 = 0; n0 < N; n0 += NC) {
             int nb = (n0 + NC <= N) ? NC : (N - n0);
 
-            // Block over M (for L2 cache - A panel reuse)
             for (int m0 = 0; m0 < M; m0 += MC) {
                 int mb = (m0 + MC <= M) ? MC : (M - m0);
 
-                // Call microkernel for each MRxNR tile
                 for (int m1 = 0; m1 < mb; m1 += mr) {
                     int mr_actual = (m1 + mr <= mb) ? mr : (mb - m1);
 
@@ -635,19 +730,15 @@ void gemm_microkernel_blocked(
                         const float *B_tile = &B[k0 * N + (n0 + n1)];
                         float *C_tile = &C[(m0 + m1) * N + (n0 + n1)];
 
-                        // Use optimized microkernel for full tiles
                         if (mr_actual == mr && nr_actual == nr) {
 #if defined(__AVX512F__)
-                            gemm_microkernel_8x16_avx512(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
-#elif defined(__AVX2__) && defined(__FMA__)
-                            gemm_microkernel_8x8_fma(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
+                            gemm_microkernel_6x32_avx512(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
 #elif defined(__AVX__)
-                            gemm_microkernel_8x8_avx(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
+                            gemm_microkernel_6x16_avx(kb, A_tile, K, B_tile, N, C_tile, N, first_k);
 #else
                             gemm_microkernel_edge(mr_actual, nr_actual, kb, A_tile, K, B_tile, N, C_tile, N, first_k);
 #endif
                         } else {
-                            // Edge tiles: use scalar fallback
                             gemm_microkernel_edge(mr_actual, nr_actual, kb, A_tile, K, B_tile, N, C_tile, N, first_k);
                         }
                     }
@@ -658,102 +749,59 @@ void gemm_microkernel_blocked(
 }
 
 // =============================================================================
-// GEMM with B transposed: C[M,N] = A[M,K] @ B[N,K].T
-//
-// This is the common layout for neural network weights (stored as [out, in])
+// B-transposed GEMM: C[M,N] = A[M,K] @ B[N,K].T
 // =============================================================================
 
-#if defined(__AVX__)
-static inline void gemm_microkernel_8x8_bt_avx(
+#if defined(__AVX512F__)
+static inline void gemm_microkernel_6x32_bt_avx512(
     int K,
-    const float *A, int lda,   // A is [MR, K], row-major
-    const float *B, int ldb,   // B is [NR, K], row-major (transposed)
-    float *C, int ldc,
+    const float * __restrict__ A, int lda,
+    const float * __restrict__ B, int ldb,  // B is [N, K] transposed
+    float * __restrict__ C, int ldc,
     int first_k
 )
 {
-    // For B transposed with first_k, zero C first
+    // For B transposed, we need different access pattern
+    // C[i,j] = sum_k A[i,k] * B[j,k]
+
     if (first_k) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 32; j++) {
                 C[i * ldc + j] = 0.0f;
             }
         }
     }
 
-    // For B transposed, we compute dot products differently
-    // C[i,j] = sum_k A[i,k] * B[j,k]
-    //
-    // Strategy: For each k, load A[0:8, k] as 8 broadcasts,
-    // load B[0:8, k] as 8 broadcasts, then compute outer product
-
-    // Actually, for B transposed we need a different approach
-    // Let's compute 8 dot products at once using horizontal operations
-
-    // Alternative: Process K in chunks of 8, use SIMD for the K dimension
+    // Process K in chunks of 16 for SIMD
     int k = 0;
-    for (; k <= K - 8; k += 8) {
-        // Load 8 consecutive values from each row of A
-        __m256 a0 = _mm256_loadu_ps(&A[0 * lda + k]);
-        __m256 a1 = _mm256_loadu_ps(&A[1 * lda + k]);
-        __m256 a2 = _mm256_loadu_ps(&A[2 * lda + k]);
-        __m256 a3 = _mm256_loadu_ps(&A[3 * lda + k]);
-        __m256 a4 = _mm256_loadu_ps(&A[4 * lda + k]);
-        __m256 a5 = _mm256_loadu_ps(&A[5 * lda + k]);
-        __m256 a6 = _mm256_loadu_ps(&A[6 * lda + k]);
-        __m256 a7 = _mm256_loadu_ps(&A[7 * lda + k]);
+    for (; k <= K - 16; k += 16) {
+        // Load A[0:6, k:k+16] - 6 rows
+        __m512 a0 = _mm512_loadu_ps(&A[0 * lda + k]);
+        __m512 a1 = _mm512_loadu_ps(&A[1 * lda + k]);
+        __m512 a2 = _mm512_loadu_ps(&A[2 * lda + k]);
+        __m512 a3 = _mm512_loadu_ps(&A[3 * lda + k]);
+        __m512 a4 = _mm512_loadu_ps(&A[4 * lda + k]);
+        __m512 a5 = _mm512_loadu_ps(&A[5 * lda + k]);
 
         // For each column j of C (row j of B)
-        for (int j = 0; j < 8; j++) {
-            __m256 b = _mm256_loadu_ps(&B[j * ldb + k]);
+        for (int j = 0; j < 32; j++) {
+            __m512 b = _mm512_loadu_ps(&B[j * ldb + k]);
 
-            // Multiply and accumulate partial products
-            // We need horizontal sum at the end
-            __m256 p0 = _mm256_mul_ps(a0, b);
-            __m256 p1 = _mm256_mul_ps(a1, b);
-            __m256 p2 = _mm256_mul_ps(a2, b);
-            __m256 p3 = _mm256_mul_ps(a3, b);
-            __m256 p4 = _mm256_mul_ps(a4, b);
-            __m256 p5 = _mm256_mul_ps(a5, b);
-            __m256 p6 = _mm256_mul_ps(a6, b);
-            __m256 p7 = _mm256_mul_ps(a7, b);
-
-            // Horizontal sum each product vector
-            // hadd pairs adjacent elements
-            __m256 s01 = _mm256_hadd_ps(p0, p1);
-            __m256 s23 = _mm256_hadd_ps(p2, p3);
-            __m256 s45 = _mm256_hadd_ps(p4, p5);
-            __m256 s67 = _mm256_hadd_ps(p6, p7);
-
-            __m256 s0123 = _mm256_hadd_ps(s01, s23);
-            __m256 s4567 = _mm256_hadd_ps(s45, s67);
-
-            // Now we have partial sums, need to combine 128-bit halves
-            __m128 lo0123 = _mm256_castps256_ps128(s0123);
-            __m128 hi0123 = _mm256_extractf128_ps(s0123, 1);
-            __m128 sum0123 = _mm_add_ps(lo0123, hi0123);
-
-            __m128 lo4567 = _mm256_castps256_ps128(s4567);
-            __m128 hi4567 = _mm256_extractf128_ps(s4567, 1);
-            __m128 sum4567 = _mm_add_ps(lo4567, hi4567);
-
-            // Extract individual sums and accumulate
-            C[0 * ldc + j] += _mm_cvtss_f32(sum0123);
-            C[1 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum0123, sum0123, 1));
-            C[2 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum0123, sum0123, 2));
-            C[3 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum0123, sum0123, 3));
-            C[4 * ldc + j] += _mm_cvtss_f32(sum4567);
-            C[5 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum4567, sum4567, 1));
-            C[6 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum4567, sum4567, 2));
-            C[7 * ldc + j] += _mm_cvtss_f32(_mm_shuffle_ps(sum4567, sum4567, 3));
+            // Compute dot products using reduction
+            C[0 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a0, b));
+            C[1 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a1, b));
+            C[2 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a2, b));
+            C[3 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a3, b));
+            C[4 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a4, b));
+            C[5 * ldc + j] += _mm512_reduce_add_ps(_mm512_mul_ps(a5, b));
         }
     }
 
     // Handle remaining K
     for (; k < K; k++) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 6; i++) {
             float a = A[i * lda + k];
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 32; j++) {
                 C[i * ldc + j] += a * B[j * ldb + k];
             }
         }
@@ -761,29 +809,26 @@ static inline void gemm_microkernel_8x8_bt_avx(
 }
 #endif
 
-// =============================================================================
-// Simple blocked GEMM for B transposed (common in NN)
-// C[M,N] = A[M,K] @ B[N,K].T
-// =============================================================================
-
 void gemm_microkernel_blocked_bt(
-    const float *A,    // [M, K]
-    const float *B,    // [N, K] (transposed)
-    float *C,          // [M, N]
+    const float *A,
+    const float *B,
+    float *C,
     int M, int N, int K
 )
 {
     // Zero output first
-    memset(C, 0, (size_t)M * N * sizeof(float));
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < M; i++) {
+        memset(&C[i * N], 0, N * sizeof(float));
+    }
 
     const int mr = MR;
     const int nr = NR;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) collapse(2)
     for (int m0 = 0; m0 < M; m0 += MC) {
-        int mb = (m0 + MC <= M) ? MC : (M - m0);
-
         for (int n0 = 0; n0 < N; n0 += NC) {
+            int mb = (m0 + MC <= M) ? MC : (M - m0);
             int nb = (n0 + NC <= N) ? NC : (N - n0);
 
             for (int k0 = 0; k0 < K; k0 += KC) {
@@ -801,10 +846,10 @@ void gemm_microkernel_blocked_bt(
                         float *C_tile = &C[(m0 + m1) * N + (n0 + n1)];
 
                         if (mr_actual == mr && nr_actual == nr) {
-#if defined(__AVX__)
-                            gemm_microkernel_8x8_bt_avx(kb, A_tile, K, B_tile, K, C_tile, N, first_k);
+#if defined(__AVX512F__)
+                            gemm_microkernel_6x32_bt_avx512(kb, A_tile, K, B_tile, K, C_tile, N, first_k);
 #else
-                            // Scalar fallback
+                            // Scalar fallback for B-transposed
                             for (int i = 0; i < mr; i++) {
                                 for (int j = 0; j < nr; j++) {
                                     float sum = first_k ? 0.0f : C_tile[i * N + j];
@@ -835,24 +880,23 @@ void gemm_microkernel_blocked_bt(
 }
 
 // =============================================================================
-// Public API - wrapper that chooses best implementation
+// Public API
 // =============================================================================
 
-// Threshold for using packed version (packing overhead amortized)
-#define PACK_THRESHOLD 128
+#define PACK_THRESHOLD 256  // Use packing for matrices >= 256
 
 void gemm_microkernel(
     const float *A,
     const float *B,
     float *C,
     int M, int N, int K,
-    int B_transposed  // 0 = B is [K,N], 1 = B is [N,K] (transposed)
+    int B_transposed
 )
 {
     if (B_transposed) {
         gemm_microkernel_blocked_bt(A, B, C, M, N, K);
     } else {
-        // Use packed version for large matrices where packing overhead is worth it
+        // Use packed version for large matrices
         if (M >= PACK_THRESHOLD && N >= PACK_THRESHOLD && K >= PACK_THRESHOLD) {
             gemm_microkernel_packed(A, B, C, M, N, K);
         } else {

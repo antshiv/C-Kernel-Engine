@@ -58,6 +58,7 @@ SRCS    := src/backend_native.c \
            src/ckernel_orchestration.c \
            src/ckernel_model_layout.c \
            src/ckernel_model_load.c \
+           src/cpu_features.c \
             src/kernels/gemm_kernels.c \
             src/kernels/gemm_fused_kernels.c \
             src/kernels/gemm_microkernel.c \
@@ -656,6 +657,7 @@ TEST_HARNESS_SRCS := src/backend_native.c \
 	src/ckernel_ir.c \
 	src/ckernel_orchestration.c \
 	src/ckernel_registry.c \
+	src/cpu_features.c \
 	src/kernels/attention_kernels.c \
 	src/kernels/gelu_kernels.c \
 	src/kernels/gemm_kernels.c \
