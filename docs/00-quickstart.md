@@ -15,12 +15,20 @@ This guide will get you up and running with the C-Kernel-Engine in less than 5 m
 The project uses a standard Makefile. To build the shared library and the IR demo tool:
 
 ```bash
+# Core runtime (kernels + orchestration)
 make
+
+# IR + codegen tool (HF config.json -> IR -> generated C)
+make build/ck_ir_demo
+
+# Optional: build the orchestrator CLI ("ck")
+make ck-cli
 ```
 
 This will create:
-- `build/libckernel_engine.so`: The main runtime library.
-- `build/ck_ir_demo`: The compiler tool that converts `config.json` -> C code.
+- `build/libckernel_engine.so`: The main runtime library (kernels + orchestration).
+- `build/ck_ir_demo`: The compiler tool that converts `config.json` -> generated C.
+- `build/ck`: Optional CLI that wires download/convert/codegen for you.
 
 ## 2. Run the Compiler Demo
 
@@ -69,3 +77,45 @@ To generate a full C file `ai.c` that you could compile and run (this feature is
 ```
 
 Open `build/ai.c` to see how the engine structures the forward pass using the "Header / Block / Footer" pattern.
+
+## 5. Generate a `libmodel.so` With Prefill + Decode (KV Cache)
+
+For inference you typically want:
+- **Prefill** once (process the whole prompt).
+- **Decode** many times (one token at a time) using a KV cache.
+
+The codegen tool can emit a library-mode C file that exports a stable API:
+
+```bash
+./build/ck_ir_demo default.config.json --emit build/model.c --emit-lib
+```
+
+This produces:
+- `build/model.c` (generated model runtime + exported API)
+- `build/model.c.kernels` (one kernel source path per line to link into the shared object)
+
+Compile it into a self-contained shared library:
+
+```bash
+cc -O3 -fPIC -shared -Iinclude -o build/libmodel.so build/model.c $(cat build/model.c.kernels) -lm
+```
+
+### 5.1 Inference Call Sequence
+
+At runtime:
+
+- Initialize: `ck_model_init(weights.bump)`
+- Enable KV cache: `ck_model_kv_cache_enable(capacity)`
+- **Prefill**: `ck_model_embed_tokens(prompt_tokens, n)` then `ck_model_forward(NULL)`
+- **Decode**: repeatedly call `ck_model_decode(next_token, NULL)`
+
+The helpers `ck_model_get_logits()` / `ck_model_get_active_tokens()` let you read logits for sampling.
+
+### 5.2 Training / Backprop
+
+Training uses the full forward+backward graph and does **not** use KV-cache decode:
+
+- Enable training: set `CK_ENABLE_TRAINING=1` before `ck_model_init(...)`, or call `ck_model_enable_training(lr)`
+- Run `ck_model_forward(NULL)` then `ck_model_backward(tokens, targets, &loss)`
+
+KV-cache decode is explicitly **disabled when training is enabled**.
