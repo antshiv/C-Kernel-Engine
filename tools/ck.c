@@ -82,6 +82,7 @@ typedef struct {
     bool verbose;
     bool force_download;
     bool force_convert;
+    bool generate_only;      /* Generate C file only, don't compile to .so */
     bool debug;              /* Run pre-flight checks and show diagnostics */
     char prompt[4096];       /* Optional prompt for non-interactive mode */
 
@@ -149,7 +150,8 @@ static void print_usage(void) {
     printf("  --max-tokens <n>  Max tokens to generate (default: 512)\n");
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
-    printf("  --force-convert   Re-convert weights\n");
+    printf("  --force-convert   Re-convert weights and recompile\n");
+    printf("  --generate-only   Generate C file only (don't compile to .so)\n");
     printf("  --verbose         Verbose output\n");
     printf("  --debug           Run pre-flight diagnostics before starting\n");
     printf("\n");
@@ -188,6 +190,42 @@ static bool file_exists(const char *path) {
 static bool dir_exists(const char *path) {
     struct stat st;
     return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+/* Detect best SIMD flags for current CPU by reading /proc/cpuinfo */
+static const char *detect_simd_flags(void) {
+    FILE *f = fopen("/proc/cpuinfo", "r");
+    if (!f) return "-march=native";  /* Fallback to native */
+
+    char line[4096];
+    bool has_avx512f = false, has_avx512bw = false;
+    bool has_avx2 = false, has_fma = false;
+    bool has_avx = false, has_sse42 = false;
+
+    while (fgets(line, sizeof(line), f)) {
+        if (strncmp(line, "flags", 5) == 0) {
+            has_avx512f = strstr(line, " avx512f") != NULL;
+            has_avx512bw = strstr(line, " avx512bw") != NULL;
+            has_avx2 = strstr(line, " avx2") != NULL;
+            has_fma = strstr(line, " fma") != NULL;
+            has_avx = strstr(line, " avx ") != NULL;
+            has_sse42 = strstr(line, " sse4_2") != NULL;
+            break;  /* Only need first CPU */
+        }
+    }
+    fclose(f);
+
+    /* Return best available SIMD flags */
+    if (has_avx512f && has_avx512bw) {
+        return "-mavx512f -mavx512bw -mavx512dq -mavx512vl -mfma";
+    } else if (has_avx2 && has_fma) {
+        return "-mavx2 -mfma";
+    } else if (has_avx) {
+        return "-mavx";
+    } else if (has_sse42) {
+        return "-msse4.2";
+    }
+    return "";  /* No special flags */
 }
 
 __attribute__((unused))
@@ -635,6 +673,22 @@ static int codegen_and_compile(CKConfig *cfg) {
         return 0;
     }
 
+    /* If generate-only mode, stop here and show where files are */
+    if (cfg->generate_only) {
+        log_ok("C code generated successfully");
+        printf("\n");
+        printf(C_BOLD "  Generated files:\n" C_RESET);
+        printf("    %s\n", model_c);
+        printf("    %s.kernels\n", model_c);
+        printf("\n");
+        printf(C_DIM "  To compile manually:\n" C_RESET);
+        printf(C_DIM "    cc -O3 -fPIC -shared -fopenmp -mavx512f -mfma \\\n" C_RESET);
+        printf(C_DIM "       -I<project>/include %s $(cat %s.kernels) \\\n" C_RESET, model_c, model_c);
+        printf(C_DIM "       -L<project>/build -lckernel_engine -lm -o %s\n" C_RESET, model_so);
+        printf("\n");
+        return 0;
+    }
+
     log_info("Compiling model...");
 
     /* Find project root (where include/ and build/ are) */
@@ -735,12 +789,35 @@ static int codegen_and_compile(CKConfig *cfg) {
         printf(C_DIM "  No Intel oneAPI detected, skipping Intel rpaths\n" C_RESET);
     }
 
+    /* Build MKL flags if available */
+    char mkl_flags[512] = "";
+    if (oneapi_root) {
+        char mkl_inc[MAX_PATH], mkl_lib[MAX_PATH];
+        snprintf(mkl_inc, sizeof(mkl_inc), "%s/mkl/latest/include", oneapi_root);
+        snprintf(mkl_lib, sizeof(mkl_lib), "%s/mkl/latest/lib/intel64", oneapi_root);
+        if (dir_exists(mkl_inc) && dir_exists(mkl_lib)) {
+            snprintf(mkl_flags, sizeof(mkl_flags),
+                "-DUSE_MKL -I%s -L%s -lmkl_rt ", mkl_inc, mkl_lib);
+            if (cfg->verbose) {
+                printf(C_DIM "  MKL enabled for GEMM acceleration\n" C_RESET);
+            }
+        }
+    }
+
+    /* Detect CPU SIMD capabilities */
+    const char *simd_flags = detect_simd_flags();
+    if (cfg->verbose && simd_flags[0]) {
+        printf(C_DIM "  SIMD flags: %s\n" C_RESET, simd_flags);
+    }
+
     snprintf(cmd, sizeof(cmd),
-        "cc -O3 -fPIC -shared -I%s/include -o %s %s %s "
+        "cc -O3 -fPIC -shared -fopenmp %s -I%s/include -o %s %s %s "
+        "%s"
         "-L%s/build -lckernel_engine "
         "-Wl,-rpath,%s/build %s"
         "-lm 2>&1",
-        project_root, model_so, model_c, kernel_sources,
+        simd_flags, project_root, model_so, model_c, kernel_sources,
+        mkl_flags,
         project_root, project_root, intel_rpath);
 
     ret = run_cmd(cmd, cfg->verbose);
@@ -1295,6 +1372,7 @@ int main(int argc, char *argv[]) {
         cfg.verbose = false;
         cfg.force_download = false;
         cfg.force_convert = false;
+        cfg.generate_only = false;
         cfg.debug = false;
 
         /* Parse model argument */
@@ -1318,6 +1396,9 @@ int main(int argc, char *argv[]) {
                 cfg.force_download = true;
             } else if (strcmp(argv[i], "--force-convert") == 0) {
                 cfg.force_convert = true;
+            } else if (strcmp(argv[i], "--generate-only") == 0) {
+                cfg.generate_only = true;
+                cfg.force_convert = true;  /* Implies regenerating */
             } else if (strcmp(argv[i], "--debug") == 0) {
                 cfg.debug = true;
                 cfg.verbose = true;  /* Debug implies verbose */

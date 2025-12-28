@@ -351,6 +351,7 @@ void attention_forward_decode_head_major_gqa_flash(const float *q_token,
     const float scale = 1.0f / sqrtf((float)head_dim);
     const size_t head_stride = (size_t)cache_capacity * (size_t)aligned_head_dim;
 
+#pragma omp parallel for schedule(static) if(num_heads > 1)
     for (int h = 0; h < num_heads; ++h) {
         int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
         const float *q_vec = q_token + (size_t)h * (size_t)aligned_head_dim;

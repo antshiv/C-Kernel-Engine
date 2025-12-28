@@ -684,6 +684,13 @@ small-e2e: $(IR_DEMO) $(LIB)
 
 help:
 	@echo "C-Kernel-Engine Make targets:"
+	@echo ""
+	@echo "  CLI (main entry point):"
+	@echo "  make ck-cli          Build CLI tool with all dependencies"
+	@echo "  make generate-model MODEL=<name>  Generate C code for model (inspect before compile)"
+	@echo "  ./build/ck run <model> [--generate-only] [--force-convert] [--verbose]"
+	@echo ""
+	@echo "  Build:"
 	@echo "  make                 Build full engine library ($(LIB))"
 	@echo "  make test            Build engine + per-kernel libs, run all Python kernel tests"
 	@echo "  make $(IR_DEMO)      Build IR + codegen tool (HF config.json -> IR + C skeleton) into $(BUILD_DIR)"
@@ -838,6 +845,16 @@ ck-cli: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
 	@echo "    sudo cp $(BUILD_DIR)/ck /usr/local/bin/"
 	@echo ""
 
+# Generate C code for a model without compiling (for inspection)
+# Usage: make generate-model MODEL=HuggingFaceTB/SmolLM-135M
+generate-model: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
+ifndef MODEL
+	@echo "Usage: make generate-model MODEL=<model-name>"
+	@echo "Example: make generate-model MODEL=HuggingFaceTB/SmolLM-135M"
+	@exit 1
+endif
+	@$(BUILD_DIR)/ck run $(MODEL) --generate-only --verbose
+
 $(BUILD_DIR)/ck_main: $(BUILD_DIR) $(CK_MAIN) $(CK_TOKENIZER) include/ck_tokenizer.h
 	$(CC) $(CFLAGS) -o $@ $(CK_MAIN) $(CK_TOKENIZER) -lm
 
@@ -973,4 +990,4 @@ report-md:
 	@echo ""
 	@$(PYTHON) scripts/optimization_status.py --markdown
 
-.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md
+.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md

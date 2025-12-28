@@ -36,6 +36,55 @@ static inline float hsum256_ps(__m256 v) {
 }
 #endif
 
+// Fast path for M=1: parallelize across output channels (j).
+// This is the common decode-time shape (matrix-vector) and is otherwise single-threaded
+// in the blocked GEMM code because M=1 provides no parallelism on the row dimension.
+static void gemm_nt_matvec_parallel(const float *A,          // [K]
+                                   const float *B,          // [N x K] (row-major, transposed layout)
+                                   const float *bias,       // [N] or NULL
+                                   float *C,                // [N]
+                                   int N,
+                                   int K)
+{
+#pragma omp parallel for schedule(static)
+    for (int j = 0; j < N; ++j) {
+        const float *b_row = B + (size_t)j * (size_t)K;
+        float sum = bias ? bias[j] : 0.0f;
+
+#if defined(__AVX512F__)
+        __m512 acc = _mm512_setzero_ps();
+        int k = 0;
+        for (; k <= K - 16; k += 16) {
+            __m512 a_vec = _mm512_loadu_ps(A + k);
+            __m512 b_vec = _mm512_loadu_ps(b_row + k);
+            acc = _mm512_fmadd_ps(a_vec, b_vec, acc);
+        }
+        sum += _mm512_reduce_add_ps(acc);
+        for (; k < K; ++k) {
+            sum += A[k] * b_row[k];
+        }
+#elif defined(__AVX__)
+        __m256 acc = _mm256_setzero_ps();
+        int k = 0;
+        for (; k <= K - 8; k += 8) {
+            __m256 a_vec = _mm256_loadu_ps(A + k);
+            __m256 b_vec = _mm256_loadu_ps(b_row + k);
+            acc = _mm256_add_ps(acc, _mm256_mul_ps(a_vec, b_vec));
+        }
+        sum += hsum256_ps(acc);
+        for (; k < K; ++k) {
+            sum += A[k] * b_row[k];
+        }
+#else
+        for (int k = 0; k < K; ++k) {
+            sum += A[k] * b_row[k];
+        }
+#endif
+
+        C[j] = sum;
+    }
+}
+
 static void gemm_naive_serial_double(const float *A,
                                      const float *B,
                                      const float *bias,
@@ -598,6 +647,13 @@ void gemm_blocked_serial(const float *A,
 {
     if (ck_strict_parity_enabled()) {
         gemm_naive_serial_double(A, B, bias, C, M, N, K);
+        return;
+    }
+
+    // Decode-time matvec (M=1) is extremely common and benefits from parallelism over N.
+    // Keep stricter thresholds to avoid OpenMP overhead on tiny matrices.
+    if (M == 1 && N >= 512 && K >= 512) {
+        gemm_nt_matvec_parallel(A, B, bias, C, N, K);
         return;
     }
 
