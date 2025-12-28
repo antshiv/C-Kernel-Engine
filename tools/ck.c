@@ -706,9 +706,20 @@ static int codegen_and_compile(CKConfig *cfg) {
     }
 
     /* Compile to shared library that links against libckernel_engine.so
-     * Add rpath for libckernel_engine.so and Intel runtime libraries (if installed). */
-    char intel_rpath[512] = "";
-    if (dir_exists("/opt/intel/oneapi/compiler/latest/lib")) {
+     * Add rpath for libckernel_engine.so and Intel runtime libraries (if installed).
+     * Use ONEAPI_ROOT env var (set by setvars.sh) to find Intel libraries. */
+    char intel_rpath[1024] = "";
+    const char *oneapi_root = getenv("ONEAPI_ROOT");
+    if (oneapi_root) {
+        char compiler_lib[MAX_PATH], mkl_lib[MAX_PATH];
+        snprintf(compiler_lib, sizeof(compiler_lib), "%s/compiler/latest/lib", oneapi_root);
+        snprintf(mkl_lib, sizeof(mkl_lib), "%s/mkl/latest/lib/intel64", oneapi_root);
+        if (dir_exists(compiler_lib)) {
+            snprintf(intel_rpath, sizeof(intel_rpath),
+                "-Wl,-rpath,%s -Wl,-rpath,%s ", compiler_lib, mkl_lib);
+        }
+    } else if (dir_exists("/opt/intel/oneapi/compiler/latest/lib")) {
+        /* Fallback to default path */
         snprintf(intel_rpath, sizeof(intel_rpath),
             "-Wl,-rpath,/opt/intel/oneapi/compiler/latest/lib "
             "-Wl,-rpath,/opt/intel/oneapi/mkl/latest/lib/intel64 ");
