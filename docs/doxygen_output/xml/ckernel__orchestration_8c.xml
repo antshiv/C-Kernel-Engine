@@ -11,7 +11,7 @@
       <node id="5">
         <label>stdint.h</label>
       </node>
-      <node id="6">
+      <node id="7">
         <label>stdlib.h</label>
       </node>
       <node id="4">
@@ -20,6 +20,8 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -34,9 +36,9 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
-        </childnode>
         <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -45,8 +47,16 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="8">
         <label>string.h</label>
+      </node>
+      <node id="6">
+        <label>cpu_features.h</label>
+        <link refid="cpu__features_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
     </incdepgraph>
       <sectiondef kind="func">
@@ -132,7 +142,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="137" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="137" bodyend="170"/>
         <references refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" compoundref="ckernel__orchestration_8c" startline="126" endline="135">ck_add_inplace</references>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="508">ck_layer_forward_rmsnorm_swiglu</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="653" endline="814">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
       </memberdef>
@@ -240,7 +250,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="172" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="172" bodyend="205"/>
         <references refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" compoundref="ckernel__orchestration_8c" startline="126" endline="135">ck_add_inplace</references>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="43" endline="64">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="57" endline="78">gemm_naive_parallel</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="510" endline="615">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1a1b75acba52e39a2063646dc1dff62ef4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -600,7 +610,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="359" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="359" bodyend="379"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</references>
         <references refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="508">ck_layer_forward_rmsnorm_swiglu</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="653" endline="814">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
@@ -661,7 +671,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="381" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="381" bodyend="401"/>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="43" endline="64">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="57" endline="78">gemm_naive_parallel</references>
         <references refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="510" endline="615">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
@@ -737,7 +747,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="38" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="38" bodyend="80"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="403" endline="508">ck_layer_forward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1aae6b6e1796c190320ef20f0476dc2e9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -924,7 +934,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="82" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="82" bodyend="124"/>
-        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="43" endline="64">gemm_naive_parallel</references>
+        <references refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="57" endline="78">gemm_naive_parallel</references>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="510" endline="615">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1ae7e167cf7de25dabc3616efae8bc91a7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -995,7 +1005,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" line="617" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_orchestration.c" bodystart="617" bodyend="651"/>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</references>
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="653" endline="814">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__orchestration_8c_1a35426895690beefd7b84cf090639b169" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">

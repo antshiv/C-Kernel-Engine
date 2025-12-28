@@ -14,7 +14,7 @@
         <link refid="swiglu__kernels_8c"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
@@ -26,12 +26,22 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
       </node>
       <node id="3">
         <label>stddef.h</label>
       </node>
-      <node id="5">
+      <node id="6">
         <label>math.h</label>
+      </node>
+      <node id="5">
+        <label>cpu_features.h</label>
+        <link refid="cpu__features_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
     </incdepgraph>
       <sectiondef kind="func">

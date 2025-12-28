@@ -1,5 +1,6 @@
 var gemm__kernels_8c =
 [
+    [ "ck_gemm_add_bias", "gemm__kernels_8c.html#ad7789976472e68f59b1604811f4648f2", null ],
     [ "ck_min", "gemm__kernels_8c.html#a19bd64cbde3f643580eb69b050c8e61d", null ],
     [ "gemm_avx512_parallel", "gemm__kernels_8c.html#a9af477f77eb64b2cdd2ccddae9c84e72", null ],
     [ "gemm_blocked_serial", "gemm__kernels_8c.html#af4f0e756d3ac00b45ce2c7a296b61ae3", null ],

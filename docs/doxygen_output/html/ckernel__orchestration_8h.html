@@ -258,10 +258,10 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        }</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    }</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;}</div>
-<div class="ttc" id="ackernel__engine_8h_html_af4f0e756d3ac00b45ce2c7a296b61ae3"><div class="ttname"><a href="ckernel__engine_8h.html#af4f0e756d3ac00b45ce2c7a296b61ae3">gemm_blocked_serial</a></div><div class="ttdeci">void gemm_blocked_serial(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</div><div class="ttdef"><b>Definition:</b> <a href="gemm__kernels_8c_source.html#l00578">gemm_kernels.c:578</a></div></div>
+<div class="ttc" id="ackernel__engine_8h_html_af4f0e756d3ac00b45ce2c7a296b61ae3"><div class="ttname"><a href="ckernel__engine_8h.html#af4f0e756d3ac00b45ce2c7a296b61ae3">gemm_blocked_serial</a></div><div class="ttdeci">void gemm_blocked_serial(const float *A, const float *B, const float *bias, float *C, int M, int N, int K)</div><div class="ttdef"><b>Definition:</b> <a href="gemm__kernels_8c_source.html#l00593">gemm_kernels.c:593</a></div></div>
 <div class="ttc" id="ackernel__orchestration_8c_html_a0020aef4ce512b3840b824a46e206dca"><div class="ttname"><a href="ckernel__orchestration_8c.html#a0020aef4ce512b3840b824a46e206dca">ck_add_inplace</a></div><div class="ttdeci">static void ck_add_inplace(float *dst, const float *src, int tokens, int aligned_embed_dim)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__orchestration_8c_source.html#l00126">ckernel_orchestration.c:126</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__orchestration_8c_source.html#l00126">ck_add_inplace()</a>, and <a class="el" href="gemm__kernels_8c_source.html#l00578">gemm_blocked_serial()</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__orchestration_8c_source.html#l00126">ck_add_inplace()</a>, and <a class="el" href="gemm__kernels_8c_source.html#l00593">gemm_blocked_serial()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ckernel__orchestration_8c_source.html#l00403">ck_layer_forward_rmsnorm_swiglu()</a>, and <a class="el" href="ckernel__orchestration_8c_source.html#l00653">ck_layer_forward_rmsnorm_swiglu_decode()</a>.</p>
 
@@ -1231,7 +1231,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;}</div>
 <div class="ttc" id="ackernel__engine_8h_html_a26369aa07808fb6aae4502d54a1ba650"><div class="ttname"><a href="ckernel__engine_8h.html#a26369aa07808fb6aae4502d54a1ba650">swiglu_forward</a></div><div class="ttdeci">void swiglu_forward(const float *input, float *output, int tokens, int dim)</div><div class="ttdef"><b>Definition:</b> <a href="swiglu__kernels_8c_source.html#l00013">swiglu_kernels.c:13</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="gemm__kernels_8c_source.html#l00578">gemm_blocked_serial()</a>, and <a class="el" href="swiglu__kernels_8c_source.html#l00013">swiglu_forward()</a>.</p>
+<p class="reference">References <a class="el" href="gemm__kernels_8c_source.html#l00593">gemm_blocked_serial()</a>, and <a class="el" href="swiglu__kernels_8c_source.html#l00013">swiglu_forward()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ckernel__orchestration_8c_source.html#l00403">ck_layer_forward_rmsnorm_swiglu()</a>, and <a class="el" href="ckernel__orchestration_8c_source.html#l00653">ck_layer_forward_rmsnorm_swiglu_decode()</a>.</p>
 
@@ -1376,7 +1376,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="gemm__kernels_8c_source.html#l00578">gemm_blocked_serial()</a>.</p>
+<p class="reference">References <a class="el" href="gemm__kernels_8c_source.html#l00593">gemm_blocked_serial()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="ckernel__orchestration_8c_source.html#l00403">ck_layer_forward_rmsnorm_swiglu()</a>.</p>
 

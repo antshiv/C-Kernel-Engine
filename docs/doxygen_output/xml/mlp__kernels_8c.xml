@@ -9,10 +9,10 @@
       <node id="4">
         <label>stdint.h</label>
       </node>
-      <node id="6">
+      <node id="7">
         <label>stdlib.h</label>
       </node>
-      <node id="5">
+      <node id="6">
         <label>omp.h</label>
       </node>
       <node id="2">
@@ -21,6 +21,8 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -31,9 +33,17 @@
         <link refid="mlp__kernels_8c"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
-        </childnode>
         <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>cpu_features.h</label>
+        <link refid="cpu__features_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
         </childnode>
       </node>
     </incdepgraph>
@@ -90,8 +100,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="113" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="113" bodyend="149"/>
-        <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="257" endline="318">gemm_nn_avx512</references>
-        <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="439" endline="497">gemm_tn_avx512</references>
+        <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="271" endline="332">gemm_nn_avx512</references>
+        <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="453" endline="511">gemm_tn_avx512</references>
         <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="816" endline="956">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="mlp__kernels_8c_1a89a29fc853aae0baf9f6094fee52562a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -146,8 +156,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="64" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="64" bodyend="102"/>
-        <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="257" endline="318">gemm_nn_avx512</references>
-        <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="439" endline="497">gemm_tn_avx512</references>
+        <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="271" endline="332">gemm_nn_avx512</references>
+        <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="453" endline="511">gemm_tn_avx512</references>
         <referencedby refid="ckernel__orchestration_8h_1add4c3ac196a25f481496bf69f32a9ac6" compoundref="ckernel__orchestration_8c" startline="207" endline="261">ck_attention_project_head_major_backward</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="816" endline="956">ck_layer_backward_rmsnorm_swiglu</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1aae6b6e1796c190320ef20f0476dc2e9d" compoundref="ckernel__orchestration_8c" startline="263" endline="357">ck_qkv_project_head_major_backward</referencedby>
@@ -205,7 +215,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" line="22" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="22" bodyend="53"/>
         <references refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" compoundref="gelu__kernels_8c" startline="6" endline="17">gelu_fast_inplace</references>
-        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</references>
+        <references refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</references>
       </memberdef>
       </sectiondef>
     <briefdescription>

@@ -25,6 +25,8 @@ var files_dup =
     [ "ckernel_registry.c", "ckernel__registry_8c.html", "ckernel__registry_8c" ],
     [ "ckernel_registry.h", "ckernel__registry_8h.html", "ckernel__registry_8h" ],
     [ "ckernel_strict.c", "ckernel__strict_8c.html", "ckernel__strict_8c" ],
+    [ "cpu_features.c", "cpu__features_8c.html", "cpu__features_8c" ],
+    [ "cpu_features.h", "cpu__features_8h.html", "cpu__features_8h" ],
     [ "dequant_kernels.c", "dequant__kernels_8c.html", "dequant__kernels_8c" ],
     [ "embedding_kernels.c", "embedding__kernels_8c.html", "embedding__kernels_8c" ],
     [ "embedding_kernels_bf16.c", "embedding__kernels__bf16_8c.html", "embedding__kernels__bf16_8c" ],

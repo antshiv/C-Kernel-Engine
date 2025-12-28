@@ -14,6 +14,7 @@
     <innerfile refid="ckernel__orchestration_8h">ckernel_orchestration.h</innerfile>
     <innerfile refid="ckernel__quant_8h">ckernel_quant.h</innerfile>
     <innerfile refid="ckernel__registry_8h">ckernel_registry.h</innerfile>
+    <innerfile refid="cpu__features_8h">cpu_features.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

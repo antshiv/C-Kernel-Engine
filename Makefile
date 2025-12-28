@@ -813,12 +813,17 @@ CK_SERVER := tools/ck_server.c
 CK_CLI := tools/ck.c
 
 # Main orchestrator (ck run, ck list, etc.)
+# Suppress format-truncation warnings - paths are validated at runtime
 $(BUILD_DIR)/ck: $(BUILD_DIR) $(CK_CLI)
-	$(CC) -O2 -Wall -o $@ $(CK_CLI) -ldl -lm
+	$(CC) -O2 -Wall -Wno-format-truncation -Wno-stringop-truncation -o $@ $(CK_CLI) -ldl -lm
 
-ck-cli: $(BUILD_DIR)/ck
+# Build CLI with all dependencies (library + IR tool)
+ck-cli: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
 	@echo ""
 	@echo "  C-Kernel-Engine CLI built: $(BUILD_DIR)/ck"
+	@echo "  Dependencies:"
+	@echo "    - $(LIB)"
+	@echo "    - $(IR_DEMO)"
 	@echo ""
 	@echo "  Usage:"
 	@echo "    ./$(BUILD_DIR)/ck run HuggingFaceTB/SmolLM-135M"

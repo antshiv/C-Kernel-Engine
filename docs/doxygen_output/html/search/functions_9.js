@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['im2patch_906',['im2patch',['../ckernel__engine_8h.html#a86aec042bcceb0bd8955f0daf0d986c4',1,'im2patch(const float *image, float *patches, int C, int H, int W, int P):&#160;vision_kernels.c'],['../vision__kernels_8c.html#a86aec042bcceb0bd8955f0daf0d986c4',1,'im2patch(const float *image, float *patches, int C, int H, int W, int P):&#160;vision_kernels.c']]],
-  ['im2patch_5fbf16_907',['im2patch_bf16',['../ckernel__engine_8h.html#a57139580e075be2d5a65cfffc8e84898',1,'im2patch_bf16(const uint16_t *image, uint16_t *patches, int C, int H, int W, int P):&#160;vision_kernels_bf16.c'],['../vision__kernels__bf16_8c.html#a57139580e075be2d5a65cfffc8e84898',1,'im2patch_bf16(const uint16_t *image, uint16_t *patches, int C, int H, int W, int P):&#160;vision_kernels_bf16.c']]]
+  ['im2patch_949',['im2patch',['../ckernel__engine_8h.html#a86aec042bcceb0bd8955f0daf0d986c4',1,'im2patch(const float *image, float *patches, int C, int H, int W, int P):&#160;vision_kernels.c'],['../vision__kernels_8c.html#a86aec042bcceb0bd8955f0daf0d986c4',1,'im2patch(const float *image, float *patches, int C, int H, int W, int P):&#160;vision_kernels.c']]],
+  ['im2patch_5fbf16_950',['im2patch_bf16',['../ckernel__engine_8h.html#a57139580e075be2d5a65cfffc8e84898',1,'im2patch_bf16(const uint16_t *image, uint16_t *patches, int C, int H, int W, int P):&#160;vision_kernels_bf16.c'],['../vision__kernels__bf16_8c.html#a57139580e075be2d5a65cfffc8e84898',1,'im2patch_bf16(const uint16_t *image, uint16_t *patches, int C, int H, int W, int P):&#160;vision_kernels_bf16.c']]]
 ];

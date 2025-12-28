@@ -256,6 +256,24 @@
     <member refid="structCKVocabEntry_1a408830871dd1e7bb7fd60fccd7097d13" kind="variable"><name>token</name></member>
     <member refid="structCKVocabEntry_1a667d73bdaec1e4affe0a3f5f397aba85" kind="variable"><name>token_len</name></member>
   </compound>
+  <compound refid="structCPUInfo" kind="struct"><name>CPUInfo</name>
+    <member refid="structCPUInfo_1a6981442ec8c03e3486d68e5011cbe02c" kind="variable"><name>has_avx</name></member>
+    <member refid="structCPUInfo_1a5392c3ca44cc97b171ee980e48408e03" kind="variable"><name>has_avx2</name></member>
+    <member refid="structCPUInfo_1a72c59fe4c03be35b475dd733bd17860c" kind="variable"><name>has_avx512f</name></member>
+    <member refid="structCPUInfo_1a675b39fcccd4eac9995984acbe5d3d15" kind="variable"><name>has_fma</name></member>
+    <member refid="structCPUInfo_1aec1d73dace532ccaa255243ad9222d44" kind="variable"><name>l1_line_size</name></member>
+    <member refid="structCPUInfo_1a2e9b76fe6d69b6a1b6c194cd4ca35d86" kind="variable"><name>l1d_size</name></member>
+    <member refid="structCPUInfo_1accaf39347e29f639b10e0d99825a0ca5" kind="variable"><name>l2_size</name></member>
+    <member refid="structCPUInfo_1a50cf2d09ca804dfbdbbc1759cb71943c" kind="variable"><name>l3_size</name></member>
+    <member refid="structCPUInfo_1aa4bcdef1bf48fa3860742a28a7d57d6d" kind="variable"><name>num_cores</name></member>
+  </compound>
+  <compound refid="structGEMMParams" kind="struct"><name>GEMMParams</name>
+    <member refid="structGEMMParams_1aa84a148f54c8ec49fec73e7b2354761c" kind="variable"><name>KC</name></member>
+    <member refid="structGEMMParams_1a2956e1497d1e97174d5d17e872707769" kind="variable"><name>MC</name></member>
+    <member refid="structGEMMParams_1a6b0b003d129e3c027928ac6ad089e110" kind="variable"><name>MR</name></member>
+    <member refid="structGEMMParams_1a450121a9c76be4c90fe5326b1808eb1a" kind="variable"><name>NC</name></member>
+    <member refid="structGEMMParams_1adc0714de30284b4b62ecfac446979251" kind="variable"><name>NR</name></member>
+  </compound>
   <compound refid="structJSONParser" kind="struct"><name>JSONParser</name>
     <member refid="structJSONParser_1ad02d3479d890d3c6b8766ef1ffd49381" kind="variable"><name>data</name></member>
     <member refid="structJSONParser_1a2005522c47a154aa4985e3e8d3226aa6" kind="variable"><name>end</name></member>
@@ -683,6 +701,26 @@
     <member refid="ckernel__strict_8c_1a8bcb6fa03c4861c8f45d59fa424d1146" kind="function"><name>ck_set_strict_parity</name></member>
     <member refid="ckernel__strict_8c_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
   </compound>
+  <compound refid="cpu__features_8c" kind="file"><name>cpu_features.c</name>
+    <member refid="cpu__features_8c_1a87e02c44ce8117ceb227f928980a175a" kind="variable"><name>g_cpu_info</name></member>
+    <member refid="cpu__features_8c_1a9f67b8a4e1c74de8b6f0d8b535e44877" kind="variable"><name>g_cpu_initialized</name></member>
+    <member refid="cpu__features_8c_1add9495a8b0827ace67807e0826a890d1" kind="variable"><name>g_gemm_params</name></member>
+    <member refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" kind="function"><name>compute_gemm_params</name></member>
+    <member refid="cpu__features_8c_1ab051fa0f4c2fc0723066eab07401fed6" kind="function"><name>cpu_features_init</name></member>
+    <member refid="cpu__features_8c_1a8f4a571a19e02f7714b53aa1e5d50f91" kind="function"><name>detect_physical_cores</name></member>
+    <member refid="cpu__features_8c_1a3c6e32bab9ac6dbe68fb4f17d6378e7d" kind="function"><name>get_cpu_info</name></member>
+    <member refid="cpu__features_8c_1ab1ad13308616a6d3d811b97eef9abfe6" kind="function"><name>get_gemm_params</name></member>
+    <member refid="cpu__features_8c_1a538a4414821926cda2c9e989764c00fd" kind="function"><name>print_cpu_info</name></member>
+  </compound>
+  <compound refid="cpu__features_8h" kind="file"><name>cpu_features.h</name>
+    <member refid="cpu__features_8h_1a87e02c44ce8117ceb227f928980a175a" kind="variable"><name>g_cpu_info</name></member>
+    <member refid="cpu__features_8h_1a9f67b8a4e1c74de8b6f0d8b535e44877" kind="variable"><name>g_cpu_initialized</name></member>
+    <member refid="cpu__features_8h_1add9495a8b0827ace67807e0826a890d1" kind="variable"><name>g_gemm_params</name></member>
+    <member refid="cpu__features_8h_1ab051fa0f4c2fc0723066eab07401fed6" kind="function"><name>cpu_features_init</name></member>
+    <member refid="cpu__features_8h_1a3c6e32bab9ac6dbe68fb4f17d6378e7d" kind="function"><name>get_cpu_info</name></member>
+    <member refid="cpu__features_8h_1ab1ad13308616a6d3d811b97eef9abfe6" kind="function"><name>get_gemm_params</name></member>
+    <member refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" kind="function"><name>print_cpu_info</name></member>
+  </compound>
   <compound refid="dequant__kernels_8c" kind="file"><name>dequant_kernels.c</name>
     <member refid="dequant__kernels_8c_1a7b76a9677d59e551a7cbc57b2c396499" kind="function"><name>dequant_q4_0_block</name></member>
     <member refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" kind="function"><name>dequant_q4_0_row</name></member>
@@ -720,6 +758,7 @@
     <member refid="gemm__fused__kernels_8c_1a2ae3bbf03cebc529c1e7962a7dba2568" kind="function"><name>gemm_swiglu_fused</name></member>
   </compound>
   <compound refid="gemm__kernels_8c" kind="file"><name>gemm_kernels.c</name>
+    <member refid="gemm__kernels_8c_1ad7789976472e68f59b1604811f4648f2" kind="function"><name>ck_gemm_add_bias</name></member>
     <member refid="gemm__kernels_8c_1a19bd64cbde3f643580eb69b050c8e61d" kind="function"><name>ck_min</name></member>
     <member refid="gemm__kernels_8c_1a9af477f77eb64b2cdd2ccddae9c84e72" kind="function"><name>gemm_avx512_parallel</name></member>
     <member refid="gemm__kernels_8c_1af4f0e756d3ac00b45ce2c7a296b61ae3" kind="function"><name>gemm_blocked_serial</name></member>
@@ -789,17 +828,24 @@
     <member refid="gemm__kernels__q8__0_8c_1aff97d7ac8b3cd0813a79aad642bc1263" kind="function"><name>gemv_q8_0_ref</name></member>
   </compound>
   <compound refid="gemm__microkernel_8c" kind="file"><name>gemm_microkernel.c</name>
+    <member refid="gemm__microkernel_8c_1a1eaf653ddeb5638bd73838e59f35f065" kind="define"><name>GEMM_BACKEND</name></member>
     <member refid="gemm__microkernel_8c_1a73764abcca0b8bbf6bf355d9f1bab0b9" kind="define"><name>KC</name></member>
     <member refid="gemm__microkernel_8c_1a71d9e511e7e302cd831e83581219e70d" kind="define"><name>MC</name></member>
     <member refid="gemm__microkernel_8c_1a9ecbd9f86f95534f1bcf71015d5ae81a" kind="define"><name>MR</name></member>
+    <member refid="gemm__microkernel_8c_1a6d69e1aaf7b6e0de9b1a7900c0e22a5a" kind="define"><name>MR_FIXED</name></member>
     <member refid="gemm__microkernel_8c_1a1fa2460e32327ade49189c95740bc1b5" kind="define"><name>NC</name></member>
     <member refid="gemm__microkernel_8c_1af146485306ae74a2edf18636300fd107" kind="define"><name>NR</name></member>
+    <member refid="gemm__microkernel_8c_1af3dd4e1707c284abe511ed15be5c4f8f" kind="define"><name>NR_FIXED</name></member>
     <member refid="gemm__microkernel_8c_1a757a5b148b758bc38cbc87a99d33de9f" kind="define"><name>PACK_THRESHOLD</name></member>
+    <member refid="gemm__microkernel_8c_1adcc8293c7a06a4f12c2acfccb8d3cac0" kind="variable"><name>g_threads_initialized</name></member>
+    <member refid="gemm__microkernel_8c_1a0e49b747f303da5906c81cc07cb91f11" kind="function"><name>gemm_get_backend</name></member>
+    <member refid="gemm__microkernel_8c_1a2ecba71250e316cfb6a7415be7346f1c" kind="function"><name>gemm_init_threads</name></member>
     <member refid="gemm__microkernel_8c_1a594a440cd88e67b89068125123f52c9e" kind="function"><name>gemm_microkernel</name></member>
     <member refid="gemm__microkernel_8c_1ac779265214c020d37db4915eee9937c8" kind="function"><name>gemm_microkernel_blocked</name></member>
     <member refid="gemm__microkernel_8c_1add90afcf3ff08dff14e0c824ad1075f6" kind="function"><name>gemm_microkernel_blocked_bt</name></member>
     <member refid="gemm__microkernel_8c_1a18bfcedb9d45538774be02d4b68f0b67" kind="function"><name>gemm_microkernel_edge</name></member>
     <member refid="gemm__microkernel_8c_1af4c2881c7acb7acd3e792dcce0469e27" kind="function"><name>gemm_microkernel_packed</name></member>
+    <member refid="gemm__microkernel_8c_1a2b8e598e4d209aa77c0e6a6c681bb1be" kind="function"><name>gemm_microkernel_sequential</name></member>
     <member refid="gemm__microkernel_8c_1a901f57b4416f1abe2f441bfdfe444e74" kind="function"><name>pack_a_panel</name></member>
     <member refid="gemm__microkernel_8c_1a5e9ddc655a21cd03b71493f6e819f85c" kind="function"><name>pack_b_panel</name></member>
   </compound>

@@ -22,5 +22,7 @@ var annotated_dup =
     [ "CKPoolBlock", "structCKPoolBlock.html", "structCKPoolBlock" ],
     [ "CKTokenizer", "structCKTokenizer.html", "structCKTokenizer" ],
     [ "CKVocabEntry", "structCKVocabEntry.html", "structCKVocabEntry" ],
+    [ "CPUInfo", "structCPUInfo.html", "structCPUInfo" ],
+    [ "GEMMParams", "structGEMMParams.html", "structGEMMParams" ],
     [ "TransformerModel", "structTransformerModel.html", "structTransformerModel" ]
 ];

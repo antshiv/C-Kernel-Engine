@@ -20,9 +20,19 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
       </node>
       <node id="3">
         <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>cpu_features.h</label>
+        <link refid="cpu__features_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
     </incdepgraph>
       <sectiondef kind="var">
@@ -78,16 +88,16 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" line="20" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_strict.c" bodystart="20" bodyend="23"/>
         <references refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" compoundref="ckernel__strict_8c" startline="7">ck_strict_parity</references>
-        <referencedby refid="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" compoundref="gemm__kernels_8c" startline="67" endline="120">gemm_avx512_parallel</referencedby>
-        <referencedby refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="578" endline="646">gemm_blocked_serial</referencedby>
-        <referencedby refid="ckernel__engine_8h_1abab2d2aaed47f4c682c019bd77fab1ed" compoundref="gemm__kernels_8c" startline="123" endline="210">gemm_fine_grained_parallel</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="43" endline="64">gemm_naive_parallel</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="257" endline="318">gemm_nn_avx512</referencedby>
-        <referencedby refid="ckernel__engine_8h_1afd447dc190bd77241a42d8972f9c5fba" compoundref="gemm__kernels_8c" startline="320" endline="391">gemm_nn_blocked</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a3549b849a914ea46c5d51c7d485fecec" compoundref="gemm__kernels_8c" startline="235" endline="255">gemm_nn_parallel</referencedby>
-        <referencedby refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="439" endline="497">gemm_tn_avx512</referencedby>
-        <referencedby refid="ckernel__engine_8h_1ae3bc36ea7b8562f9121e527f0f408b43" compoundref="gemm__kernels_8c" startline="499" endline="570">gemm_tn_blocked</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a84ce00fad7103b550ea75b52a21a98f7" compoundref="gemm__kernels_8c" startline="417" endline="437">gemm_tn_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" compoundref="gemm__kernels_8c" startline="81" endline="134">gemm_avx512_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1af4f0e756d3ac00b45ce2c7a296b61ae3" compoundref="gemm__kernels_8c" startline="593" endline="673">gemm_blocked_serial</referencedby>
+        <referencedby refid="ckernel__engine_8h_1abab2d2aaed47f4c682c019bd77fab1ed" compoundref="gemm__kernels_8c" startline="137" endline="224">gemm_fine_grained_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a1cd1848bd75a4fb5874fe0feaa8716e4" compoundref="gemm__kernels_8c" startline="57" endline="78">gemm_naive_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="271" endline="332">gemm_nn_avx512</referencedby>
+        <referencedby refid="ckernel__engine_8h_1afd447dc190bd77241a42d8972f9c5fba" compoundref="gemm__kernels_8c" startline="334" endline="405">gemm_nn_blocked</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a3549b849a914ea46c5d51c7d485fecec" compoundref="gemm__kernels_8c" startline="249" endline="269">gemm_nn_parallel</referencedby>
+        <referencedby refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="453" endline="511">gemm_tn_avx512</referencedby>
+        <referencedby refid="ckernel__engine_8h_1ae3bc36ea7b8562f9121e527f0f408b43" compoundref="gemm__kernels_8c" startline="513" endline="584">gemm_tn_blocked</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a84ce00fad7103b550ea75b52a21a98f7" compoundref="gemm__kernels_8c" startline="431" endline="451">gemm_tn_parallel</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

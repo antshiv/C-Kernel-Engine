@@ -15,6 +15,7 @@
     <innerfile refid="ckernel__orchestration_8c">ckernel_orchestration.c</innerfile>
     <innerfile refid="ckernel__registry_8c">ckernel_registry.c</innerfile>
     <innerfile refid="ckernel__strict_8c">ckernel_strict.c</innerfile>
+    <innerfile refid="cpu__features_8c">cpu_features.c</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

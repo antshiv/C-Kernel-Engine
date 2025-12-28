@@ -190,6 +190,7 @@ static bool dir_exists(const char *path) {
     return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
+__attribute__((unused))
 static int mkdir_p(const char *path) {
     char tmp[MAX_PATH];
     char *p = NULL;
@@ -274,8 +275,10 @@ static int parse_model_id(const char *id, char *org, char *name, size_t size) {
     const char *slash = strchr(id, '/');
     if (!slash) {
         /* No org, just model name - assume default org */
-        strncpy(org, "models", size);
-        strncpy(name, id, size);
+        strncpy(org, "models", size - 1);
+        org[size - 1] = '\0';
+        strncpy(name, id, size - 1);
+        name[size - 1] = '\0';
         return 0;
     }
 
@@ -284,7 +287,7 @@ static int parse_model_id(const char *id, char *org, char *name, size_t size) {
     strncpy(org, id, org_len);
     org[org_len] = '\0';
 
-    strncpy(name, slash + 1, size);
+    strncpy(name, slash + 1, size - 1);
     name[size - 1] = '\0';
 
     return 0;
@@ -738,7 +741,8 @@ typedef void (*ck_model_free_fn)(void);
 typedef int (*ck_model_get_vocab_size_fn)(void);
 typedef int (*ck_model_get_context_window_fn)(void);
 
-/* Simple top-k sampling */
+/* Simple top-k sampling (used for future native C inference, currently using Python) */
+__attribute__((unused))
 static int sample_top_k(const float *logits, int vocab_size, int k, float temp) {
     if (k <= 0 || k > vocab_size) k = vocab_size;
 

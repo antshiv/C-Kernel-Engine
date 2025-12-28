@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-27 18:53</span>
+        <span class="folder-updated">Updated: 2025-12-28 11:11</span>
     </div>
     <pre class="tree-output">
 .
@@ -9,7 +9,9 @@
 |   `-- cover_image.png
 |-- benchmarks
 |   |-- bench_gemm_vs_onednn.c
-|   `-- compare_gemm.py
+|   |-- bench_gemm_vs_pytorch.py
+|   |-- compare_gemm.py
+|   `-- perf_gemm_micro.c
 |-- docs
 |   |-- site
 |   |   |-- assets
@@ -75,7 +77,8 @@
 |   |-- ckernel_orchestration.h
 |   |-- ckernel_quant.h
 |   |-- ckernel_registry.h
-|   `-- ck_tokenizer.h
+|   |-- ck_tokenizer.h
+|   `-- cpu_features.h
 |-- issues
 |   |-- errors.txt
 |   `-- run.txt
@@ -185,7 +188,8 @@
 |   |-- ckernel_orchestration.c
 |   |-- ckernel_registry.c
 |   |-- ckernel_strict.c
-|   `-- ck_tokenizer.c
+|   |-- ck_tokenizer.c
+|   `-- cpu_features.c
 |-- tests
 |-- tools
 |   |-- bench_gemm_onednn.cpp
@@ -235,6 +239,8 @@
 |   |-- test_swiglu.py
 |   |-- test_utils.py
 |   `-- test_vision.py
+|-- bench_gemm.txt
+|-- ck_cli.txt
 |-- config.json
 |-- default.config.json
 |-- default.json
@@ -250,7 +256,7 @@
 |-- tiny.config.json
 `-- valgrind.supp
 
-31 directories, 213 files
+31 directories, 219 files
 </pre>
 </div>
 

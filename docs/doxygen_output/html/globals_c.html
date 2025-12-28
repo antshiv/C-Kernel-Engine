@@ -290,17 +290,20 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_first_layer_buffer_name()
 : <a class="el" href="ckernel__codegen_8c.html#a46dfc6552104cefa888791e06e2bdddf">ckernel_codegen.c</a>
 </li>
-<li>CK_FP16_TO_FP32
-: <a class="el" href="ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a">ckernel_quant.h</a>
-</li>
 <li>ck_fp16_to_fp32()
 : <a class="el" href="ckernel__quant_8h.html#ac14fcad36b93665d0bc01dfca3d9e6d9">ckernel_quant.h</a>
+</li>
+<li>CK_FP16_TO_FP32
+: <a class="el" href="ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a">ckernel_quant.h</a>
 </li>
 <li>CK_FP32_TO_FP16
 : <a class="el" href="ckernel__quant_8h.html#aa217c07d43400999fb76ccfcdda2a47d">ckernel_quant.h</a>
 </li>
 <li>ck_fp32_to_fp16()
 : <a class="el" href="ckernel__quant_8h.html#aa18d3f14b90d1f8a16ea4c1f811f2a6e">ckernel_quant.h</a>
+</li>
+<li>ck_gemm_add_bias()
+: <a class="el" href="gemm__kernels_8c.html#ad7789976472e68f59b1604811f4648f2">gemm_kernels.c</a>
 </li>
 <li>ck_half
 : <a class="el" href="ckernel__quant_8h.html#a6519446e531e4f1f13522326934a938f">ckernel_quant.h</a>
@@ -370,8 +373,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="gemm__kernels__bf16_8c.html#aa17196850ccde558e4940c65151fb5b7">gemm_kernels_bf16.c</a>
 </li>
 <li>ck_mlp_swiglu_forward()
-: <a class="el" href="ckernel__orchestration_8h.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.h</a>
-, <a class="el" href="ckernel__orchestration_8c.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.c</a>
+: <a class="el" href="ckernel__orchestration_8c.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.c</a>
+, <a class="el" href="ckernel__orchestration_8h.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.h</a>
 </li>
 <li>ck_mlp_swiglu_forward_ref()
 : <a class="el" href="ckernel__orchestration_8c.html#ac841f4e0a273b07808cc036a715b742e">ckernel_orchestration.c</a>
@@ -444,8 +447,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ck__tokenizer_8h.html#aafbed2100fc7b365d7cb7acdd8548b13">ck_tokenizer.h</a>
 </li>
 <li>ck_pool_free()
-: <a class="el" href="ck__tokenizer_8c.html#aba3724127379a06a8baf1c63d478aa3a">ck_tokenizer.c</a>
-, <a class="el" href="ck__tokenizer_8h.html#aba3724127379a06a8baf1c63d478aa3a">ck_tokenizer.h</a>
+: <a class="el" href="ck__tokenizer_8h.html#aba3724127379a06a8baf1c63d478aa3a">ck_tokenizer.h</a>
+, <a class="el" href="ck__tokenizer_8c.html#aba3724127379a06a8baf1c63d478aa3a">ck_tokenizer.c</a>
 </li>
 <li>ck_pool_init()
 : <a class="el" href="ck__tokenizer_8h.html#a22dd876d597bf3a6f43e60d0702a7065">ck_tokenizer.h</a>
@@ -511,8 +514,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ckernel__kernel__specs_8h.html#afd2b6b5da77c49a3159c21989c7134d3a0582d293b7e340614509c5d9c966b543">ckernel_kernel_specs.h</a>
 </li>
 <li>ck_set_strict_parity()
-: <a class="el" href="ckernel__engine_8h.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_engine.h</a>
-, <a class="el" href="ckernel__strict_8c.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_strict.c</a>
+: <a class="el" href="ckernel__strict_8c.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_strict.c</a>
+, <a class="el" href="ckernel__engine_8h.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_engine.h</a>
 </li>
 <li>ck_strict_parity
 : <a class="el" href="ckernel__strict_8c.html#a6dbb8ec1125b21473b47d31ae92427c3">ckernel_strict.c</a>
@@ -534,8 +537,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ck__tokenizer_8c.html#a25fd8f38cf8e62b1e19e347e53225e8c">ck_tokenizer.c</a>
 </li>
 <li>ck_tokenizer_encode()
-: <a class="el" href="ck__tokenizer_8h.html#aad7d008ac73952c45a288cbb69806835">ck_tokenizer.h</a>
-, <a class="el" href="ck__tokenizer_8c.html#aad7d008ac73952c45a288cbb69806835">ck_tokenizer.c</a>
+: <a class="el" href="ck__tokenizer_8c.html#aad7d008ac73952c45a288cbb69806835">ck_tokenizer.c</a>
+, <a class="el" href="ck__tokenizer_8h.html#aad7d008ac73952c45a288cbb69806835">ck_tokenizer.h</a>
 </li>
 <li>ck_tokenizer_free()
 : <a class="el" href="ck__tokenizer_8h.html#adcfcdd58b3b91d043d6974b35aea1ad4">ck_tokenizer.h</a>
@@ -550,8 +553,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ck__tokenizer_8c.html#a6a224e5a246987a80e869592fd46e36e">ck_tokenizer.c</a>
 </li>
 <li>ck_tokenizer_load()
-: <a class="el" href="ck__tokenizer_8c.html#a9d42d9476e56bcb10e04c07265b335fb">ck_tokenizer.c</a>
-, <a class="el" href="ck__tokenizer_8h.html#a9d42d9476e56bcb10e04c07265b335fb">ck_tokenizer.h</a>
+: <a class="el" href="ck__tokenizer_8h.html#a9d42d9476e56bcb10e04c07265b335fb">ck_tokenizer.h</a>
+, <a class="el" href="ck__tokenizer_8c.html#a9d42d9476e56bcb10e04c07265b335fb">ck_tokenizer.c</a>
 </li>
 <li>ck_tokenizer_lookup()
 : <a class="el" href="ck__tokenizer_8h.html#a2559a1955d6dbd45babf7b294f538494">ck_tokenizer.h</a>
@@ -598,6 +601,9 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>clamp_int8()
 : <a class="el" href="rmsnorm__kernels__int8_8c.html#a0296ca33e8e3ca947f0b2368c526aacd">rmsnorm_kernels_int8.c</a>
 </li>
+<li>compute_gemm_params()
+: <a class="el" href="cpu__features_8c.html#a6465c90ac7e832c18d8e5a21df58653b">cpu_features.c</a>
+</li>
 <li>convert_bf16_tensor()
 : <a class="el" href="attention__kernels_8c.html#a4113194a0a57126146cb4d5471c05bd5">attention_kernels.c</a>
 </li>
@@ -618,6 +624,10 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 </li>
 <li>convert_int8_to_float()
 : <a class="el" href="rmsnorm__kernels__int8_8c.html#a45fe3ed3025a14b8ff912b887963cf4b">rmsnorm_kernels_int8.c</a>
+</li>
+<li>cpu_features_init()
+: <a class="el" href="cpu__features_8h.html#ab051fa0f4c2fc0723066eab07401fed6">cpu_features.h</a>
+, <a class="el" href="cpu__features_8c.html#ab051fa0f4c2fc0723066eab07401fed6">cpu_features.c</a>
 </li>
 </ul>
 </div><!-- contents -->

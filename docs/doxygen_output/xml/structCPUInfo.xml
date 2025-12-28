@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structCPUInfo" kind="struct" language="C++" prot="public">
+    <compoundname>CPUInfo</compoundname>
+    <includes refid="cpu__features_8h" local="no">cpu_features.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structCPUInfo_1a6981442ec8c03e3486d68e5011cbe02c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CPUInfo::has_avx</definition>
+        <argsstring></argsstring>
+        <name>has_avx</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="26" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="26" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1a5392c3ca44cc97b171ee980e48408e03" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CPUInfo::has_avx2</definition>
+        <argsstring></argsstring>
+        <name>has_avx2</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="27" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="27" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1a72c59fe4c03be35b475dd733bd17860c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CPUInfo::has_avx512f</definition>
+        <argsstring></argsstring>
+        <name>has_avx512f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="28" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="28" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1a675b39fcccd4eac9995984acbe5d3d15" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CPUInfo::has_fma</definition>
+        <argsstring></argsstring>
+        <name>has_fma</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="29" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="29" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1aec1d73dace532ccaa255243ad9222d44" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t CPUInfo::l1_line_size</definition>
+        <argsstring></argsstring>
+        <name>l1_line_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="24" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="24" bodyend="-1"/>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1a2e9b76fe6d69b6a1b6c194cd4ca35d86" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t CPUInfo::l1d_size</definition>
+        <argsstring></argsstring>
+        <name>l1d_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="21" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="21" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1ab051fa0f4c2fc0723066eab07401fed6" compoundref="cpu__features_8c" startline="344" endline="370">cpu_features_init</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1accaf39347e29f639b10e0d99825a0ca5" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t CPUInfo::l2_size</definition>
+        <argsstring></argsstring>
+        <name>l2_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="22" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="22" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1a50cf2d09ca804dfbdbbc1759cb71943c" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t CPUInfo::l3_size</definition>
+        <argsstring></argsstring>
+        <name>l3_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="23" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="23" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCPUInfo_1aa4bcdef1bf48fa3860742a28a7d57d6d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CPUInfo::num_cores</definition>
+        <argsstring></argsstring>
+        <name>num_cores</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="25" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="25" bodyend="-1"/>
+        <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
+        <referencedby refid="cpu__features_8h_1ab051fa0f4c2fc0723066eab07401fed6" compoundref="cpu__features_8c" startline="344" endline="370">cpu_features_init</referencedby>
+        <referencedby refid="gemm__microkernel_8c_1a2ecba71250e316cfb6a7415be7346f1c" compoundref="gemm__microkernel_8c" startline="905" endline="922">gemm_init_threads</referencedby>
+        <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>CPU Feature Detection and Cache-Aware Parameter Tuning</para>
+<para>This module detects CPU cache sizes at runtime and computes optimal GEMM blocking parameters based on the BLIS/oneDNN methodology.</para>
+<para>Key formulas:<itemizedlist>
+<listitem><para>KC: MR * KC * sizeof(float) fits in L1 (with room for B streaming)</para>
+</listitem><listitem><para>MC: MC * KC * sizeof(float) fits in L2</para>
+</listitem><listitem><para>NC: KC * NR fits in L1 for B panel, NC scales with L3 </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="20" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="20" bodyend="30"/>
+    <listofallmembers>
+      <member refid="structCPUInfo_1a6981442ec8c03e3486d68e5011cbe02c" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>has_avx</name></member>
+      <member refid="structCPUInfo_1a5392c3ca44cc97b171ee980e48408e03" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>has_avx2</name></member>
+      <member refid="structCPUInfo_1a72c59fe4c03be35b475dd733bd17860c" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>has_avx512f</name></member>
+      <member refid="structCPUInfo_1a675b39fcccd4eac9995984acbe5d3d15" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>has_fma</name></member>
+      <member refid="structCPUInfo_1aec1d73dace532ccaa255243ad9222d44" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>l1_line_size</name></member>
+      <member refid="structCPUInfo_1a2e9b76fe6d69b6a1b6c194cd4ca35d86" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>l1d_size</name></member>
+      <member refid="structCPUInfo_1accaf39347e29f639b10e0d99825a0ca5" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>l2_size</name></member>
+      <member refid="structCPUInfo_1a50cf2d09ca804dfbdbbc1759cb71943c" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>l3_size</name></member>
+      <member refid="structCPUInfo_1aa4bcdef1bf48fa3860742a28a7d57d6d" prot="public" virt="non-virtual"><scope>CPUInfo</scope><name>num_cores</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
