@@ -5,6 +5,10 @@
 
 #include "ckernel_engine.h"
 
+// Suppress false positive warnings about uninitialized variables
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 static void convert_int8_to_float(const int8_t *src,
                                   float *dst,
                                   size_t count)

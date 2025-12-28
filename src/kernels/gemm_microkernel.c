@@ -672,26 +672,13 @@ static inline void gemm_microkernel_8x8_bt_avx(
     int first_k
 )
 {
-    __m256 c0, c1, c2, c3, c4, c5, c6, c7;
-
+    // For B transposed with first_k, zero C first
     if (first_k) {
-        c0 = _mm256_setzero_ps();
-        c1 = _mm256_setzero_ps();
-        c2 = _mm256_setzero_ps();
-        c3 = _mm256_setzero_ps();
-        c4 = _mm256_setzero_ps();
-        c5 = _mm256_setzero_ps();
-        c6 = _mm256_setzero_ps();
-        c7 = _mm256_setzero_ps();
-    } else {
-        c0 = _mm256_loadu_ps(&C[0 * ldc]);
-        c1 = _mm256_loadu_ps(&C[1 * ldc]);
-        c2 = _mm256_loadu_ps(&C[2 * ldc]);
-        c3 = _mm256_loadu_ps(&C[3 * ldc]);
-        c4 = _mm256_loadu_ps(&C[4 * ldc]);
-        c5 = _mm256_loadu_ps(&C[5 * ldc]);
-        c6 = _mm256_loadu_ps(&C[6 * ldc]);
-        c7 = _mm256_loadu_ps(&C[7 * ldc]);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                C[i * ldc + j] = 0.0f;
+            }
+        }
     }
 
     // For B transposed, we compute dot products differently

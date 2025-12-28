@@ -177,7 +177,12 @@ def benchmark_microkernel_vs_naive(lib, M, N, K, iters=10):
     return naive_time, micro_time, naive_gflops, micro_gflops, speedup
 
 def benchmark_vs_pytorch(lib, M, N, K, iters=20):
-    """Benchmark microkernel vs PyTorch matmul (MKL/OpenBLAS backend)."""
+    """Benchmark microkernel vs PyTorch matmul (MKL/OpenBLAS backend).
+
+    NOTE: We compare MULTI-THREADED performance for both.
+    torch.set_num_threads(1) also affects OpenMP globally, which would
+    unfairly throttle our kernel. So we let both use all available threads.
+    """
     if not HAS_TORCH:
         return None, None, None, None, None
 
@@ -197,12 +202,11 @@ def benchmark_vs_pytorch(lib, M, N, K, iters=20):
     B_ptr = B_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
     C_ptr = C_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
-    # Warmup
+    # Warmup (both use all threads)
     _ = A_t @ B_t
     lib.gemm_microkernel(A_ptr, B_ptr, C_ptr, M, N, K, 0)
 
-    # Benchmark PyTorch
-    torch.set_num_threads(1)  # Single-threaded for fair comparison
+    # Benchmark PyTorch (multi-threaded)
     start = time.perf_counter()
     for _ in range(iters):
         C_t = A_t @ B_t
@@ -316,7 +320,7 @@ def main():
     # ==========================================================================
     if HAS_TORCH:
         print("\n" + "=" * 80)
-        print("4. PERFORMANCE: Microkernel vs PyTorch (single-threaded)")
+        print("4. PERFORMANCE: Microkernel vs PyTorch (multi-threaded)")
         print("=" * 80)
         print(f"{'Size':>15} | {'PyTorch':>12} | {'Micro':>12} | {'Ratio':>10}")
         print("-" * 60)
@@ -354,9 +358,9 @@ def main():
     print(f"  vs Naive:     {avg_naive_speedup:.2f}x average speedup")
     if HAS_TORCH and pytorch_ratios:
         if avg_ratio < 1.0:
-            print(f"  vs PyTorch:   {1/avg_ratio:.2f}x FASTER than single-threaded PyTorch")
+            print(f"  vs PyTorch:   {1/avg_ratio:.2f}x FASTER than PyTorch/MKL")
         else:
-            print(f"  vs PyTorch:   {avg_ratio:.2f}x slower than single-threaded PyTorch")
+            print(f"  vs PyTorch:   {avg_ratio:.2f}x slower than PyTorch/MKL")
             print(f"                (PyTorch uses highly optimized MKL/OpenBLAS)")
 
     print()

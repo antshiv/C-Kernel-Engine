@@ -21,6 +21,10 @@
 #include "bf16_utils.h"
 #include "ckernel_engine.h"
 
+// Suppress false positive warnings about uninitialized variables
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 /* Forward declaration of optimized BF16 GEMM */
 extern void gemm_bf16_fp32out(const uint16_t *A, const uint16_t *B,
                                const float *bias, float *C,

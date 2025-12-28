@@ -4,6 +4,11 @@
 #include "bf16_utils.h"
 #include "ckernel_engine.h"
 
+// Suppress false positive warnings about uninitialized variables
+// GCC can't trace through bf16_tensor_to_float initialization
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 static float *alloc_float_buffer(size_t count)
 {
     return (float *)malloc(count * sizeof(float));

@@ -5,6 +5,10 @@
 #include "bf16_utils.h"
 #include "ckernel_engine.h"
 
+// Suppress false positive warnings about uninitialized variables
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 void causal_softmax_head_major_bf16(uint16_t *scores,
                                    int num_heads,
                                    int num_tokens,

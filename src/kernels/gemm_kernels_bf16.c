@@ -36,7 +36,9 @@ static inline int ck_min_i(int a, int b) { return a < b ? a : b; }
 
 /* ==========================================================================
  * Reference Implementation (scalar, for correctness testing)
+ * Kept for debugging/validation but not called in normal operation.
  * ========================================================================== */
+__attribute__((unused))
 static void gemm_bf16_scalar(const uint16_t *A,
                              const uint16_t *B,
                              const uint16_t *bias,
@@ -470,8 +472,7 @@ void gemm_tn_bf16(const uint16_t *A,
                     a_fp32 = _mm512_mask_mov_ps(a_fp32, 1 << kk, _mm512_set1_ps(val));
                 }
 
-                __m256i b_bf16 = _mm256_loadu_si256((const __m256i *)(B + (size_t)k * N + j));
-                /* Note: B has stride N, so we need to gather too */
+                /* Note: B has stride N, so we need to gather element by element */
                 __m512 b_fp32 = _mm512_setzero_ps();
                 for (int kk = 0; kk < 16; ++kk) {
                     float val = bf16_to_float(B[(size_t)(k + kk) * N + j]);
