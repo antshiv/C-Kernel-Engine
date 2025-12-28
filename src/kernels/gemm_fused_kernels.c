@@ -29,11 +29,11 @@
 #endif
 
 // =============================================================================
-// AVX1 Helpers
+// SIMD Helpers
 // =============================================================================
 
-#if defined(__AVX__) && !defined(__AVX512F__)
-// Horizontal sum of 8 floats in __m256
+#if defined(__AVX__) || defined(__AVX512F__)
+// Horizontal sum of 8 floats in __m256 (works for both AVX and AVX-512)
 static inline float hsum256_ps_fused(__m256 v) {
     __m128 lo = _mm256_castps256_ps128(v);
     __m128 hi = _mm256_extractf128_ps(v, 1);
@@ -43,6 +43,16 @@ static inline float hsum256_ps_fused(__m256 v) {
     shuf = _mm_movehl_ps(shuf, sums);
     sums = _mm_add_ss(sums, shuf);
     return _mm_cvtss_f32(sums);
+}
+#endif
+
+#if defined(__AVX512F__)
+// Horizontal sum of 16 floats in __m512
+static inline float hsum512_ps_fused(__m512 v) {
+    __m256 lo = _mm512_castps512_ps256(v);
+    __m256 hi = _mm512_extractf32x8_ps(v, 1);
+    __m256 sum256 = _mm256_add_ps(lo, hi);
+    return hsum256_ps_fused(sum256);
 }
 #endif
 
