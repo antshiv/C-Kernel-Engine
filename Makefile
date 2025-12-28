@@ -49,11 +49,73 @@ BENCH_CXX ?= $(CXX)
 BUILD_DIR := build
 BUILD_STAMP := $(BUILD_DIR)/.ck_build_flags
 
-# oneDNN (optional) - used for benchmarking / baseline comparisons.
-DNNL_PREFIX ?= /usr/local
-DNNL_INC := $(DNNL_PREFIX)/include
-DNNL_LIB := $(DNNL_PREFIX)/lib
+# =============================================================================
+# Intel oneAPI Integration (MKL / oneDNN)
+# =============================================================================
+# Auto-detection: MKL is used automatically if found
+# Disable with: make USE_NATIVE=1
+# Force MKL:    make USE_MKL=1
+# Force oneDNN: make USE_ONEDNN=1
+
+ONEAPI_ROOT ?= /opt/intel/oneapi
+
+# MKL paths
+MKL_ROOT ?= $(ONEAPI_ROOT)/mkl/latest
+MKL_INC := $(MKL_ROOT)/include
+MKL_LIB := $(MKL_ROOT)/lib/intel64
+
+# Auto-detect MKL availability
+MKL_AVAILABLE := $(wildcard $(MKL_INC)/mkl.h)
+
+# Auto-enable MKL if available and not explicitly using native/oneDNN
+ifndef USE_NATIVE
+ifndef USE_ONEDNN
+ifndef USE_MKL
+ifneq ($(MKL_AVAILABLE),)
+USE_MKL := 1
+endif
+endif
+endif
+endif
+
+# oneDNN paths
+# Prefer oneAPI if installed; otherwise default to /usr/local (typical from-source install).
+DNNL_ROOT ?= $(if $(wildcard $(ONEAPI_ROOT)/dnnl/latest/include/dnnl.h),$(ONEAPI_ROOT)/dnnl/latest,/usr/local)
+DNNL_INC := $(DNNL_ROOT)/include
+DNNL_LIB := $(DNNL_ROOT)/lib
+
 DNNL_HPP := $(wildcard $(DNNL_INC)/dnnl.hpp)
+
+# Add MKL support
+ifdef USE_MKL
+    CFLAGS += -DUSE_MKL -I$(MKL_INC)
+    LDFLAGS += -L$(MKL_LIB) -lmkl_rt -Wl,-rpath,$(MKL_LIB)
+    $(info Building with Intel MKL backend for GEMM)
+endif
+
+# Add oneDNN support
+ifdef USE_ONEDNN
+    # Prefer /usr/local OpenMP-based oneDNN over Intel oneAPI SYCL version
+    DNNL_LOCAL := $(wildcard /usr/local/lib/libdnnl.so)
+    ifdef DNNL_LOCAL
+        DNNL_INC := /usr/local/include
+        DNNL_LIB := /usr/local/lib
+    else
+        # Intel compiler runtime library (libimf.so, etc.) needed by oneAPI oneDNN
+        INTEL_COMPILER_LIB := $(ONEAPI_ROOT)/compiler/latest/lib
+        LDFLAGS += -L$(INTEL_COMPILER_LIB) -Wl,-rpath,$(INTEL_COMPILER_LIB)
+    endif
+    CFLAGS += -DUSE_ONEDNN -I$(DNNL_INC)
+    LDFLAGS += -L$(DNNL_LIB) -ldnnl -Wl,-rpath,$(DNNL_LIB)
+    $(info Building with Intel oneDNN backend for GEMM)
+endif
+
+# Default message
+ifndef USE_MKL
+ifndef USE_ONEDNN
+    $(info Building with native AVX kernels for GEMM)
+endif
+endif
 
 SRCS    := src/backend_native.c \
            src/ckernel_ir.c \
@@ -207,7 +269,7 @@ $(BUILD_STAMP): | $(BUILD_DIR)
 	@if [ ! -f $@ ] || ! cmp -s $@.tmp $@; then mv $@.tmp $@; else rm $@.tmp; fi
 
 $(LIB): $(BUILD_STAMP) $(SRCS)
-	$(CC) $(CFLAGS) -shared -o $@ $(SRCS) -lm
+	$(CC) $(CFLAGS) -shared -o $@ $(SRCS) $(LDFLAGS) -lm
 
 $(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
 	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c src/ckernel_ir_demo.c
@@ -323,6 +385,48 @@ test-bf16: $(LIB) test-libs
 	fi; \
 	echo "BF16 Python kernel tests completed."
 
+# GEMM benchmark comparing CKernel (Native + MKL if available) vs PyTorch
+bench_gemm:
+	@echo "Building native kernels..."
+	@rm -f $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_native.so $(BUILD_DIR)/libckernel_mkl.so
+	@$(MAKE) --no-print-directory >/dev/null 2>&1
+	@cp $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_native.so
+ifneq ($(MKL_AVAILABLE),)
+	@echo "Building MKL kernels..."
+	@rm -f $(BUILD_DIR)/libckernel_engine.so
+	@$(MAKE) --no-print-directory USE_MKL=1 >/dev/null 2>&1
+	@cp $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_mkl.so
+	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH \
+		CK_NATIVE_LIB=$(BUILD_DIR)/libckernel_native.so \
+		CK_MKL_LIB=$(BUILD_DIR)/libckernel_mkl.so \
+		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
+else
+	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH \
+		CK_NATIVE_LIB=$(BUILD_DIR)/libckernel_native.so \
+		CK_MKL_MISSING=1 \
+		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
+endif
+
+# Benchmark with MKL only
+bench_gemm_mkl:
+ifneq ($(MKL_AVAILABLE),)
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory USE_MKL=1
+	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH CK_LIB_PATH=$(BUILD_DIR)/libckernel_engine.so \
+		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
+else
+	@echo "Error: MKL not found at $(MKL_INC)"
+	@echo "Install Intel oneAPI: https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html"
+	@exit 1
+endif
+
+# Benchmark with native kernels only
+bench_gemm_native:
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory
+	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH CK_LIB_PATH=$(BUILD_DIR)/libckernel_engine.so \
+		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
+
 tests-list:
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -389,7 +493,7 @@ $(BENCH_GEMM_ONEDNN): $(BUILD_DIR) $(BUILD_DIR)/bench_gemm_onednn.o $(BUILD_DIR)
 
 bench-gemm-onednn:
 ifeq ($(DNNL_HPP),)
-	@echo "oneDNN headers not found at $(DNNL_INC) (set DNNL_PREFIX=/path/to/install)"; \
+	@echo "oneDNN headers not found at $(DNNL_INC) (set DNNL_ROOT=/path/to/install)"; \
 	exit 1
 else
 	$(MAKE) $(BENCH_GEMM_ONEDNN)

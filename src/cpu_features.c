@@ -267,11 +267,17 @@ static int detect_physical_cores(void) {
 
 static void compute_gemm_params(const CPUInfo* cpu, GEMMParams* params) {
     // Microkernel sizes based on SIMD width
+    // MUST match compile-time MR_FIXED/NR_FIXED in gemm_microkernel.c
     if (cpu->has_avx512f) {
         params->MR = 6;   // 6 rows
         params->NR = 32;  // 32 cols (2 x ZMM registers)
-    } else if (cpu->has_avx || cpu->has_avx2) {
+    } else if (cpu->has_fma) {
+        // AVX2+FMA: can use 6x16 with FMA hiding register spilling
         params->MR = 6;   // 6 rows
+        params->NR = 16;  // 16 cols (2 x YMM registers)
+    } else if (cpu->has_avx || cpu->has_avx2) {
+        // AVX without FMA: use 4x16 to avoid register spilling
+        params->MR = 4;   // 4 rows (reduced to fit in 16 YMM registers)
         params->NR = 16;  // 16 cols (2 x YMM registers)
     } else {
         params->MR = 4;
@@ -297,15 +303,18 @@ static void compute_gemm_params(const CPUInfo* cpu, GEMMParams* params) {
     // NC: Controls L3 usage / main memory streaming
     //   - B panel: KC x NC
 
-    // KC: Use ~40% of L1 for A micropanel, leave room for B streaming
-    // A micropanel = MR * KC * 4 bytes
-    size_t l1_for_a = (l1 * 40) / 100;
+    // KC: Controls L1 usage
+    // For optimal performance, both A micropanel and B row should fit in L1:
+    //   - A micropanel: MR * KC floats
+    //   - B row for streaming: NR floats per iteration (small)
+    // Use ~25% of L1 for A micropanel to leave room for B and working set
+    size_t l1_for_a = (l1 * 25) / 100;
     params->KC = (int)(l1_for_a / (params->MR * sizeof(float)));
 
     // Round KC to multiple of 8 for alignment
     params->KC = (params->KC / 8) * 8;
     if (params->KC < 64) params->KC = 64;
-    if (params->KC > 1024) params->KC = 1024;
+    if (params->KC > 512) params->KC = 512;  // Cap at 512 for better cache fit
 
     // MC: A block = MC * KC * 4 bytes should fit in ~80% of L2
     size_t l2_for_a = (l2 * 80) / 100;

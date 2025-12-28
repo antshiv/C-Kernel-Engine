@@ -589,6 +589,7 @@ void gemm_tn_blocked(const float *A,
 // =============================================================================
 
 // Serial cache-blocked GEMM with SIMD (AVX/AVX512).
+// Note: B is stored as [N x K] (transposed layout).
 void gemm_blocked_serial(const float *A,
                          const float *B,
                          const float *bias,
@@ -599,20 +600,17 @@ void gemm_blocked_serial(const float *A,
         gemm_naive_serial_double(A, B, bias, C, M, N, K);
         return;
     }
-#if defined(__AVX512F__)
+
     /*
-     * On AVX-512 targets, the microkernel-based blocked GEMM is substantially
-     * faster for the large, dense shapes that dominate transformer workloads
-     * (QKV/MLP/LM head). For very small M (e.g. decode with M=1), the overhead
-     * of blocking + OpenMP scheduling can outweigh the benefits, so we keep
-     * the simpler dot-product kernel for those cases.
+     * Use gemm_microkernel for large matrices - it uses MKL/oneDNN when available,
+     * which is substantially faster than our hand-written SIMD kernels.
+     * B is stored as [N x K] (transposed), so we pass B_transposed=1.
      */
-    if (M >= 16 && N >= 32 && K >= 128) {
-        gemm_microkernel_blocked_bt(A, B, C, M, N, K);
+    if (M >= 8 && N >= 8 && K >= 8) {
+        gemm_microkernel(A, B, C, M, N, K, 1);  // B_transposed=1
         ck_gemm_add_bias(C, bias, M, N);
         return;
     }
-#endif
 #if defined(__AVX512F__)
     const int block_size = 64;
 #elif defined(__AVX__)
