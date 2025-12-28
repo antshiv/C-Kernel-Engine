@@ -11,11 +11,15 @@ import torch.nn.functional as F
 
 
 def detect_cc() -> str:
-    """Detect best available C compiler: prefer icx, fall back to gcc."""
-    if shutil.which("icx"):
-        return "icx"
-    if shutil.which("icc"):
-        return "icc"
+    """Detect C compiler (portable default: gcc; opt-in icx via CK_USE_ICX=1)."""
+    cc_env = os.environ.get("CC")
+    if cc_env and shutil.which(cc_env):
+        return cc_env
+    if os.environ.get("CK_USE_ICX") == "1":
+        if shutil.which("icx"):
+            return "icx"
+        if shutil.which("icc"):
+            return "icc"
     return "gcc"
 
 

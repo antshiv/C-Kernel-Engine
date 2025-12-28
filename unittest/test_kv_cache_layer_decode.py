@@ -81,6 +81,15 @@ lib.rope_precompute_cache.argtypes = [
 ]
 lib.rope_precompute_cache.restype = None
 
+lib.kv_cache_repack_head_major_inplace.argtypes = [
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+]
+lib.kv_cache_repack_head_major_inplace.restype = None
+
 
 def aligned_empty(shape, dtype=np.float32, align=64):
     nbytes = int(np.prod(shape)) * np.dtype(dtype).itemsize
@@ -291,6 +300,17 @@ def run_decode_parity_test(seed=0):
 
     # Prefill for prompt tokens (fills KV cache for positions < prompt_len).
     lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(p_decode))
+    # Repack K/V into cache layout so decode uses a fixed head stride.
+    lib.kv_cache_repack_head_major_inplace(ptr(buf_decode["k"]),
+                                           ctypes.c_int(num_kv_heads),
+                                           ctypes.c_int(prompt_len),
+                                           ctypes.c_int(cache_capacity),
+                                           ctypes.c_int(aligned_head_dim))
+    lib.kv_cache_repack_head_major_inplace(ptr(buf_decode["v"]),
+                                           ctypes.c_int(num_kv_heads),
+                                           ctypes.c_int(prompt_len),
+                                           ctypes.c_int(cache_capacity),
+                                           ctypes.c_int(aligned_head_dim))
 
     # Decode remaining tokens one-by-one, updating KV cache.
     for t in range(prompt_len, total_len):
@@ -314,21 +334,14 @@ def run_decode_parity_test(seed=0):
 
 if __name__ == "__main__":
     print_system_info()
-    cpu = get_cpu_info()
     diff = run_decode_parity_test(seed=0)
     tol = 1e-5
     print("\n================================================================================")
     print("  TEST: KV-cache Layer Decode Parity")
     print("================================================================================\n")
-    print("  SYSTEM INFO")
-    print("  ----------------------------------------")
-    print(f"  CPU:        {cpu['cpu']}")
-    print(f"  Cores:      {cpu['cores']}")
-    print(f"  SIMD:       {cpu['simd']}\n")
     print("  ACCURACY")
     print("  ----------------------------------------")
     print(f"  output  max_diff={diff:.2e}  tol={tol:.0e}  [{'PASS' if diff <= tol else 'FAIL'}]\n")
 
     if diff > tol:
         raise SystemExit(1)
-

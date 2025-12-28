@@ -84,6 +84,13 @@ lib.layernorm_backward_kernel.restype = None
 # Kernel Wrappers
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def aligned_np(shape, dtype=np.float32, align=64):
+    nbytes = int(np.prod(shape)) * np.dtype(dtype).itemsize
+    buf = np.empty(nbytes + align, dtype=np.uint8)
+    offset = (-buf.ctypes.data) % align
+    return buf[offset:offset + nbytes].view(dtype).reshape(shape)
+
+
 def run_c_layernorm_naive(x, gamma, beta, eps=1e-5):
     T, D = x.shape
     aligned = D
@@ -192,12 +199,12 @@ def run_forward_tests(T=32, D=128, eps=1e-5, warmup=10, iterations=1000):
     torch.manual_seed(0)
 
     # Pre-allocate numpy arrays for accurate timing (avoids ctypes overhead)
-    x_np = np.random.randn(T, D).astype(np.float32)
-    gamma_np = np.random.randn(D).astype(np.float32)
-    beta_np = np.random.randn(D).astype(np.float32)
-    out_np = np.zeros((T, D), dtype=np.float32)
-    mean_np = np.zeros(T, dtype=np.float32)
-    rstd_np = np.zeros(T, dtype=np.float32)
+    x_np = aligned_np((T, D)); x_np[:] = np.random.randn(T, D).astype(np.float32)
+    gamma_np = aligned_np((D,)); gamma_np[:] = np.random.randn(D).astype(np.float32)
+    beta_np = aligned_np((D,)); beta_np[:] = np.random.randn(D).astype(np.float32)
+    out_np = aligned_np((T, D)); out_np.fill(0.0)
+    mean_np = aligned_np((T,)); mean_np.fill(0.0)
+    rstd_np = aligned_np((T,)); rstd_np.fill(0.0)
 
     # Get pointers once
     x_ptr = numpy_to_ptr(x_np)
@@ -287,16 +294,16 @@ def run_backward_tests(T=32, D=128, eps=1e-5, warmup=10, iterations=1000):
     np.random.seed(1)
 
     # Pre-allocate numpy arrays
-    x_np = np.random.randn(T, D).astype(np.float32)
-    gamma_np = np.random.randn(D).astype(np.float32)
-    beta_np = np.random.randn(D).astype(np.float32)
-    upstream_np = np.random.randn(T, D).astype(np.float32)
-    out_np = np.zeros((T, D), dtype=np.float32)
-    mean_np = np.zeros(T, dtype=np.float32)
-    rstd_np = np.zeros(T, dtype=np.float32)
-    d_input_np = np.zeros((T, D), dtype=np.float32)
-    d_gamma_np = np.zeros(D, dtype=np.float32)
-    d_beta_np = np.zeros(D, dtype=np.float32)
+    x_np = aligned_np((T, D)); x_np[:] = np.random.randn(T, D).astype(np.float32)
+    gamma_np = aligned_np((D,)); gamma_np[:] = np.random.randn(D).astype(np.float32)
+    beta_np = aligned_np((D,)); beta_np[:] = np.random.randn(D).astype(np.float32)
+    upstream_np = aligned_np((T, D)); upstream_np[:] = np.random.randn(T, D).astype(np.float32)
+    out_np = aligned_np((T, D)); out_np.fill(0.0)
+    mean_np = aligned_np((T,)); mean_np.fill(0.0)
+    rstd_np = aligned_np((T,)); rstd_np.fill(0.0)
+    d_input_np = aligned_np((T, D)); d_input_np.fill(0.0)
+    d_gamma_np = aligned_np((D,)); d_gamma_np.fill(0.0)
+    d_beta_np = aligned_np((D,)); d_beta_np.fill(0.0)
 
     # Get pointers
     x_ptr = numpy_to_ptr(x_np)

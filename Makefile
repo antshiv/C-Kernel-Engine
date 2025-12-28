@@ -40,6 +40,7 @@ BENCH_CC ?= gcc
 BENCH_CXX ?= $(CXX)
 
 BUILD_DIR := build
+BUILD_STAMP := $(BUILD_DIR)/.ck_build_flags
 
 # oneDNN (optional) - used for benchmarking / baseline comparisons.
 DNNL_PREFIX ?= /usr/local
@@ -59,6 +60,7 @@ SRCS    := src/backend_native.c \
            src/ckernel_model_load.c \
             src/kernels/gemm_kernels.c \
             src/kernels/gemm_fused_kernels.c \
+            src/kernels/gemm_microkernel.c \
 	           src/kernels/layernorm_kernels.c \
 	           src/kernels/layernorm_kernels_bf16.c \
 	           src/kernels/gelu_kernels.c \
@@ -144,6 +146,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_softmax_backward.py \
             unittest/test_gemm.py \
             unittest/test_gemm_fused.py \
+            unittest/test_gemm_microkernel.py \
             unittest/test_mlp.py \
             unittest/test_rmsnorm.py \
             unittest/test_swiglu.py \
@@ -191,7 +194,11 @@ all: $(BUILD_DIR) $(LIB)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(LIB): $(BUILD_DIR) $(SRCS)
+$(BUILD_STAMP): | $(BUILD_DIR)
+	@printf 'CC=%s\nCFLAGS=%s\n' "$(CC)" "$(CFLAGS)" > $@.tmp
+	@if [ ! -f $@ ] || ! cmp -s $@.tmp $@; then mv $@.tmp $@; else rm $@.tmp; fi
+
+$(LIB): $(BUILD_STAMP) $(SRCS)
 	$(CC) $(CFLAGS) -shared -o $@ $(SRCS) -lm
 
 $(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
@@ -208,37 +215,37 @@ emit: $(IR_DEMO)
 ck-emit: emit
 	@true
 
-$(LIB_GELU): $(BUILD_DIR) src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c -lm
+$(LIB_GELU): $(BUILD_STAMP) src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/gelu_kernels.c src/kernels/gelu_kernels_bf16.c -lm
 
-$(LIB_RMSNORM): $(BUILD_DIR) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c -lm
+$(LIB_RMSNORM): $(BUILD_STAMP) src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/rmsnorm_kernels.c src/kernels/rmsnorm_kernels_bf16.c src/kernels/rmsnorm_kernels_int8.c src/kernels/rmsnorm_kernels_int4.c -lm
 
-$(LIB_LN): $(BUILD_DIR) src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c include/ckernel_engine.h
+$(LIB_LN): $(BUILD_STAMP) src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/layernorm_kernels.c src/kernels/layernorm_kernels_bf16.c -lm
 
-$(LIB_SOFT): $(BUILD_DIR) src/kernels/softmax_kernels.c src/kernels/softmax_kernels_bf16.c include/ckernel_engine.h
+$(LIB_SOFT): $(BUILD_STAMP) src/kernels/softmax_kernels.c src/kernels/softmax_kernels_bf16.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/softmax_kernels.c src/kernels/softmax_kernels_bf16.c -lm
 
-$(LIB_SWIGLU): $(BUILD_DIR) src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c -lm
+$(LIB_SWIGLU): $(BUILD_STAMP) src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/swiglu_kernels.c src/kernels/swiglu_kernels_bf16.c src/kernels/sigmoid_kernels.c -lm
 
-$(LIB_SIGMOID): $(BUILD_DIR) src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c -lm
+$(LIB_SIGMOID): $(BUILD_STAMP) src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/sigmoid_kernels.c src/kernels/sigmoid_kernels_bf16.c -lm
 
-$(LIB_RELU): $(BUILD_DIR) src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c -lm
+$(LIB_RELU): $(BUILD_STAMP) src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/relu_kernels.c src/kernels/relu_kernels_bf16.c -lm
 
-$(LIB_VISION): $(BUILD_DIR) src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c -lm
+$(LIB_VISION): $(BUILD_STAMP) src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/vision_kernels.c src/kernels/vision_kernels_bf16.c -lm
 
-$(LIB_ATTENTION): $(BUILD_DIR) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
+$(LIB_ATTENTION): $(BUILD_STAMP) src/kernels/attention_kernels.c src/kernels/softmax_kernels.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/attention_kernels.c src/kernels/softmax_kernels.c -lm
 
-$(LIB_ROPE): $(BUILD_DIR) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
-	$(CC) -O3 -fPIC -Wall -Iinclude -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
+$(LIB_ROPE): $(BUILD_STAMP) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
 
-$(LIB_QUANT): $(BUILD_DIR) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
+$(LIB_QUANT): $(BUILD_STAMP) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
 
 # Convenience alias targets so existing commands still work.
@@ -307,6 +314,55 @@ test-bf16: $(LIB) test-libs
 	  exit 1; \
 	fi; \
 	echo "BF16 Python kernel tests completed."
+
+tests-list:
+	@echo ""
+	@echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+	@echo "║                      C-KERNEL-ENGINE UNIT TESTS                              ║"
+	@echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "Run all tests:     make test"
+	@echo "Run BF16 tests:    make test-bf16"
+	@echo "Run single test:   python3 <script>"
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  FP32 Unit Tests                                                             │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────┘"
+	@echo "  unittest/test_gelu.py              - GELU forward/backward vs PyTorch"
+	@echo "  unittest/test_rmsnorm.py           - RMSNorm forward/backward vs PyTorch"
+	@echo "  unittest/test_sigmoid.py           - Sigmoid forward/backward vs PyTorch"
+	@echo "  unittest/test_relu.py              - ReLU forward/backward vs PyTorch"
+	@echo "  unittest/test_layernorm.py         - LayerNorm forward/backward vs PyTorch"
+	@echo "  unittest/test_softmax.py           - Causal softmax forward vs PyTorch"
+	@echo "  unittest/test_softmax_backward.py  - Causal softmax backward vs PyTorch"
+	@echo "  unittest/test_gemm.py              - GEMM variants vs PyTorch matmul"
+	@echo "  unittest/test_gemm_fused.py        - Fused GEMM+activation (ReLU/GELU/SiLU/SwiGLU)"
+	@echo "  unittest/test_gemm_microkernel.py  - GEMM 8x8 microkernel with register blocking"
+	@echo "  unittest/test_mlp.py               - MLP block forward/backward vs PyTorch"
+	@echo "  unittest/test_swiglu.py            - SwiGLU activation forward/backward"
+	@echo "  unittest/test_attention.py         - Multi-head attention forward vs PyTorch"
+	@echo "  unittest/test_attention_backward.py - Attention backward (MHA/GQA)"
+	@echo "  unittest/test_rope.py              - RoPE forward/backward vs PyTorch"
+	@echo "  unittest/test_embedding.py         - Embedding forward/backward vs PyTorch"
+	@echo "  unittest/test_cross_entropy.py     - Cross-entropy loss vs PyTorch"
+	@echo "  unittest/test_orchestration_layer.py - Full layer stitch (GQA/MHA)"
+	@echo "  unittest/test_lm_head_litmus.py    - LM head + CE end-to-end test"
+	@echo ""
+	@echo "┌──────────────────────────────────────────────────────────────────────────────┐"
+	@echo "│  BF16 Unit Tests                                                             │"
+	@echo "└──────────────────────────────────────────────────────────────────────────────┘"
+	@echo "  unittest/bf16/test_sigmoid_bf16.py   - BF16 sigmoid forward/backward"
+	@echo "  unittest/bf16/test_rmsnorm_bf16.py   - BF16 RMSNorm forward/backward"
+	@echo "  unittest/bf16/test_gelu_bf16.py      - BF16 GELU forward/backward"
+	@echo "  unittest/bf16/test_relu_bf16.py      - BF16 ReLU forward/backward"
+	@echo "  unittest/bf16/test_layernorm_bf16.py - BF16 LayerNorm forward/backward"
+	@echo "  unittest/bf16/test_mlp_bf16.py       - BF16 MLP forward"
+	@echo "  unittest/bf16/test_attention_bf16.py - BF16 attention forward/backward"
+	@echo "  unittest/bf16/test_rope_bf16.py      - BF16 RoPE forward/backward"
+	@echo "  unittest/bf16/test_swiglu_bf16.py    - BF16 SwiGLU forward/backward"
+	@echo "  unittest/bf16/test_embedding_bf16.py - BF16 embedding forward/backward"
+	@echo "  unittest/bf16/test_cross_entropy_bf16.py - BF16 cross-entropy loss"
+	@echo ""
 
 $(BUILD_DIR)/bench_gemm_onednn.o: tools/bench_gemm_onednn.cpp include/ckernel_engine.h
 	$(BENCH_CXX) -O3 -std=c++17 -Iinclude -I$(DNNL_INC) -c -o $@ tools/bench_gemm_onednn.cpp
@@ -602,6 +658,7 @@ TEST_HARNESS_SRCS := src/backend_native.c \
 	src/kernels/gelu_kernels.c \
 	src/kernels/gemm_kernels.c \
 	src/kernels/gemm_fused_kernels.c \
+	src/kernels/gemm_microkernel.c \
 	src/kernels/layernorm_kernels.c \
 	src/kernels/mlp_kernels.c \
 	src/kernels/rmsnorm_kernels.c \
@@ -743,7 +800,7 @@ report:
 	@echo ""
 	@echo "┌──────────────────────────────────────────────────────────────────────────────────────────────────┐"
 	@echo "│  1. KERNEL IMPLEMENTATION STATUS (with optimization levels)                                      │"
-	@echo "│     Legend: A5=AVX512, A2=AVX2, BF=BF16, AM=AMX, +=blocked/parallel, S=scalar                    │"
+	@echo "│     Legend: A1=AVX1, A5=AVX512, BF=BF16, AM=AMX, +=blocked/parallel/fused, S=scalar              │"
 	@echo "└──────────────────────────────────────────────────────────────────────────────────────────────────┘"
 	@$(PYTHON) scripts/optimization_status.py --kernels
 	@echo ""

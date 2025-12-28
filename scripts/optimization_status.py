@@ -68,6 +68,7 @@ def opt_level_short(levels):
         return "-"
     abbrevs = {
         "scalar": "S",
+        "simd_avx": "A1",
         "simd_avx2": "A2",
         "simd_avx512": "A5",
         "simd_avx512bf16": "BF",
@@ -97,6 +98,8 @@ def get_best_opt_indicator(opt_levels, compact=False):
         simd = "A5"
     elif "simd_avx2" in opt_levels:
         simd = "A2"
+    elif "simd_avx" in opt_levels:
+        simd = "A1"
 
     # Modifiers
     mods = []
@@ -146,7 +149,7 @@ def print_kernel_table(meta, markdown=False):
         print("  KERNEL IMPLEMENTATION STATUS")
         print("=" * 100)
         print("\nLegend: F=Forward, B=Backward")
-        print("Opts:   S=Scalar, A2=AVX2, A5=AVX512, BF=AVX512-BF16, AM=AMX, BL=Blocked, ||=Parallel\n")
+        print("Opts:   S=Scalar, A1=AVX1, A2=AVX2, A5=AVX512, BF=BF16, AM=AMX, BL=Blocked, ||=Parallel, FU=Fused\n")
 
         # Build header with wider column widths for optimization info
         col_width = 11
@@ -210,13 +213,12 @@ def print_optimization_details(meta, markdown=False):
 
     if markdown:
         print("\n## Optimization Levels\n")
-        print("S=Scalar, A2=AVX2, A5=AVX512, BF=AVX512-BF16, BL=Blocked, ||=Parallel\n")
+        print("S=Scalar, A1=AVX1, A2=AVX2, A5=AVX512, BF=BF16, AM=AMX, BL=Blocked, ||=Parallel, FU=Fused\n")
     else:
         print("\n" + "=" * 80)
         print("  OPTIMIZATION LEVELS BY KERNEL")
         print("=" * 80)
-        print("\nLegend: S=Scalar, A2=AVX2, A5=AVX512, BF=AVX512-BF16, BL=Blocked, ||=Parallel")
-        print("        AM=AMX, FU=Fused\n")
+        print("\nLegend: S=Scalar, A1=AVX1, A2=AVX2, A5=AVX512, BF=BF16, AM=AMX, BL=Blocked, ||=Parallel, FU=Fused\n")
 
     for kname, kinfo in sorted(kernels.items()):
         has_opts = False

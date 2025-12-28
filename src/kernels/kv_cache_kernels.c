@@ -13,6 +13,38 @@
 #include <stddef.h>
 #include <string.h>
 
+void kv_cache_repack_head_major_inplace(float *buf,
+                                        int num_heads,
+                                        int tokens,
+                                        int cache_capacity,
+                                        int aligned_head_dim)
+{
+    if (!buf) {
+        return;
+    }
+    if (num_heads <= 0 || tokens <= 0 || cache_capacity <= 0 || aligned_head_dim <= 0) {
+        return;
+    }
+    if (tokens > cache_capacity) {
+        tokens = cache_capacity;
+    }
+    if (tokens == cache_capacity) {
+        return;
+    }
+
+    const size_t old_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t new_head_stride = (size_t)cache_capacity * (size_t)aligned_head_dim;
+    const size_t bytes = (size_t)tokens * (size_t)aligned_head_dim * sizeof(float);
+
+    // Move head blocks from high to low to avoid overwriting source data
+    // for heads that have not yet been moved.
+    for (int h = num_heads - 1; h >= 0; --h) {
+        float *src = buf + (size_t)h * old_head_stride;
+        float *dst = buf + (size_t)h * new_head_stride;
+        memmove(dst, src, bytes);
+    }
+}
+
 void kv_cache_write_head_major(const float *k_token,
                                const float *v_token,
                                float *k_cache,
@@ -58,4 +90,3 @@ void kv_cache_write_head_major(const float *k_token,
         }
     }
 }
-

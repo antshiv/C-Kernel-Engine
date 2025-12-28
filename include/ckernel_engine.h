@@ -141,6 +141,35 @@ void gemm_swiglu_fused(const float *x,
                        float *output,
                        int M, int N, int K);
 
+// High-performance GEMM microkernel with 8x8 register blocking
+// Inspired by oneDNN/BLIS - keeps all 64 accumulator values in registers
+// C[M,N] = A[M,K] @ B[K,N] or C[M,N] = A[M,K] @ B[N,K].T
+// B_transposed: 0 = B is [K,N], 1 = B is [N,K] (transposed, common in NN weights)
+void gemm_microkernel(const float *A,
+                      const float *B,
+                      float *C,
+                      int M, int N, int K,
+                      int B_transposed);
+
+// Cache-blocked GEMM using 8x8 microkernels (B not transposed)
+void gemm_microkernel_blocked(const float *A,
+                              const float *B,
+                              float *C,
+                              int M, int N, int K);
+
+// Cache-blocked GEMM for B transposed (common in NN)
+void gemm_microkernel_blocked_bt(const float *A,
+                                 const float *B,
+                                 float *C,
+                                 int M, int N, int K);
+
+// Optimized GEMM with matrix packing (best for large matrices)
+// Packs A and B into contiguous layouts for optimal cache access
+void gemm_microkernel_packed(const float *A,
+                             const float *B,
+                             float *C,
+                             int M, int N, int K);
+
 // LayerNorm forward kernels, copied from C-Transformer.
 void layernorm_naive_serial(const float *input,
                             const float *gamma,
@@ -440,6 +469,17 @@ void kv_cache_write_head_major(const float *k_token,
                                int cache_capacity,
                                int head_dim,
                                int aligned_head_dim);
+
+// Repack a head-major tensor from a packed `[head, tokens, aligned_head_dim]`
+// layout into a KV-cache-compatible layout `[head, cache_capacity, aligned_head_dim]`
+// in-place. This is used after prefill when forward kernels write head slices
+// back-to-back using `tokens` as the head stride, but decode expects a fixed
+// `cache_capacity` stride.
+void kv_cache_repack_head_major_inplace(float *buf,
+                                        int num_heads,
+                                        int tokens,
+                                        int cache_capacity,
+                                        int aligned_head_dim);
 
 // MLP forward kernel (FC1 -> GELU -> FC2), generic token-parallel version.
 void mlp_token_parallel(const float *input,
