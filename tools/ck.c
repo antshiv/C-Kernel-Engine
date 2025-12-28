@@ -986,16 +986,29 @@ static int run_chat(CKConfig *cfg) {
         printf(C_DIM "  Using script: %s\n" C_RESET, script);
     }
 
+    /* Find project root to set LD_LIBRARY_PATH for libckernel_engine.so */
+    const char *root_paths[] = {".", "..", "../..", NULL};
+    const char *project_root = ".";
+    char check_path[MAX_PATH];
+
+    for (int i = 0; root_paths[i]; i++) {
+        snprintf(check_path, sizeof(check_path), "%s/build/libckernel_engine.so", root_paths[i]);
+        if (file_exists(check_path)) {
+            project_root = root_paths[i];
+            break;
+        }
+    }
+
     if (cfg->prompt[0] != '\0') {
         /* Non-interactive mode with prompt */
         snprintf(cmd, sizeof(cmd),
-            "python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d --prompt '%s'",
-            script, cfg->cache_dir, cfg->temperature, cfg->max_tokens, cfg->prompt);
+            "LD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d --prompt '%s'",
+            project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens, cfg->prompt);
     } else {
         /* Interactive mode */
         snprintf(cmd, sizeof(cmd),
-            "python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d",
-            script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
+            "LD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d",
+            project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
     }
 
     if (cfg->verbose) {
