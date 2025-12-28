@@ -705,12 +705,22 @@ static int codegen_and_compile(CKConfig *cfg) {
         }
     }
 
-    /* Compile to self-contained shared library (includes kernel sources directly) */
+    /* Compile to shared library that links against libckernel_engine.so
+     * Add rpath for libckernel_engine.so and Intel runtime libraries (if installed). */
+    char intel_rpath[512] = "";
+    if (dir_exists("/opt/intel/oneapi/compiler/latest/lib")) {
+        snprintf(intel_rpath, sizeof(intel_rpath),
+            "-Wl,-rpath,/opt/intel/oneapi/compiler/latest/lib "
+            "-Wl,-rpath,/opt/intel/oneapi/mkl/latest/lib/intel64 ");
+    }
+
     snprintf(cmd, sizeof(cmd),
-        "cc -O3 -fPIC -shared -I%s/include -o %s %s %s -lm 2>&1 || "
-        "gcc -O3 -fPIC -shared -I%s/include -o %s %s %s -lm 2>&1",
+        "cc -O3 -fPIC -shared -I%s/include -o %s %s %s "
+        "-L%s/build -lckernel_engine "
+        "-Wl,-rpath,%s/build %s"
+        "-lm 2>&1",
         project_root, model_so, model_c, kernel_sources,
-        project_root, model_so, model_c, kernel_sources);
+        project_root, project_root, intel_rpath);
 
     ret = run_cmd(cmd, cfg->verbose);
     if (ret != 0) {

@@ -88,8 +88,11 @@ DNNL_HPP := $(wildcard $(DNNL_INC)/dnnl.hpp)
 
 # Add MKL support
 ifdef USE_MKL
+    # Intel compiler runtime library (libimf.so, etc.) needed by MKL
+    INTEL_COMPILER_LIB := $(ONEAPI_ROOT)/compiler/latest/lib
     CFLAGS += -DUSE_MKL -I$(MKL_INC)
     LDFLAGS += -L$(MKL_LIB) -lmkl_rt -Wl,-rpath,$(MKL_LIB)
+    LDFLAGS += -L$(INTEL_COMPILER_LIB) -Wl,-rpath,$(INTEL_COMPILER_LIB)
     $(info Building with Intel MKL backend for GEMM)
 endif
 
