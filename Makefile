@@ -389,12 +389,13 @@ test-bf16: $(LIB) test-libs
 bench_gemm:
 	@echo "Building native kernels..."
 	@rm -f $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_native.so $(BUILD_DIR)/libckernel_mkl.so
-	@$(MAKE) --no-print-directory >/dev/null 2>&1
+	@# Force true native build even if MKL is auto-detected (or exported via env).
+	@$(MAKE) --no-print-directory USE_NATIVE=1 USE_MKL= USE_ONEDNN=
 	@cp $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_native.so
 ifneq ($(MKL_AVAILABLE),)
 	@echo "Building MKL kernels..."
 	@rm -f $(BUILD_DIR)/libckernel_engine.so
-	@$(MAKE) --no-print-directory USE_MKL=1 >/dev/null 2>&1
+	@$(MAKE) --no-print-directory USE_MKL=1 USE_NATIVE= USE_ONEDNN=
 	@cp $(BUILD_DIR)/libckernel_engine.so $(BUILD_DIR)/libckernel_mkl.so
 	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH \
 		CK_NATIVE_LIB=$(BUILD_DIR)/libckernel_native.so \
@@ -411,7 +412,7 @@ endif
 bench_gemm_mkl:
 ifneq ($(MKL_AVAILABLE),)
 	@$(MAKE) --no-print-directory clean
-	@$(MAKE) --no-print-directory USE_MKL=1
+	@$(MAKE) --no-print-directory USE_MKL=1 USE_NATIVE= USE_ONEDNN=
 	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH CK_LIB_PATH=$(BUILD_DIR)/libckernel_engine.so \
 		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
 else
@@ -423,7 +424,7 @@ endif
 # Benchmark with native kernels only
 bench_gemm_native:
 	@$(MAKE) --no-print-directory clean
-	@$(MAKE) --no-print-directory
+	@$(MAKE) --no-print-directory USE_NATIVE=1 USE_MKL= USE_ONEDNN=
 	@LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH CK_LIB_PATH=$(BUILD_DIR)/libckernel_engine.so \
 		$(PYTHON) $(PYTHONFLAGS) benchmarks/bench_gemm_vs_pytorch.py
 
@@ -706,6 +707,10 @@ help:
 	@echo "  make test-quick      Comprehensive quick tests (<1 min) - tiny models, basic configs"
 	@echo "  make test-full       Comprehensive full tests (5-10 min) - GQA, medium, deep, wide models"
 	@echo "  make test-stress     Comprehensive stress tests (10+ min) - convergence, overfit tests"
+	@echo "  make bench_gemm      Compare GEMM: Native vs MKL vs PyTorch"
+	@echo "  make bench_gemm_native  Benchmark GEMM: Native vs PyTorch"
+	@echo "  make bench_gemm_mkl     Benchmark GEMM: MKL vs PyTorch (requires oneAPI MKL)"
+	@echo "  make bench-gemm-onednn  Compare GEMM: oneDNN vs CK (requires oneDNN)"
 	@echo "  make profile-memory  Run Valgrind memcheck on tiny model"
 	@echo "  make profile-heap    Run Valgrind massif heap profiler"
 	@echo "  make profile-cpu     Run perf CPU profiler"
