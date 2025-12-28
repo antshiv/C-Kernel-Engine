@@ -4,11 +4,14 @@ C-Kernel-Engine Chat Interface
 
 Uses the HuggingFace tokenizer and calls the compiled C model library.
 """
+from __future__ import annotations  # Python 3.9 compatibility
+
 import argparse
 import ctypes
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -101,7 +104,7 @@ class CKModel:
 
         return True
 
-    def kv_cache_enable(self, capacity: int | None = None) -> bool:
+    def kv_cache_enable(self, capacity: Optional[int] = None) -> bool:
         if not self.has_kv_decode:
             return False
         if capacity is None:

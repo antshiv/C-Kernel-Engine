@@ -605,8 +605,9 @@ void gemm_blocked_serial(const float *A,
      * Use gemm_microkernel for large matrices - it uses MKL/oneDNN when available,
      * which is substantially faster than our hand-written SIMD kernels.
      * B is stored as [N x K] (transposed), so we pass B_transposed=1.
+     * Note: Use threshold of 32 to avoid numerical precision issues with small matrices.
      */
-    if (M >= 8 && N >= 8 && K >= 8) {
+    if (M >= 32 && N >= 32 && K >= 32) {
         gemm_microkernel(A, B, C, M, N, K, 1);  // B_transposed=1
         ck_gemm_add_bias(C, bias, M, N);
         return;
