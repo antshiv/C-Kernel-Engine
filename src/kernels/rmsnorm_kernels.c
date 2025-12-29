@@ -1,6 +1,24 @@
 #include <math.h>
 #include <stddef.h>
 
+#if defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__)
+#include <immintrin.h>
+#endif
+
+// AVX1 horizontal sum helper (no _mm256_reduce_add_ps in AVX1)
+#if defined(__AVX__) && !defined(__AVX512F__)
+static inline float hsum256_ps_rmsnorm(__m256 v) {
+    // Sum upper and lower 128-bit lanes
+    __m128 hi = _mm256_extractf128_ps(v, 1);
+    __m128 lo = _mm256_castps256_ps128(v);
+    __m128 sum128 = _mm_add_ps(lo, hi);
+    // Horizontal add within 128-bit lane
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    return _mm_cvtss_f32(sum128);
+}
+#endif
+
 // RMSNorm forward:
 // For each token t:
 //   r = sqrt( (1/D) * sum_i x_i^2 + eps )
@@ -26,7 +44,81 @@ void rmsnorm_forward(const float *input,
         const float *x = input + (size_t)t * aligned;
         float *y = output + (size_t)t * aligned;
 
-        // Compute mean square
+#if defined(__AVX512F__)
+        // AVX-512: Process 16 floats at a time
+        __m512 sum_sq_vec = _mm512_setzero_ps();
+        int d = 0;
+
+        // Vectorized sum of squares
+        for (; d + 16 <= D; d += 16) {
+            __m512 xv = _mm512_loadu_ps(&x[d]);
+            sum_sq_vec = _mm512_fmadd_ps(xv, xv, sum_sq_vec);
+        }
+        float sum_sq = _mm512_reduce_add_ps(sum_sq_vec);
+
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            sum_sq += x[d] * x[d];
+        }
+
+        float mean_sq = sum_sq / (float)D;
+        float rstd = 1.0f / sqrtf(mean_sq + eps);
+        rstd_cache[t] = rstd;
+
+        // Apply normalization and scale (vectorized)
+        __m512 rstd_vec = _mm512_set1_ps(rstd);
+        d = 0;
+        for (; d + 16 <= D; d += 16) {
+            __m512 xv = _mm512_loadu_ps(&x[d]);
+            __m512 gv = _mm512_loadu_ps(&gamma[d]);
+            __m512 x_hat = _mm512_mul_ps(xv, rstd_vec);
+            __m512 yv = _mm512_mul_ps(x_hat, gv);
+            _mm512_storeu_ps(&y[d], yv);
+        }
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            y[d] = x[d] * rstd * gamma[d];
+        }
+
+#elif defined(__AVX__)
+        // AVX: Process 8 floats at a time
+        __m256 sum_sq_vec = _mm256_setzero_ps();
+        int d = 0;
+
+        // Vectorized sum of squares (no FMA in AVX1, use mul + add)
+        for (; d + 8 <= D; d += 8) {
+            __m256 xv = _mm256_loadu_ps(&x[d]);
+            __m256 xv_sq = _mm256_mul_ps(xv, xv);
+            sum_sq_vec = _mm256_add_ps(sum_sq_vec, xv_sq);
+        }
+        float sum_sq = hsum256_ps_rmsnorm(sum_sq_vec);
+
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            sum_sq += x[d] * x[d];
+        }
+
+        float mean_sq = sum_sq / (float)D;
+        float rstd = 1.0f / sqrtf(mean_sq + eps);
+        rstd_cache[t] = rstd;
+
+        // Apply normalization and scale (vectorized)
+        __m256 rstd_vec = _mm256_set1_ps(rstd);
+        d = 0;
+        for (; d + 8 <= D; d += 8) {
+            __m256 xv = _mm256_loadu_ps(&x[d]);
+            __m256 gv = _mm256_loadu_ps(&gamma[d]);
+            __m256 x_hat = _mm256_mul_ps(xv, rstd_vec);
+            __m256 yv = _mm256_mul_ps(x_hat, gv);
+            _mm256_storeu_ps(&y[d], yv);
+        }
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            y[d] = x[d] * rstd * gamma[d];
+        }
+
+#else
+        // Scalar fallback
         double sum_sq = 0.0;
         for (int d = 0; d < D; ++d) {
             double v = (double)x[d];
@@ -42,6 +134,7 @@ void rmsnorm_forward(const float *input,
             float x_hat = x[d] * rstd;
             y[d] = x_hat * gamma[d];
         }
+#endif
 
         // Zero padding (if any)
         for (int d = D; d < aligned; ++d) {
@@ -76,9 +169,31 @@ void rmsnorm_backward(const float *d_output,
     int aligned = aligned_embed_dim;
 
     // Zero parameter gradients
+#if defined(__AVX512F__)
+    {
+        int d = 0;
+        for (; d + 16 <= D; d += 16) {
+            _mm512_storeu_ps(&d_gamma[d], _mm512_setzero_ps());
+        }
+        for (; d < D; ++d) {
+            d_gamma[d] = 0.0f;
+        }
+    }
+#elif defined(__AVX__)
+    {
+        int d = 0;
+        for (; d + 8 <= D; d += 8) {
+            _mm256_storeu_ps(&d_gamma[d], _mm256_setzero_ps());
+        }
+        for (; d < D; ++d) {
+            d_gamma[d] = 0.0f;
+        }
+    }
+#else
     for (int d = 0; d < D; ++d) {
         d_gamma[d] = 0.0f;
     }
+#endif
 
     for (int t = 0; t < T; ++t) {
         const float *x = input + (size_t)t * aligned;
@@ -87,6 +202,118 @@ void rmsnorm_backward(const float *d_output,
 
         float rstd = rstd_cache[t];
 
+#if defined(__AVX512F__)
+        // Compute m = (1/D) * sum_j (dY_j * gamma_j * x_hat_j)
+        __m512 rstd_vec = _mm512_set1_ps(rstd);
+        __m512 sum_vec = _mm512_setzero_ps();
+        int d = 0;
+
+        for (; d + 16 <= D; d += 16) {
+            __m512 xv = _mm512_loadu_ps(&x[d]);
+            __m512 dyv = _mm512_loadu_ps(&dY[d]);
+            __m512 gv = _mm512_loadu_ps(&gamma[d]);
+            __m512 x_hat = _mm512_mul_ps(xv, rstd_vec);
+            // sum += dY * gamma * x_hat
+            __m512 prod = _mm512_mul_ps(dyv, gv);
+            sum_vec = _mm512_fmadd_ps(prod, x_hat, sum_vec);
+        }
+        float sum_dY_g_xhat = _mm512_reduce_add_ps(sum_vec);
+
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            float x_hat = x[d] * rstd;
+            sum_dY_g_xhat += dY[d] * gamma[d] * x_hat;
+        }
+        float m = sum_dY_g_xhat / (float)D;
+
+        // Compute dX and accumulate dGamma (vectorized)
+        __m512 m_vec = _mm512_set1_ps(m);
+        d = 0;
+        for (; d + 16 <= D; d += 16) {
+            __m512 xv = _mm512_loadu_ps(&x[d]);
+            __m512 dyv = _mm512_loadu_ps(&dY[d]);
+            __m512 gv = _mm512_loadu_ps(&gamma[d]);
+            __m512 dgv = _mm512_loadu_ps(&d_gamma[d]);
+
+            __m512 x_hat = _mm512_mul_ps(xv, rstd_vec);
+
+            // dX = rstd * (dY * gamma - x_hat * m)
+            __m512 dy_g = _mm512_mul_ps(dyv, gv);
+            __m512 xhat_m = _mm512_mul_ps(x_hat, m_vec);
+            __m512 diff = _mm512_sub_ps(dy_g, xhat_m);
+            __m512 dxv = _mm512_mul_ps(rstd_vec, diff);
+            _mm512_storeu_ps(&dX[d], dxv);
+
+            // d_gamma += dY * x_hat
+            dgv = _mm512_fmadd_ps(dyv, x_hat, dgv);
+            _mm512_storeu_ps(&d_gamma[d], dgv);
+        }
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            float x_hat = x[d] * rstd;
+            float dy = dY[d];
+            dX[d] = rstd * (dy * gamma[d] - x_hat * m);
+            d_gamma[d] += dy * x_hat;
+        }
+
+#elif defined(__AVX__)
+        // Compute m = (1/D) * sum_j (dY_j * gamma_j * x_hat_j)
+        __m256 rstd_vec = _mm256_set1_ps(rstd);
+        __m256 sum_vec = _mm256_setzero_ps();
+        int d = 0;
+
+        for (; d + 8 <= D; d += 8) {
+            __m256 xv = _mm256_loadu_ps(&x[d]);
+            __m256 dyv = _mm256_loadu_ps(&dY[d]);
+            __m256 gv = _mm256_loadu_ps(&gamma[d]);
+            __m256 x_hat = _mm256_mul_ps(xv, rstd_vec);
+            // sum += dY * gamma * x_hat (no FMA, use mul + mul + add)
+            __m256 prod = _mm256_mul_ps(dyv, gv);
+            __m256 prod2 = _mm256_mul_ps(prod, x_hat);
+            sum_vec = _mm256_add_ps(sum_vec, prod2);
+        }
+        float sum_dY_g_xhat = hsum256_ps_rmsnorm(sum_vec);
+
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            float x_hat = x[d] * rstd;
+            sum_dY_g_xhat += dY[d] * gamma[d] * x_hat;
+        }
+        float m = sum_dY_g_xhat / (float)D;
+
+        // Compute dX and accumulate dGamma (vectorized)
+        __m256 m_vec = _mm256_set1_ps(m);
+        d = 0;
+        for (; d + 8 <= D; d += 8) {
+            __m256 xv = _mm256_loadu_ps(&x[d]);
+            __m256 dyv = _mm256_loadu_ps(&dY[d]);
+            __m256 gv = _mm256_loadu_ps(&gamma[d]);
+            __m256 dgv = _mm256_loadu_ps(&d_gamma[d]);
+
+            __m256 x_hat = _mm256_mul_ps(xv, rstd_vec);
+
+            // dX = rstd * (dY * gamma - x_hat * m)
+            __m256 dy_g = _mm256_mul_ps(dyv, gv);
+            __m256 xhat_m = _mm256_mul_ps(x_hat, m_vec);
+            __m256 diff = _mm256_sub_ps(dy_g, xhat_m);
+            __m256 dxv = _mm256_mul_ps(rstd_vec, diff);
+            _mm256_storeu_ps(&dX[d], dxv);
+
+            // d_gamma += dY * x_hat
+            __m256 dy_xhat = _mm256_mul_ps(dyv, x_hat);
+            dgv = _mm256_add_ps(dgv, dy_xhat);
+            _mm256_storeu_ps(&d_gamma[d], dgv);
+        }
+        // Handle remaining elements
+        for (; d < D; ++d) {
+            float x_hat = x[d] * rstd;
+            float dy = dY[d];
+            dX[d] = rstd * (dy * gamma[d] - x_hat * m);
+            d_gamma[d] += dy * x_hat;
+        }
+
+#else
+        // Scalar fallback
         // Compute m = (1/D) * sum_j (dY_j * gamma_j * x_hat_j)
         double sum_dY_g_xhat = 0.0;
         for (int d = 0; d < D; ++d) {
@@ -102,6 +329,7 @@ void rmsnorm_backward(const float *d_output,
             dX[d] = rstd * (dy * gamma[d] - x_hat * m);
             d_gamma[d] += dy * x_hat;
         }
+#endif
 
         // Zero padding gradients (if any)
         for (int d = D; d < aligned; ++d) {

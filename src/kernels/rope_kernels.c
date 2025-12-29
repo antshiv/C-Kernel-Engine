@@ -21,6 +21,10 @@
 #include <math.h>
 #include <stddef.h>
 
+#if defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__)
+#include <immintrin.h>
+#endif
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -70,6 +74,67 @@ static inline void rope_apply_head(float *x,
         const float *sin_row = sin_cache + pos * half_dim;
         float *x_row = x + (size_t)t * (size_t)aligned_head_dim;
 
+#if defined(__AVX512F__)
+        // Process 16 pairs at a time
+        int i = 0;
+        for (; i + 16 <= half_dim; i += 16) {
+            __m512 x0 = _mm512_loadu_ps(&x_row[i]);
+            __m512 x1 = _mm512_loadu_ps(&x_row[i + half_dim]);
+            __m512 c = _mm512_loadu_ps(&cos_row[i]);
+            __m512 s = _mm512_loadu_ps(&sin_row[i]);
+
+            // x'[i] = x0 * c - x1 * s
+            __m512 r0 = _mm512_fmsub_ps(x0, c, _mm512_mul_ps(x1, s));
+            // x'[i+half] = x0 * s + x1 * c
+            __m512 r1 = _mm512_fmadd_ps(x0, s, _mm512_mul_ps(x1, c));
+
+            _mm512_storeu_ps(&x_row[i], r0);
+            _mm512_storeu_ps(&x_row[i + half_dim], r1);
+        }
+        // Handle remaining elements
+        for (; i < half_dim; ++i) {
+            float x0 = x_row[i];
+            float x1 = x_row[i + half_dim];
+            float c = cos_row[i];
+            float s = sin_row[i];
+            x_row[i] = x0 * c - x1 * s;
+            x_row[i + half_dim] = x0 * s + x1 * c;
+        }
+
+#elif defined(__AVX__)
+        // Process 8 pairs at a time
+        int i = 0;
+        for (; i + 8 <= half_dim; i += 8) {
+            __m256 x0 = _mm256_loadu_ps(&x_row[i]);
+            __m256 x1 = _mm256_loadu_ps(&x_row[i + half_dim]);
+            __m256 c = _mm256_loadu_ps(&cos_row[i]);
+            __m256 s = _mm256_loadu_ps(&sin_row[i]);
+
+            // x'[i] = x0 * c - x1 * s (no FMA in AVX1)
+            __m256 x0c = _mm256_mul_ps(x0, c);
+            __m256 x1s = _mm256_mul_ps(x1, s);
+            __m256 r0 = _mm256_sub_ps(x0c, x1s);
+
+            // x'[i+half] = x0 * s + x1 * c
+            __m256 x0s = _mm256_mul_ps(x0, s);
+            __m256 x1c = _mm256_mul_ps(x1, c);
+            __m256 r1 = _mm256_add_ps(x0s, x1c);
+
+            _mm256_storeu_ps(&x_row[i], r0);
+            _mm256_storeu_ps(&x_row[i + half_dim], r1);
+        }
+        // Handle remaining elements
+        for (; i < half_dim; ++i) {
+            float x0 = x_row[i];
+            float x1 = x_row[i + half_dim];
+            float c = cos_row[i];
+            float s = sin_row[i];
+            x_row[i] = x0 * c - x1 * s;
+            x_row[i + half_dim] = x0 * s + x1 * c;
+        }
+
+#else
+        // Scalar fallback
         for (int i = 0; i < half_dim; ++i) {
             float x0 = x_row[i];
             float x1 = x_row[i + half_dim];
@@ -79,6 +144,7 @@ static inline void rope_apply_head(float *x,
             x_row[i] = x0 * c - x1 * s;
             x_row[i + half_dim] = x0 * s + x1 * c;
         }
+#endif
     }
 }
 
@@ -135,6 +201,62 @@ void rope_backward(const float *d_out,
             const float *d_out_row = d_out + idx;
             float *d_x_row = d_x + idx;
 
+#if defined(__AVX512F__)
+            int i = 0;
+            for (; i + 16 <= half_dim; i += 16) {
+                __m512 d0 = _mm512_loadu_ps(&d_out_row[i]);
+                __m512 d1 = _mm512_loadu_ps(&d_out_row[i + half_dim]);
+                __m512 c = _mm512_loadu_ps(&cos_row[i]);
+                __m512 s = _mm512_loadu_ps(&sin_row[i]);
+
+                // Inverse: d_x[i] = d0 * c + d1 * s
+                __m512 r0 = _mm512_fmadd_ps(d0, c, _mm512_mul_ps(d1, s));
+                // Inverse: d_x[i+half] = -d0 * s + d1 * c
+                __m512 r1 = _mm512_fmsub_ps(d1, c, _mm512_mul_ps(d0, s));
+
+                _mm512_storeu_ps(&d_x_row[i], r0);
+                _mm512_storeu_ps(&d_x_row[i + half_dim], r1);
+            }
+            for (; i < half_dim; ++i) {
+                float d0 = d_out_row[i];
+                float d1 = d_out_row[i + half_dim];
+                float c = cos_row[i];
+                float s = sin_row[i];
+                d_x_row[i] = d0 * c + d1 * s;
+                d_x_row[i + half_dim] = -d0 * s + d1 * c;
+            }
+
+#elif defined(__AVX__)
+            int i = 0;
+            for (; i + 8 <= half_dim; i += 8) {
+                __m256 d0 = _mm256_loadu_ps(&d_out_row[i]);
+                __m256 d1 = _mm256_loadu_ps(&d_out_row[i + half_dim]);
+                __m256 c = _mm256_loadu_ps(&cos_row[i]);
+                __m256 s = _mm256_loadu_ps(&sin_row[i]);
+
+                // Inverse: d_x[i] = d0 * c + d1 * s
+                __m256 d0c = _mm256_mul_ps(d0, c);
+                __m256 d1s = _mm256_mul_ps(d1, s);
+                __m256 r0 = _mm256_add_ps(d0c, d1s);
+
+                // Inverse: d_x[i+half] = -d0 * s + d1 * c = d1 * c - d0 * s
+                __m256 d1c = _mm256_mul_ps(d1, c);
+                __m256 d0s = _mm256_mul_ps(d0, s);
+                __m256 r1 = _mm256_sub_ps(d1c, d0s);
+
+                _mm256_storeu_ps(&d_x_row[i], r0);
+                _mm256_storeu_ps(&d_x_row[i + half_dim], r1);
+            }
+            for (; i < half_dim; ++i) {
+                float d0 = d_out_row[i];
+                float d1 = d_out_row[i + half_dim];
+                float c = cos_row[i];
+                float s = sin_row[i];
+                d_x_row[i] = d0 * c + d1 * s;
+                d_x_row[i + half_dim] = -d0 * s + d1 * c;
+            }
+
+#else
             for (int i = 0; i < half_dim; ++i) {
                 float d0 = d_out_row[i];
                 float d1 = d_out_row[i + half_dim];
@@ -145,6 +267,7 @@ void rope_backward(const float *d_out,
                 d_x_row[i] = d0 * c + d1 * s;
                 d_x_row[i + half_dim] = -d0 * s + d1 * c;
             }
+#endif
 
             for (int i = head_dim; i < aligned_head_dim; ++i) {
                 d_x_row[i] = 0.0f;
@@ -175,6 +298,58 @@ void rope_backward_inplace(float *d_x,
 
             float *d_row = d_x + h * head_stride + (size_t)t * (size_t)aligned_head_dim;
 
+#if defined(__AVX512F__)
+            int i = 0;
+            for (; i + 16 <= half_dim; i += 16) {
+                __m512 d0 = _mm512_loadu_ps(&d_row[i]);
+                __m512 d1 = _mm512_loadu_ps(&d_row[i + half_dim]);
+                __m512 c = _mm512_loadu_ps(&cos_row[i]);
+                __m512 s = _mm512_loadu_ps(&sin_row[i]);
+
+                __m512 r0 = _mm512_fmadd_ps(d0, c, _mm512_mul_ps(d1, s));
+                __m512 r1 = _mm512_fmsub_ps(d1, c, _mm512_mul_ps(d0, s));
+
+                _mm512_storeu_ps(&d_row[i], r0);
+                _mm512_storeu_ps(&d_row[i + half_dim], r1);
+            }
+            for (; i < half_dim; ++i) {
+                float d0 = d_row[i];
+                float d1 = d_row[i + half_dim];
+                float c = cos_row[i];
+                float s = sin_row[i];
+                d_row[i] = d0 * c + d1 * s;
+                d_row[i + half_dim] = -d0 * s + d1 * c;
+            }
+
+#elif defined(__AVX__)
+            int i = 0;
+            for (; i + 8 <= half_dim; i += 8) {
+                __m256 d0 = _mm256_loadu_ps(&d_row[i]);
+                __m256 d1 = _mm256_loadu_ps(&d_row[i + half_dim]);
+                __m256 c = _mm256_loadu_ps(&cos_row[i]);
+                __m256 s = _mm256_loadu_ps(&sin_row[i]);
+
+                __m256 d0c = _mm256_mul_ps(d0, c);
+                __m256 d1s = _mm256_mul_ps(d1, s);
+                __m256 r0 = _mm256_add_ps(d0c, d1s);
+
+                __m256 d1c = _mm256_mul_ps(d1, c);
+                __m256 d0s = _mm256_mul_ps(d0, s);
+                __m256 r1 = _mm256_sub_ps(d1c, d0s);
+
+                _mm256_storeu_ps(&d_row[i], r0);
+                _mm256_storeu_ps(&d_row[i + half_dim], r1);
+            }
+            for (; i < half_dim; ++i) {
+                float d0 = d_row[i];
+                float d1 = d_row[i + half_dim];
+                float c = cos_row[i];
+                float s = sin_row[i];
+                d_row[i] = d0 * c + d1 * s;
+                d_row[i + half_dim] = -d0 * s + d1 * c;
+            }
+
+#else
             for (int i = 0; i < half_dim; ++i) {
                 float d0 = d_row[i];
                 float d1 = d_row[i + half_dim];
@@ -185,6 +360,7 @@ void rope_backward_inplace(float *d_x,
                 d_row[i] = d0 * c + d1 * s;
                 d_row[i + half_dim] = -d0 * s + d1 * c;
             }
+#endif
 
             for (int i = head_dim; i < aligned_head_dim; ++i) {
                 d_row[i] = 0.0f;

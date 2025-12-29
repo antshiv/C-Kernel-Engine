@@ -271,9 +271,16 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "scalar",
+              "parallel"
             ],
-            "file": "attention_kernels.c"
+            "file": "attention_kernels.c",
+            "funcs": [
+              "attention_forward_causal_head_major_gqa",
+              "attention_forward_causal_head_major_gqa_flash",
+              "attention_forward_decode_head_major_gqa_flash"
+            ],
+            "notes": "Flash attention with online softmax (O(1) memory per query). GQA support. KV cache decode path with OpenMP."
           },
           "backward": {
             "status": "done",
@@ -307,20 +314,24 @@
           "unittest/bf16/test_attention_bf16.py"
         ]
       },
-      "optimizations_pending": [
+      "optimizations_done": [
         {
           "name": "flash_attention",
-          "description": "FlashAttention algorithm (tiled, fused softmax)",
-          "priority": "critical"
+          "description": "Online softmax algorithm - O(1) memory per query, no T×T matrix"
         },
         {
           "name": "kv_cache",
-          "description": "KV cache for autoregressive decoding",
-          "priority": "critical"
+          "description": "KV cache for autoregressive decoding (head-major layout)"
         },
         {
           "name": "gqa",
-          "description": "Grouped Query Attention",
+          "description": "Grouped Query Attention support"
+        }
+      ],
+      "optimizations_pending": [
+        {
+          "name": "simd_flash",
+          "description": "SIMD vectorize the flash attention inner loops (dot product, output accumulation)",
           "priority": "high"
         },
         {
@@ -339,32 +350,38 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx512"
             ],
-            "file": "rmsnorm_kernels.c"
+            "file": "rmsnorm_kernels.c",
+            "notes": "AVX-512 with FMA, AVX fallback. Vectorized sum-of-squares reduction and normalize."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx512"
             ],
-            "file": "rmsnorm_kernels.c"
+            "file": "rmsnorm_kernels.c",
+            "notes": "AVX-512 with FMA, AVX fallback. Vectorized gradient computation."
           }
         },
         "bf16": {
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "rmsnorm_kernels_bf16.c"
+            "file": "rmsnorm_kernels_bf16.c",
+            "notes": "AVX-512 with BF16<->FP32 conversion. Compute in FP32 for precision."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "rmsnorm_kernels_bf16.c"
+            "file": "rmsnorm_kernels_bf16.c",
+            "notes": "AVX-512 with BF16<->FP32 conversion."
           }
         },
         "int8": {
@@ -407,11 +424,6 @@
         ]
       },
       "optimizations_pending": [
-        {
-          "name": "simd_avx512",
-          "description": "AVX-512 vectorization",
-          "priority": "high"
-        },
         {
           "name": "fused_residual",
           "description": "Fuse with residual add",
@@ -470,32 +482,39 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx2",
+              "simd_avx512"
             ],
-            "file": "softmax_kernels.c"
+            "file": "softmax_kernels.c",
+            "notes": "Causal softmax. AVX-512/AVX2: fast vectorized exp. AVX1: vectorized max/normalize, scalar exp."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx512"
             ],
-            "file": "softmax_kernels.c"
+            "file": "softmax_kernels.c",
+            "notes": "Vectorized dot product and gradient computation."
           }
         },
         "bf16": {
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "softmax_kernels_bf16.c"
+            "file": "softmax_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion, delegates to FP32 SIMD kernel."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "softmax_kernels_bf16.c"
+            "file": "softmax_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion."
           }
         }
       },
@@ -503,13 +522,7 @@
         "reference": "PyTorch F.softmax",
         "test_files": []
       },
-      "optimizations_pending": [
-        {
-          "name": "online_softmax",
-          "description": "Online/streaming softmax for flash attention",
-          "priority": "high"
-        }
-      ]
+      "optimizations_pending": []
     },
     "gelu": {
       "description": "GELU activation",
@@ -519,32 +532,40 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx2",
+              "simd_avx512"
             ],
-            "file": "gelu_kernels.c"
+            "file": "gelu_kernels.c",
+            "notes": "AVX-512/AVX2 with fast tanh. AVX1 uses scalar tanh with vectorized arithmetic."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx2",
+              "simd_avx512"
             ],
-            "file": "gelu_kernels.c"
+            "file": "gelu_kernels.c",
+            "notes": "Both exact and fast backward variants. AVX1 uses scalar exp/tanh with vectorized arithmetic."
           }
         },
         "bf16": {
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "gelu_kernels_bf16.c"
+            "file": "gelu_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion, delegates to FP32 SIMD kernel."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "gelu_kernels_bf16.c"
+            "file": "gelu_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion."
           }
         }
       },
@@ -561,38 +582,48 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx2",
+              "simd_avx512"
             ],
-            "file": "swiglu_kernels.c"
+            "file": "swiglu_kernels.c",
+            "notes": "AVX-512/AVX2 with fast sigmoid. AVX1 uses scalar sigmoid with vectorized arithmetic."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx2",
+              "simd_avx512"
             ],
-            "file": "swiglu_kernels.c"
+            "file": "swiglu_kernels.c",
+            "notes": "AVX-512/AVX2 with FMA. AVX1 uses scalar sigmoid with vectorized arithmetic."
           }
         },
         "bf16": {
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "swiglu_kernels_bf16.c"
+            "file": "swiglu_kernels_bf16.c",
+            "notes": "AVX-512 with fast sigmoid, BF16<->FP32 conversion inline."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "swiglu_kernels_bf16.c"
+            "file": "swiglu_kernels_bf16.c",
+            "notes": "AVX-512 with fast sigmoid, BF16<->FP32 conversion inline."
           }
         }
       },
       "tests": {
         "reference": "PyTorch custom swiglu",
-        "test_files": []
+        "test_files": [
+          "unittest/test_swiglu.py"
+        ]
       }
     },
     "rope": {
@@ -604,32 +635,38 @@
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx512"
             ],
-            "file": "rope_kernels.c"
+            "file": "rope_kernels.c",
+            "notes": "AVX-512 with FMA, AVX fallback. Processes 16/8 rotation pairs at a time."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx",
+              "simd_avx512"
             ],
-            "file": "rope_kernels.c"
+            "file": "rope_kernels.c",
+            "notes": "AVX-512 with FMA, AVX fallback. Vectorized inverse rotation."
           }
         },
         "bf16": {
           "forward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "rope_kernels_bf16.c"
+            "file": "rope_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion, delegates to FP32 SIMD kernel."
           },
           "backward": {
             "status": "done",
             "opt_level": [
-              "scalar"
+              "simd_avx512"
             ],
-            "file": "rope_kernels_bf16.c"
+            "file": "rope_kernels_bf16.c",
+            "notes": "AVX-512 vectorized BF16<->FP32 conversion."
           }
         }
       },
@@ -638,11 +675,6 @@
         "test_files": []
       },
       "optimizations_pending": [
-        {
-          "name": "simd_avx512",
-          "description": "AVX-512 vectorization",
-          "priority": "medium"
-        },
         {
           "name": "fused_qk",
           "description": "Fuse RoPE into Q/K projection",
@@ -907,8 +939,8 @@
   "inference_optimizations": {
     "prefill": {
       "description": "Process full prompt in parallel (compute-bound)",
-      "status": "partial",
-      "details": "Basic GEMM parallelization done, needs flash attention",
+      "status": "done",
+      "details": "GEMM parallelization with OpenMP, flash attention for memory efficiency",
       "priority": "critical",
       "depends_on": [
         "flash_attention"
@@ -916,8 +948,8 @@
     },
     "decode": {
       "description": "Autoregressive token generation (memory-bound)",
-      "status": "not_started",
-      "details": "Needs KV cache and optimized GEMV",
+      "status": "done",
+      "details": "38 tok/s on SmolLM-135M with parallel GEMV and KV cache (2x speedup from threading)",
       "priority": "critical",
       "depends_on": [
         "kv_cache",
@@ -926,15 +958,15 @@
     },
     "kv_cache": {
       "description": "Cache key/value tensors for decode phase",
-      "status": "not_started",
-      "details": "Need to implement KV cache management and update attention",
+      "status": "done",
+      "details": "Implemented in attention_kernels.c with head-major layout",
       "priority": "critical",
       "depends_on": []
     },
     "flash_attention": {
       "description": "Tiled attention with fused softmax (O(N) memory)",
-      "status": "not_started",
-      "details": "Implement FlashAttention-2 algorithm",
+      "status": "done",
+      "details": "Online softmax in attention_forward_decode_head_major_gqa_flash()",
       "priority": "critical",
       "depends_on": [
         "online_softmax"
@@ -942,10 +974,26 @@
     },
     "online_softmax": {
       "description": "Streaming softmax without materializing full attention matrix",
-      "status": "not_started",
-      "details": "Required for flash attention",
+      "status": "done",
+      "details": "Integrated into flash attention decode path",
       "priority": "high",
       "depends_on": []
+    },
+    "multi_threading": {
+      "description": "OpenMP + MKL multi-threading with auto-detection",
+      "status": "done",
+      "details": "ck_set_num_threads() API, auto-detects physical cores, parallel GEMV for decode",
+      "priority": "critical",
+      "depends_on": []
+    },
+    "gemv_optimized": {
+      "description": "Parallel matrix-vector for decode (M=1)",
+      "status": "done",
+      "details": "gemm_nt_matvec_parallel() with AVX512, parallelizes over output channels",
+      "priority": "critical",
+      "depends_on": [
+        "multi_threading"
+      ]
     },
     "continuous_batching": {
       "description": "Dynamic batching for variable-length sequences",
