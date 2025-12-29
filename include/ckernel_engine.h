@@ -631,6 +631,18 @@ void sigmoid_backward_bf16(const uint16_t *input,
 	                     int tokens,
 	                     int dim);
 
+	// Exact versions using standard library expf (slower but accurate)
+	void swiglu_forward_exact(const float *input,
+	                          float *output,
+	                          int tokens,
+	                          int dim);
+
+	void swiglu_backward_exact(const float *input,
+	                           const float *d_output,
+	                           float *d_input,
+	                           int tokens,
+	                           int dim);
+
 	void swiglu_forward_bf16(const uint16_t *input,
 	                         uint16_t *output,
 	                         int tokens,

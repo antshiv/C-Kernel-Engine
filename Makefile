@@ -726,6 +726,7 @@ help:
 	@echo "  make profile-cpu     Run perf CPU profiler"
 	@echo "  make profile-cache   Run Valgrind cachegrind"
 	@echo "  make flamegraph      Generate SVG flamegraph (requires FlameGraph tools)"
+	@echo "  make show_config     Display system hardware topology and recommendations"
 	@echo "  make small-e2e       Same as tiny-e2e but ~10MB weights"
 	@echo "  make libckernel_gelu.so      Build GELU-only shared library (outputs to $(LIB_GELU))"
 	@echo "  make libckernel_rmsnorm.so   Build RMSNorm-only shared library (outputs to $(LIB_RMSNORM))"
@@ -876,6 +877,20 @@ ck-server-py:
 	$(PYTHON) $(PYTHONFLAGS) tools/ck_server.py --model-dir $(SMOLLM_MODEL_DIR) --context $(SMOLLM_CONTEXT)
 
 # ============================================================================
+# System Configuration and Topology
+# ============================================================================
+
+SHOW_CONFIG := $(BUILD_DIR)/show_config
+
+$(SHOW_CONFIG): $(BUILD_DIR) src/system_topology.c src/show_config.c include/system_topology.h
+	$(CC) -O2 -Wall -Wno-format-truncation -Iinclude -o $@ src/system_topology.c src/show_config.c
+
+show_config: $(SHOW_CONFIG)
+	@./$(SHOW_CONFIG)
+
+show-config: show_config
+
+# ============================================================================
 # Status and Coverage Reports
 # ============================================================================
 
@@ -990,4 +1005,4 @@ report-md:
 	@echo ""
 	@$(PYTHON) scripts/optimization_status.py --markdown
 
-.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md
+.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config
