@@ -460,6 +460,18 @@ void attention_forward_causal_head_major(const float *q,
                                          int aligned_head_dim,
                                          int aligned_context_window);
 
+// Exact version using standard library expf (slower but accurate).
+void attention_forward_causal_head_major_exact(const float *q,
+                                                const float *k,
+                                                const float *v,
+                                                float *scores,
+                                                float *output,
+                                                int num_heads,
+                                                int num_tokens,
+                                                int head_dim,
+                                                int aligned_head_dim,
+                                                int aligned_context_window);
+
 // GQA-aware attention: Q has num_heads, K/V have num_kv_heads.
 void attention_forward_causal_head_major_gqa(const float *q,
                                              const float *k,

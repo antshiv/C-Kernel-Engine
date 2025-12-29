@@ -3,6 +3,10 @@
 #include <math.h>
 #include <stdlib.h>
 
+#if defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__)
+#include <immintrin.h>
+#endif
+
 static float *convert_bf16_tensor(const uint16_t *src, size_t count)
 {
     float *dst = (float *)malloc(count * sizeof(float));
@@ -94,6 +98,74 @@ void attention_forward_causal_head_major(const float *q,
                               num_heads,
                               num_tokens,
                               aligned_context_window);
+
+    // Phase 3: attention weights · V.
+    for (int h = 0; h < num_heads; ++h) {
+        for (int i = 0; i < num_tokens; ++i) {
+            size_t out_base = qkv_index(h, i, 0, num_tokens, aligned_head_dim);
+
+            // Zero the full aligned head slice so padded dims stay clean.
+            for (int d = 0; d < aligned_head_dim; ++d) {
+                output[out_base + d] = 0.0f;
+            }
+
+            // Weighted sum over causal positions.
+            for (int j = 0; j <= i; ++j) {
+                float w = scores[score_index(h, i, j, aligned_context_window)];
+                size_t v_base = qkv_index(h, j, 0, num_tokens, aligned_head_dim);
+
+                for (int d = 0; d < head_dim; ++d) {
+                    output[out_base + d] += w * v[v_base + d];
+                }
+            }
+        }
+    }
+}
+
+// Exact version using standard library expf for softmax.
+// Slower but provides maximum accuracy - used for accuracy testing.
+void attention_forward_causal_head_major_exact(const float *q,
+                                                const float *k,
+                                                const float *v,
+                                                float *scores,
+                                                float *output,
+                                                int num_heads,
+                                                int num_tokens,
+                                                int head_dim,
+                                                int aligned_head_dim,
+                                                int aligned_context_window)
+{
+    const float scale = 1.0f / sqrtf((float)head_dim);
+
+    // Phase 1: compute scaled dot-product scores Q·K^T / sqrt(d_k),
+    // lower triangle only (j <= i).
+    for (int h = 0; h < num_heads; ++h) {
+        for (int i = 0; i < num_tokens; ++i) {
+            for (int j = 0; j <= i; ++j) {
+                float dot = 0.0f;
+                size_t base_q = qkv_index(h, i, 0, num_tokens, aligned_head_dim);
+                size_t base_k = qkv_index(h, j, 0, num_tokens, aligned_head_dim);
+
+                for (int d = 0; d < head_dim; ++d) {
+                    dot += q[base_q + d] * k[base_k + d];
+                }
+
+                scores[score_index(h, i, j, aligned_context_window)] = dot * scale;
+            }
+
+            // Ensure upper triangle is zeroed so there are no stale values
+            // before the softmax kernel runs.
+            for (int j = i + 1; j < num_tokens; ++j) {
+                scores[score_index(h, i, j, aligned_context_window)] = 0.0f;
+            }
+        }
+    }
+
+    // Phase 2: apply causal row-wise softmax using exact expf.
+    causal_softmax_head_major_exact(scores,
+                                     num_heads,
+                                     num_tokens,
+                                     aligned_context_window);
 
     // Phase 3: attention weights · V.
     for (int h = 0; h < num_heads; ++h) {
@@ -295,9 +367,327 @@ void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
 //   - Prefill: avoids large scratch buffers and improves cache locality
 //   - Decode: supports KV-cache attention for a single token
 //
-// Note: This is a correctness-first implementation using an online softmax
-// accumulator; further blocking/SIMD/AMX optimizations can be layered on later.
+// SIMD-optimized implementations for AVX-512, AVX2, and AVX follow.
 
+// ============================================================================
+// AVX-512 SIMD Flash Attention (16 floats per vector)
+// ============================================================================
+#if defined(__AVX512F__)
+static void attention_flash_query_causal_avx512(const float *q_vec,
+                                                 const float *k_head,
+                                                 const float *v_head,
+                                                 int kv_tokens,
+                                                 int head_dim,
+                                                 int aligned_head_dim,
+                                                 float scale,
+                                                 float *out_vec)
+{
+    // Online softmax: m = running max, s = running sum(exp(score - m))
+    float m = -INFINITY;
+    float s = 0.0f;
+
+    // Zero output using SIMD
+    int d = 0;
+    for (; d + 16 <= aligned_head_dim; d += 16) {
+        _mm512_storeu_ps(&out_vec[d], _mm512_setzero_ps());
+    }
+    for (; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+
+    for (int j = 0; j < kv_tokens; ++j) {
+        const float *k_vec = k_head + (size_t)j * (size_t)aligned_head_dim;
+        const float *v_vec = v_head + (size_t)j * (size_t)aligned_head_dim;
+
+        // Vectorized dot product Q·K
+        __m512 dot_acc = _mm512_setzero_ps();
+        d = 0;
+        for (; d + 16 <= head_dim; d += 16) {
+            __m512 q_v = _mm512_loadu_ps(&q_vec[d]);
+            __m512 k_v = _mm512_loadu_ps(&k_vec[d]);
+            dot_acc = _mm512_fmadd_ps(q_v, k_v, dot_acc);
+        }
+        float dot = _mm512_reduce_add_ps(dot_acc);
+        // Scalar tail
+        for (; d < head_dim; ++d) {
+            dot += q_vec[d] * k_vec[d];
+        }
+        float score = dot * scale;
+
+        if (score > m) {
+            float exp_m = (m == -INFINITY) ? 0.0f : expf(m - score);
+            s *= exp_m;
+
+            // Vectorized: out *= exp_m, then out += v
+            __m512 exp_m_vec = _mm512_set1_ps(exp_m);
+            d = 0;
+            for (; d + 16 <= head_dim; d += 16) {
+                __m512 out_v = _mm512_loadu_ps(&out_vec[d]);
+                __m512 v_v = _mm512_loadu_ps(&v_vec[d]);
+                out_v = _mm512_fmadd_ps(out_v, exp_m_vec, v_v);
+                _mm512_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] = out_vec[d] * exp_m + v_vec[d];
+            }
+
+            s += 1.0f;
+            m = score;
+        } else {
+            float e = expf(score - m);
+            s += e;
+
+            // Vectorized: out += e * v
+            __m512 e_vec = _mm512_set1_ps(e);
+            d = 0;
+            for (; d + 16 <= head_dim; d += 16) {
+                __m512 out_v = _mm512_loadu_ps(&out_vec[d]);
+                __m512 v_v = _mm512_loadu_ps(&v_vec[d]);
+                out_v = _mm512_fmadd_ps(e_vec, v_v, out_v);
+                _mm512_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] += e * v_vec[d];
+            }
+        }
+    }
+
+    // Normalize: out /= s
+    float inv_s = 1.0f / s;
+    __m512 inv_s_vec = _mm512_set1_ps(inv_s);
+    d = 0;
+    for (; d + 16 <= head_dim; d += 16) {
+        __m512 out_v = _mm512_loadu_ps(&out_vec[d]);
+        _mm512_storeu_ps(&out_vec[d], _mm512_mul_ps(out_v, inv_s_vec));
+    }
+    for (; d < head_dim; ++d) {
+        out_vec[d] *= inv_s;
+    }
+
+    // Zero padding
+    for (d = head_dim; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+}
+#endif // __AVX512F__
+
+// ============================================================================
+// AVX2 SIMD Flash Attention (8 floats per vector)
+// ============================================================================
+#if defined(__AVX2__)
+static inline float hsum256_ps_flash(__m256 v) {
+    __m128 hi = _mm256_extractf128_ps(v, 1);
+    __m128 lo = _mm256_castps256_ps128(v);
+    __m128 sum128 = _mm_add_ps(lo, hi);
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    return _mm_cvtss_f32(sum128);
+}
+
+static void attention_flash_query_causal_avx2(const float *q_vec,
+                                               const float *k_head,
+                                               const float *v_head,
+                                               int kv_tokens,
+                                               int head_dim,
+                                               int aligned_head_dim,
+                                               float scale,
+                                               float *out_vec)
+{
+    float m = -INFINITY;
+    float s = 0.0f;
+
+    // Zero output using SIMD
+    int d = 0;
+    for (; d + 8 <= aligned_head_dim; d += 8) {
+        _mm256_storeu_ps(&out_vec[d], _mm256_setzero_ps());
+    }
+    for (; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+
+    for (int j = 0; j < kv_tokens; ++j) {
+        const float *k_vec = k_head + (size_t)j * (size_t)aligned_head_dim;
+        const float *v_vec = v_head + (size_t)j * (size_t)aligned_head_dim;
+
+        // Vectorized dot product Q·K
+        __m256 dot_acc = _mm256_setzero_ps();
+        d = 0;
+        for (; d + 8 <= head_dim; d += 8) {
+            __m256 q_v = _mm256_loadu_ps(&q_vec[d]);
+            __m256 k_v = _mm256_loadu_ps(&k_vec[d]);
+            dot_acc = _mm256_fmadd_ps(q_v, k_v, dot_acc);
+        }
+        float dot = hsum256_ps_flash(dot_acc);
+        for (; d < head_dim; ++d) {
+            dot += q_vec[d] * k_vec[d];
+        }
+        float score = dot * scale;
+
+        if (score > m) {
+            float exp_m = (m == -INFINITY) ? 0.0f : expf(m - score);
+            s *= exp_m;
+
+            __m256 exp_m_vec = _mm256_set1_ps(exp_m);
+            d = 0;
+            for (; d + 8 <= head_dim; d += 8) {
+                __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+                __m256 v_v = _mm256_loadu_ps(&v_vec[d]);
+                out_v = _mm256_fmadd_ps(out_v, exp_m_vec, v_v);
+                _mm256_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] = out_vec[d] * exp_m + v_vec[d];
+            }
+
+            s += 1.0f;
+            m = score;
+        } else {
+            float e = expf(score - m);
+            s += e;
+
+            __m256 e_vec = _mm256_set1_ps(e);
+            d = 0;
+            for (; d + 8 <= head_dim; d += 8) {
+                __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+                __m256 v_v = _mm256_loadu_ps(&v_vec[d]);
+                out_v = _mm256_fmadd_ps(e_vec, v_v, out_v);
+                _mm256_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] += e * v_vec[d];
+            }
+        }
+    }
+
+    // Normalize
+    float inv_s = 1.0f / s;
+    __m256 inv_s_vec = _mm256_set1_ps(inv_s);
+    d = 0;
+    for (; d + 8 <= head_dim; d += 8) {
+        __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+        _mm256_storeu_ps(&out_vec[d], _mm256_mul_ps(out_v, inv_s_vec));
+    }
+    for (; d < head_dim; ++d) {
+        out_vec[d] *= inv_s;
+    }
+
+    for (d = head_dim; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+}
+#endif // __AVX2__
+
+// ============================================================================
+// AVX SIMD Flash Attention (8 floats per vector, no FMA)
+// ============================================================================
+#if defined(__AVX__) && !defined(__AVX2__)
+static inline float hsum256_ps_flash_avx(__m256 v) {
+    __m128 hi = _mm256_extractf128_ps(v, 1);
+    __m128 lo = _mm256_castps256_ps128(v);
+    __m128 sum128 = _mm_add_ps(lo, hi);
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    sum128 = _mm_hadd_ps(sum128, sum128);
+    return _mm_cvtss_f32(sum128);
+}
+
+static void attention_flash_query_causal_avx(const float *q_vec,
+                                              const float *k_head,
+                                              const float *v_head,
+                                              int kv_tokens,
+                                              int head_dim,
+                                              int aligned_head_dim,
+                                              float scale,
+                                              float *out_vec)
+{
+    float m = -INFINITY;
+    float s = 0.0f;
+
+    // Zero output using SIMD
+    int d = 0;
+    for (; d + 8 <= aligned_head_dim; d += 8) {
+        _mm256_storeu_ps(&out_vec[d], _mm256_setzero_ps());
+    }
+    for (; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+
+    for (int j = 0; j < kv_tokens; ++j) {
+        const float *k_vec = k_head + (size_t)j * (size_t)aligned_head_dim;
+        const float *v_vec = v_head + (size_t)j * (size_t)aligned_head_dim;
+
+        // Vectorized dot product Q·K (no FMA, use mul + add)
+        __m256 dot_acc = _mm256_setzero_ps();
+        d = 0;
+        for (; d + 8 <= head_dim; d += 8) {
+            __m256 q_v = _mm256_loadu_ps(&q_vec[d]);
+            __m256 k_v = _mm256_loadu_ps(&k_vec[d]);
+            dot_acc = _mm256_add_ps(dot_acc, _mm256_mul_ps(q_v, k_v));
+        }
+        float dot = hsum256_ps_flash_avx(dot_acc);
+        for (; d < head_dim; ++d) {
+            dot += q_vec[d] * k_vec[d];
+        }
+        float score = dot * scale;
+
+        if (score > m) {
+            float exp_m = (m == -INFINITY) ? 0.0f : expf(m - score);
+            s *= exp_m;
+
+            __m256 exp_m_vec = _mm256_set1_ps(exp_m);
+            d = 0;
+            for (; d + 8 <= head_dim; d += 8) {
+                __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+                __m256 v_v = _mm256_loadu_ps(&v_vec[d]);
+                // out = out * exp_m + v (no FMA)
+                out_v = _mm256_add_ps(_mm256_mul_ps(out_v, exp_m_vec), v_v);
+                _mm256_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] = out_vec[d] * exp_m + v_vec[d];
+            }
+
+            s += 1.0f;
+            m = score;
+        } else {
+            float e = expf(score - m);
+            s += e;
+
+            __m256 e_vec = _mm256_set1_ps(e);
+            d = 0;
+            for (; d + 8 <= head_dim; d += 8) {
+                __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+                __m256 v_v = _mm256_loadu_ps(&v_vec[d]);
+                // out = out + e * v (no FMA)
+                out_v = _mm256_add_ps(out_v, _mm256_mul_ps(e_vec, v_v));
+                _mm256_storeu_ps(&out_vec[d], out_v);
+            }
+            for (; d < head_dim; ++d) {
+                out_vec[d] += e * v_vec[d];
+            }
+        }
+    }
+
+    // Normalize
+    float inv_s = 1.0f / s;
+    __m256 inv_s_vec = _mm256_set1_ps(inv_s);
+    d = 0;
+    for (; d + 8 <= head_dim; d += 8) {
+        __m256 out_v = _mm256_loadu_ps(&out_vec[d]);
+        _mm256_storeu_ps(&out_vec[d], _mm256_mul_ps(out_v, inv_s_vec));
+    }
+    for (; d < head_dim; ++d) {
+        out_vec[d] *= inv_s;
+    }
+
+    for (d = head_dim; d < aligned_head_dim; ++d) {
+        out_vec[d] = 0.0f;
+    }
+}
+#endif // __AVX__ && !__AVX2__
+
+// ============================================================================
+// Scalar fallback (original implementation)
+// ============================================================================
 static void attention_flash_query_causal(const float *q_vec,
                                         const float *k_head,
                                         const float *v_head,
@@ -376,6 +766,17 @@ void attention_forward_causal_head_major_gqa_flash(const float *q,
     const float scale = 1.0f / sqrtf((float)head_dim);
     const int T = num_tokens;
 
+    // Select SIMD implementation based on compile-time CPU features
+#if defined(__AVX512F__)
+    #define FLASH_QUERY_IMPL attention_flash_query_causal_avx512
+#elif defined(__AVX2__)
+    #define FLASH_QUERY_IMPL attention_flash_query_causal_avx2
+#elif defined(__AVX__)
+    #define FLASH_QUERY_IMPL attention_flash_query_causal_avx
+#else
+    #define FLASH_QUERY_IMPL attention_flash_query_causal
+#endif
+
     for (int h = 0; h < num_heads; ++h) {
         int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
         const float *k_head = k + (size_t)kv_head * (size_t)T * (size_t)aligned_head_dim;
@@ -384,12 +785,14 @@ void attention_forward_causal_head_major_gqa_flash(const float *q,
         for (int i = 0; i < T; ++i) {
             const float *q_vec = q + qkv_index(h, i, 0, T, aligned_head_dim);
             float *out_vec = output + qkv_index(h, i, 0, T, aligned_head_dim);
-            attention_flash_query_causal(q_vec, k_head, v_head,
-                                         /*kv_tokens=*/i + 1,
-                                         head_dim, aligned_head_dim,
-                                         scale, out_vec);
+            FLASH_QUERY_IMPL(q_vec, k_head, v_head,
+                             /*kv_tokens=*/i + 1,
+                             head_dim, aligned_head_dim,
+                             scale, out_vec);
         }
     }
+
+#undef FLASH_QUERY_IMPL
 }
 
 void attention_forward_decode_head_major_gqa_flash(const float *q_token,
@@ -416,6 +819,17 @@ void attention_forward_decode_head_major_gqa_flash(const float *q_token,
     const float scale = 1.0f / sqrtf((float)head_dim);
     const size_t head_stride = (size_t)cache_capacity * (size_t)aligned_head_dim;
 
+    // Select SIMD implementation based on compile-time CPU features
+#if defined(__AVX512F__)
+    #define FLASH_QUERY_IMPL_DECODE attention_flash_query_causal_avx512
+#elif defined(__AVX2__)
+    #define FLASH_QUERY_IMPL_DECODE attention_flash_query_causal_avx2
+#elif defined(__AVX__)
+    #define FLASH_QUERY_IMPL_DECODE attention_flash_query_causal_avx
+#else
+    #define FLASH_QUERY_IMPL_DECODE attention_flash_query_causal
+#endif
+
 #pragma omp parallel for schedule(static) if(num_heads > 1)
     for (int h = 0; h < num_heads; ++h) {
         int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
@@ -424,10 +838,12 @@ void attention_forward_decode_head_major_gqa_flash(const float *q_token,
         const float *v_head = v_cache + (size_t)kv_head * head_stride;
         float *out_vec = out_token + (size_t)h * (size_t)aligned_head_dim;
 
-        attention_flash_query_causal(q_vec, k_head, v_head,
-                                     kv_tokens, head_dim, aligned_head_dim,
-                                     scale, out_vec);
+        FLASH_QUERY_IMPL_DECODE(q_vec, k_head, v_head,
+                                 kv_tokens, head_dim, aligned_head_dim,
+                                 scale, out_vec);
     }
+
+#undef FLASH_QUERY_IMPL_DECODE
 }
 
 // ============================================================================

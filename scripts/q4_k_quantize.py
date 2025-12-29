@@ -75,18 +75,20 @@ def quantize_q4_k_block(values_256: np.ndarray) -> bytes:
     if v.size != QK_K:
         raise ValueError("Q4_K block must have 256 values")
 
-    sub_min = np.empty(SUB_BLOCKS, dtype=np.float32)
     sub_scale = np.empty(SUB_BLOCKS, dtype=np.float32)
 
     for sub in range(SUB_BLOCKS):
         seg = v[sub * SUB_BLOCK : (sub + 1) * SUB_BLOCK]
         vmin = float(seg.min())
         vmax = float(seg.max())
-        sub_min[sub] = vmin
-        if vmax <= vmin:
+        # Symmetric quantization around 0. We deliberately keep the per-sub-block
+        # offset term disabled (dmin=0, m=0) so offsets never have mixed signs.
+        # This makes the encoder robust while still producing a valid Q4_K block
+        # that the runtime can dequantize.
+        if vmax == 0.0 and vmin == 0.0:
             sub_scale[sub] = 0.0
         else:
-            sub_scale[sub] = (vmax - vmin) / 15.0
+            sub_scale[sub] = max(0.0, vmax / 7.0, (-vmin) / 8.0)
 
     max_scale = float(sub_scale.max())
     d = 0.0 if max_scale <= 0.0 else (max_scale / 63.0)
@@ -100,30 +102,17 @@ def quantize_q4_k_block(values_256: np.ndarray) -> bytes:
         sc_u8 = np.where((sc_u8 == 0) & (sub_scale > 0), 1, sc_u8).astype(np.uint8)
 
     scale_q = d_f * sc_u8.astype(np.float32)
-    min_val = sub_min + 8.0 * scale_q
 
-    max_abs_min = float(np.max(np.abs(min_val)))
-    if max_abs_min <= 0.0:
-        dmin = 0.0
-        dmin_f = 0.0
-        m_u8 = np.zeros(SUB_BLOCKS, dtype=np.uint8)
-    else:
-        sign = 1.0 if float(np.mean(min_val)) >= 0.0 else -1.0
-        dmin = sign * (max_abs_min / 63.0)
-        dmin_f = _fp16_round_to_f32(dmin)
-        if dmin_f == 0.0:
-            m_u8 = np.zeros(SUB_BLOCKS, dtype=np.uint8)
-        else:
-            m_u8 = np.rint(min_val / dmin_f).astype(np.int32)
-            m_u8 = np.clip(m_u8, 0, 63).astype(np.uint8)
-
-    min_q = dmin_f * m_u8.astype(np.float32)
+    # Offset disabled (symmetric): dmin=0, m[sub]=0 => min_q=0 for all subs.
+    dmin_f = 0.0
+    m_u8 = np.zeros(SUB_BLOCKS, dtype=np.uint8)
+    min_q = np.zeros(SUB_BLOCKS, dtype=np.float32)
 
     qs = np.empty(128, dtype=np.uint8)
     for sub in range(SUB_BLOCKS):
         seg = v[sub * SUB_BLOCK : (sub + 1) * SUB_BLOCK]
         scale = float(scale_q[sub])
-        off = float(min_q[sub])
+        off = 0.0
         if scale == 0.0:
             q = np.zeros(SUB_BLOCK, dtype=np.int32)
         else:
@@ -160,4 +149,3 @@ def quantize_q4_k_row(values: np.ndarray) -> bytes:
 def quantize_q4_k_rows(rows: Iterable[np.ndarray]) -> Iterator[bytes]:
     for row in rows:
         yield quantize_q4_k_row(row)
-

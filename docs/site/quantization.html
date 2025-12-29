@@ -703,7 +703,7 @@
                     </a>
                     <a href="quantization.html" class="active">
                         Quantization
-                        <small>GGML formats, grouping, memory</small>
+                        <small>Block formats, grouping, memory</small>
                     </a>
                     <a href="testing.html">
                         Testing Methodology
@@ -736,7 +736,7 @@
 
 <div class="hero">
     <h1>Quantization Deep Dive</h1>
-    <p>Reduce model size by 4-8x while maintaining accuracy. Learn how GGML formats work, why grouping matters, and how to integrate quantized weights with our bump allocator.</p>
+    <p>Reduce model size by 4-8x while maintaining accuracy. Learn how block quantization formats work, why grouping matters, and how to integrate quantized weights with our bump allocator.</p>
 </div>
 
 <div class="alert alert-info">
@@ -745,7 +745,7 @@
     </div>
     <div>
         <strong>What You'll Learn</strong><br>
-        This guide covers the fundamentals of weight quantization: from the basic math behind INT4/INT8 representation to advanced grouping strategies used by llama.cpp and GGML.
+        This guide covers the fundamentals of weight quantization: from the basic math behind INT4/INT8 representation to advanced grouping strategies used by modern block quantization formats.
     </div>
 </div>
 
@@ -756,14 +756,14 @@
     <li><a href="#basic-quantization">Basic Quantization Math</a></li>
     <li><a href="#the-problem">The Problem with Single Scales</a></li>
     <li><a href="#grouping">Grouping: The Solution</a></li>
-    <li><a href="#ggml-formats">GGML Quantization Formats</a></li>
+    <li><a href="#quant-formats">Quantization Formats</a></li>
     <li><a href="#memory-layout">Memory Layout in Bump Allocator</a></li>
     <li><a href="#kernel-dispatch">Kernel Dispatch by Type</a></li>
     <li><a href="#cache-access">Cache Line Access Patterns</a></li>
     <li><a href="#dequantization">Dequantization in Registers</a></li>
     <li><a href="#amx-int8">AMX-INT8: The Hardware Reality</a></li>
     <li><a href="#q4k-detail">Q4_K: K-Quants Deep Dive</a></li>
-    <li><a href="#llama-cpp">How llama.cpp Actually Works</a></li>
+    <li><a href="#blockwise-dequant">How Blockwise Dequant Works</a></li>
     <li><a href="#bump-integration">Bump Allocator Integration</a></li>
     <li><a href="#practical">Practical Implementation</a></li>
 </ul>
@@ -948,7 +948,7 @@ Now small values use full range!
     <h3 style="margin-top: 0;">Why Group Size Matters</h3>
     <table>
         <tr><th>Group Size</th><th>Scale Overhead</th><th>Precision</th><th>Use Case</th></tr>
-        <tr><td>32</td><td>1 FP16 per 32 weights</td><td>Best</td><td>Q4_0, Q8_0 (GGML default)</td></tr>
+        <tr><td>32</td><td>1 FP16 per 32 weights</td><td>Best</td><td>Q4_0, Q8_0 (common)</td></tr>
         <tr><td>64</td><td>1 FP16 per 64 weights</td><td>Good</td><td>Some custom formats</td></tr>
         <tr><td>128</td><td>1 FP16 per 128 weights</td><td>Medium</td><td>Aggressive compression</td></tr>
         <tr><td>256</td><td>Nested scales</td><td>Varies</td><td>Q4_K, Q5_K "k-quants"</td></tr>
@@ -958,9 +958,9 @@ Now small values use full range!
 
 <hr>
 
-<h2 id="ggml-formats">GGML Quantization Formats</h2>
+<h2 id="quant-formats">Quantization Formats</h2>
 
-<p>GGML (used by llama.cpp) defines several quantization formats. Understanding these is crucial for inference optimization.</p>
+<p>The block formats below are widely used for weight-only quantized inference and are common in GGUF-style model files. We implement them to make the runtime compatible with those on-disk layouts.</p>
 
 <h3>Q4_0: The Simplest 4-bit Format</h3>
 
@@ -968,7 +968,7 @@ Now small values use full range!
     <h4 style="margin-top: 0;">Structure</h4>
     <pre>
 typedef struct {
-    ggml_fp16_t d;       // 2 bytes: scale (delta)
+    ck_half d;           // 2 bytes: scale (delta)
     uint8_t qs[16];      // 16 bytes: 32 × 4-bit weights (2 per byte)
 } block_q4_0;            // Total: 18 bytes per 32 weights
 
@@ -1003,8 +1003,8 @@ float w1 = q1 * scale;
     <h4 style="margin-top: 0;">Structure</h4>
     <pre>
 typedef struct {
-    ggml_fp16_t d;       // 2 bytes: scale
-    ggml_fp16_t m;       // 2 bytes: minimum value
+    ck_half d;           // 2 bytes: scale
+    ck_half m;           // 2 bytes: minimum value
     uint8_t qs[16];      // 16 bytes: 32 × 4-bit weights
 } block_q4_1;            // Total: 20 bytes per 32 weights
 
@@ -1022,7 +1022,7 @@ Bits per weight: 20 * 8 / 32 = 5.0 bits
     <h4 style="margin-top: 0;">Structure</h4>
     <pre>
 typedef struct {
-    ggml_fp16_t d;       // 2 bytes: scale
+    ck_half d;           // 2 bytes: scale
     int8_t qs[32];       // 32 bytes: 32 × 8-bit signed weights
 } block_q8_0;            // Total: 34 bytes per 32 weights
 
@@ -1040,8 +1040,8 @@ Bits per weight: 34 * 8 / 32 = 8.5 bits
     <h4 style="margin-top: 0;">Structure (Superblock of 256 weights)</h4>
     <pre>
 typedef struct {
-    ggml_fp16_t d;              // 2 bytes: superblock scale
-    ggml_fp16_t dmin;           // 2 bytes: superblock min
+    ck_half d;                  // 2 bytes: superblock scale
+    ck_half dmin;               // 2 bytes: superblock min
     uint8_t scales[12];         // 12 bytes: 8 sub-block scales (6-bit each)
     uint8_t qs[128];            // 128 bytes: 256 × 4-bit weights
 } block_q4_K;                   // Total: 144 bytes per 256 weights
@@ -1285,7 +1285,7 @@ Cache line 3: weights[128..255]
 
 __m512 dequant_q4_0_avx512(const block_q4_0* block) {
     // Load scale (broadcast to all lanes)
-    __m512 scale = _mm512_set1_ps(GGML_FP16_TO_FP32(block->d));
+    __m512 scale = _mm512_set1_ps(CK_FP16_TO_FP32(block->d));
 
     // Load 16 bytes of quantized weights
     __m128i qs = _mm_loadu_si128((__m128i*)block->qs);
@@ -1500,7 +1500,7 @@ Compute-bound (batch=64, prefill):
 
 <h2 id="q4k-detail">Q4_K: K-Quants Deep Dive</h2>
 
-<p>The "K" in Q4_K means "k-quants"—a sophisticated quantization scheme with nested scales that many inference stacks (including GGML/llama.cpp) adopt. Understanding this format is essential for maintaining compatibility with those runtimes.</p>
+<p>The "K" in Q4_K refers to a family of block quantizers that use nested scales (a super-block scale plus per-sub-block adjustments). This format is popular because it achieves strong quality at ~4.5 bits/weight while keeping metadata compact.</p>
 
 <div class="img-container svg-viewer" data-title="Q4_K Block Structure: Nested Scales">
     <img src="assets/q4k_block_structure.svg" alt="Q4_K Block Structure">
@@ -1509,12 +1509,11 @@ Compute-bound (batch=64, prefill):
 <div class="card">
     <h3 style="margin-top: 0;">Q4_K Structure Definition</h3>
     <pre>
-// Inspired by GGML's block layout (also used by llama.cpp)
 // Q4_K block: 256 weights per block
 
 typedef struct {
-    ggml_half d;           // 2 bytes: super-block scale (FP16)
-    ggml_half dmin;        // 2 bytes: super-block minimum (FP16)
+    ck_half d;             // 2 bytes: super-block scale (FP16)
+    ck_half dmin;          // 2 bytes: super-block minimum (FP16)
     uint8_t scales[12];    // 12 bytes: sub-block scales (6-bit each, packed)
     uint8_t qs[128];       // 128 bytes: 256 INT4 weights (4 bits × 256)
 } block_q4_K;              // Total: 144 bytes for 256 weights = 4.5 bpw
@@ -1575,47 +1574,31 @@ Dequantization:
 
 <hr>
 
-<h2 id="llama-cpp">How llama.cpp Actually Works</h2>
+<h2 id="blockwise-dequant">How Blockwise Dequant Works</h2>
 
-<p>Understanding llama.cpp's implementation clarifies many quantization decisions.</p>
+<p>For weight-only quantization, the key performance trick is to avoid a full dequantization pass. Instead, dequantize a small block in registers and immediately consume it in the dot-product/FMA loop.</p>
 
 <div class="card card-accent">
     <h3 style="margin-top: 0;">Activations: Always FP32</h3>
     <pre>
-llama.cpp architecture:
+Weight-only quantized inference (typical CPU path):
 
-Activations: FP32 (always)
+Activations: FP32
 Weights:     Q4_K, Q4_0, Q8_0, etc.
-Compute:     Dequant to FP32 → FP32 matmul
-
-They don't store activations in BF16 or INT8.
-Quantization is <strong>weight-only</strong>.
+Compute:     Dequant (registers) → FMA accumulate
     </pre>
 </div>
 
 <div class="card">
     <h3 style="margin-top: 0;">Fused Dequant + Compute</h3>
-    <p><strong>Critical insight:</strong> llama.cpp doesn't dequantize the whole tensor, then matmul. They dequantize-and-compute per block:</p>
+    <p><strong>Critical insight:</strong> do not dequantize the whole tensor, then matmul. Dequantize-and-compute per block:</p>
     <pre>
-// Simplified from ggml-quants.c
-void ggml_vec_dot_q4_K_q8_K(int n, float* s,
-                            const void* vx, const void* vy) {
-    const block_q4_K* x = vx;  // Quantized weights
-
-    float sumf = 0;
-    for (int i = 0; i < n / 256; i++) {
-        // Load scales
-        const float d = GGML_FP16_TO_FP32(x[i].d);
-        const float dmin = GGML_FP16_TO_FP32(x[i].dmin);
-
-        // Dequant + multiply + accumulate FUSED in same loop
-        // Using AVX-512 or AVX2 intrinsics
-        // Dequantized values never touch RAM!
-        ...
-        sumf += block_result;
-    }
-    *s = sumf;
-}
+for each block (256 weights):
+  load (d, dmin, sub-scales)
+  unpack 4-bit nibbles
+  convert to fp32 and apply scales
+  fused multiply-add with fp32 activations
+  accumulate into fp32
     </pre>
 </div>
 
@@ -1676,16 +1659,16 @@ FP32 accumulator
     <h3 style="margin-top: 0;">Tensor Structure for Quantized Types</h3>
     <pre>
 typedef enum {
-    GGML_TYPE_F32,
-    GGML_TYPE_F16,
-    GGML_TYPE_BF16,
-    GGML_TYPE_Q4_0,    // Simple: 32 weights, 1 scale
-    GGML_TYPE_Q4_K,    // K-quant: 256 weights, hierarchical scales
-    GGML_TYPE_Q8_0,
-} ggml_type;
+    CK_DT_FP32,
+    CK_DT_FP16,
+    CK_DT_BF16,
+    CK_DT_Q4_0,    // Simple: 32 weights, 1 scale
+    CK_DT_Q4_K,    // K-quant: 256 weights, hierarchical scales
+    CK_DT_Q8_0,
+} CKDataType;
 
 typedef struct {
-    ggml_type type;
+    CKDataType dtype;
     uint32_t ne[4];      // Dimensions
     size_t nb[4];        // Strides in bytes
     size_t block_size;   // Weights per block (32 for Q4_0, 256 for Q4_K)
@@ -1698,14 +1681,10 @@ typedef struct {
 <div class="card card-accent">
     <h3 style="margin-top: 0;">Size Calculation</h3>
     <pre>
-size_t tensor_size_bytes(ggml_type type, int64_t nelements) {
-    switch (type) {
-        case GGML_TYPE_F32:  return nelements * 4;
-        case GGML_TYPE_BF16: return nelements * 2;
-        case GGML_TYPE_Q4_0: return (nelements / 32) * sizeof(block_q4_0);   // 18 bytes
-        case GGML_TYPE_Q4_K: return (nelements / 256) * sizeof(block_q4_K); // 144 bytes
-        ...
-    }
+size_t tensor_size_bytes(CKDataType dt, int64_t nelements) {
+    // See: include/ckernel_dtype.h (ck_dtype_row_bytes)
+    // Quantized types use "bytes per block" × "blocks per row".
+    ...
 }
 
 // Example: 4096 × 4096 weight matrix
@@ -1865,7 +1844,7 @@ void matmul_q4(float* out, const float* x, const tensor* W) {
 </div>
 
 <div class="card card-blue">
-    <h3 style="margin-top: 0;">GGML Format Quick Reference</h3>
+    <h3 style="margin-top: 0;">Format Quick Reference</h3>
     <table>
         <tr><th>Format</th><th>Bytes/32 Weights</th><th>Structure</th><th>Best For</th></tr>
         <tr><td>Q4_0</td><td>18</td><td>scale + 32×4bit</td><td>General use, fastest</td></tr>
@@ -1880,15 +1859,7 @@ void matmul_q4(float* out, const float* x, const tensor* W) {
 <ul>
     <li><a href="memory-safety.html">Memory Safety</a> - Bump allocator details</li>
     <li><a href="kernels.html">Kernel Reference</a> - SIMD implementations</li>
-                    <a href="gemm-optimization.html">
-                        GEMM Optimization
-                        <small>Microkernel, packing, 1.44x faster than MKL</small>
-                    </a>
-    <li><a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a> - GGML source code</li>
-                    <a href="gemm-optimization.html">
-                        GEMM Optimization
-                        <small>Microkernel, packing, 1.44x faster than MKL</small>
-                    </a>
+    <li><a href="gemm-optimization.html">GEMM Optimization</a> - Microkernel, packing, 1.44x faster than MKL</li>
     <li><a href="concepts.html">Deep Dive: LLM Concepts</a> - Transformer architecture</li>
 </ul>
     </main>
