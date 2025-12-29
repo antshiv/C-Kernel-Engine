@@ -52,6 +52,41 @@ void mlp_token_parallel(const float *input,
                         fourD); // K
 }
 
+// Exact version of MLP forward using scalar GELU with standard library tanhf.
+// Slower but provides maximum accuracy. Used for correctness testing.
+void mlp_token_parallel_exact(const float *input,
+                               const float *W_fc1,
+                               const float *b_fc1,
+                               const float *W_fc2,
+                               const float *b_fc2,
+                               float *fc1_output,
+                               float *output,
+                               int T,
+                               int aligned_dim,
+                               int num_threads)
+{
+    (void)num_threads;
+    int D = aligned_dim;
+    int fourD = 4 * D;
+
+    // FC1: [T × D] · [D × 4D] -> [T × 4D]
+    gemm_blocked_serial(input, W_fc1, b_fc1,
+                        fc1_output,
+                        T,      // M
+                        fourD,  // N
+                        D);     // K
+
+    // Exact GELU using standard library tanhf
+    gelu_exact_inplace(fc1_output, (size_t)T * (size_t)fourD);
+
+    // FC2: [T × 4D] · [4D × D] -> [T × D]
+    gemm_blocked_serial(fc1_output, W_fc2, b_fc2,
+                        output,
+                        T,  // M
+                        D,  // N
+                        fourD); // K
+}
+
 // Generic FC2 backward kernel adapted from C-Transformer's backward_fc2_feature_parallel.
 // Now uses shared GEMM kernels for d_input and d_W computation.
 // Shapes:

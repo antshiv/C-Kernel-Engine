@@ -549,6 +549,19 @@ void mlp_token_parallel(const float *input,
                         int aligned_dim,
                         int num_threads);
 
+// Exact version using scalar GELU with standard library tanhf.
+// Slower but provides maximum accuracy. Used for correctness testing.
+void mlp_token_parallel_exact(const float *input,
+                               const float *W_fc1,
+                               const float *b_fc1,
+                               const float *W_fc2,
+                               const float *b_fc2,
+                               float *fc1_output,
+                               float *output,
+                               int T,
+                               int aligned_dim,
+                               int num_threads);
+
 void mlp_token_parallel_bf16(const uint16_t *input,
                              const uint16_t *W_fc1,
                              const uint16_t *b_fc1,

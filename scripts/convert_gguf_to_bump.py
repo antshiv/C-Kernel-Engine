@@ -1,0 +1,678 @@
+#!/usr/bin/env python3
+"""
+convert_gguf_to_bump.py
+=======================
+
+Converts a GGUF model file containing weight-only quantized tensors (e.g. Q4_K_M)
+into the C-Kernel-Engine `weights.bump` layout expected by the generated runtime.
+
+Notes:
+  - This tool is intentionally "offline": it may convert/reshape tensors while
+    writing the bump file so runtime code stays simple (no format juggling).
+  - For Q4_K models, we treat GGUF tensors of type GGML_TYPE_Q4_K as the canonical
+    on-disk representation (same block layout used by Q4_K_M).
+  - The bump file does not currently encode weight dtype; the generated runtime
+    selects it via `CK_WEIGHT_DTYPE` (e.g. `CK_WEIGHT_DTYPE=q4_k_m`).
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import struct
+from dataclasses import dataclass
+from typing import BinaryIO, Dict, Optional, Sequence, Tuple
+
+import numpy as np
+
+
+HEADER_SIZE = 128
+CACHE_ALIGN = 64
+
+
+def align_up(n: int, a: int) -> int:
+    return ((n + a - 1) // a) * a
+
+
+def align_up_elems(elems: int, elem_bytes: int, align_bytes: int = CACHE_ALIGN) -> int:
+    if align_bytes <= 0:
+        return elems
+    return align_up(elems * elem_bytes, align_bytes) // elem_bytes
+
+
+class HashingWriter:
+    def __init__(self, f: BinaryIO) -> None:
+        self._f = f
+        self._h = hashlib.sha256()
+        self.bytes_written = 0
+
+    def write(self, data: bytes) -> None:
+        if not data:
+            return
+        self._f.write(data)
+        self._h.update(data)
+        self.bytes_written += len(data)
+
+    def digest(self) -> bytes:
+        return self._h.digest()
+
+
+class GGUFError(RuntimeError):
+    pass
+
+
+class GGUFReader:
+    def __init__(self, f: BinaryIO) -> None:
+        self._f = f
+
+    def tell(self) -> int:
+        return int(self._f.tell())
+
+    def seek(self, pos: int) -> None:
+        self._f.seek(pos, os.SEEK_SET)
+
+    def _read_exact(self, n: int) -> bytes:
+        data = self._f.read(n)
+        if len(data) != n:
+            raise GGUFError(f"Unexpected EOF (wanted {n} bytes, got {len(data)})")
+        return data
+
+    def u8(self) -> int:
+        return struct.unpack("<B", self._read_exact(1))[0]
+
+    def i8(self) -> int:
+        return struct.unpack("<b", self._read_exact(1))[0]
+
+    def u16(self) -> int:
+        return struct.unpack("<H", self._read_exact(2))[0]
+
+    def i16(self) -> int:
+        return struct.unpack("<h", self._read_exact(2))[0]
+
+    def u32(self) -> int:
+        return struct.unpack("<I", self._read_exact(4))[0]
+
+    def i32(self) -> int:
+        return struct.unpack("<i", self._read_exact(4))[0]
+
+    def u64(self) -> int:
+        return struct.unpack("<Q", self._read_exact(8))[0]
+
+    def i64(self) -> int:
+        return struct.unpack("<q", self._read_exact(8))[0]
+
+    def f32(self) -> float:
+        return struct.unpack("<f", self._read_exact(4))[0]
+
+    def f64(self) -> float:
+        return struct.unpack("<d", self._read_exact(8))[0]
+
+    def key_str(self) -> str:
+        n = self.u32()
+        return self._read_exact(n).decode("utf-8")
+
+    def val_str(self) -> str:
+        n = self.u64()
+        return self._read_exact(n).decode("utf-8")
+
+
+# GGUF metadata value types.
+GGUF_TYPE_UINT8 = 0
+GGUF_TYPE_INT8 = 1
+GGUF_TYPE_UINT16 = 2
+GGUF_TYPE_INT16 = 3
+GGUF_TYPE_UINT32 = 4
+GGUF_TYPE_INT32 = 5
+GGUF_TYPE_FLOAT32 = 6
+GGUF_TYPE_BOOL = 7
+GGUF_TYPE_STRING = 8
+GGUF_TYPE_ARRAY = 9
+GGUF_TYPE_UINT64 = 10
+GGUF_TYPE_INT64 = 11
+GGUF_TYPE_FLOAT64 = 12
+
+
+def _gguf_scalar_size(vtype: int) -> Optional[int]:
+    return {
+        GGUF_TYPE_UINT8: 1,
+        GGUF_TYPE_INT8: 1,
+        GGUF_TYPE_UINT16: 2,
+        GGUF_TYPE_INT16: 2,
+        GGUF_TYPE_UINT32: 4,
+        GGUF_TYPE_INT32: 4,
+        GGUF_TYPE_FLOAT32: 4,
+        GGUF_TYPE_BOOL: 1,
+        GGUF_TYPE_UINT64: 8,
+        GGUF_TYPE_INT64: 8,
+        GGUF_TYPE_FLOAT64: 8,
+    }.get(vtype)
+
+
+def _gguf_read_value(r: GGUFReader, vtype: int):
+    if vtype == GGUF_TYPE_UINT8:
+        return r.u8()
+    if vtype == GGUF_TYPE_INT8:
+        return r.i8()
+    if vtype == GGUF_TYPE_UINT16:
+        return r.u16()
+    if vtype == GGUF_TYPE_INT16:
+        return r.i16()
+    if vtype == GGUF_TYPE_UINT32:
+        return r.u32()
+    if vtype == GGUF_TYPE_INT32:
+        return r.i32()
+    if vtype == GGUF_TYPE_UINT64:
+        return r.u64()
+    if vtype == GGUF_TYPE_INT64:
+        return r.i64()
+    if vtype == GGUF_TYPE_FLOAT32:
+        return r.f32()
+    if vtype == GGUF_TYPE_FLOAT64:
+        return r.f64()
+    if vtype == GGUF_TYPE_BOOL:
+        return bool(r.u8())
+    if vtype == GGUF_TYPE_STRING:
+        return r.val_str()
+    if vtype == GGUF_TYPE_ARRAY:
+        elem_type = r.u32()
+        n = r.u64()
+        if elem_type == GGUF_TYPE_STRING:
+            # Token arrays can be huge; skip storing strings.
+            for _ in range(n):
+                _ = r.val_str()
+            return {"type": "array", "elem_type": elem_type, "len": n}
+        elem_size = _gguf_scalar_size(elem_type)
+        if elem_size is None:
+            raise GGUFError(f"Unsupported GGUF array elem type {elem_type}")
+        r._read_exact(int(n) * elem_size)
+        return {"type": "array", "elem_type": elem_type, "len": n}
+    raise GGUFError(f"Unsupported GGUF value type {vtype}")
+
+
+@dataclass(frozen=True)
+class TensorInfo:
+    name: str
+    dims: Tuple[int, ...]  # ggml order: ne0, ne1, ...
+    ggml_type: int
+    offset: int  # relative to data section start
+
+    @property
+    def ne0(self) -> int:
+        return int(self.dims[0]) if self.dims else 1
+
+    @property
+    def ne1(self) -> int:
+        return int(self.dims[1]) if len(self.dims) > 1 else 1
+
+
+# GGML tensor types (subset).
+GGML_TYPE_F32 = 0
+GGML_TYPE_F16 = 1
+GGML_TYPE_Q4_0 = 2
+GGML_TYPE_Q8_0 = 8
+GGML_TYPE_Q4_K = 12
+GGML_TYPE_BF16 = 16  # present in newer GGUFs
+
+
+def ggml_type_name(t: int) -> str:
+    return {
+        GGML_TYPE_F32: "F32",
+        GGML_TYPE_F16: "F16",
+        GGML_TYPE_BF16: "BF16",
+        GGML_TYPE_Q4_0: "Q4_0",
+        GGML_TYPE_Q8_0: "Q8_0",
+        GGML_TYPE_Q4_K: "Q4_K",
+    }.get(t, f"UNKNOWN({t})")
+
+
+def ggml_row_bytes(ggml_type: int, ne0: int) -> int:
+    if ggml_type == GGML_TYPE_F32:
+        return ne0 * 4
+    if ggml_type == GGML_TYPE_F16:
+        return ne0 * 2
+    if ggml_type == GGML_TYPE_BF16:
+        return ne0 * 2
+    if ggml_type == GGML_TYPE_Q4_0:
+        if ne0 % 32 != 0:
+            raise GGUFError(f"Q4_0 requires ne0 % 32 == 0 (got ne0={ne0})")
+        return (ne0 // 32) * 18
+    if ggml_type == GGML_TYPE_Q8_0:
+        if ne0 % 32 != 0:
+            raise GGUFError(f"Q8_0 requires ne0 % 32 == 0 (got ne0={ne0})")
+        return (ne0 // 32) * 34
+    if ggml_type == GGML_TYPE_Q4_K:
+        if ne0 % 256 != 0:
+            raise GGUFError(f"Q4_K requires ne0 % 256 == 0 (got ne0={ne0})")
+        return (ne0 // 256) * 144
+    raise GGUFError(f"Unsupported ggml_type={ggml_type_name(ggml_type)} for row sizing")
+
+
+def ggml_tensor_bytes(info: TensorInfo) -> int:
+    ne0 = info.ne0
+    n_rows = 1
+    for d in info.dims[1:]:
+        n_rows *= int(d)
+    return ggml_row_bytes(info.ggml_type, ne0) * n_rows
+
+
+def read_vector_f32(f: BinaryIO, base: int, info: TensorInfo) -> np.ndarray:
+    if len(info.dims) != 1:
+        raise GGUFError(f"Expected 1D tensor for {info.name}, got dims={info.dims}")
+    n = info.ne0
+    f.seek(base + info.offset, os.SEEK_SET)
+    raw = f.read(ggml_row_bytes(info.ggml_type, n))
+    if info.ggml_type == GGML_TYPE_F32:
+        return np.frombuffer(raw, dtype=np.float32).copy()
+    if info.ggml_type == GGML_TYPE_F16:
+        return np.frombuffer(raw, dtype=np.float16).astype(np.float32, copy=False)
+    if info.ggml_type == GGML_TYPE_BF16:
+        u16 = np.frombuffer(raw, dtype=np.uint16)
+        u32 = u16.astype(np.uint32) << 16
+        return u32.view(np.float32)
+    raise GGUFError(f"Unsupported vector type {ggml_type_name(info.ggml_type)} for {info.name}")
+
+
+def write_f32_padded(w: HashingWriter, vec: np.ndarray, aligned_dim: int) -> None:
+    out = np.zeros((aligned_dim,), dtype=np.float32)
+    n = min(int(vec.size), aligned_dim)
+    out[:n] = vec.reshape(-1)[:n].astype(np.float32, copy=False)
+    w.write(out.tobytes())
+
+
+def write_f32_zeros(w: HashingWriter, count: int) -> None:
+    if count <= 0:
+        return
+    w.write(np.zeros((count,), dtype=np.float32).tobytes())
+
+
+def copy_bytes_stream(f_in: BinaryIO, src_pos: int, nbytes: int, w_out: HashingWriter, chunk: int = 1 << 20) -> None:
+    f_in.seek(src_pos, os.SEEK_SET)
+    remaining = nbytes
+    while remaining > 0:
+        take = min(remaining, chunk)
+        buf = f_in.read(take)
+        if len(buf) != take:
+            raise GGUFError(f"Unexpected EOF while copying bytes (wanted {take}, got {len(buf)})")
+        w_out.write(buf)
+        remaining -= take
+
+
+def copy_q4k_head_packed(
+    f_in: BinaryIO,
+    data_base: int,
+    info: TensorInfo,
+    w_out: HashingWriter,
+    group_count: int,
+    head_dim: int,
+    aligned_head_dim: int,
+    aligned_embed_dim: int,
+) -> None:
+    if info.ggml_type != GGML_TYPE_Q4_K:
+        raise GGUFError(f"{info.name}: expected Q4_K, got {ggml_type_name(info.ggml_type)}")
+    if len(info.dims) != 2:
+        raise GGUFError(f"{info.name}: expected 2D, got dims={info.dims}")
+
+    in_dim = info.ne0
+    out_dim = info.ne1
+    if in_dim != aligned_embed_dim:
+        raise GGUFError(f"{info.name}: expected in_dim={aligned_embed_dim}, got {in_dim}")
+    if out_dim != group_count * head_dim:
+        raise GGUFError(
+            f"{info.name}: expected out_dim={group_count * head_dim} (group_count*head_dim), got {out_dim}"
+        )
+
+    row_bytes = ggml_row_bytes(info.ggml_type, in_dim)
+    src = data_base + info.offset
+    f_in.seek(src, os.SEEK_SET)
+
+    zero_row = b"\x00" * row_bytes
+
+    for _h in range(group_count):
+        # Copy real rows for this head.
+        for _r in range(head_dim):
+            buf = f_in.read(row_bytes)
+            if len(buf) != row_bytes:
+                raise GGUFError(f"{info.name}: unexpected EOF while reading row")
+            w_out.write(buf)
+        # Pad extra rows (if any) with zeros so padded lanes never contribute.
+        for _r in range(head_dim, aligned_head_dim):
+            w_out.write(zero_row)
+
+
+def build_llama_config(
+    *,
+    model_type: str,
+    num_layers: int,
+    vocab_size: int,
+    hidden_size: int,
+    intermediate_size: int,
+    num_heads: int,
+    num_kv_heads: int,
+    context_window: int,
+    rope_theta: float,
+    rms_norm_eps: float,
+) -> Dict:
+    return {
+        "architectures": ["LlamaForCausalLM"],
+        "model_type": model_type,
+        "num_hidden_layers": int(num_layers),
+        "hidden_size": int(hidden_size),
+        "intermediate_size": int(intermediate_size),
+        "num_attention_heads": int(num_heads),
+        "num_key_value_heads": int(num_kv_heads),
+        "vocab_size": int(vocab_size),
+        "max_position_embeddings": int(context_window),
+        "rms_norm_eps": float(rms_norm_eps),
+        "rope_theta": float(rope_theta),
+    }
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Convert GGUF (Q4_K / Q4_K_M) weights to weights.bump")
+    ap.add_argument("--gguf", required=True, help="Input GGUF file (e.g. model.Q4_K_M.gguf)")
+    ap.add_argument("--output", required=True, help="Output weights.bump path")
+    ap.add_argument("--config-out", help="Optional config.json output path (HF-style minimal config)")
+    ap.add_argument("--context", type=int, help="Override context length (max_position_embeddings)")
+    args = ap.parse_args()
+
+    wanted_meta = {
+        "general.architecture",
+        "general.alignment",
+        "llama.block_count",
+        "llama.context_length",
+        "llama.embedding_length",
+        "llama.feed_forward_length",
+        "llama.attention.head_count",
+        "llama.attention.head_count_kv",
+        "llama.rope.freq_base",
+        "llama.norm_rms_eps",
+    }
+
+    with open(args.gguf, "rb") as f:
+        r = GGUFReader(f)
+        magic = r._read_exact(4)
+        if magic != b"GGUF":
+            raise GGUFError(f"{args.gguf}: invalid magic {magic!r} (expected b'GGUF')")
+
+        version = r.u32()
+        n_tensors = r.u32()
+        n_kv = r.u32()
+
+        meta: Dict[str, object] = {}
+        for _ in range(n_kv):
+            key = r.key_str()
+            vtype = r.u32()
+            if key in wanted_meta:
+                meta[key] = _gguf_read_value(r, vtype)
+            else:
+                _ = _gguf_read_value(r, vtype)
+
+        tensors: Dict[str, TensorInfo] = {}
+        for _ in range(n_tensors):
+            name = r.key_str()
+            n_dims = r.u32()
+            dims = tuple(int(r.u64()) for _ in range(n_dims))
+            ggml_type = r.u32()
+            offset = r.u64()
+            tensors[name] = TensorInfo(name=name, dims=dims, ggml_type=int(ggml_type), offset=int(offset))
+
+        alignment = int(meta.get("general.alignment", 32))
+        data_start = align_up(r.tell(), alignment)
+        # Some writers already align; seeking forward is safe either way.
+        r.seek(data_start)
+
+        arch = str(meta.get("general.architecture", "llama"))
+
+        # Pull core dims from metadata first; fall back to tensor shapes.
+        def meta_int(key: str) -> Optional[int]:
+            v = meta.get(key)
+            if v is None:
+                return None
+            if isinstance(v, bool):
+                return int(v)
+            if isinstance(v, (int, np.integer)):
+                return int(v)
+            return None
+
+        def meta_float(key: str) -> Optional[float]:
+            v = meta.get(key)
+            if v is None:
+                return None
+            if isinstance(v, (float, np.floating)):
+                return float(v)
+            if isinstance(v, (int, np.integer)):
+                return float(v)
+            return None
+
+        tok_name = "token_embd.weight"
+        if tok_name not in tensors:
+            raise GGUFError(f"Missing required tensor: {tok_name}")
+        tok = tensors[tok_name]
+        if len(tok.dims) != 2:
+            raise GGUFError(f"{tok_name}: expected 2D, got dims={tok.dims}")
+        embed_dim = meta_int("llama.embedding_length") or tok.ne0
+        vocab_size = tok.ne1
+
+        num_layers = meta_int("llama.block_count")
+        if num_layers is None:
+            # Infer from present blocks.
+            layer_ids = []
+            for name in tensors:
+                if name.startswith("blk.") and ".attn_norm.weight" in name:
+                    try:
+                        layer_ids.append(int(name.split(".")[1]))
+                    except Exception:
+                        pass
+            if not layer_ids:
+                raise GGUFError("Could not infer num_layers (missing llama.block_count and no blk.* tensors found)")
+            num_layers = max(layer_ids) + 1
+
+        intermediate = meta_int("llama.feed_forward_length")
+        if intermediate is None:
+            gate0 = tensors.get("blk.0.ffn_gate.weight")
+            if gate0 and len(gate0.dims) == 2:
+                intermediate = gate0.ne1
+        if intermediate is None:
+            raise GGUFError("Could not determine intermediate_size (missing llama.feed_forward_length)")
+
+        num_heads = meta_int("llama.attention.head_count")
+        if num_heads is None:
+            raise GGUFError("Missing llama.attention.head_count (num_heads)")
+        num_kv_heads = meta_int("llama.attention.head_count_kv") or num_heads
+
+        context_len = meta_int("llama.context_length") or 0
+        if args.context is not None:
+            context_len = int(args.context)
+        if context_len <= 0:
+            raise GGUFError("Could not determine context length (use --context to override)")
+
+        rope_theta = meta_float("llama.rope.freq_base") or 10000.0
+        rms_eps = meta_float("llama.norm_rms_eps") or 1e-5
+
+        if embed_dim != tok.ne0:
+            raise GGUFError(f"{tok_name}: embedding_length mismatch (meta={embed_dim}, tensor.ne0={tok.ne0})")
+        if embed_dim % num_heads != 0:
+            raise GGUFError(f"hidden_size {embed_dim} not divisible by num_heads {num_heads}")
+
+        head_dim = embed_dim // num_heads
+        embed_kv = num_kv_heads * head_dim
+
+        # For Q4_K, keep aligned dims equal to model dims; K must be multiple of 256.
+        if embed_dim % 256 != 0:
+            raise GGUFError(f"Q4_K requires hidden_size multiple of 256 (got {embed_dim})")
+        if intermediate % 256 != 0:
+            raise GGUFError(f"Q4_K requires intermediate_size multiple of 256 (got {intermediate})")
+
+        aligned_embed_dim = embed_dim
+        aligned_head_dim = head_dim
+        aligned_context = align_up_elems(context_len, 4, CACHE_ALIGN)
+
+        required = {
+            "output_norm.weight",
+        }
+        for name in required:
+            if name not in tensors:
+                raise GGUFError(f"Missing required tensor: {name}")
+
+        # Create output directory.
+        os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+        with open(args.output, "w+b") as out_f:
+            out_f.write(b"\x00" * HEADER_SIZE)
+            w = HashingWriter(out_f)
+
+            # 1) token embeddings (quantized)
+            if tok.ggml_type != GGML_TYPE_Q4_K:
+                raise GGUFError(f"{tok_name}: expected Q4_K (Q4_K_M), got {ggml_type_name(tok.ggml_type)}")
+            copy_bytes_stream(f, data_start + tok.offset, ggml_tensor_bytes(tok), w)
+
+            # 2) pos_emb: not used by RoPE models; keep zeros for compatibility.
+            write_f32_zeros(w, context_len * aligned_embed_dim)
+
+            # 3) per-layer
+            for layer in range(num_layers):
+                attn_norm = tensors.get(f"blk.{layer}.attn_norm.weight")
+                ffn_norm = tensors.get(f"blk.{layer}.ffn_norm.weight")
+                if not attn_norm or not ffn_norm:
+                    raise GGUFError(f"Layer {layer}: missing attn_norm/ffn_norm tensors")
+
+                ln1 = read_vector_f32(f, data_start, attn_norm)
+                ln2 = read_vector_f32(f, data_start, ffn_norm)
+                write_f32_padded(w, ln1, aligned_embed_dim)
+                write_f32_padded(w, ln2, aligned_embed_dim)
+
+                wq = tensors.get(f"blk.{layer}.attn_q.weight")
+                wk = tensors.get(f"blk.{layer}.attn_k.weight")
+                wv = tensors.get(f"blk.{layer}.attn_v.weight")
+                wo = tensors.get(f"blk.{layer}.attn_output.weight")
+                if not wq or not wk or not wv or not wo:
+                    raise GGUFError(f"Layer {layer}: missing attention projection tensors (q/k/v/o)")
+
+                # Q: [embed_dim x embed_dim]
+                if wq.ne0 != embed_dim or wq.ne1 != embed_dim:
+                    raise GGUFError(f"{wq.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wq.dims}")
+                copy_q4k_head_packed(
+                    f, data_start, wq, w,
+                    group_count=num_heads,
+                    head_dim=head_dim,
+                    aligned_head_dim=aligned_head_dim,
+                    aligned_embed_dim=aligned_embed_dim,
+                )
+                # bq
+                write_f32_zeros(w, num_heads * aligned_head_dim)
+
+                # K/V: [embed_dim x embed_kv] (ne0=in, ne1=out)
+                for tensor, label in ((wk, "K"), (wv, "V")):
+                    if tensor.ne0 != embed_dim or tensor.ne1 != embed_kv:
+                        raise GGUFError(
+                            f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={embed_kv}] for {label}, got {tensor.dims}"
+                        )
+                copy_q4k_head_packed(
+                    f, data_start, wk, w,
+                    group_count=num_kv_heads,
+                    head_dim=head_dim,
+                    aligned_head_dim=aligned_head_dim,
+                    aligned_embed_dim=aligned_embed_dim,
+                )
+                write_f32_zeros(w, num_kv_heads * aligned_head_dim)  # bk
+
+                copy_q4k_head_packed(
+                    f, data_start, wv, w,
+                    group_count=num_kv_heads,
+                    head_dim=head_dim,
+                    aligned_head_dim=aligned_head_dim,
+                    aligned_embed_dim=aligned_embed_dim,
+                )
+                write_f32_zeros(w, num_kv_heads * aligned_head_dim)  # bv
+
+                # Wo: stored as a single [embed_dim x embed_dim] matrix for Q4_K path.
+                if wo.ggml_type != GGML_TYPE_Q4_K:
+                    raise GGUFError(f"{wo.name}: expected Q4_K, got {ggml_type_name(wo.ggml_type)}")
+                if wo.ne0 != embed_dim or wo.ne1 != embed_dim:
+                    raise GGUFError(f"{wo.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wo.dims}")
+                copy_bytes_stream(f, data_start + wo.offset, ggml_tensor_bytes(wo), w)
+                write_f32_zeros(w, aligned_embed_dim)  # bo
+
+                # MLP: gate/up concatenated into w1, down is w2.
+                gate = tensors.get(f"blk.{layer}.ffn_gate.weight")
+                up = tensors.get(f"blk.{layer}.ffn_up.weight")
+                down = tensors.get(f"blk.{layer}.ffn_down.weight")
+                if not gate or not up or not down:
+                    raise GGUFError(f"Layer {layer}: missing ffn tensors (gate/up/down)")
+
+                for tensor, label in ((gate, "gate"), (up, "up")):
+                    if tensor.ggml_type != GGML_TYPE_Q4_K:
+                        raise GGUFError(f"{tensor.name}: expected Q4_K for {label}, got {ggml_type_name(tensor.ggml_type)}")
+                    if tensor.ne0 != embed_dim or tensor.ne1 != intermediate:
+                        raise GGUFError(
+                            f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={intermediate}] for {label}, got {tensor.dims}"
+                        )
+                # w1: [2*intermediate x embed_dim] stored row-major (gate rows then up rows).
+                copy_bytes_stream(f, data_start + gate.offset, ggml_tensor_bytes(gate), w)
+                copy_bytes_stream(f, data_start + up.offset, ggml_tensor_bytes(up), w)
+                write_f32_zeros(w, 2 * intermediate)  # b1
+
+                if down.ggml_type != GGML_TYPE_Q4_K:
+                    raise GGUFError(f"{down.name}: expected Q4_K for down, got {ggml_type_name(down.ggml_type)}")
+                if down.ne0 != intermediate or down.ne1 != embed_dim:
+                    raise GGUFError(
+                        f"{down.name}: expected dims [ne0={intermediate}, ne1={embed_dim}] for down, got {down.dims}"
+                    )
+                # w2: [embed_dim x intermediate] in our runtime layout; GGML stores [ne0=intermediate, ne1=embed].
+                copy_bytes_stream(f, data_start + down.offset, ggml_tensor_bytes(down), w)
+                write_f32_zeros(w, aligned_embed_dim)  # b2
+
+            # 4) final RMSNorm (gamma) and bias placeholder
+            final_norm = read_vector_f32(f, data_start, tensors["output_norm.weight"])
+            write_f32_padded(w, final_norm, aligned_embed_dim)
+            write_f32_zeros(w, aligned_embed_dim)
+
+            checksum = w.digest()
+
+            # Header: matches scripts/convert_hf_to_bump.py (BUMPWGT2, version 2).
+            out_f.flush()
+            out_f.seek(0, os.SEEK_SET)
+            out_f.write(b"BUMPWGT2")
+            out_f.write(struct.pack("<I", 2))  # version
+            out_f.write(struct.pack("<I", 1))  # model_type (legacy)
+            out_f.write(struct.pack("<I", int(num_layers)))
+            out_f.write(struct.pack("<I", int(vocab_size)))
+            out_f.write(struct.pack("<I", int(embed_dim)))
+            out_f.write(struct.pack("<I", int(context_len)))
+            out_f.write(struct.pack("<I", int(num_heads)))
+            out_f.write(struct.pack("<I", int(head_dim)))
+            out_f.write(struct.pack("<Q", int(aligned_embed_dim)))
+            out_f.write(struct.pack("<Q", int(aligned_head_dim)))
+            out_f.write(struct.pack("<Q", int(aligned_context)))
+            out_f.write(checksum)
+            out_f.write(b"\x00" * 32)
+
+    if args.config_out:
+        os.makedirs(os.path.dirname(args.config_out) or ".", exist_ok=True)
+        cfg = build_llama_config(
+            model_type=arch,
+            num_layers=num_layers,
+            vocab_size=vocab_size,
+            hidden_size=embed_dim,
+            intermediate_size=intermediate,
+            num_heads=num_heads,
+            num_kv_heads=num_kv_heads,
+            context_window=context_len,
+            rope_theta=rope_theta,
+            rms_norm_eps=rms_eps,
+        )
+        with open(args.config_out, "w", encoding="utf-8") as cf:
+            json.dump(cfg, cf, indent=2)
+            cf.write("\n")
+
+    print(
+        f"[gguf->bump] version={version} arch={arch} layers={num_layers} "
+        f"hidden={embed_dim} heads={num_heads}/{num_kv_heads} ff={intermediate} "
+        f"vocab={vocab_size} ctx={context_len} -> {args.output}"
+    )
+
+
+if __name__ == "__main__":
+    main()
+
