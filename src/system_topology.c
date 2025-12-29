@@ -111,7 +111,7 @@ int topology_discover_cpu(CPUInfo *cpu) {
     FILE *f = fopen("/proc/cpuinfo", "r");
     if (!f) return -1;
 
-    char line[512];
+    char line[4096];  // Flags line can be very long on modern CPUs (AVX-512 + AMX)
     int processor_count = 0;
     int physical_id_max = -1;
     int core_id_max = -1;
