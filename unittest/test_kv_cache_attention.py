@@ -38,6 +38,22 @@ lib.attention_forward_causal_head_major_gqa.argtypes = [
 ]
 lib.attention_forward_causal_head_major_gqa.restype = None
 
+# Exact version using standard library expf (for accurate reference)
+lib.attention_forward_causal_head_major_gqa_exact.argtypes = [
+    ctypes.POINTER(ctypes.c_float),  # q
+    ctypes.POINTER(ctypes.c_float),  # k
+    ctypes.POINTER(ctypes.c_float),  # v
+    ctypes.POINTER(ctypes.c_float),  # scores
+    ctypes.POINTER(ctypes.c_float),  # output
+    ctypes.c_int,                    # num_heads
+    ctypes.c_int,                    # num_kv_heads
+    ctypes.c_int,                    # num_tokens
+    ctypes.c_int,                    # head_dim
+    ctypes.c_int,                    # aligned_head_dim
+    ctypes.c_int,                    # aligned_context_window
+]
+lib.attention_forward_causal_head_major_gqa_exact.restype = None
+
 lib.attention_forward_causal_head_major_gqa_flash.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # q
     ctypes.POINTER(ctypes.c_float),  # k
@@ -97,7 +113,8 @@ def run_flash_prefill_tests(H=8, H_kv=4, T=64, D=64, aligned_head_dim=64, warmup
     )
 
     def c_ref():
-        lib.attention_forward_causal_head_major_gqa(
+        # Use exact reference (standard expf) for accurate comparison
+        lib.attention_forward_causal_head_major_gqa_exact(
             numpy_to_ptr(q_np), numpy_to_ptr(k_np), numpy_to_ptr(v_np),
             numpy_to_ptr(scores_np), numpy_to_ptr(out_ref_np),
             ctypes.c_int(H), ctypes.c_int(H_kv), ctypes.c_int(T),
@@ -150,7 +167,8 @@ def run_kv_cache_decode_tests(H=8, H_kv=4, T=64, D=64, aligned_head_dim=64, warm
     )
 
     def c_full_ref():
-        lib.attention_forward_causal_head_major_gqa(
+        # Use exact reference (standard expf) for accurate comparison
+        lib.attention_forward_causal_head_major_gqa_exact(
             numpy_to_ptr(q_np), numpy_to_ptr(k_np), numpy_to_ptr(v_np),
             numpy_to_ptr(scores_np), numpy_to_ptr(out_ref_np),
             ctypes.c_int(H), ctypes.c_int(H_kv), ctypes.c_int(T),
