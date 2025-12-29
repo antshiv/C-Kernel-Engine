@@ -63,29 +63,10 @@ static void gemm_bf16_scalar(const uint16_t *A,
 /* ==========================================================================
  * AVX-512F: Vectorized BF16 conversion + FMA
  * Works on all AVX-512 CPUs (no BF16 instruction required)
+ *
+ * BF16 conversion functions (bf16x16_to_fp32, fp32x16_to_bf16) are now
+ * provided by bf16_utils.h for consistency across all kernels.
  * ========================================================================== */
-
-/* Convert 16 BF16 values to 16 FP32 values */
-static inline __m512 bf16x16_to_fp32(__m256i bf16_vec)
-{
-    /* BF16 to FP32: shift left by 16 bits */
-    __m512i as_int = _mm512_cvtepu16_epi32(bf16_vec);
-    __m512i shifted = _mm512_slli_epi32(as_int, 16);
-    return _mm512_castsi512_ps(shifted);
-}
-
-/* Convert 16 FP32 values to 16 BF16 values (with rounding) */
-static inline __m256i fp32x16_to_bf16(__m512 fp32_vec)
-{
-    /* Round to nearest even, then truncate */
-    __m512i as_int = _mm512_castps_si512(fp32_vec);
-    __m512i lsb = _mm512_srli_epi32(as_int, 16);
-    lsb = _mm512_and_si512(lsb, _mm512_set1_epi32(1));
-    __m512i rounding = _mm512_add_epi32(_mm512_set1_epi32(0x7FFF), lsb);
-    __m512i rounded = _mm512_add_epi32(as_int, rounding);
-    __m512i shifted = _mm512_srli_epi32(rounded, 16);
-    return _mm512_cvtepi32_epi16(shifted);
-}
 
 /* BF16 dot product: 16 pairs, accumulate to FP32 */
 static inline __m512 bf16_dot16(__m256i a_bf16, __m256i b_bf16, __m512 acc)

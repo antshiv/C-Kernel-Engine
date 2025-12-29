@@ -43,9 +43,6 @@
 #include <omp.h>
 #endif
 
-// Flag to track if we've set optimal thread count
-static int g_threads_initialized = 0;
-
 // =============================================================================
 // MKL Backend Implementation
 // =============================================================================
@@ -900,6 +897,9 @@ static void gemm_microkernel_sequential(
         }
     }
 }
+
+// Flag to track if we've set optimal thread count (only used in native backend)
+static int g_threads_initialized = 0;
 
 // Set optimal thread count for GEMM (physical cores only, no hyperthreading)
 static void gemm_init_threads(void) {

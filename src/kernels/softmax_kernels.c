@@ -19,9 +19,8 @@ static inline __m512 exp512_approx(__m512 x) {
 
     __m512 t = _mm512_mul_ps(x, log2e);
     __m512 ti = _mm512_roundscale_ps(t, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
-    __m512 tf = _mm512_sub_ps(t, ti);
 
-    // Reconstruct: x = ti * ln(2) + remainder
+    // Reconstruct remainder: rx = x - ti * ln(2)
     __m512 rx = _mm512_sub_ps(x, _mm512_mul_ps(ti, c1));
     rx = _mm512_sub_ps(rx, _mm512_mul_ps(ti, c2));
 

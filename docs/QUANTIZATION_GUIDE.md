@@ -3,11 +3,145 @@
 This guide explains quantization concepts, GGML/llama.cpp's approach, and how to integrate quantization with C-Kernel-Engine's bump allocator.
 
 ## Table of Contents
-1. [What is Grouping?](#what-is-grouping)
-2. [GGML Quantization Formats](#ggml-quantization-formats)
-3. [Memory Layout and Cache Lines](#memory-layout-and-cache-lines)
-4. [Bump Allocator Integration](#bump-allocator-integration)
-5. [Kernel Dispatch](#kernel-dispatch)
+1. [BF16 (Brain Float 16)](#bf16-brain-float-16)
+2. [What is Grouping?](#what-is-grouping)
+3. [GGML Quantization Formats](#ggml-quantization-formats)
+4. [Memory Layout and Cache Lines](#memory-layout-and-cache-lines)
+5. [Bump Allocator Integration](#bump-allocator-integration)
+6. [Kernel Dispatch](#kernel-dispatch)
+
+---
+
+## BF16 (Brain Float 16)
+
+BF16 is a 16-bit floating-point format widely used in machine learning. It's the foundation of our reduced-precision compute path.
+
+### Format Comparison
+
+| Format | Sign | Exponent | Mantissa | Range | Precision |
+|--------|------|----------|----------|-------|-----------|
+| FP32   | 1    | 8        | 23       | ±3.4×10³⁸ | ~7 decimal digits |
+| BF16   | 1    | 8        | 7        | ±3.4×10³⁸ | ~2 decimal digits |
+| FP16   | 1    | 5        | 10       | ±65,504 | ~3 decimal digits |
+
+### Why BF16 over FP16?
+
+```
+BF16:  [S][EEEEEEEE][MMMMMMM]    ← Same exponent as FP32!
+FP16:  [S][EEEEE][MMMMMMMMMM]    ← Limited range, overflows in ML
+FP32:  [S][EEEEEEEE][MMMMMMMMMMMMMMMMMMMMMMM]
+```
+
+**Key insight**: BF16 is literally the upper 16 bits of FP32. This means:
+- Same dynamic range as FP32 (no overflow issues in gradients)
+- Trivial conversion: just truncate/round the lower 16 bits
+- 2× memory savings and bandwidth reduction
+
+### BF16 ↔ FP32 Conversion
+
+**BF16 to FP32** (lossless):
+```c
+float bf16_to_float(uint16_t v) {
+    uint32_t bits = (uint32_t)v << 16;  // Place in upper 16 bits
+    return *(float*)&bits;               // Zero-extend lower bits
+}
+```
+
+**FP32 to BF16** (with rounding):
+```c
+uint16_t float_to_bf16(float f) {
+    uint32_t bits = *(uint32_t*)&f;
+    uint32_t lsb = (bits >> 16) & 1;      // LSB of result
+    bits += 0x7FFF + lsb;                  // Round-to-nearest-even
+    return (uint16_t)(bits >> 16);         // Truncate
+}
+```
+
+### The Round-to-Nearest-Even Algorithm
+
+Why not just truncate (`>> 16`)?
+
+```
+Simple truncation always rounds DOWN → systematic negative bias
+                                     → errors compound through layers
+                                     → training becomes unstable
+```
+
+**Round-to-nearest-even** (banker's rounding) eliminates bias:
+
+| Fractional Part | Action | Bias |
+|-----------------|--------|------|
+| < 0.5 | Round down | None |
+| > 0.5 | Round up | None |
+| = 0.5 | Round to EVEN | Ties cancel out |
+
+**The `0x7FFF + lsb` trick**:
+- `0x7FFF` is "almost half" of the lower 16 bits
+- If fraction < 0.5: adding 0x7FFF doesn't overflow → rounds down
+- If fraction > 0.5: adding 0x7FFF overflows → rounds up
+- If fraction = 0.5: `+lsb` breaks the tie → even result wins
+
+See `bf16_format.svg` and `bf16_rounding.svg` for visual explanations.
+
+### Compute Patterns in C-Kernel-Engine
+
+**Pattern 1: Convert-Compute-Convert**
+```c
+// Simpler, good for debugging
+bf16_tensor_to_float(input_bf16, tmp_fp32, count);
+compute_in_fp32(tmp_fp32, output_fp32, count);
+float_tensor_to_bf16(output_fp32, output_bf16, count);
+```
+
+**Pattern 2: Inline Conversion (preferred)**
+```c
+// No intermediate memory, used in optimized kernels
+for (d = 0; d + 16 <= D; d += 16) {
+    __m512 x = bf16_loadu_cvt_fp32(&input_bf16[d]);  // Load+convert
+    __m512 y = compute_avx512(x);                    // FP32 compute
+    fp32_cvt_storeu_bf16(&output_bf16[d], y);        // Convert+store
+}
+```
+
+### AVX-512 BF16 Operations
+
+Our BF16 kernels use AVX-512 for 16-wide SIMD:
+
+```c
+// Load 16 BF16 → 16 FP32
+__m512 bf16_loadu_cvt_fp32(const uint16_t *ptr) {
+    __m256i bf16_vec = _mm256_loadu_si256((const __m256i *)ptr);
+    __m512i as_int = _mm512_cvtepu16_epi32(bf16_vec);  // Zero-extend
+    __m512i shifted = _mm512_slli_epi32(as_int, 16);    // Shift to upper
+    return _mm512_castsi512_ps(shifted);
+}
+
+// Store 16 FP32 → 16 BF16 (with rounding)
+void fp32_cvt_storeu_bf16(uint16_t *ptr, __m512 fp32_vec) {
+    __m512i as_int = _mm512_castps_si512(fp32_vec);
+    __m512i lsb = _mm512_and_si512(_mm512_srli_epi32(as_int, 16),
+                                    _mm512_set1_epi32(1));
+    __m512i rounding = _mm512_add_epi32(_mm512_set1_epi32(0x7FFF), lsb);
+    __m512i rounded = _mm512_add_epi32(as_int, rounding);
+    __m512i shifted = _mm512_srli_epi32(rounded, 16);
+    __m256i bf16_vec = _mm512_cvtepi32_epi16(shifted);
+    _mm256_storeu_si256((__m256i *)ptr, bf16_vec);
+}
+```
+
+### BF16 Kernel Status
+
+| Kernel | BF16 Support | SIMD |
+|--------|-------------|------|
+| GEMM | ✓ | AVX-512 |
+| RMSNorm | ✓ | AVX-512 |
+| Softmax | ✓ | AVX-512 (via tensor convert) |
+| RoPE | ✓ | AVX-512 (via tensor convert) |
+| GELU | ✓ | AVX-512 (via tensor convert) |
+| SwiGLU | ✓ | AVX-512 |
+| Attention | ✓ | AVX-512 |
+| Embedding | ✓ | Scalar |
+| Cross-Entropy | ✓ | Scalar |
 
 ---
 
@@ -428,9 +562,13 @@ void ck_matmul_f32_q4_0_avx512(CKTensor* out, CKTensor* act, CKTensor* wgt) {
 
 ## Visual Summary
 
-See `quantization_infographic.svg` for bit layouts and instruction mappings.
+### BF16 Format and Conversion
+- `bf16_format.svg` - BF16 vs FP32 bit layout comparison
+- `bf16_rounding.svg` - Round-to-nearest-even algorithm flowchart
 
-See `quantization_grouping.svg` for detailed grouping visualization.
+### Quantization (INT4/INT8)
+- `quantization_infographic.svg` - Bit layouts and instruction mappings
+- `quantization_grouping.svg` - Detailed grouping visualization
 
 ---
 

@@ -70,11 +70,41 @@ void gemm_fine_grained_parallel(const float *A,
 	                         int M, int N, int K);
 
 	// Reference BF16 GEMM (A/B/bias in BF16, output BF16).
-	void gemm_blocked_serial_bf16(const uint16_t *A,
-	                              const uint16_t *B,
-	                              const uint16_t *bias,
-	                              uint16_t *C,
-	                              int M, int N, int K);
+void gemm_blocked_serial_bf16(const uint16_t *A,
+                              const uint16_t *B,
+                              const uint16_t *bias,
+                              uint16_t *C,
+                              int M, int N, int K);
+
+// =============================================================================
+// Quantized (GGML-style) GEMM/GEMV helpers
+// =============================================================================
+//
+// These kernels are used for weight-only quantized inference (e.g. Q4_K_M).
+// The "NT" wrapper matches the engine's common layout:
+//   A: [M x K] fp32 (token-major)
+//   B: [N x K] quantized (row-major by output channel)
+//   C: [M x N] fp32
+//
+// NOTE: Q4_K requires K to be a multiple of 256 (QK_K).
+
+void gemv_q4_k(float *y,
+               const void *W,
+               const float *x,
+               int M, int K);
+
+void gemm_q4_k(float *Y,
+               const void *W,
+               const float *X,
+               int M, int N, int K);
+
+void gemm_nt_q4_k(const float *A,
+                  const void *B,
+                  const float *bias,
+                  float *C,
+                  int M, int N, int K);
+
+void dequant_q4_k_row(const void *src, float *dst, size_t n_elements);
 
 // GEMM_NN: C[M,N] = A[M,K] @ B[K,N] + bias[N]
 // B is stored row-major as [K,N] (no transpose on B)

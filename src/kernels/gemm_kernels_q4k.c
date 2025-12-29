@@ -524,3 +524,50 @@ void gemm_q4_k_backward(float *dX,
         gemv_q4_k_backward(&dX[n * K], W, &dY[n * M], M, K);
     }
 }
+
+/* ============================================================================
+ * Engine-compatible wrapper: GEMM_NT with Q4_K weights
+ *
+ * The core q4_k kernels in this file use the convention:
+ *   - W: [M_out x K] (quantized row-major)
+ *   - X: [N_batch x K] (fp32)
+ *   - Y: [N_batch x M_out] (fp32)
+ *
+ * The C-Kernel-Engine convention for NN weights uses:
+ *   - A: [M_tokens x K] (fp32)
+ *   - B: [N_out x K] (quantized row-major, transposed layout)
+ *   - C: [M_tokens x N_out] (fp32)
+ *
+ * This wrapper swaps (M_out, N_batch) to match the engine layout and applies
+ * an optional bias.
+ * ============================================================================ */
+
+void gemm_nt_q4_k(const float *A,
+                  const void *B,
+                  const float *bias,
+                  float *C,
+                  int M, int N, int K)
+{
+    if (!A || !B || !C) {
+        return;
+    }
+    if (M <= 0 || N <= 0 || K <= 0) {
+        return;
+    }
+
+    /* gemm_q4_k produces Y as [batch x M_out]. Here:
+     *   batch = M (tokens)
+     *   M_out = N (output channels) */
+    gemm_q4_k(C, B, A, /*M_out=*/N, /*N_batch=*/M, K);
+
+    if (!bias) {
+        return;
+    }
+
+    for (int i = 0; i < M; ++i) {
+        float *row = C + (size_t)i * (size_t)N;
+        for (int j = 0; j < N; ++j) {
+            row[j] += bias[j];
+        }
+    }
+}

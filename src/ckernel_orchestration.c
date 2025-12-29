@@ -1,6 +1,7 @@
 #include "ckernel_orchestration.h"
 
 #include "ckernel_engine.h"
+#include "ckernel_dtype.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -81,6 +82,127 @@ void ck_qkv_project_head_major(const float *input,
         gemm_blocked_serial(input, wv_h, bv_h, v_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
     }
+}
+
+/* ============================================================================
+ * Q4_K (Q4_K_M) forward-only paths
+ * ============================================================================
+ *
+ * These helpers keep the same activation layouts as the fp32 code paths, but
+ * accept weight matrices stored as GGML-compatible Q4_K blocks. This is meant
+ * for weight-only quantized inference: activations remain fp32.
+ *
+ * Important constraints:
+ *   - Q4_K kernels require K (the input dimension) to be a multiple of 256.
+ *   - For attention output projection we assume the concatenated head vector
+ *     has length aligned_embed_dim (i.e., num_heads * aligned_head_dim matches).
+ */
+
+static void ck_qkv_project_head_major_q4_k(const float *input,
+                                          const void *wq, const float *bq,
+                                          const void *wk, const float *bk,
+                                          const void *wv, const float *bv,
+                                          float *q, float *k, float *v,
+                                          int tokens,
+                                          int aligned_embed_dim,
+                                          int num_heads,
+                                          int num_kv_heads,
+                                          int aligned_head_dim)
+{
+    if (!input || !wq || !wk || !wv || !q || !k || !v) {
+        return;
+    }
+
+    const size_t head_w_elems = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
+    const size_t head_w_bytes = ck_dtype_row_bytes(CK_DT_Q4_K, head_w_elems);
+    const size_t head_out_stride = (size_t)tokens * (size_t)aligned_head_dim;
+
+    const uint8_t *wq_bytes = (const uint8_t *)wq;
+    const uint8_t *wk_bytes = (const uint8_t *)wk;
+    const uint8_t *wv_bytes = (const uint8_t *)wv;
+
+    for (int h = 0; h < num_heads; ++h) {
+        const void *wq_h = wq_bytes + (size_t)h * head_w_bytes;
+        const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        float *q_h = q + (size_t)h * head_out_stride;
+
+        gemm_nt_q4_k(input, wq_h, bq_h, q_h,
+                     tokens, aligned_head_dim, aligned_embed_dim);
+    }
+
+    for (int h = 0; h < num_kv_heads; ++h) {
+        const void *wk_h = wk_bytes + (size_t)h * head_w_bytes;
+        const void *wv_h = wv_bytes + (size_t)h * head_w_bytes;
+
+        const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
+
+        float *k_h = k + (size_t)h * head_out_stride;
+        float *v_h = v + (size_t)h * head_out_stride;
+
+        gemm_nt_q4_k(input, wk_h, bk_h, k_h,
+                     tokens, aligned_head_dim, aligned_embed_dim);
+        gemm_nt_q4_k(input, wv_h, bv_h, v_h,
+                     tokens, aligned_head_dim, aligned_embed_dim);
+    }
+}
+
+static void ck_attention_project_head_major_q4_k(const float *attn_out,
+                                                 const void *wo,
+                                                 const float *bo,
+                                                 float *out,
+                                                 float *scratch,
+                                                 int tokens,
+                                                 int aligned_embed_dim,
+                                                 int num_heads,
+                                                 int aligned_head_dim)
+{
+    if (!attn_out || !wo || !out || !scratch) {
+        return;
+    }
+
+    /* Flatten head-major [H, T, ad] into token-major [T, H*ad] */
+    const int K = num_heads * aligned_head_dim;
+    if (K != aligned_embed_dim) {
+        return;
+    }
+
+    const size_t head_in_stride = (size_t)tokens * (size_t)aligned_head_dim;
+
+    for (int t = 0; t < tokens; ++t) {
+        float *dst = scratch + (size_t)t * (size_t)aligned_embed_dim;
+        for (int h = 0; h < num_heads; ++h) {
+            const float *src = attn_out + (size_t)h * head_in_stride + (size_t)t * (size_t)aligned_head_dim;
+            memcpy(dst + (size_t)h * (size_t)aligned_head_dim,
+                   src,
+                   (size_t)aligned_head_dim * sizeof(float));
+        }
+    }
+
+    gemm_nt_q4_k(scratch, wo, bo, out,
+                 tokens, aligned_embed_dim, aligned_embed_dim);
+}
+
+static void ck_mlp_swiglu_forward_q4_k(const float *input,
+                                      const void *w1,
+                                      const float *b1,
+                                      const void *w2,
+                                      const float *b2,
+                                      float *fc1_out,
+                                      float *swiglu_out,
+                                      float *output,
+                                      int tokens,
+                                      int aligned_embed_dim,
+                                      int aligned_intermediate_dim)
+{
+    int up_dim = 2 * aligned_intermediate_dim;
+    gemm_nt_q4_k(input, w1, b1, fc1_out,
+                 tokens, up_dim, aligned_embed_dim);
+
+    swiglu_forward(fc1_out, swiglu_out, tokens, aligned_intermediate_dim);
+
+    gemm_nt_q4_k(swiglu_out, w2, b2, output,
+                 tokens, aligned_embed_dim, aligned_intermediate_dim);
 }
 
 static void ck_qkv_project_head_major_ref(const float *input,
@@ -768,6 +890,10 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
     const int hd = p->head_dim;
     const int ad = p->aligned_head_dim;
     const int aligned_intermediate = p->aligned_intermediate_dim;
+    const int K_concat = H * ad;
+    if (K_concat != aligned_D) {
+        return;
+    }
 
     const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
     float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
@@ -892,6 +1018,317 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
                           aligned_intermediate);
 
     // Final residual.
+    ck_residual_add_token_major(residual_row,
+                                mlp_row,
+                                out_row,
+                                /*tokens=*/1,
+                                aligned_D);
+}
+
+static void ck_qkv_project_head_major_token_q4_k(const float *input_row,
+                                                 const void *wq, const float *bq,
+                                                 const void *wk, const float *bk,
+                                                 const void *wv, const float *bv,
+                                                 float *q_token,
+                                                 float *k_token,
+                                                 float *v_token,
+                                                 int aligned_embed_dim,
+                                                 int num_heads,
+                                                 int num_kv_heads,
+                                                 int aligned_head_dim)
+{
+    if (!input_row || !wq || !wk || !wv || !q_token || !k_token || !v_token) {
+        return;
+    }
+
+    const size_t head_w_elems = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
+    const size_t head_w_bytes = ck_dtype_row_bytes(CK_DT_Q4_K, head_w_elems);
+
+    const uint8_t *wq_bytes = (const uint8_t *)wq;
+    const uint8_t *wk_bytes = (const uint8_t *)wk;
+    const uint8_t *wv_bytes = (const uint8_t *)wv;
+
+    for (int h = 0; h < num_heads; ++h) {
+        const void *wq_h = wq_bytes + (size_t)h * head_w_bytes;
+        const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        float *q_h = q_token + (size_t)h * (size_t)aligned_head_dim;
+        gemm_nt_q4_k(input_row, wq_h, bq_h, q_h,
+                     /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+    }
+
+    for (int h = 0; h < num_kv_heads; ++h) {
+        const void *wk_h = wk_bytes + (size_t)h * head_w_bytes;
+        const void *wv_h = wv_bytes + (size_t)h * head_w_bytes;
+        const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        float *k_h = k_token + (size_t)h * (size_t)aligned_head_dim;
+        float *v_h = v_token + (size_t)h * (size_t)aligned_head_dim;
+        gemm_nt_q4_k(input_row, wk_h, bk_h, k_h,
+                     /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+        gemm_nt_q4_k(input_row, wv_h, bv_h, v_h,
+                     /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+    }
+}
+
+void ck_layer_forward_rmsnorm_swiglu_q4_k(const CKLayerForwardParamsQ4K *p)
+{
+    if (!p) {
+        return;
+    }
+
+    rmsnorm_forward(p->input,
+                    p->ln1_gamma,
+                    p->ln1_out,
+                    p->ln1_rstd,
+                    p->tokens,
+                    p->embed_dim,
+                    p->aligned_embed_dim,
+                    p->eps);
+
+    ck_qkv_project_head_major_q4_k(p->ln1_out,
+                                  p->wq, p->bq,
+                                  p->wk, p->bk,
+                                  p->wv, p->bv,
+                                  p->q, p->k, p->v,
+                                  p->tokens,
+                                  p->aligned_embed_dim,
+                                  p->num_heads,
+                                  p->num_kv_heads,
+                                  p->aligned_head_dim);
+
+    if (p->rope_cos && p->rope_sin) {
+        rope_forward_qk(p->q,
+                        p->k,
+                        p->rope_cos,
+                        p->rope_sin,
+                        p->num_heads,
+                        p->num_kv_heads,
+                        p->tokens,
+                        p->head_dim,
+                        p->aligned_head_dim,
+                        p->rope_pos_offset);
+    }
+
+    if (p->scores) {
+        attention_forward_causal_head_major_gqa(p->q,
+                                               p->k,
+                                               p->v,
+                                               p->scores,
+                                               p->attn_out,
+                                               p->num_heads,
+                                               p->num_kv_heads,
+                                               p->tokens,
+                                               p->head_dim,
+                                               p->aligned_head_dim,
+                                               p->aligned_context_window);
+    } else {
+        attention_forward_causal_head_major_gqa_flash(p->q,
+                                                     p->k,
+                                                     p->v,
+                                                     p->attn_out,
+                                                     p->num_heads,
+                                                     p->num_kv_heads,
+                                                     p->tokens,
+                                                     p->head_dim,
+                                                     p->aligned_head_dim);
+    }
+
+    ck_attention_project_head_major_q4_k(p->attn_out,
+                                         p->wo,
+                                         p->bo,
+                                         p->proj_tmp,
+                                         p->proj_scratch,
+                                         p->tokens,
+                                         p->aligned_embed_dim,
+                                         p->num_heads,
+                                         p->aligned_head_dim);
+
+    ck_residual_add_token_major(p->input,
+                                p->proj_tmp,
+                                p->residual1,
+                                p->tokens,
+                                p->aligned_embed_dim);
+
+    rmsnorm_forward(p->residual1,
+                    p->ln2_gamma,
+                    p->ln2_out,
+                    p->ln2_rstd,
+                    p->tokens,
+                    p->embed_dim,
+                    p->aligned_embed_dim,
+                    p->eps);
+
+    ck_mlp_swiglu_forward_q4_k(p->ln2_out,
+                               p->w1,
+                               p->b1,
+                               p->w2,
+                               p->b2,
+                               p->fc1_out,
+                               p->swiglu_out,
+                               p->mlp_out,
+                               p->tokens,
+                               p->aligned_embed_dim,
+                               p->aligned_intermediate_dim);
+
+    ck_residual_add_token_major(p->residual1,
+                                p->mlp_out,
+                                p->output,
+                                p->tokens,
+                                p->aligned_embed_dim);
+}
+
+void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *p,
+                                                int token_index,
+                                                int cache_capacity)
+{
+    if (!p) {
+        return;
+    }
+    if (!p->input || !p->ln1_gamma || !p->ln2_gamma || !p->ln1_out || !p->ln2_out ||
+        !p->wq || !p->wk || !p->wv || !p->wo || !p->w1 || !p->w2 ||
+        !p->k || !p->v ||
+        !p->proj_tmp || !p->proj_scratch || !p->residual1 || !p->fc1_out || !p->swiglu_out || !p->mlp_out || !p->output) {
+        return;
+    }
+    if (token_index < 0 || cache_capacity <= 0 || token_index >= cache_capacity) {
+        return;
+    }
+
+    const int D = p->embed_dim;
+    const int aligned_D = p->aligned_embed_dim;
+    const int H = p->num_heads;
+    const int H_kv = p->num_kv_heads;
+    const int hd = p->head_dim;
+    const int ad = p->aligned_head_dim;
+    const int aligned_intermediate = p->aligned_intermediate_dim;
+    const int K_concat = H * ad;
+
+    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
+    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
+    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
+    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+
+    float ln1_rstd_tmp = 0.0f;
+    float ln2_rstd_tmp = 0.0f;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+
+    /* Scratch for a single token in head-major layout: [head, aligned_head_dim]. */
+    size_t q_elems = (size_t)H * (size_t)ad;
+    size_t kv_elems = (size_t)H_kv * (size_t)ad;
+    float q_token[q_elems];
+    float k_token[kv_elems];
+    float v_token[kv_elems];
+    float attn_token[q_elems];
+
+    /* LN1 / RMSNorm. */
+    rmsnorm_forward(input_row,
+                    p->ln1_gamma,
+                    ln1_row,
+                    ln1_rstd,
+                    /*tokens=*/1,
+                    D,
+                    aligned_D,
+                    p->eps);
+
+    /* Project Q/K/V for the new token (Q4_K weights). */
+    ck_qkv_project_head_major_token_q4_k(ln1_row,
+                                         p->wq, p->bq,
+                                         p->wk, p->bk,
+                                         p->wv, p->bv,
+                                         q_token, k_token, v_token,
+                                         aligned_D,
+                                         H,
+                                         H_kv,
+                                         ad);
+
+    /* RoPE for the new token at absolute position `p->rope_pos_offset`. */
+    if (p->rope_cos && p->rope_sin) {
+        rope_forward_qk(q_token,
+                        k_token,
+                        p->rope_cos,
+                        p->rope_sin,
+                        H,
+                        H_kv,
+                        /*num_tokens=*/1,
+                        hd,
+                        ad,
+                        p->rope_pos_offset);
+    }
+
+    /* Update KV cache. */
+    kv_cache_write_head_major(k_token,
+                              v_token,
+                              p->k,
+                              p->v,
+                              H_kv,
+                              token_index,
+                              cache_capacity,
+                              hd,
+                              ad);
+
+    /* Decode attention for this token using the KV cache. */
+    attention_forward_decode_head_major_gqa_flash(q_token,
+                                                  p->k,
+                                                  p->v,
+                                                  attn_token,
+                                                  H,
+                                                  H_kv,
+                                                  /*kv_tokens=*/token_index + 1,
+                                                  cache_capacity,
+                                                  hd,
+                                                  ad);
+
+    /* Quantized output projection: Wo is stored as a flattened Q4_K matrix. */
+    gemm_nt_q4_k(attn_token,
+                 p->wo,
+                 p->bo,
+                 proj_row,
+                 /*M=*/1,
+                 aligned_D,
+                 /*K=*/K_concat);
+
+    for (int j = D; j < aligned_D; ++j) {
+        proj_row[j] = 0.0f;
+    }
+
+    /* Residual + LN2 / RMSNorm. */
+    ck_residual_add_token_major(input_row,
+                                proj_row,
+                                residual_row,
+                                /*tokens=*/1,
+                                aligned_D);
+
+    rmsnorm_forward(residual_row,
+                    p->ln2_gamma,
+                    ln2_row,
+                    ln2_rstd,
+                    /*tokens=*/1,
+                    D,
+                    aligned_D,
+                    p->eps);
+
+    /* MLP block for this token. */
+    int up_dim = 2 * aligned_intermediate;
+    float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
+    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+
+    ck_mlp_swiglu_forward_q4_k(ln2_row,
+                               p->w1,
+                               p->b1,
+                               p->w2,
+                               p->b2,
+                               fc1_row,
+                               swiglu_row,
+                               mlp_row,
+                               /*tokens=*/1,
+                               aligned_D,
+                               aligned_intermediate);
+
+    /* Final residual. */
     ck_residual_add_token_major(residual_row,
                                 mlp_row,
                                 out_row,
