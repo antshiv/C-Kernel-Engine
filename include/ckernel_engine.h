@@ -38,6 +38,12 @@ CKMathBackend ckernel_backend_native(void);
 void ck_set_strict_parity(int enabled);
 int ck_strict_parity_enabled(void);
 
+// Thread configuration - call once at startup
+// num_threads: 0 = auto-detect physical cores, >0 = use specified count
+void ck_set_num_threads(int num_threads);
+int ck_get_num_threads(void);
+int ck_get_physical_cores(void);
+
 // Expose the individual GEMM kernels copied from C-Transformer.
 void gemm_naive_parallel(const float *A,
                          const float *B,

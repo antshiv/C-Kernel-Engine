@@ -645,6 +645,9 @@ void gemm_blocked_serial(const float *A,
                          float *C,
                          int M, int N, int K)
 {
+    // Ensure threads are initialized (auto-detects on first call)
+    (void)ck_get_num_threads();
+
     if (ck_strict_parity_enabled()) {
         gemm_naive_serial_double(A, B, bias, C, M, N, K);
         return;

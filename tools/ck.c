@@ -82,6 +82,7 @@ typedef struct {
     bool verbose;
     bool force_download;
     bool force_convert;
+    bool force_compile;     /* Force recompiling libmodel.so (no weight reconvert) */
     bool generate_only;      /* Generate C file only, don't compile to .so */
     bool debug;              /* Run pre-flight checks and show diagnostics */
     int num_cores;           /* Number of CPU cores to use (0 = auto) */
@@ -154,6 +155,7 @@ static void print_usage(void) {
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
     printf("  --force-convert   Re-convert weights and recompile\n");
+    printf("  --force-compile   Recompile model runtime (keep existing weights)\n");
     printf("  --generate-only   Generate C file only (don't compile to .so)\n");
     printf("  --verbose         Verbose output\n");
     printf("  --debug           Run pre-flight diagnostics before starting\n");
@@ -627,18 +629,44 @@ static int download_and_convert(CKConfig *cfg) {
 static int codegen_and_compile(CKConfig *cfg) {
     char model_c[MAX_PATH];
     char model_so[MAX_PATH];
+    char model_stamp[MAX_PATH];
+    const char *compile_sig = "ck-model-build-v3-openmp-threads";
 
     snprintf(model_c, sizeof(model_c), "%s/model.c", cfg->cache_dir);
     snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
+    snprintf(model_stamp, sizeof(model_stamp), "%s/libmodel.build.txt", cfg->cache_dir);
 
-    /* Check if already compiled (unless force_convert is set) */
-    if (file_exists(model_so) && !cfg->force_convert) {
-        /* TODO: Check if config changed */
-        log_ok("Model already compiled");
-        return 0;
+    /* Recompile decision:
+     * - --force-convert: re-run weight conversion + recompile
+     * - --force-compile: recompile only
+     * - missing/old build stamp: recompile to pick up new compile flags (e.g., OpenMP) */
+    bool need_recompile = cfg->force_convert || cfg->force_compile;
+    if (file_exists(model_so) && !need_recompile) {
+        bool stamp_ok = false;
+        if (file_exists(model_stamp)) {
+            FILE *f = fopen(model_stamp, "r");
+            if (f) {
+                char line[256] = {0};
+                if (fgets(line, sizeof(line), f)) {
+                    size_t n = strlen(line);
+                    if (n > 0 && line[n - 1] == '\n') line[n - 1] = '\0';
+                    if (strcmp(line, compile_sig) == 0) {
+                        stamp_ok = true;
+                    }
+                }
+                fclose(f);
+            }
+        }
+        if (stamp_ok) {
+            /* TODO: Check if config changed */
+            log_ok("Model already compiled");
+            return 0;
+        }
+        log_info("Model needs recompilation (missing/old build stamp)");
+        need_recompile = true;
     }
 
-    if (cfg->force_convert && file_exists(model_so)) {
+    if ((cfg->force_convert || cfg->force_compile) && file_exists(model_so)) {
         log_info("Force recompiling model...");
     }
 
@@ -830,6 +858,17 @@ static int codegen_and_compile(CKConfig *cfg) {
             printf(C_DIM "  Hint: Run 'make' in project root to build kernel library\n" C_RESET);
         }
         return 0;
+    }
+
+    /* Write build stamp so future runs can skip recompilation safely. */
+    {
+        FILE *f = fopen(model_stamp, "w");
+        if (f) {
+            fprintf(f, "%s\n", compile_sig);
+            fprintf(f, "threads=%d\n", cfg->num_cores);
+            fprintf(f, "cmd=%s\n", cmd);
+            fclose(f);
+        }
     }
 
     log_ok("Model compiled successfully");
@@ -1114,9 +1153,11 @@ static int run_chat(CKConfig *cfg) {
     char thread_env[256] = "";
     if (cfg->num_cores > 0) {
         snprintf(thread_env, sizeof(thread_env),
+            "CK_NUM_THREADS=%d "
             "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
             "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
             "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
+            cfg->num_cores,
             cfg->num_cores,
             cfg->num_cores, cfg->num_cores,
             cfg->num_cores, cfg->num_cores);
@@ -1193,9 +1234,11 @@ static int run_server(CKConfig *cfg) {
     char thread_env[256] = "";
     if (cfg->num_cores > 0) {
         snprintf(thread_env, sizeof(thread_env),
+            "CK_NUM_THREADS=%d "
             "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
             "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
             "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
+            cfg->num_cores,
             cfg->num_cores,
             cfg->num_cores, cfg->num_cores,
             cfg->num_cores, cfg->num_cores);
@@ -1407,6 +1450,7 @@ int main(int argc, char *argv[]) {
         cfg.verbose = false;
         cfg.force_download = false;
         cfg.force_convert = false;
+        cfg.force_compile = false;
         cfg.generate_only = false;
         cfg.debug = false;
         cfg.num_cores = 0;  /* 0 = auto-detect */
@@ -1434,6 +1478,8 @@ int main(int argc, char *argv[]) {
                 cfg.force_download = true;
             } else if (strcmp(argv[i], "--force-convert") == 0) {
                 cfg.force_convert = true;
+            } else if (strcmp(argv[i], "--force-compile") == 0) {
+                cfg.force_compile = true;
             } else if (strcmp(argv[i], "--generate-only") == 0) {
                 cfg.generate_only = true;
                 cfg.force_convert = true;  /* Implies regenerating */
