@@ -372,10 +372,15 @@ def build_llama_config(
 def main() -> None:
     ap = argparse.ArgumentParser(description="Convert GGUF (Q4_K / Q4_K_M) weights to weights.bump")
     ap.add_argument("--gguf", required=True, help="Input GGUF file (e.g. model.Q4_K_M.gguf)")
-    ap.add_argument("--output", required=True, help="Output weights.bump path")
+    ap.add_argument("--output", help="Output weights.bump path (required unless --inspect/--list)")
     ap.add_argument("--config-out", help="Optional config.json output path (HF-style minimal config)")
     ap.add_argument("--context", type=int, help="Override context length (max_position_embeddings)")
+    ap.add_argument("--inspect", action="store_true", help="Print GGUF metadata/tensor dtypes and exit (no conversion)")
+    ap.add_argument("--list", action="store_true", help="Print every tensor name/type/shape and exit (no conversion)")
     args = ap.parse_args()
+
+    if not args.output and not (args.inspect or args.list):
+        ap.error("--output is required unless --inspect/--list is set")
 
     wanted_meta = {
         "general.architecture",
@@ -424,6 +429,64 @@ def main() -> None:
         r.seek(data_start)
 
         arch = str(meta.get("general.architecture", "llama"))
+
+        if args.inspect or args.list:
+            # Summarize tensor dtypes so you can confirm what is actually quantized
+            # in a given GGUF file (e.g. whether token embeddings / output head are
+            # Q4_K vs F16, and which tensors remain float).
+            counts: Dict[int, int] = {}
+            bytes_by_type: Dict[int, int] = {}
+            for info in tensors.values():
+                counts[info.ggml_type] = counts.get(info.ggml_type, 0) + 1
+                try:
+                    bytes_by_type[info.ggml_type] = bytes_by_type.get(info.ggml_type, 0) + ggml_tensor_bytes(info)
+                except Exception:
+                    # Unknown/unsupported types for sizing; still report counts.
+                    pass
+
+            def fmt_bytes(n: int) -> str:
+                if n >= 1024 * 1024 * 1024:
+                    return f"{n / (1024**3):.2f} GiB"
+                if n >= 1024 * 1024:
+                    return f"{n / (1024**2):.2f} MiB"
+                if n >= 1024:
+                    return f"{n / 1024:.2f} KiB"
+                return f"{n} B"
+
+            print(f"[gguf] file={args.gguf}")
+            print(f"[gguf] version={version} arch={arch} tensors={n_tensors} kv={n_kv} alignment={alignment} data_start={data_start}")
+            print("[gguf] tensor types:")
+            for tcode, cnt in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+                b = bytes_by_type.get(tcode)
+                b_str = fmt_bytes(b) if b is not None else "?"
+                print(f"  - {ggml_type_name(tcode):>10}: {cnt:5d} tensors, bytes={b_str}")
+
+            # Highlight common “does this get quantized?” tensors.
+            highlight = [
+                "token_embd.weight",
+                "output.weight",
+                "output_norm.weight",
+                "blk.0.attn_q.weight",
+                "blk.0.attn_k.weight",
+                "blk.0.attn_v.weight",
+                "blk.0.attn_output.weight",
+                "blk.0.ffn_gate.weight",
+                "blk.0.ffn_up.weight",
+                "blk.0.ffn_down.weight",
+            ]
+            print("[gguf] key tensors:")
+            for name in highlight:
+                info = tensors.get(name)
+                if not info:
+                    continue
+                print(f"  - {name}: {ggml_type_name(info.ggml_type)} dims={info.dims}")
+
+            if args.list:
+                print("[gguf] all tensors:")
+                for name in sorted(tensors.keys()):
+                    info = tensors[name]
+                    print(f"  - {name}: {ggml_type_name(info.ggml_type)} dims={info.dims}")
+            return
 
         # Pull core dims from metadata first; fall back to tensor shapes.
         def meta_int(key: str) -> Optional[int]:
@@ -675,4 +738,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

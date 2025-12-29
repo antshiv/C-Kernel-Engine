@@ -4,7 +4,10 @@ Attention kernel unit tests with performance metrics.
 Tests causal attention forward pass against PyTorch reference.
 Reports accuracy, timing, and system information.
 
-Tests both fast (SIMD approximation) and exact (scalar) versions.
+Tests:
+- Flash attention (SIMD optimized, O(N) memory)
+- Score-matrix attention (for backward compatibility)
+- Exact (scalar) version for accuracy reference
 """
 import ctypes
 import math
@@ -27,7 +30,8 @@ lib = load_lib("libckernel_attention.so", "libckernel_engine.so")
 # Function signatures
 # ===============================================================================
 
-# Fast version (uses SIMD exp approximation)
+# Score-matrix version (scalar Q·K^T and W·V, SIMD softmax)
+# Note: This version materializes the full score matrix for backward pass compatibility
 lib.attention_forward_causal_head_major.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # q
     ctypes.POINTER(ctypes.c_float),  # k
@@ -56,6 +60,20 @@ lib.attention_forward_causal_head_major_exact.argtypes = [
     ctypes.c_int,                    # aligned_context_window
 ]
 lib.attention_forward_causal_head_major_exact.restype = None
+
+# Flash attention (SIMD optimized, online softmax, O(N) memory)
+lib.attention_forward_causal_head_major_gqa_flash.argtypes = [
+    ctypes.POINTER(ctypes.c_float),  # q
+    ctypes.POINTER(ctypes.c_float),  # k
+    ctypes.POINTER(ctypes.c_float),  # v
+    ctypes.POINTER(ctypes.c_float),  # output
+    ctypes.c_int,                    # num_heads
+    ctypes.c_int,                    # num_kv_heads
+    ctypes.c_int,                    # num_tokens
+    ctypes.c_int,                    # head_dim
+    ctypes.c_int,                    # aligned_head_dim
+]
+lib.attention_forward_causal_head_major_gqa_flash.restype = None
 
 
 # ===============================================================================
@@ -106,7 +124,10 @@ def attention_reference_loop(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor) 
 def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     """Run forward pass tests with accuracy and timing.
 
-    Tests both fast (SIMD) and exact (scalar) versions.
+    Tests:
+    - Flash attention (SIMD optimized, O(N) memory) - main performance benchmark
+    - Score-matrix (for backward compatibility) - not SIMD optimized
+    - Exact (scalar) - for accuracy reference
     """
     np.random.seed(0)
 
@@ -115,7 +136,8 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     k_np = np.random.randn(H, T, D).astype(np.float32)
     v_np = np.random.randn(H, T, D).astype(np.float32)
     scores_np = np.zeros((H, T, T), dtype=np.float32)
-    out_fast_np = np.zeros((H, T, D), dtype=np.float32)
+    out_flash_np = np.zeros((H, T, D), dtype=np.float32)
+    out_score_np = np.zeros((H, T, D), dtype=np.float32)
     out_exact_np = np.zeros((H, T, D), dtype=np.float32)
 
     # Get pointers
@@ -123,7 +145,8 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
     k_ptr = numpy_to_ptr(k_np)
     v_ptr = numpy_to_ptr(v_np)
     scores_ptr = numpy_to_ptr(scores_np)
-    out_fast_ptr = numpy_to_ptr(out_fast_np)
+    out_flash_ptr = numpy_to_ptr(out_flash_np)
+    out_score_ptr = numpy_to_ptr(out_score_np)
     out_exact_ptr = numpy_to_ptr(out_exact_np)
 
     # Torch tensors
@@ -147,27 +170,50 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
         warmup=warmup, iterations=iterations, name="PyTorch"
     )
 
-    # === Fast version (SIMD with exp approximation) ===
-    def c_attention_fast():
+    # === Flash attention (SIMD optimized, O(N) memory) ===
+    def c_attention_flash():
+        lib.attention_forward_causal_head_major_gqa_flash(
+            q_ptr, k_ptr, v_ptr, out_flash_ptr,
+            ctypes.c_int(H), ctypes.c_int(H),  # num_heads, num_kv_heads (same for non-GQA)
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
+        )
+
+    c_attention_flash()
+    out_flash = torch.from_numpy(out_flash_np.copy())
+    diff_flash = max_diff(out_flash, ref)
+    kernel_time_flash = time_function(c_attention_flash, warmup=warmup, iterations=iterations, name="C Flash")
+
+    # Flash version: SIMD optimized with online softmax
+    report.add_result(TestResult(
+        name="Flash (SIMD)",
+        passed=diff_flash <= 1e-4,  # Tight tolerance - flash uses standard expf
+        max_diff=diff_flash,
+        tolerance=1e-4,
+        pytorch_time=pytorch_time,
+        kernel_time=kernel_time_flash
+    ))
+
+    # === Score-matrix version (for backward pass compatibility) ===
+    def c_attention_score():
         lib.attention_forward_causal_head_major(
-            q_ptr, k_ptr, v_ptr, scores_ptr, out_fast_ptr,
+            q_ptr, k_ptr, v_ptr, scores_ptr, out_score_ptr,
             ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(D),
             ctypes.c_int(D), ctypes.c_int(T)
         )
 
-    c_attention_fast()
-    out_fast = torch.from_numpy(out_fast_np.copy())
-    diff_fast = max_diff(out_fast, ref)
-    kernel_time_fast = time_function(c_attention_fast, warmup=warmup, iterations=iterations, name="C Fast")
+    c_attention_score()
+    out_score = torch.from_numpy(out_score_np.copy())
+    diff_score = max_diff(out_score, ref)
+    kernel_time_score = time_function(c_attention_score, warmup=warmup, iterations=iterations, name="C Score-matrix")
 
-    # Fast version: uses exp approximation, relaxed tolerance
+    # Score-matrix version: materializes full score matrix, uses SIMD exp approximation
     report.add_result(TestResult(
-        name="Fast (SIMD approx)",
-        passed=diff_fast <= 0.1,  # 10% tolerance for approximation
-        max_diff=diff_fast,
+        name="Score-matrix (exp approx)",
+        passed=diff_score <= 0.1,  # 10% tolerance for exp approximation
+        max_diff=diff_score,
         tolerance=0.1,
-        pytorch_time=pytorch_time,
-        kernel_time=kernel_time_fast
+        pytorch_time=None,
+        kernel_time=kernel_time_score
     ))
 
     # === Exact version (scalar using standard library expf) ===
@@ -199,7 +245,7 @@ def run_forward_tests(H=8, T=64, D=64, warmup=10, iterations=500):
 def run_accuracy_tests():
     """Run small tests for numerical accuracy verification.
 
-    Tests both fast and exact versions at various sizes.
+    Tests flash, score-matrix, and exact versions at various sizes.
     """
     np.random.seed(42)
 
@@ -221,14 +267,16 @@ def run_accuracy_tests():
         k_np = np.random.randn(H, T, D).astype(np.float32)
         v_np = np.random.randn(H, T, D).astype(np.float32)
         scores_np = np.zeros((H, T, T), dtype=np.float32)
-        out_fast_np = np.zeros((H, T, D), dtype=np.float32)
+        out_flash_np = np.zeros((H, T, D), dtype=np.float32)
+        out_score_np = np.zeros((H, T, D), dtype=np.float32)
         out_exact_np = np.zeros((H, T, D), dtype=np.float32)
 
         q_ptr = numpy_to_ptr(q_np)
         k_ptr = numpy_to_ptr(k_np)
         v_ptr = numpy_to_ptr(v_np)
         scores_ptr = numpy_to_ptr(scores_np)
-        out_fast_ptr = numpy_to_ptr(out_fast_np)
+        out_flash_ptr = numpy_to_ptr(out_flash_np)
+        out_score_ptr = numpy_to_ptr(out_score_np)
         out_exact_ptr = numpy_to_ptr(out_exact_np)
 
         q = torch.from_numpy(q_np.copy())
@@ -238,26 +286,43 @@ def run_accuracy_tests():
         # Use loop reference for exact comparison
         ref = attention_reference_loop(q, k, v)
 
-        # Fast version
+        # Flash version (SIMD optimized)
+        lib.attention_forward_causal_head_major_gqa_flash(
+            q_ptr, k_ptr, v_ptr, out_flash_ptr,
+            ctypes.c_int(H), ctypes.c_int(H),  # num_heads, num_kv_heads
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D)
+        )
+        out_flash = torch.from_numpy(out_flash_np.copy())
+        diff_flash = max_diff(out_flash, ref)
+
+        report.add_result(TestResult(
+            name=f"Flash {name} (H={H},T={T},D={D})",
+            passed=diff_flash <= 1e-4,
+            max_diff=diff_flash,
+            tolerance=1e-4,
+            pytorch_time=None,
+            kernel_time=None
+        ))
+
+        # Score-matrix version (uses exp approximation)
         lib.attention_forward_causal_head_major(
-            q_ptr, k_ptr, v_ptr, scores_ptr, out_fast_ptr,
+            q_ptr, k_ptr, v_ptr, scores_ptr, out_score_ptr,
             ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(D),
             ctypes.c_int(D), ctypes.c_int(T)
         )
-        out_fast = torch.from_numpy(out_fast_np.copy())
-        diff_fast = max_diff(out_fast, ref)
+        out_score = torch.from_numpy(out_score_np.copy())
+        diff_score = max_diff(out_score, ref)
 
-        # Fast version: uses exp approximation, relaxed tolerance
         report.add_result(TestResult(
-            name=f"Fast {name} (H={H},T={T},D={D})",
-            passed=diff_fast <= 0.1,  # 10% tolerance for approximation
-            max_diff=diff_fast,
+            name=f"Score-matrix {name} (H={H},T={T},D={D})",
+            passed=diff_score <= 0.1,  # 10% tolerance for exp approximation
+            max_diff=diff_score,
             tolerance=0.1,
             pytorch_time=None,
             kernel_time=None
         ))
 
-        # Exact version
+        # Exact version (scalar)
         lib.attention_forward_causal_head_major_exact(
             q_ptr, k_ptr, v_ptr, scores_ptr, out_exact_ptr,
             ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(D),
@@ -266,7 +331,6 @@ def run_accuracy_tests():
         out_exact = torch.from_numpy(out_exact_np.copy())
         diff_exact = max_diff(out_exact, ref)
 
-        # Exact version: full precision using standard library expf
         report.add_result(TestResult(
             name=f"Exact {name} (H={H},T={T},D={D})",
             passed=diff_exact <= 1e-5,

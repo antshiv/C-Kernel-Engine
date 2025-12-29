@@ -186,6 +186,10 @@ IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 DEFAULT_CONFIG := default.config.json
 CONFIG ?= $(DEFAULT_CONFIG)
 OUT ?= $(BUILD_DIR)/generated_model.c
+GGUF ?=
+GGUF_OUT ?= $(BUILD_DIR)/gguf_weights.bump
+GGUF_CONFIG_OUT ?= $(BUILD_DIR)/gguf_config.json
+GGUF_CONTEXT ?=
 TINY_CONFIG ?= tiny.config.json
 SMALL_CONFIG ?= small10mb.config.json
 TINY_TRAIN_LR ?= 1e-3
@@ -367,6 +371,31 @@ test-quant: $(LIB_QUANT)
 	@set -e; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_quant_kernels.py; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q4_k_quantize.py
+
+gguf-inspect:
+	@if [ -z "$(GGUF)" ]; then \
+	  echo "Usage: make gguf-inspect GGUF=/path/to/model.gguf"; \
+	  exit 2; \
+	fi
+	@$(PYTHON) $(PYTHONFLAGS) scripts/convert_gguf_to_bump.py --gguf "$(GGUF)" --inspect
+
+gguf-list:
+	@if [ -z "$(GGUF)" ]; then \
+	  echo "Usage: make gguf-list GGUF=/path/to/model.gguf"; \
+	  exit 2; \
+	fi
+	@$(PYTHON) $(PYTHONFLAGS) scripts/convert_gguf_to_bump.py --gguf "$(GGUF)" --list
+
+gguf-to-bump:
+	@if [ -z "$(GGUF)" ]; then \
+	  echo "Usage: make gguf-to-bump GGUF=/path/to/model.gguf [GGUF_OUT=$(GGUF_OUT)] [GGUF_CONFIG_OUT=$(GGUF_CONFIG_OUT)] [GGUF_CONTEXT=<n>]"; \
+	  exit 2; \
+	fi
+	@$(PYTHON) $(PYTHONFLAGS) scripts/convert_gguf_to_bump.py \
+	  --gguf "$(GGUF)" \
+	  --output "$(GGUF_OUT)" \
+	  $(if $(GGUF_CONFIG_OUT),--config-out "$(GGUF_CONFIG_OUT)") \
+	  $(if $(GGUF_CONTEXT),--context "$(GGUF_CONTEXT)")
 
 test: $(LIB) test-libs
 	@set -e; \
@@ -700,6 +729,14 @@ help:
 	@echo "  make emit CONFIG=path OUT=path  Emit stitched runtime C file from config/IR (writes OUT.kernels manifest)"
 	@echo "  make ck-emit CONFIG=path OUT=path  Alias for emit"
 	@echo "  ./$(IR_DEMO) <config> --emit out.c  Emit a stitched runtime C file from config/IR (writes out.c.kernels)"
+	@echo ""
+	@echo "  Quantization:"
+	@echo "  make test-quant       Run quantization kernel tests (dequant + q4/q8 gemm)"
+	@echo "  make gguf-inspect GGUF=path   Inspect GGUF tensor dtypes (what is quantized?)"
+	@echo "  make gguf-list GGUF=path      List all GGUF tensors (name/type/shape)"
+	@echo "  make gguf-to-bump GGUF=path   Convert GGUF -> bump weights (GGUF_OUT/ GGUF_CONFIG_OUT / GGUF_CONTEXT)"
+	@echo ""
+	@echo "  Tests:"
 	@echo "  make test-libs       Build per-kernel shared libs in $(BUILD_DIR) ($(LIB_GELU), $(LIB_RMSNORM), $(LIB_LN), $(LIB_SOFT), $(LIB_SWIGLU), $(LIB_SIGMOID))"
 	@echo "  make litmus ARGS=\"--layers 1 --embed 64 --svg build/litmus.svg\"  Run LM head + CE backward parity litmus (PyTorch)"
 	@echo "  make litmus-demo     Run the 100x100 litmus demo and capture output + SVG"
@@ -1007,4 +1044,4 @@ report-md:
 	@echo ""
 	@$(PYTHON) scripts/optimization_status.py --markdown
 
-.PHONY: all clean test test-bf16 test-libs help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config
+.PHONY: all clean test test-bf16 test-libs test-quant help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model gguf-inspect gguf-list gguf-to-bump opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config
