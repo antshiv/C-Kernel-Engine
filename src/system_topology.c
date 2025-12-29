@@ -83,6 +83,24 @@ static int count_set_bits(const char *hex_mask) {
     return count;
 }
 
+// Check if a CPU flag exists as a complete word in the flags string
+// This properly handles word boundaries to avoid "avx" matching "avx2"
+static int has_cpu_flag(const char *flags, const char *flag) {
+    if (!flags || !flag) return 0;
+    size_t flag_len = strlen(flag);
+    const char *p = flags;
+    while ((p = strstr(p, flag)) != NULL) {
+        // Check character before (must be start or space)
+        int start_ok = (p == flags) || (*(p - 1) == ' ');
+        // Check character after (must be end, space, or newline)
+        char after = *(p + flag_len);
+        int end_ok = (after == '\0') || (after == ' ') || (after == '\n');
+        if (start_ok && end_ok) return 1;
+        p++;
+    }
+    return 0;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CPU Discovery
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -129,14 +147,19 @@ int topology_discover_cpu(CPUInfo *cpu) {
             int id = atoi(value);
             if (id > core_id_max) core_id_max = id;
         } else if (strcmp(key, "flags") == 0) {
-            cpu->has_sse4_2   = strstr(value, "sse4_2") != NULL;
-            cpu->has_avx      = strstr(value, " avx ") != NULL || strstr(value, " avx\n") != NULL;
-            cpu->has_avx2     = strstr(value, "avx2") != NULL;
-            cpu->has_avx512f  = strstr(value, "avx512f") != NULL;
-            cpu->has_avx512bw = strstr(value, "avx512bw") != NULL;
-            cpu->has_avx512vl = strstr(value, "avx512vl") != NULL;
-            cpu->has_amx      = strstr(value, "amx") != NULL;
-            cpu->has_vnni     = strstr(value, "vnni") != NULL;
+            // Use word-boundary-aware matching for CPU flags
+            cpu->has_sse4_2   = has_cpu_flag(value, "sse4_2");
+            cpu->has_avx      = has_cpu_flag(value, "avx");
+            cpu->has_avx2     = has_cpu_flag(value, "avx2");
+            cpu->has_avx512f  = has_cpu_flag(value, "avx512f");
+            cpu->has_avx512bw = has_cpu_flag(value, "avx512bw");
+            cpu->has_avx512vl = has_cpu_flag(value, "avx512vl");
+            cpu->has_avx512_bf16 = has_cpu_flag(value, "avx512_bf16");
+            cpu->has_amx_tile = has_cpu_flag(value, "amx_tile");
+            cpu->has_amx_int8 = has_cpu_flag(value, "amx_int8");
+            cpu->has_amx_bf16 = has_cpu_flag(value, "amx_bf16");
+            cpu->has_amx      = cpu->has_amx_tile || cpu->has_amx_int8 || cpu->has_amx_bf16;
+            cpu->has_vnni     = has_cpu_flag(value, "avx512_vnni") || has_cpu_flag(value, "avx_vnni");
         }
     }
     fclose(f);

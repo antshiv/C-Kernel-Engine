@@ -32,6 +32,15 @@ lib.attention_forward_causal_head_major.argtypes = [
 ]
 lib.attention_forward_causal_head_major.restype = None
 
+# Exact version (uses standard library expf for softmax)
+lib.attention_forward_causal_head_major_exact.argtypes = [
+    ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int,
+    ctypes.c_int, ctypes.c_int, ctypes.c_int,
+]
+lib.attention_forward_causal_head_major_exact.restype = None
+
 lib.attention_forward_causal_head_major_gqa.argtypes = [
     ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
     ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
@@ -39,6 +48,15 @@ lib.attention_forward_causal_head_major_gqa.argtypes = [
     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
 ]
 lib.attention_forward_causal_head_major_gqa.restype = None
+
+# Exact GQA version
+lib.attention_forward_causal_head_major_gqa_exact.argtypes = [
+    ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int,
+    ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+]
+lib.attention_forward_causal_head_major_gqa_exact.restype = None
 
 lib.attention_backward_causal_head_major.argtypes = [
     ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float),
@@ -132,10 +150,10 @@ def run_backward_tests(H=4, T=32, D=32, warmup=10, iterations=200):
 
     d_q_ref, d_k_ref, d_v_ref = pytorch_fwd_bwd()
 
-    # C kernel forward + backward
+    # C kernel forward + backward (use exact forward for accurate weights)
     def c_fwd_bwd():
-        # Forward
-        lib.attention_forward_causal_head_major(
+        # Forward (exact version for accurate attention weights)
+        lib.attention_forward_causal_head_major_exact(
             numpy_to_ptr(q_np), numpy_to_ptr(k_np), numpy_to_ptr(v_np),
             numpy_to_ptr(scores_np), numpy_to_ptr(out_np),
             ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(D),
@@ -235,15 +253,15 @@ def run_gqa_backward_tests(H=8, H_kv=2, T=32, D=32, warmup=10, iterations=200):
 
     d_q_ref, d_k_ref, d_v_ref = pytorch_fwd_bwd()
 
-    # C kernel forward + backward
+    # C kernel forward + backward (use exact forward for accurate weights)
     def c_fwd_bwd():
         # Reset gradients
         d_q_np.fill(0)
         d_k_np.fill(0)
         d_v_np.fill(0)
 
-        # Forward
-        lib.attention_forward_causal_head_major_gqa(
+        # Forward (exact version for accurate attention weights)
+        lib.attention_forward_causal_head_major_gqa_exact(
             numpy_to_ptr(q_np), numpy_to_ptr(k_np), numpy_to_ptr(v_np),
             numpy_to_ptr(scores_np), numpy_to_ptr(out_np),
             ctypes.c_int(H), ctypes.c_int(H_kv), ctypes.c_int(T),
@@ -340,7 +358,8 @@ def run_accuracy_tests():
         out_ref, _ = causal_attention_pytorch(q, k, v)
         out_ref.backward(d_out)
 
-        lib.attention_forward_causal_head_major(
+        # Use exact forward for accurate attention weights
+        lib.attention_forward_causal_head_major_exact(
             numpy_to_ptr(q_np), numpy_to_ptr(k_np), numpy_to_ptr(v_np),
             numpy_to_ptr(scores_np), numpy_to_ptr(out_np),
             ctypes.c_int(H), ctypes.c_int(T), ctypes.c_int(D),

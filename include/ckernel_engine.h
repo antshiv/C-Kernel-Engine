@@ -480,10 +480,23 @@ void attention_forward_causal_head_major_gqa(const float *q,
                                              float *output,
                                              int num_heads,
                                              int num_kv_heads,
-                                         int num_tokens,
-                                         int head_dim,
-                                         int aligned_head_dim,
-                                         int aligned_context_window);
+                                             int num_tokens,
+                                             int head_dim,
+                                             int aligned_head_dim,
+                                             int aligned_context_window);
+
+// Exact GQA version using standard library expf (slower but accurate).
+void attention_forward_causal_head_major_gqa_exact(const float *q,
+                                                    const float *k,
+                                                    const float *v,
+                                                    float *scores,
+                                                    float *output,
+                                                    int num_heads,
+                                                    int num_kv_heads,
+                                                    int num_tokens,
+                                                    int head_dim,
+                                                    int aligned_head_dim,
+                                                    int aligned_context_window);
 
 void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
                                                   const uint16_t *k,

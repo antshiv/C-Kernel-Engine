@@ -54,7 +54,11 @@ typedef struct {
     bool has_avx512f;
     bool has_avx512bw;
     bool has_avx512vl;
-    bool has_amx;           // Intel AMX for matrix ops
+    bool has_avx512_bf16;   // AVX-512 BF16 instructions
+    bool has_amx;           // Intel AMX (any variant)
+    bool has_amx_tile;      // AMX tile operations
+    bool has_amx_int8;      // AMX INT8 matrix multiply
+    bool has_amx_bf16;      // AMX BF16 matrix multiply
     bool has_vnni;          // Vector Neural Network Instructions
 
     // PCIe lanes (from CPU)

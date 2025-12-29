@@ -1,7 +1,7 @@
 {
   "_schema_version": "1.0",
   "_description": "C-Kernel-Engine optimization and kernel tracking metadata",
-  "_updated": "2025-12-27",
+  "_updated": "2025-12-29",
 
   "_usage": {
     "view_report": "make report",
@@ -903,7 +903,8 @@
       "tests": {
         "reference": "llama.cpp dequant",
         "test_files": [
-          "unittest/test_quant_kernels.py"
+          "unittest/test_quant_kernels.py",
+          "unittest/test_q4_k_quantize.py"
         ]
       }
     },

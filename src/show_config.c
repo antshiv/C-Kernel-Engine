@@ -105,14 +105,48 @@ void topology_print_cpu(const CPUInfo *cpu) {
 
     printf("  %s%s%s\n", C(BOLD), cpu->model_name, C(RESET));
 
-    char simd_buf[128] = "";
-    if (cpu->has_avx512f) strcat(simd_buf, "AVX-512 ");
-    else if (cpu->has_avx2) strcat(simd_buf, "AVX2 ");
-    else if (cpu->has_avx) strcat(simd_buf, "AVX ");
-    else if (cpu->has_sse4_2) strcat(simd_buf, "SSE4.2 ");
+    // Build SIMD string with detailed AVX-512 sub-features
+    char simd_buf[256] = "";
+    if (cpu->has_avx512f) {
+        strcat(simd_buf, "AVX-512");
+        // Add AVX-512 sub-features in parentheses
+        char sub_features[64] = "";
+        if (cpu->has_avx512_bf16) strcat(sub_features, "BF16, ");
+        if (cpu->has_avx512bw) strcat(sub_features, "BW, ");
+        if (cpu->has_avx512vl) strcat(sub_features, "VL, ");
+        if (sub_features[0]) {
+            // Remove trailing ", "
+            sub_features[strlen(sub_features) - 2] = '\0';
+            strcat(simd_buf, " (");
+            strcat(simd_buf, sub_features);
+            strcat(simd_buf, ")");
+        }
+        strcat(simd_buf, " ");
+    } else if (cpu->has_avx2) {
+        strcat(simd_buf, "AVX2 ");
+    } else if (cpu->has_avx) {
+        strcat(simd_buf, "AVX ");
+    } else if (cpu->has_sse4_2) {
+        strcat(simd_buf, "SSE4.2 ");
+    }
 
     if (cpu->has_vnni) strcat(simd_buf, "VNNI ");
-    if (cpu->has_amx) strcat(simd_buf, "AMX ");
+
+    // AMX details
+    if (cpu->has_amx) {
+        strcat(simd_buf, "AMX");
+        char amx_features[32] = "";
+        if (cpu->has_amx_bf16) strcat(amx_features, "BF16,");
+        if (cpu->has_amx_int8) strcat(amx_features, "INT8,");
+        if (amx_features[0]) {
+            amx_features[strlen(amx_features) - 1] = '\0';  // Remove trailing comma
+            strcat(simd_buf, "(");
+            strcat(simd_buf, amx_features);
+            strcat(simd_buf, ") ");
+        } else {
+            strcat(simd_buf, " ");
+        }
+    }
 
     print_tree_item(0, 0, "Sockets: %d", cpu->sockets);
     print_tree_item(0, 0, "Cores: %d physical, %d logical %s",
