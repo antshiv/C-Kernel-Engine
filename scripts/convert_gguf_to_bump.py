@@ -73,6 +73,11 @@ class GGUFReader:
     def seek(self, pos: int) -> None:
         self._f.seek(pos, os.SEEK_SET)
 
+    def skip(self, n: int) -> None:
+        if n <= 0:
+            return
+        self._f.seek(int(n), os.SEEK_CUR)
+
     def _read_exact(self, n: int) -> bytes:
         data = self._f.read(n)
         if len(data) != n:
@@ -188,6 +193,35 @@ def _gguf_read_value(r: GGUFReader, vtype: int):
             raise GGUFError(f"Unsupported GGUF array elem type {elem_type}")
         r._read_exact(int(n) * elem_size)
         return {"type": "array", "elem_type": elem_type, "len": n}
+    raise GGUFError(f"Unsupported GGUF value type {vtype}")
+
+
+def _gguf_skip_value(r: GGUFReader, vtype: int) -> None:
+    size = _gguf_scalar_size(vtype)
+    if size is not None:
+        r.skip(size)
+        return
+    if vtype == GGUF_TYPE_BOOL:
+        r.skip(1)
+        return
+    if vtype == GGUF_TYPE_STRING:
+        n = r.u64()
+        r.skip(int(n))
+        return
+    if vtype == GGUF_TYPE_ARRAY:
+        elem_type = r.u32()
+        n = r.u64()
+        if elem_type == GGUF_TYPE_STRING:
+            # Skip strings without decoding to keep inspection fast on large vocabularies.
+            for _ in range(int(n)):
+                slen = r.u64()
+                r.skip(int(slen))
+            return
+        elem_size = _gguf_scalar_size(elem_type)
+        if elem_size is None:
+            raise GGUFError(f"Unsupported GGUF array elem type {elem_type}")
+        r.skip(int(n) * int(elem_size))
+        return
     raise GGUFError(f"Unsupported GGUF value type {vtype}")
 
 
@@ -412,7 +446,7 @@ def main() -> None:
             if key in wanted_meta:
                 meta[key] = _gguf_read_value(r, vtype)
             else:
-                _ = _gguf_read_value(r, vtype)
+                _gguf_skip_value(r, vtype)
 
         tensors: Dict[str, TensorInfo] = {}
         for _ in range(n_tensors):

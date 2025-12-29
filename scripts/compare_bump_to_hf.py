@@ -45,16 +45,16 @@ def require_torch():
 
 def require_transformers():
     try:
-        from transformers import LlamaForCausalLM  # noqa: F401
-        return LlamaForCausalLM
+        from transformers import AutoModelForCausalLM  # noqa: F401
+        return AutoModelForCausalLM
     except ImportError as exc:
         raise SystemExit("transformers is required to compare weights") from exc
 
 
 def get_state_dict(checkpoint, torch_dtype):
     torch = require_torch()
-    LlamaForCausalLM = require_transformers()
-    model = LlamaForCausalLM.from_pretrained(
+    AutoModelForCausalLM = require_transformers()
+    model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,
