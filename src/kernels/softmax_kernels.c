@@ -296,6 +296,49 @@ void causal_softmax_head_major(float *scores,
     }
 }
 
+// Scalar-only exact causal softmax using standard library expf.
+// This is slower than causal_softmax_head_major but provides maximum accuracy.
+// Used by BF16 attention wrapper where approximation error accumulates.
+void causal_softmax_head_major_exact(float *scores,
+                                      int num_heads,
+                                      int num_tokens,
+                                      int aligned_context_window)
+{
+    for (int h = 0; h < num_heads; ++h) {
+        for (int i = 0; i < num_tokens; ++i) {
+            int base = h * aligned_context_window * aligned_context_window
+                     + i * aligned_context_window;
+            float *row = &scores[base];
+            int len = i + 1;
+
+            // Find max
+            float max_val = -INFINITY;
+            for (int j = 0; j < len; ++j) {
+                if (row[j] > max_val) max_val = row[j];
+            }
+
+            // Compute exp and sum using standard library expf
+            float sum = 0.0f;
+            for (int j = 0; j < len; ++j) {
+                float e = expf(row[j] - max_val);
+                row[j] = e;
+                sum += e;
+            }
+
+            // Normalize
+            float inv_sum = 1.0f / sum;
+            for (int j = 0; j < len; ++j) {
+                row[j] *= inv_sum;
+            }
+
+            // Zero out future tokens
+            for (int j = len; j < num_tokens; ++j) {
+                row[j] = 0.0f;
+            }
+        }
+    }
+}
+
 // Backward pass for causal softmax on head-major scores, adapted from
 // C-Transformer's backward_causal_softmax. Operates in-place on d_scores,
 // using the cached forward softmax output `weights`.

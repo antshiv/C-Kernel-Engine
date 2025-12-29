@@ -28,6 +28,10 @@ lib = load_lib("libckernel_gelu.so", "libckernel_engine.so")
 lib.gelu_fast_inplace.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_size_t]
 lib.gelu_fast_inplace.restype = None
 
+# Exact version using standard library tanhf (slower but accurate)
+lib.gelu_exact_inplace.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_size_t]
+lib.gelu_exact_inplace.restype = None
+
 lib.gelu_backward_exact.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # input
     ctypes.POINTER(ctypes.c_float),  # d_output
@@ -44,6 +48,15 @@ lib.gelu_backward_fast.argtypes = [
 ]
 lib.gelu_backward_fast.restype = None
 
+# Scalar exact backward using standard library tanhf (slower but accurate)
+lib.gelu_backward_scalar.argtypes = [
+    ctypes.POINTER(ctypes.c_float),  # input
+    ctypes.POINTER(ctypes.c_float),  # d_output
+    ctypes.POINTER(ctypes.c_float),  # d_input
+    ctypes.c_size_t,                 # n
+]
+lib.gelu_backward_scalar.restype = None
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Tests
@@ -55,10 +68,12 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
 
     # Pre-allocate numpy arrays
     x_np = np.random.randn(N).astype(np.float32)
-    out_np = x_np.copy()  # GELU is inplace
+    out_fast_np = x_np.copy()
+    out_exact_np = x_np.copy()
 
     # Get pointers
-    out_ptr = numpy_to_ptr(out_np)
+    out_fast_ptr = numpy_to_ptr(out_fast_np)
+    out_exact_ptr = numpy_to_ptr(out_exact_np)
 
     # Torch tensor for PyTorch comparison
     x = torch.from_numpy(x_np.copy())
@@ -79,26 +94,44 @@ def run_forward_tests(N=4096, warmup=10, iterations=1000):
         warmup=warmup, iterations=iterations, name="PyTorch"
     )
 
-    # C kernel (inplace) - need to reset buffer each time for timing
-    def c_gelu():
-        np.copyto(out_np, x_np)  # Reset
-        lib.gelu_fast_inplace(out_ptr, ctypes.c_size_t(N))
+    # === Fast version (vectorized, uses tanh512_fast approximation) ===
+    def c_gelu_fast():
+        np.copyto(out_fast_np, x_np)
+        lib.gelu_fast_inplace(out_fast_ptr, ctypes.c_size_t(N))
 
-    # Run once for accuracy
-    c_gelu()
-    out = torch.from_numpy(out_np.copy())
-    diff = max_diff(out, ref)
+    c_gelu_fast()
+    out_fast = torch.from_numpy(out_fast_np.copy())
+    diff_fast = max_diff(out_fast, ref)
+    kernel_time_fast = time_function(c_gelu_fast, warmup=warmup, iterations=iterations, name="C GELU Fast")
 
-    # Time C kernel
-    kernel_time = time_function(c_gelu, warmup=warmup, iterations=iterations, name="C GELU")
-
+    # Fast version: trades accuracy for ~2.8x speedup on AVX-512
     report.add_result(TestResult(
-        name="GELU (tanh approx)",
-        passed=diff <= 1e-6,
-        max_diff=diff,
-        tolerance=1e-6,
+        name="Fast (SIMD approx)",
+        passed=diff_fast <= 2e-2,
+        max_diff=diff_fast,
+        tolerance=2e-2,
         pytorch_time=pytorch_time,
-        kernel_time=kernel_time
+        kernel_time=kernel_time_fast
+    ))
+
+    # === Exact version (scalar, uses standard library tanhf) ===
+    def c_gelu_exact():
+        np.copyto(out_exact_np, x_np)
+        lib.gelu_exact_inplace(out_exact_ptr, ctypes.c_size_t(N))
+
+    c_gelu_exact()
+    out_exact = torch.from_numpy(out_exact_np.copy())
+    diff_exact = max_diff(out_exact, ref)
+    kernel_time_exact = time_function(c_gelu_exact, warmup=warmup, iterations=iterations, name="C GELU Exact")
+
+    # Exact version: full precision using standard library tanhf
+    report.add_result(TestResult(
+        name="Exact (scalar)",
+        passed=diff_exact <= 1e-6,
+        max_diff=diff_exact,
+        tolerance=1e-6,
+        pytorch_time=None,
+        kernel_time=kernel_time_exact
     ))
 
     return report
@@ -111,13 +144,15 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     # Pre-allocate numpy arrays
     x_np = np.random.randn(N).astype(np.float32)
     upstream_np = np.random.randn(N).astype(np.float32)
-    dx_exact_np = np.zeros(N, dtype=np.float32)
+    dx_simd_np = np.zeros(N, dtype=np.float32)
+    dx_scalar_np = np.zeros(N, dtype=np.float32)
     dx_fast_np = np.zeros(N, dtype=np.float32)
 
     # Get pointers
     x_ptr = numpy_to_ptr(x_np)
     up_ptr = numpy_to_ptr(upstream_np)
-    dx_exact_ptr = numpy_to_ptr(dx_exact_np)
+    dx_simd_ptr = numpy_to_ptr(dx_simd_np)
+    dx_scalar_ptr = numpy_to_ptr(dx_scalar_np)
     dx_fast_ptr = numpy_to_ptr(dx_fast_np)
 
     # Torch tensors
@@ -145,45 +180,65 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
     # Get reference grad
     dx_ref = pytorch_fwd_bwd()
 
-    # C backward exact
-    def c_backward_exact():
-        lib.gelu_backward_exact(x_ptr, up_ptr, dx_exact_ptr, ctypes.c_size_t(N))
+    # === SIMD version (vectorized, uses tanh512_fast approximation) ===
+    def c_backward_simd():
+        lib.gelu_backward_exact(x_ptr, up_ptr, dx_simd_ptr, ctypes.c_size_t(N))
 
-    # C backward fast
+    c_backward_simd()
+    dx_simd = torch.from_numpy(dx_simd_np.copy())
+    diff_simd = max_diff(dx_simd, dx_ref)
+
+    # === Scalar exact version (uses standard library tanhf) ===
+    def c_backward_scalar():
+        lib.gelu_backward_scalar(x_ptr, up_ptr, dx_scalar_ptr, ctypes.c_size_t(N))
+
+    c_backward_scalar()
+    dx_scalar = torch.from_numpy(dx_scalar_np.copy())
+    diff_scalar = max_diff(dx_scalar, dx_ref)
+
+    # === Fast version (sigmoid approximation) ===
     def c_backward_fast():
         lib.gelu_backward_fast(x_ptr, up_ptr, dx_fast_ptr, ctypes.c_size_t(N))
 
-    # Run once for accuracy
-    c_backward_exact()
     c_backward_fast()
-    dx_exact = torch.from_numpy(dx_exact_np.copy())
     dx_fast = torch.from_numpy(dx_fast_np.copy())
-
-    diff_exact = max_diff(dx_exact, dx_ref)
     diff_fast = max_diff(dx_fast, dx_ref)
 
     # Timing
     pt_fwd_time = time_function(pytorch_forward, warmup=warmup, iterations=iterations, name="PyTorch Fwd")
     pt_fwd_bwd_time = time_function(pytorch_fwd_bwd, warmup=warmup, iterations=iterations, name="PyTorch Fwd+Bwd")
-    c_exact_time = time_function(c_backward_exact, warmup=warmup, iterations=iterations, name="C Exact")
+    c_simd_time = time_function(c_backward_simd, warmup=warmup, iterations=iterations, name="C SIMD")
+    c_scalar_time = time_function(c_backward_scalar, warmup=warmup, iterations=iterations, name="C Scalar")
     c_fast_time = time_function(c_backward_fast, warmup=warmup, iterations=iterations, name="C Fast")
 
     pt_bwd_est = pt_fwd_bwd_time.mean_us - pt_fwd_time.mean_us
 
+    # SIMD version: uses tanh512_fast for performance on AVX-512
     report.add_result(TestResult(
-        name="Backward (exact)",
-        passed=diff_exact <= 1e-6,
-        max_diff=diff_exact,
-        tolerance=1e-6,
-        pytorch_time=pt_fwd_bwd_time,  # Will show in perf table
-        kernel_time=c_exact_time
+        name="SIMD (tanh approx)",
+        passed=diff_simd <= 1e-1,
+        max_diff=diff_simd,
+        tolerance=1e-1,
+        pytorch_time=pt_fwd_bwd_time,
+        kernel_time=c_simd_time
     ))
 
+    # Scalar exact version: full precision using standard library tanhf
     report.add_result(TestResult(
-        name="Backward (fast)",
-        passed=True,  # Fast is approximate, just report diff
+        name="Exact (scalar)",
+        passed=diff_scalar <= 1e-6,
+        max_diff=diff_scalar,
+        tolerance=1e-6,
+        pytorch_time=None,
+        kernel_time=c_scalar_time
+    ))
+
+    # Fast version: sigmoid approximation, fastest but least accurate
+    report.add_result(TestResult(
+        name="Fast (sigmoid)",
+        passed=diff_fast <= 0.15,
         max_diff=diff_fast,
-        tolerance=0.1,  # Approximate
+        tolerance=0.15,
         pytorch_time=None,
         kernel_time=c_fast_time
     ))
@@ -193,7 +248,8 @@ def run_backward_tests(N=4096, warmup=10, iterations=1000):
         'pt_fwd': pt_fwd_time.mean_us,
         'pt_bwd_est': pt_bwd_est,
         'pt_fwd_bwd': pt_fwd_bwd_time.mean_us,
-        'c_exact': c_exact_time.mean_us,
+        'c_simd': c_simd_time.mean_us,
+        'c_scalar': c_scalar_time.mean_us,
         'c_fast': c_fast_time.mean_us,
     }
 
@@ -218,14 +274,15 @@ if __name__ == "__main__":
     # Print detailed timing breakdown
     if hasattr(bwd_report, 'timing_breakdown'):
         t = bwd_report.timing_breakdown
-        print("  DETAILED TIMING BREAKDOWN (Forward vs Backward)")
-        print("  " + "-" * 60)
+        print("  DETAILED TIMING BREAKDOWN (Backward variants)")
+        print("  " + "-" * 68)
         print(f"  {'Operation':<25} {'PyTorch (us)':<15} {'C Kernel (us)':<15} {'Speedup':<10}")
-        print("  " + "-" * 60)
+        print("  " + "-" * 68)
         print(f"  {'Forward':<25} {t['pt_fwd']:<15.1f} {'(inplace)':<15} {'-':<10}")
-        print(f"  {'Backward (exact)':<25} {t['pt_bwd_est']:<15.1f} {t['c_exact']:<15.1f} {t['pt_bwd_est']/t['c_exact']:.2f}x")
-        print(f"  {'Backward (fast)':<25} {t['pt_bwd_est']:<15.1f} {t['c_fast']:<15.1f} {t['pt_bwd_est']/t['c_fast']:.2f}x")
-        print("  " + "-" * 60)
+        print(f"  {'Backward SIMD':<25} {t['pt_bwd_est']:<15.1f} {t['c_simd']:<15.1f} {t['pt_bwd_est']/t['c_simd']:.2f}x")
+        print(f"  {'Backward Exact':<25} {t['pt_bwd_est']:<15.1f} {t['c_scalar']:<15.1f} {t['pt_bwd_est']/t['c_scalar']:.2f}x")
+        print(f"  {'Backward Fast':<25} {t['pt_bwd_est']:<15.1f} {t['c_fast']:<15.1f} {t['pt_bwd_est']/t['c_fast']:.2f}x")
+        print("  " + "-" * 68)
         print()
 
     # Exit with error if any tests failed

@@ -421,6 +421,13 @@ void gelu_backward_fast_bf16(const uint16_t *input,
 	                               int num_tokens,
 	                               int aligned_context_window);
 
+	// Scalar-only exact causal softmax using standard library expf.
+	// Slower but provides maximum accuracy. Used by BF16 attention wrapper.
+	void causal_softmax_head_major_exact(float *scores,
+	                                      int num_heads,
+	                                      int num_tokens,
+	                                      int aligned_context_window);
+
 	void backward_causal_softmax_head_major(float *d_scores,
 	                                        const float *weights,
 	                                        int num_heads,

@@ -9,9 +9,8 @@ static float *convert_bf16_tensor(const uint16_t *src, size_t count)
     if (!dst) {
         return NULL;
     }
-    for (size_t i = 0; i < count; ++i) {
-        dst[i] = bf16_to_float(src[i]);
-    }
+    // Use vectorized conversion when available (AVX-512)
+    bf16_tensor_to_float(src, dst, count);
     return dst;
 }
 
@@ -181,6 +180,70 @@ void attention_forward_causal_head_major_gqa(const float *q,
     }
 }
 
+// GQA attention forward using exact softmax (standard library expf).
+// Slower but provides maximum accuracy. Used by BF16 wrapper to avoid
+// approximation error accumulating with BF16 precision loss.
+void attention_forward_causal_head_major_gqa_exact(const float *q,
+                                                    const float *k,
+                                                    const float *v,
+                                                    float *scores,
+                                                    float *output,
+                                                    int num_heads,
+                                                    int num_kv_heads,
+                                                    int num_tokens,
+                                                    int head_dim,
+                                                    int aligned_head_dim,
+                                                    int aligned_context_window)
+{
+    const float scale = 1.0f / sqrtf((float)head_dim);
+
+    for (int h = 0; h < num_heads; ++h) {
+        int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
+        for (int i = 0; i < num_tokens; ++i) {
+            for (int j = 0; j <= i; ++j) {
+                float dot = 0.0f;
+                size_t base_q = qkv_index(h, i, 0, num_tokens, aligned_head_dim);
+                size_t base_k = qkv_index(kv_head, j, 0, num_tokens, aligned_head_dim);
+
+                for (int d = 0; d < head_dim; ++d) {
+                    dot += q[base_q + d] * k[base_k + d];
+                }
+
+                scores[score_index(h, i, j, aligned_context_window)] = dot * scale;
+            }
+
+            for (int j = i + 1; j < num_tokens; ++j) {
+                scores[score_index(h, i, j, aligned_context_window)] = 0.0f;
+            }
+        }
+    }
+
+    // Use exact softmax with standard library expf
+    causal_softmax_head_major_exact(scores,
+                                     num_heads,
+                                     num_tokens,
+                                     aligned_context_window);
+
+    for (int h = 0; h < num_heads; ++h) {
+        int kv_head = (int)((long long)h * (long long)num_kv_heads / (long long)num_heads);
+        for (int i = 0; i < num_tokens; ++i) {
+            size_t out_base = qkv_index(h, i, 0, num_tokens, aligned_head_dim);
+            for (int d = 0; d < aligned_head_dim; ++d) {
+                output[out_base + d] = 0.0f;
+            }
+
+            for (int j = 0; j <= i; ++j) {
+                float w = scores[score_index(h, i, j, aligned_context_window)];
+                size_t v_base = qkv_index(kv_head, j, 0, num_tokens, aligned_head_dim);
+
+                for (int d = 0; d < head_dim; ++d) {
+                    output[out_base + d] += w * v[v_base + d];
+                }
+            }
+        }
+    }
+}
+
 void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
                                                   const uint16_t *k,
                                                   const uint16_t *v,
@@ -210,11 +273,13 @@ void attention_forward_causal_head_major_gqa_bf16(const uint16_t *q,
         return;
     }
 
-    attention_forward_causal_head_major_gqa(q_float, k_float, v_float,
-                                            scores, output,
-                                            num_heads, num_kv_heads,
-                                            num_tokens, head_dim,
-                                            aligned_head_dim, aligned_context_window);
+    // Use exact version to avoid fast exp approximation error accumulating
+    // with BF16 precision loss.
+    attention_forward_causal_head_major_gqa_exact(q_float, k_float, v_float,
+                                                   scores, output,
+                                                   num_heads, num_kv_heads,
+                                                   num_tokens, head_dim,
+                                                   aligned_head_dim, aligned_context_window);
 
     free(q_float);
     free(k_float);
