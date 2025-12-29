@@ -84,6 +84,7 @@ typedef struct {
     bool force_convert;
     bool generate_only;      /* Generate C file only, don't compile to .so */
     bool debug;              /* Run pre-flight checks and show diagnostics */
+    int num_cores;           /* Number of CPU cores to use (0 = auto) */
     char prompt[4096];       /* Optional prompt for non-interactive mode */
 
     /* Model info (parsed from config.json) */
@@ -148,6 +149,8 @@ static void print_usage(void) {
     printf("  --port <port>     Server port (default: 8080)\n");
     printf("  --temp <float>    Temperature (default: 0.7)\n");
     printf("  --max-tokens <n>  Max tokens to generate (default: 512)\n");
+    printf("  --threads <n>     Number of CPU threads to use (default: auto)\n");
+    printf("  --ncores <n>      Alias for --threads\n");
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
     printf("  --force-convert   Re-convert weights and recompile\n");
@@ -1107,16 +1110,32 @@ static int run_chat(CKConfig *cfg) {
         }
     }
 
+    /* Build thread environment prefix if --threads/--ncores specified */
+    char thread_env[256] = "";
+    if (cfg->num_cores > 0) {
+        snprintf(thread_env, sizeof(thread_env),
+            "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
+            "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
+            "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
+            cfg->num_cores,
+            cfg->num_cores, cfg->num_cores,
+            cfg->num_cores, cfg->num_cores);
+        if (cfg->verbose) {
+            printf(C_DIM "  Using %d CPU cores (OMP_NUM_THREADS=%d, MKL_NUM_THREADS=%d)\n" C_RESET,
+                   cfg->num_cores, cfg->num_cores, cfg->num_cores);
+        }
+    }
+
     if (cfg->prompt[0] != '\0') {
         /* Non-interactive mode with prompt */
         snprintf(cmd, sizeof(cmd),
-            "LD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d --prompt '%s'",
-            project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens, cfg->prompt);
+            "%sLD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d --prompt '%s'",
+            thread_env, project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens, cfg->prompt);
     } else {
         /* Interactive mode */
         snprintf(cmd, sizeof(cmd),
-            "LD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d",
-            project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
+            "%sLD_LIBRARY_PATH='%s/build:$LD_LIBRARY_PATH' python3 %s --model-dir '%s' --temperature %.2f --max-tokens %d",
+            thread_env, project_root, script, cfg->cache_dir, cfg->temperature, cfg->max_tokens);
     }
 
     if (cfg->verbose) {
@@ -1170,10 +1189,26 @@ static int run_server(CKConfig *cfg) {
         return -1;
     }
 
+    /* Build thread environment prefix if --threads/--ncores specified */
+    char thread_env[256] = "";
+    if (cfg->num_cores > 0) {
+        snprintf(thread_env, sizeof(thread_env),
+            "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
+            "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
+            "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
+            cfg->num_cores,
+            cfg->num_cores, cfg->num_cores,
+            cfg->num_cores, cfg->num_cores);
+        if (cfg->verbose) {
+            printf(C_DIM "  Using %d CPU cores (OMP_NUM_THREADS=%d, MKL_NUM_THREADS=%d)\n" C_RESET,
+                   cfg->num_cores, cfg->num_cores, cfg->num_cores);
+        }
+    }
+
     char cmd[MAX_CMD];
     snprintf(cmd, sizeof(cmd),
-        "%s --config %s --weights %s --tokenizer %s --port %d",
-        server_bin, cfg->config_path, cfg->weights_path, cfg->tokenizer_path, cfg->port);
+        "%s%s --config %s --weights %s --tokenizer %s --port %d",
+        thread_env, server_bin, cfg->config_path, cfg->weights_path, cfg->tokenizer_path, cfg->port);
 
     return run_cmd(cmd, cfg->verbose);
 }
@@ -1374,6 +1409,7 @@ int main(int argc, char *argv[]) {
         cfg.force_convert = false;
         cfg.generate_only = false;
         cfg.debug = false;
+        cfg.num_cores = 0;  /* 0 = auto-detect */
 
         /* Parse model argument */
         if (setup_config(&cfg, argv[2]) != 0) {
@@ -1390,6 +1426,8 @@ int main(int argc, char *argv[]) {
                 cfg.temperature = atof(argv[++i]);
             } else if (strcmp(argv[i], "--max-tokens") == 0 && i + 1 < argc) {
                 cfg.max_tokens = atoi(argv[++i]);
+            } else if ((strcmp(argv[i], "--threads") == 0 || strcmp(argv[i], "--ncores") == 0) && i + 1 < argc) {
+                cfg.num_cores = atoi(argv[++i]);
             } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
                 cfg.verbose = true;
             } else if (strcmp(argv[i], "--force-download") == 0) {
