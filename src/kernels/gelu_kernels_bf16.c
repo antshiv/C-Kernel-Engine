@@ -26,7 +26,9 @@ void gelu_fast_inplace_bf16(uint16_t *data, size_t n)
     }
 
     bf16_tensor_to_float(data, tmp, n);
-    gelu_fast_inplace(tmp, n);
+    // Use exact version to avoid fast tanh approximation error accumulating
+    // with BF16 precision loss. Conversion overhead dominates anyway.
+    gelu_exact_inplace(tmp, n);
     float_tensor_to_bf16(tmp, data, n);
 
     free_float_buffer(tmp);
@@ -50,7 +52,9 @@ void gelu_backward_exact_bf16(const uint16_t *input,
     bf16_tensor_to_float(input, input_f, n);
     bf16_tensor_to_float(d_output, d_output_f, n);
 
-    gelu_backward_exact(input_f, d_output_f, d_input_f, n);
+    // Use scalar exact version to avoid fast tanh approximation error
+    // accumulating with BF16 precision loss.
+    gelu_backward_scalar(input_f, d_output_f, d_input_f, n);
 
     float_tensor_to_bf16(d_input_f, d_input, n);
 

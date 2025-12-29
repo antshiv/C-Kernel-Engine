@@ -411,6 +411,46 @@ void gelu_backward_exact(const float *input,
 #endif
 }
 
+// Scalar-only exact GELU forward using standard library tanhf.
+// This is slower than gelu_fast_inplace but provides maximum accuracy.
+// Used by BF16 wrapper where conversion overhead dominates anyway.
+void gelu_exact_inplace(float *data, size_t n)
+{
+    const float sqrt_2_over_pi = 0.7978845608f;
+    const float coeff = 0.044715f;
+
+    for (size_t i = 0; i < n; ++i) {
+        float x = data[i];
+        float x3 = x * x * x;
+        float inner = sqrt_2_over_pi * (x + coeff * x3);
+        data[i] = 0.5f * x * (1.0f + tanhf(inner));
+    }
+}
+
+// Scalar-only exact GELU backward using standard library tanhf.
+// This is slower than gelu_backward_exact but provides maximum accuracy.
+// Used by BF16 wrapper where conversion overhead dominates anyway.
+void gelu_backward_scalar(const float *input,
+                          const float *d_output,
+                          float *d_input,
+                          size_t n)
+{
+    const float sqrt_2_over_pi = 0.7978845608f;
+    const float coeff = 0.044715f;
+
+    for (size_t i = 0; i < n; ++i) {
+        float x = input[i];
+        float x3 = x * x * x;
+        float g = sqrt_2_over_pi * (x + coeff * x3);
+        float tanh_g = tanhf(g);
+        float x2 = x * x;
+        float g_prime = sqrt_2_over_pi * (1.0f + 3.0f * coeff * x2);
+        float sech2_g = 1.0f - tanh_g * tanh_g;
+        float gelu_derivative = 0.5f * (1.0f + tanh_g) + 0.5f * x * sech2_g * g_prime;
+        d_input[i] = d_output[i] * gelu_derivative;
+    }
+}
+
 // Fast approximate GELU backward, adapted from C-Transformer's backward_gelu_fast.
 // Uses sigmoid approximation: GELU(x) ≈ x * sigmoid(1.702 * x)
 // Derivative: s * (1 + x * (1 - s) * 1.702) where s = sigmoid(1.702 * x)

@@ -890,10 +890,6 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
     const int hd = p->head_dim;
     const int ad = p->aligned_head_dim;
     const int aligned_intermediate = p->aligned_intermediate_dim;
-    const int K_concat = H * ad;
-    if (K_concat != aligned_D) {
-        return;
-    }
 
     const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
     float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;

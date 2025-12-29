@@ -367,10 +367,22 @@ void rmsnorm_backward_int4(const uint8_t *d_output,
 // GELU forward kernel (fast approximation), copied from C-Transformer.
 void gelu_fast_inplace(float *data, size_t n);
 
+// Scalar-only exact GELU forward using standard library tanhf.
+// Slower but provides maximum accuracy. Used by BF16 wrapper.
+void gelu_exact_inplace(float *data, size_t n);
+
+// GELU backward using tanh-based derivative (vectorized, uses fast tanh approx).
 void gelu_backward_exact(const float *input,
                          const float *d_output,
                          float *d_input,
                          size_t n);
+
+// Scalar-only exact GELU backward using standard library tanhf.
+// Slower but provides maximum accuracy. Used by BF16 wrapper.
+void gelu_backward_scalar(const float *input,
+                          const float *d_output,
+                          float *d_input,
+                          size_t n);
 
 void gelu_backward_fast(const float *input,
                         const float *d_output,
