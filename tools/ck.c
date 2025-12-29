@@ -1155,6 +1155,7 @@ static int run_chat(CKConfig *cfg) {
         snprintf(thread_env, sizeof(thread_env),
             "CK_NUM_THREADS=%d "
             "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
+            "OMP_PROC_BIND=spread OMP_PLACES=cores "
             "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
             "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
             cfg->num_cores,
@@ -1236,6 +1237,7 @@ static int run_server(CKConfig *cfg) {
         snprintf(thread_env, sizeof(thread_env),
             "CK_NUM_THREADS=%d "
             "OMP_NUM_THREADS=%d OMP_DYNAMIC=FALSE "
+            "OMP_PROC_BIND=spread OMP_PLACES=cores "
             "MKL_NUM_THREADS=%d OPENBLAS_NUM_THREADS=%d "
             "VECLIB_MAXIMUM_THREADS=%d NUMEXPR_NUM_THREADS=%d ",
             cfg->num_cores,

@@ -654,8 +654,9 @@ void gemm_blocked_serial(const float *A,
     }
 
     // Decode-time matvec (M=1) is extremely common and benefits from parallelism over N.
-    // Keep stricter thresholds to avoid OpenMP overhead on tiny matrices.
-    if (M == 1 && N >= 512 && K >= 512) {
+    // Lower threshold to parallelize more ops; OpenMP overhead is ~1-2μs per barrier.
+    // For N*K >= 64K elements, parallel is worthwhile.
+    if (M == 1 && (size_t)N * (size_t)K >= 65536) {
         gemm_nt_matvec_parallel(A, B, bias, C, N, K);
         return;
     }

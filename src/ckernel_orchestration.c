@@ -630,16 +630,17 @@ static void ck_qkv_project_head_major_token(const float *input_row,
                                             int num_kv_heads,
                                             int aligned_head_dim)
 {
-    size_t head_weight_stride = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
-#pragma omp parallel for schedule(static) if(num_heads > 1)
-    for (int h = 0; h < num_heads; ++h) {
-        const float *wq_h = wq + (size_t)h * head_weight_stride;
-        const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *q_h = q_token + (size_t)h * (size_t)aligned_head_dim;
-        gemm_blocked_serial(input_row, wq_h, bq_h, q_h,
-                            /*tokens=*/1, aligned_head_dim, aligned_embed_dim);
-    }
+    // Decode-time QKV is a matrix-vector multiply (tokens=1). Parallelizing over heads
+    // caps parallelism at small head counts (e.g., H=9). Since Wq is stored head-major as
+    // contiguous rows ([H*D_head, D_model] row-major), we can flatten Q heads and expose a
+    // larger N to GEMM for better multi-core utilization.
+    const int q_out = num_heads * aligned_head_dim;
+    gemm_blocked_serial(input_row, wq, bq, q_token,
+                        /*tokens=*/1, q_out, aligned_embed_dim);
 
+    // K/V have fewer heads (GQA), so keep head-parallel projection here to avoid the
+    // overhead of spawning many threads for small N.
+    size_t head_weight_stride = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
 #pragma omp parallel for schedule(static) if(num_kv_heads > 1)
     for (int h = 0; h < num_kv_heads; ++h) {
         const float *wk_h = wk + (size_t)h * head_weight_stride;
