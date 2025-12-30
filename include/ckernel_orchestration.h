@@ -221,8 +221,8 @@ void ck_mlp_swiglu_forward_fully_fused_token(const float *input_row,
                                               const float *w2,
                                               const float *b2,
                                               float *output_row,
-                                              int embed_dim,
-                                              int intermediate_dim);
+                                              int aligned_embed_dim,
+                                              int aligned_intermediate_dim);
 
 void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p);
 void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p);

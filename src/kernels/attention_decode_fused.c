@@ -286,15 +286,16 @@ static void ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl(const CKLayer
                     p->eps);
 
     if (fuse_mlp) {
-        ck_mlp_swiglu_forward_fused_token(ln2_row,
-                                          p->w1,
-                                          p->b1,
-                                          p->w2,
-                                          p->b2,
-                                          swiglu_row,
-                                          mlp_row,
-                                          aligned_D,
-                                          aligned_intermediate);
+        // Use fully fused MLP kernel - all 3 projections in one pass
+        // Eliminates DRAM round-trip for swiglu intermediate values
+        ck_mlp_swiglu_forward_fully_fused_token(ln2_row,
+                                                 p->w1,
+                                                 p->b1,
+                                                 p->w2,
+                                                 p->b2,
+                                                 mlp_row,
+                                                 aligned_D,
+                                                 aligned_intermediate);
     } else {
         int up_dim = 2 * aligned_intermediate;
         float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;

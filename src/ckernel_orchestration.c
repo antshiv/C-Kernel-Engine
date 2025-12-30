@@ -781,29 +781,30 @@ void ck_mlp_swiglu_forward_fully_fused_token(const float *input_row,
                                               const float *w2,
                                               const float *b2,
                                               float *output_row,
-                                              int embed_dim,
-                                              int intermediate_dim)
+                                              int aligned_embed_dim,
+                                              int aligned_intermediate_dim)
 {
     if (!input_row || !w1 || !w2 || !output_row) {
         return;
     }
 
     // Split w1 into gate and up projections
-    // w1 layout: [2 * intermediate_dim, embed_dim]
-    //   First half: W_gate [intermediate_dim, embed_dim]
-    //   Second half: W_up [intermediate_dim, embed_dim]
+    // w1 layout: [2 * aligned_intermediate_dim, aligned_embed_dim]
+    //   First half: W_gate [aligned_intermediate_dim, aligned_embed_dim]
+    //   Second half: W_up [aligned_intermediate_dim, aligned_embed_dim]
     const float *w_gate = w1;
-    const float *w_up = w1 + (size_t)intermediate_dim * (size_t)embed_dim;
+    const float *w_up = w1 + (size_t)aligned_intermediate_dim * (size_t)aligned_embed_dim;
 
     // Split b1 into gate and up biases (if present)
     const float *b_gate = b1;
-    const float *b_up = b1 ? (b1 + intermediate_dim) : NULL;
+    const float *b_up = b1 ? (b1 + aligned_intermediate_dim) : NULL;
 
-    // w2 is W_down: [embed_dim, intermediate_dim]
+    // w2 is W_down: [aligned_embed_dim, aligned_intermediate_dim]
     const float *w_down = w2;
     const float *b_down = b2;
 
     // Call the fully fused kernel - eliminates DRAM round-trip for swiglu
+    // Uses aligned dimensions since weights are stored with alignment padding
     fused_mlp_swiglu_decode_v2(input_row,
                                 w_gate,
                                 w_up,
@@ -812,8 +813,8 @@ void ck_mlp_swiglu_forward_fully_fused_token(const float *input_row,
                                 b_up,
                                 b_down,
                                 output_row,
-                                embed_dim,
-                                intermediate_dim);
+                                aligned_embed_dim,
+                                aligned_intermediate_dim);
 }
 
 void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
@@ -1108,16 +1109,16 @@ void ck_layer_forward_rmsnorm_swiglu_decode_fused(const CKLayerForwardParams *p,
                     aligned_D,
                     p->eps);
 
-    // MLP block for this token (fused gate+up projection).
-    ck_mlp_swiglu_forward_fused_token(ln2_row,
-                                      p->w1,
-                                      p->b1,
-                                      p->w2,
-                                      p->b2,
-                                      swiglu_row,
-                                      mlp_row,
-                                      aligned_D,
-                                      aligned_intermediate);
+    // MLP block for this token (fully fused - all 3 projections in one pass).
+    // Eliminates DRAM round-trip for swiglu intermediate values.
+    ck_mlp_swiglu_forward_fully_fused_token(ln2_row,
+                                             p->w1,
+                                             p->b1,
+                                             p->w2,
+                                             p->b2,
+                                             mlp_row,
+                                             aligned_D,
+                                             aligned_intermediate);
 
     // Final residual.
     ck_residual_add_token_major(residual_row,
