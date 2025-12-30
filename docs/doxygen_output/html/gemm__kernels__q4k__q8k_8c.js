@@ -6,6 +6,8 @@ var gemm__kernels__q4k__q8k_8c =
     [ "gemm_q4_k_q8_k", "gemm__kernels__q4k__q8k_8c.html#ac52baba628268303f41c01413c445024", null ],
     [ "gemm_q4_k_q8_k_ref", "gemm__kernels__q4k__q8k_8c.html#aaded34941ab8fd3ab697bcf9699fef6e", null ],
     [ "gemv_q4_k_q8_k", "gemm__kernels__q4k__q8k_8c.html#abd2ce09c06d448b502b30fac01bc1d30", null ],
+    [ "gemv_q4_k_q8_k_avx2", "gemm__kernels__q4k__q8k_8c.html#a030c98b26ad610ccea6dabf993b60cdf", null ],
     [ "gemv_q4_k_q8_k_ref", "gemm__kernels__q4k__q8k_8c.html#ac01f8caf84e100f3c72919c71217010e", null ],
+    [ "gemv_q4_k_q8_k_vnni", "gemm__kernels__q4k__q8k_8c.html#a53c1355c32a77df5522e2b8eff8fc3f5", null ],
     [ "quantize_row_q8_k", "gemm__kernels__q4k__q8k_8c.html#a64b28ca8a25883986a0d22e39a574a32", null ]
 ];

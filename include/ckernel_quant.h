@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "ckernel_dtype.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,6 +78,21 @@ typedef struct {
 /* Total: 144 bytes per 256 weights */
 
 /* ============================================================================
+ * Q6_K: K-Quant 6-bit (per-16 scales)
+ * - 256 weights per block
+ * - 16 sub-blocks of 16 weights each
+ * - Stored as low 4 bits (ql) + high 2 bits (qh) + int8 scales
+ * ============================================================================ */
+
+typedef struct {
+    uint8_t ql[QK_K / 2];      /* 128 bytes: low 4 bits */
+    uint8_t qh[QK_K / 4];      /* 64 bytes: high 2 bits */
+    int8_t scales[QK_K / 16];  /* 16 bytes: 16 sub-block scales */
+    ck_half d;                 /* 2 bytes: super-block scale */
+} block_q6_K;
+/* Total: 210 bytes per 256 weights */
+
+/* ============================================================================
  * Q8_K: K-Quant 8-bit (used for activations in some ops)
  * - 256 weights per super-block
  * - 1 FP32 scale per block (not FP16 like others!)
@@ -102,6 +118,7 @@ static inline size_t ck_quant_block_size(int type) {
         case 1: return QK8_0;    /* Q8_0 */
         case 2: return QK_K;     /* Q4_K */
         case 3: return QK_K;     /* Q8_K */
+        case CK_DT_Q6_K: return QK_K;
         default: return 1;
     }
 }
@@ -115,6 +132,7 @@ static inline size_t ck_quant_type_size(int type) {
         case 1: return sizeof(block_q8_0);
         case 2: return sizeof(block_q4_K);
         case 3: return sizeof(block_q8_K);
+        case CK_DT_Q6_K: return sizeof(block_q6_K);
         default: return 4; /* FP32 */
     }
 }

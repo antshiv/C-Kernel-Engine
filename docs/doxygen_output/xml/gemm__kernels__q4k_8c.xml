@@ -14,6 +14,16 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
       <node id="2">
         <label>stdint.h</label>
@@ -135,11 +145,14 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="545" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="545" bodyend="573"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
         <references refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" compoundref="gemm__kernels__q4k_8c" startline="337" endline="347">gemm_q4_k</references>
-        <referencedby refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" compoundref="ckernel__orchestration_8c" startline="173" endline="207">ck_attention_project_head_major_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" compoundref="ckernel__orchestration_8c" startline="209" endline="229">ck_mlp_swiglu_forward_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="124" endline="171">ck_qkv_project_head_major_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1189" endline="1232">ck_qkv_project_head_major_token_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" compoundref="ckernel__orchestration_8c" startline="253" endline="287">ck_attention_project_head_major_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a107109f43bf909569b9ab2dd75bffb18" compoundref="ckernel__orchestration_8c" startline="289" endline="345">ck_attention_project_head_major_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a68ba045fc96143bbd080d0a410329d6c" compoundref="ckernel__orchestration_8c" startline="109" endline="129">ck_gemm_nt_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" compoundref="ckernel__orchestration_8c" startline="347" endline="367">ck_mlp_swiglu_forward_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="146" endline="193">ck_qkv_project_head_major_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1351" endline="1394">ck_qkv_project_head_major_token_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -457,13 +470,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="389" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="389" bodyend="432"/>
-        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="246">CK_FP16_TO_FP32</references>
-        <references refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" compoundref="ckernel__quant_8h" startline="72">block_q4_K::d</references>
-        <references refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" compoundref="ckernel__quant_8h" startline="73">block_q4_K::dmin</references>
-        <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="68">QK_K</references>
-        <references refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" compoundref="ckernel__quant_8h" startline="75">block_q4_K::qs</references>
-        <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="74">block_q4_K::scales</references>
-        <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="145" endline="171">unpack_q4_k_scales</references>
+        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="264">CK_FP16_TO_FP32</references>
+        <references refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" compoundref="ckernel__quant_8h" startline="73">block_q4_K::d</references>
+        <references refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" compoundref="ckernel__quant_8h" startline="74">block_q4_K::dmin</references>
+        <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
+        <references refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" compoundref="ckernel__quant_8h" startline="76">block_q4_K::qs</references>
+        <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="75">block_q4_K::scales</references>
+        <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="163" endline="189">unpack_q4_k_scales</references>
         <referencedby refid="gemm__kernels__q4k_8c_1a46e8ba6be5972385ee543a75f00ef7a0" compoundref="gemm__kernels__q4k_8c" startline="503" endline="513">gemv_q4_k_backward</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -541,13 +554,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="43" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="43" bodyend="86"/>
-        <references refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" compoundref="ckernel__quant_8h" startline="72">block_q4_K::d</references>
-        <references refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" compoundref="ckernel__quant_8h" startline="73">block_q4_K::dmin</references>
-        <references refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" compoundref="ckernel__quant_8h" startline="253">GGML_FP16_TO_FP32</references>
-        <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="68">QK_K</references>
-        <references refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" compoundref="ckernel__quant_8h" startline="75">block_q4_K::qs</references>
-        <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="74">block_q4_K::scales</references>
-        <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="145" endline="171">unpack_q4_k_scales</references>
+        <references refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" compoundref="ckernel__quant_8h" startline="73">block_q4_K::d</references>
+        <references refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" compoundref="ckernel__quant_8h" startline="74">block_q4_K::dmin</references>
+        <references refid="ckernel__quant_8h_1a15b32ff704be7dc7da90abdc72487a97" compoundref="ckernel__quant_8h" startline="271">GGML_FP16_TO_FP32</references>
+        <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
+        <references refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" compoundref="ckernel__quant_8h" startline="76">block_q4_K::qs</references>
+        <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="75">block_q4_K::scales</references>
+        <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="163" endline="189">unpack_q4_k_scales</references>
         <referencedby refid="gemm__kernels__q4k_8c_1a08a08de1123b852180ff148975b3cbcc" compoundref="gemm__kernels__q4k_8c" startline="193" endline="202">gemm_q4_k_ref</referencedby>
         <referencedby refid="ckernel__engine_8h_1a9beb124343d26ac4870d92b2f047d643" compoundref="gemm__kernels__q4k_8c" startline="164" endline="174">gemv_q4_k</referencedby>
       </memberdef>

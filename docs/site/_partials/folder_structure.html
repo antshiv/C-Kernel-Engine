@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-30 07:19</span>
+        <span class="folder-updated">Updated: 2025-12-30 12:58</span>
     </div>
     <pre class="tree-output">
 .
@@ -27,6 +27,8 @@
 |   |   |-- contributing.html
 |   |   |-- developer-guide.html
 |   |   |-- gemm-optimization.html
+|   |   |-- gguf-bump.html
+|   |   |-- gguf-conversion.html
 |   |   |-- index.html
 |   |   |-- kernels.html
 |   |   |-- memory-safety.html
@@ -163,7 +165,10 @@
 |   |   |-- gemm_kernels_f16.c
 |   |   |-- gemm_kernels_q4_0.c
 |   |   |-- gemm_kernels_q4k.c
+|   |   |-- gemm_kernels_q4k_q8k_avx2.c
 |   |   |-- gemm_kernels_q4k_q8k.c
+|   |   |-- gemm_kernels_q4k_q8k_vnni.c
+|   |   |-- gemm_kernels_q6k.c
 |   |   |-- gemm_kernels_q8_0.c
 |   |   |-- gemm_microkernel.c
 |   |   |-- kv_cache_kernels.c
@@ -209,7 +214,8 @@
 |-- tools
 |   |-- cache_analysis.py
 |   |-- ck.c
-|   `-- ck_server.c
+|   |-- ck_server.c
+|   `-- debug_cpu_flags.c
 |-- unittest
 |   |-- bf16
 |   |   |-- test_attention_bf16.py
@@ -248,6 +254,7 @@
 |   |-- test_q4k_kernels.py
 |   |-- test_q4_k_q8_k_matvec.py
 |   |-- test_q4_k_quantize.py
+|   |-- test_q6k_kernels.py
 |   |-- test_quant_kernels.py
 |   |-- test_relu.py
 |   |-- test_rmsnorm.py
@@ -262,7 +269,6 @@
 |-- build_errors.txt.txt
 |-- config.json
 |-- cores.txt
-|-- tools/debug_cpu_flags.c
 |-- default.config.json
 |-- default.json
 |-- devstral2.json
@@ -273,6 +279,7 @@
 |-- make_config.txt
 |-- Makefile
 |-- make_test.txt
+|-- quantize_info.txt
 |-- qwen2_0.5.json
 |-- qwen2.5-3b-instruct-q4_k_m.gguf
 |-- qwen_model.c
@@ -285,7 +292,7 @@
 |-- tiny.config.json
 `-- valgrind.supp
 
-32 directories, 248 files
+32 directories, 254 files
 </pre>
 </div>
 

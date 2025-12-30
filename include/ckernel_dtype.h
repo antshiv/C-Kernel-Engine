@@ -19,6 +19,7 @@
  * GGML-compatible quantization (block-based with scales):
  *   - CK_DT_Q4_0: 4-bit, 32 weights/block, 1 FP16 scale
  *   - CK_DT_Q4_K: 4-bit k-quant, 256 weights/block, nested scales (Q4_K_M)
+ *   - CK_DT_Q6_K: 6-bit k-quant, 256 weights/block, per-16 scales
  *   - CK_DT_Q8_0: 8-bit, 32 weights/block, 1 FP16 scale
  */
 typedef enum {
@@ -34,6 +35,7 @@ typedef enum {
     /* GGML-compatible block quantization */
     CK_DT_Q4_0,          /* 4.5 bits/weight (18 bytes per 32 weights) */
     CK_DT_Q4_K,          /* 4.5 bits/weight (144 bytes per 256 weights) - Q4_K_M */
+    CK_DT_Q6_K,          /* 6.5 bits/weight (210 bytes per 256 weights) */
     CK_DT_Q8_0,          /* 8.5 bits/weight (34 bytes per 32 weights) */
 
     CK_DT_COUNT
@@ -48,7 +50,7 @@ typedef uint32_t CKDataTypeMask;
  */
 static inline int ck_dtype_is_quantized(CKDataType dt)
 {
-    return dt == CK_DT_Q4_0 || dt == CK_DT_Q4_K || dt == CK_DT_Q8_0;
+    return dt == CK_DT_Q4_0 || dt == CK_DT_Q4_K || dt == CK_DT_Q6_K || dt == CK_DT_Q8_0;
 }
 
 /**
@@ -81,6 +83,7 @@ static inline size_t ck_dtype_block_size(CKDataType dt)
     case CK_DT_Q8_0:
         return 32;
     case CK_DT_Q4_K:
+    case CK_DT_Q6_K:
         return 256;
     default:
         return 1; /* Non-quantized types: 1 element per "block" */
@@ -97,6 +100,8 @@ static inline size_t ck_dtype_block_bytes(CKDataType dt)
         return 18;   /* 2 (scale) + 16 (32 x 4-bit) */
     case CK_DT_Q4_K:
         return 144;  /* 2 + 2 + 12 + 128 */
+    case CK_DT_Q6_K:
+        return 210;  /* 2 + 16 + 128 + 64 */
     case CK_DT_Q8_0:
         return 34;   /* 2 (scale) + 32 (32 x 8-bit) */
     default:

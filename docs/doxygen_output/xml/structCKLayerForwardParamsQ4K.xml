@@ -15,8 +15,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="281" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="281" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="283" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="283" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a00e5d63076d9e3306bb3b189a47b1e14" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -29,9 +30,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="276" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="276" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="278" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="278" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ada91d4c0f5e6040aca475655f7f1bcab" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -44,9 +47,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="280" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="280" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="282" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="282" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a4384a52ba7c2f30d4895d3edd4321cab" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -59,9 +64,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="283" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="283" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="285" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="285" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a3372d9668e65bc5a77fcdb3e69547af3" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -74,8 +81,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="315" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="315" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="317" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="317" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a2aecde76c05afca045048df499be02f5" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -88,9 +96,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="305" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="305" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="307" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="307" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a715be17f92fbcb0aa10ce00dcde62939" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -103,9 +113,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="307" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="307" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="309" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="309" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a882236cfb15923ee4962013a53f893a0" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -118,9 +130,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="297" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="297" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="299" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="299" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1aaaba47dd4ef07fdb1a6662a88c2014cb" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -133,9 +147,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="302" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="302" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="304" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="304" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a5624ab23e1e9c41d5ea3b4b9e8569d03" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -148,9 +164,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="295" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="295" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="297" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="297" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a1c7b2b14198b4296631e7169eec94919" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -163,9 +181,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="299" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="299" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="301" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="301" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ad8373aa2774d6b69c1e4ea1d151d2646" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -178,9 +198,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="275" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="275" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="277" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="277" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a002187e74b3fa26e39bd17a965c72f8b" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -193,9 +215,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="284" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="284" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="286" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="286" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a7871fd5d96ccc288a12c6e08415c82dc" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -208,9 +232,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="321" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="321" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="323" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="323" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a8f8ca9f6b17918a424041cc9003229e9" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -223,9 +249,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="279" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="279" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="281" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="281" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ad73e1dbeb642314392d9bd140dd0aff8" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -238,9 +266,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="287" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="287" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="289" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="289" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1af9afcd6bc50e22482a16dd1237aee02e" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -253,7 +283,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="282" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="282" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="284" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="284" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a31e2ba79a8c69429c6e31c20ee1c6efa" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -266,9 +296,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="312" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="312" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="314" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="314" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1afae06ea5bb1f1d1aed99a1bfd54dd6bf" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -281,9 +313,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="288" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="288" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="290" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="290" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a7ea6e14a98a47d72837f92f2a5601566" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -296,9 +330,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="309" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="309" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="311" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="311" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a658fef23434f9427fab5f76ef0cea95a" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -311,9 +347,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="310" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="310" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="312" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="312" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a5241512944a07c6e9e9beee22d05c566" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -326,9 +364,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="289" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="289" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="291" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="291" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1af0407fc50e027301417628d774a41ff3" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -341,9 +381,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="319" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="319" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="321" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="321" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a2309c41abca4ad1bc357dd780e55fecb" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -356,9 +398,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="320" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="320" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="322" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="322" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a755532817e588edf60f4f9cf86f52f07" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -371,9 +415,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="323" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="323" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="325" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="325" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a5f55a51a93b0a9b2f02520fd02c8dd0e" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -386,9 +432,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="277" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="277" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="279" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="279" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1aac37dcd8276a700a4a0123a4f3af8dc3" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -401,9 +449,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="278" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="278" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="280" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="280" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a2532f454e8565aafe5bc975e518e90e2" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -416,9 +466,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="324" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="324" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="326" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="326" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ac6fb5da685cc15ae713f5760f2c05c41" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -431,9 +483,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="317" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="317" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="319" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="319" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a66da64885aa1cf87cb9e687ad7fcd34b" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -446,9 +500,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="316" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="316" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="318" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="318" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a63efa0f23630574508730fb141c113e9" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -461,8 +517,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="311" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="311" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="313" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="313" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a7ae4c7affb31c2e7a6ad09688e56ba42" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -475,9 +532,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="318" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="318" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="320" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="320" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a2ddfb5a4e6442a028d7475dc1e9266cd" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -490,9 +549,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="291" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="291" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="293" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="293" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a1923b2ba97133951c6705efd90978c72" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -505,9 +566,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="285" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="285" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="287" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="287" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a716869dbb8759abc3d3d236ba7482383" prot="public" static="no" mutable="no">
         <type>const float *</type>
@@ -520,9 +583,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="292" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="292" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="294" column="17" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="294" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a9b6d571cb8120f8b62ca87a176edb0f2" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -535,8 +600,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="314" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="314" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="316" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="316" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a976fb97749625cdc0f8e16e690c5e5a0" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -549,9 +615,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="322" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="322" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="324" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="324" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a70dcc9d69d068743233b527d879154b1" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -564,8 +632,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="274" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="274" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="276" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="276" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a7b17e1545dee689697df5da4751de3ea" prot="public" static="no" mutable="no">
         <type>float *</type>
@@ -578,9 +647,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="313" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="313" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="315" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="315" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1aafad2b7a679b5775026053a2b3cf82b1" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -593,9 +664,26 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="304" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="304" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="306" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="306" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ac06d139d08ab948841316c9ff74987f2" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::w1_dtype</definition>
+        <argsstring></argsstring>
+        <name>w1_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="332" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="332" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1aac721dc3d07b7f9f3a0fcbdc6101e4bb" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -608,9 +696,26 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="306" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="306" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="308" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="308" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a07d7c68eeabbb2d5702ba6bdb13a3ebb" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::w2_dtype</definition>
+        <argsstring></argsstring>
+        <name>w2_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="333" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="333" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ad6e110f69299b040cd07f83ed612548b" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -623,9 +728,26 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="296" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="296" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="298" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="298" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a150feea348e2b0c728b05364bc291d68" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::wk_dtype</definition>
+        <argsstring></argsstring>
+        <name>wk_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="329" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="329" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a52ce0d74a3fdff1ea8b04030a733fc1d" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -638,9 +760,26 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="301" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="301" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="303" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="303" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1aaebd5f600a687e1e30800e831ecc5cb6" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::wo_dtype</definition>
+        <argsstring></argsstring>
+        <name>wo_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="331" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="331" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a2b71fe14402b1fa2a52ff6d212a42a21" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -653,9 +792,26 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="294" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="294" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="296" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="296" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1ad7671a4ac45c1d65be5e28c03c700d2a" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::wq_dtype</definition>
+        <argsstring></argsstring>
+        <name>wq_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="328" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="328" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a35349f8d709bd6b19b8bdc1b46cbf10f" prot="public" static="no" mutable="no">
         <type>const void *</type>
@@ -668,16 +824,33 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="298" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="298" bodyend="-1"/>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="300" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="300" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structCKLayerForwardParamsQ4K_1a1ed95932b94db2f9a45cdb1cc987f6da" prot="public" static="no" mutable="no">
+        <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
+        <definition>CKDataType CKLayerForwardParamsQ4K::wv_dtype</definition>
+        <argsstring></argsstring>
+        <name>wv_dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="330" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="330" bodyend="-1"/>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="273" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="273" bodyend="325"/>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" line="275" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_orchestration.h" bodystart="275" bodyend="334"/>
     <listofallmembers>
       <member refid="structCKLayerForwardParamsQ4K_1abf258991c7054233b5c72f0370862c42" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>aligned_context_window</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1a00e5d63076d9e3306bb3b189a47b1e14" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>aligned_embed_dim</name></member>
@@ -719,11 +892,17 @@
       <member refid="structCKLayerForwardParamsQ4K_1a70dcc9d69d068743233b527d879154b1" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>tokens</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1a7b17e1545dee689697df5da4751de3ea" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>v</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1aafad2b7a679b5775026053a2b3cf82b1" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>w1</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1ac06d139d08ab948841316c9ff74987f2" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>w1_dtype</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1aac721dc3d07b7f9f3a0fcbdc6101e4bb" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>w2</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1a07d7c68eeabbb2d5702ba6bdb13a3ebb" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>w2_dtype</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1ad6e110f69299b040cd07f83ed612548b" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wk</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1a150feea348e2b0c728b05364bc291d68" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wk_dtype</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1a52ce0d74a3fdff1ea8b04030a733fc1d" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wo</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1aaebd5f600a687e1e30800e831ecc5cb6" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wo_dtype</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1a2b71fe14402b1fa2a52ff6d212a42a21" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wq</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1ad7671a4ac45c1d65be5e28c03c700d2a" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wq_dtype</name></member>
       <member refid="structCKLayerForwardParamsQ4K_1a35349f8d709bd6b19b8bdc1b46cbf10f" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wv</name></member>
+      <member refid="structCKLayerForwardParamsQ4K_1a1ed95932b94db2f9a45cdb1cc987f6da" prot="public" virt="non-virtual"><scope>CKLayerForwardParamsQ4K</scope><name>wv_dtype</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

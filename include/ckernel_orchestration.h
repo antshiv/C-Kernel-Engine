@@ -2,6 +2,7 @@
 #define CKERNEL_ORCHESTRATION_H
 
 #include <stddef.h>
+#include "ckernel_dtype.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -323,12 +324,23 @@ typedef struct {
     float *swiglu_out;/* [T x aligned_intermediate_dim] */
     float *mlp_out;   /* [T x aligned_embed_dim] */
     float *output;    /* [T x aligned_embed_dim] */
+
+    CKDataType wq_dtype;
+    CKDataType wk_dtype;
+    CKDataType wv_dtype;
+    CKDataType wo_dtype;
+    CKDataType w1_dtype;
+    CKDataType w2_dtype;
 } CKLayerForwardParamsQ4K;
 
 void ck_layer_forward_rmsnorm_swiglu_q4_k(const CKLayerForwardParamsQ4K *p);
 void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *p,
                                                  int token_index,
                                                  int cache_capacity);
+void ck_layer_forward_rmsnorm_swiglu_quant(const CKLayerForwardParamsQ4K *p);
+void ck_layer_forward_rmsnorm_swiglu_decode_quant(const CKLayerForwardParamsQ4K *p,
+                                                  int token_index,
+                                                  int cache_capacity);
 
 void ck_residual_add_backward(const float *d_out,
                               float *d_a,

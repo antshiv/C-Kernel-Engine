@@ -13,9 +13,17 @@ def skip_bump_header(f):
     magic = f.read(8)
     if magic == b"BUMPWGT2":
         f.seek(HEADER_SIZE, 0)
-        return True
+        return HEADER_SIZE
+    if magic == b"BUMPWGT3":
+        f.seek(HEADER_SIZE, 0)
+        raw = f.read(4)
+        if len(raw) != 4:
+            raise SystemExit("Failed to read dtype table length")
+        (dtype_len,) = struct.unpack("<I", raw)
+        f.seek(HEADER_SIZE + 4 + dtype_len, 0)
+        return HEADER_SIZE + 4 + dtype_len
     f.seek(0, 0)
-    return False
+    return 0
 
 
 def file_size(path):
@@ -35,8 +43,8 @@ def main():
         raise SystemExit("Raw file size is not a multiple of 4 bytes")
 
     with open(args.bump, "rb") as fb, open(args.raw, "rb") as fr:
-        has_header = skip_bump_header(fb)
-        bump_payload_bytes = bump_size - (HEADER_SIZE if has_header else 0)
+        header_bytes = skip_bump_header(fb)
+        bump_payload_bytes = bump_size - header_bytes
         if bump_payload_bytes != raw_size:
             raise SystemExit(
                 f"Size mismatch: bump payload {bump_payload_bytes} bytes vs raw {raw_size} bytes"

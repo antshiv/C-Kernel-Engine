@@ -174,6 +174,7 @@ SRCS    := src/backend_native.c \
 	           src/kernels/gemm_kernels_bf16.c \
 	           src/kernels/gemm_kernels_q4_0.c \
 	           src/kernels/gemm_kernels_q4k.c \
+	           src/kernels/gemm_kernels_q6k.c \
 	           src/kernels/gemm_kernels_q4k_q8k.c \
 	           src/kernels/gemm_kernels_q4k_q8k_avx2.c \
 	           src/kernels/gemm_kernels_q4k_q8k_vnni.c \
@@ -335,8 +336,8 @@ $(LIB_ATTENTION): $(BUILD_STAMP) src/kernels/attention_kernels.c src/kernels/sof
 $(LIB_ROPE): $(BUILD_STAMP) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
 
-$(LIB_QUANT): $(BUILD_STAMP) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
-	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
+$(LIB_QUANT): $(BUILD_STAMP) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q6k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q6k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
 
 # Convenience alias targets so existing commands still work.
 libckernel_gelu.so: $(LIB_GELU)
@@ -384,6 +385,7 @@ test-quant: $(LIB_QUANT)
 	@set -e; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_quant_kernels.py; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q4_k_q8_k_matvec.py; \
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q6k_kernels.py; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q4_k_quantize.py
 
 gguf-inspect:
@@ -810,6 +812,7 @@ help:
 	@echo "  unittest/test_orchestration_layer.py - Full layer forward stitch vs PyTorch (GQA/MHA)"
 	@echo "  unittest/test_fused_swiglu_decode.py - Fused SwiGLU decode MLP parity"
 	@echo "  unittest/test_fused_attention_decode.py - Fused attention decode parity"
+	@echo "  unittest/test_q6k_kernels.py  - Q6_K dequant + matvec parity (GGML)"
 	@echo "  unittest/bf16/test_sigmoid_bf16.py     - BF16 sigmoid forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_rmsnorm_bf16.py    - BF16 RMSNorm forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_mlp_bf16.py        - BF16 MLP forward vs PyTorch"

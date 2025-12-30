@@ -18,6 +18,12 @@
     <member refid="structblock__q4__K_1a74d5a6318849909fb1c19248961d7ac9" kind="variable"><name>qs</name></member>
     <member refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" kind="variable"><name>scales</name></member>
   </compound>
+  <compound refid="structblock__q6__K" kind="struct"><name>block_q6_K</name>
+    <member refid="structblock__q6__K_1ad1e527fb25c7c76c5e9c543e7965e84d" kind="variable"><name>d</name></member>
+    <member refid="structblock__q6__K_1aae24d4e8e582b9b2c5e8f219c467d008" kind="variable"><name>qh</name></member>
+    <member refid="structblock__q6__K_1a2804e4fef4f6c2eaf41230ddbed8e479" kind="variable"><name>ql</name></member>
+    <member refid="structblock__q6__K_1a9c13aa47c6703aac41f1bc92e30e08af" kind="variable"><name>scales</name></member>
+  </compound>
   <compound refid="structblock__q8__0" kind="struct"><name>block_q8_0</name>
     <member refid="structblock__q8__0_1a0bc77a0a0101bc89b05749157bf1514e" kind="variable"><name>d</name></member>
     <member refid="structblock__q8__0_1ac6f2ca6c9108456b6630b7f1bf874488" kind="variable"><name>qs</name></member>
@@ -248,11 +254,17 @@
     <member refid="structCKLayerForwardParamsQ4K_1a70dcc9d69d068743233b527d879154b1" kind="variable"><name>tokens</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1a7b17e1545dee689697df5da4751de3ea" kind="variable"><name>v</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1aafad2b7a679b5775026053a2b3cf82b1" kind="variable"><name>w1</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ac06d139d08ab948841316c9ff74987f2" kind="variable"><name>w1_dtype</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1aac721dc3d07b7f9f3a0fcbdc6101e4bb" kind="variable"><name>w2</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a07d7c68eeabbb2d5702ba6bdb13a3ebb" kind="variable"><name>w2_dtype</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1ad6e110f69299b040cd07f83ed612548b" kind="variable"><name>wk</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a150feea348e2b0c728b05364bc291d68" kind="variable"><name>wk_dtype</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1a52ce0d74a3fdff1ea8b04030a733fc1d" kind="variable"><name>wo</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1aaebd5f600a687e1e30800e831ecc5cb6" kind="variable"><name>wo_dtype</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1a2b71fe14402b1fa2a52ff6d212a42a21" kind="variable"><name>wq</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ad7671a4ac45c1d65be5e28c03c700d2a" kind="variable"><name>wq_dtype</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1a35349f8d709bd6b19b8bdc1b46cbf10f" kind="variable"><name>wv</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a1ed95932b94db2f9a45cdb1cc987f6da" kind="variable"><name>wv_dtype</name></member>
   </compound>
   <compound refid="structCKLayerLayout" kind="struct"><name>CKLayerLayout</name>
     <member refid="structCKLayerLayout_1aaece9ea1e0a761b00bdce132c24aa6a0" kind="variable"><name>attn_proj_bias_offset</name></member>
@@ -606,8 +618,9 @@
     <member refid="ckernel__codegen_8c_1a131b54ed9c63b8b78d09d9e43792cecd" kind="function"><name>ck_find_kernel_spec</name></member>
     <member refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" kind="function"><name>ck_first_layer_buffer_name</name></member>
     <member refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" kind="function"><name>ck_plan_step_enabled</name></member>
+    <member refid="ckernel__codegen_8c_1a29c9407838ded750fd8379bd3b599d0a" kind="function"><name>ck_weight_dtype_expr</name></member>
     <member refid="ckernel__codegen_8c_1aba851166f7304fab8907b83d64b2dc27" kind="function"><name>emit_bump_bytes_assignment</name></member>
-    <member refid="ckernel__codegen_8c_1a7ba2fc31a6ebfc83ceed542ed89520dd" kind="function"><name>emit_bump_bytes_assignment_weight_dtype</name></member>
+    <member refid="ckernel__codegen_8c_1ae8a84ea0f2073de536933e596c0de7df" kind="function"><name>emit_bump_bytes_assignment_weight_dtype</name></member>
     <member refid="ckernel__codegen_8c_1a6ee49714bc7fde8782f0acced37247a2" kind="function"><name>emit_dim_expr</name></member>
     <member refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" kind="function"><name>emit_global_aliases_to_layer</name></member>
     <member refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" kind="function"><name>emit_global_allocations</name></member>
@@ -644,6 +657,7 @@
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2" kind="enumvalue"><name>CK_DT_INT4</name></member>
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930" kind="enumvalue"><name>CK_DT_Q4_0</name></member>
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" kind="enumvalue"><name>CK_DT_Q4_K</name></member>
+    <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5" kind="enumvalue"><name>CK_DT_Q6_K</name></member>
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f" kind="enumvalue"><name>CK_DT_Q8_0</name></member>
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218" kind="enumvalue"><name>CK_DT_COUNT</name></member>
     <member refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" kind="typedef"><name>CKDataTypeMask</name></member>
@@ -677,6 +691,7 @@
     <member refid="ckernel__engine_8h_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
     <member refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" kind="function"><name>ckernel_backend_native</name></member>
     <member refid="ckernel__engine_8h_1af2d02981687e405f123c38e442a53030" kind="function"><name>dequant_q4_k_row</name></member>
+    <member refid="ckernel__engine_8h_1addb481c891fc0db58976bf3d363235a6" kind="function"><name>dequant_q6_k_row</name></member>
     <member refid="ckernel__engine_8h_1a7fb7087da26dca964798795062f5b0a5" kind="function"><name>embedding_backward</name></member>
     <member refid="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" kind="function"><name>embedding_backward_bf16</name></member>
     <member refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
@@ -711,14 +726,17 @@
     <member refid="ckernel__engine_8h_1a3549b849a914ea46c5d51c7d485fecec" kind="function"><name>gemm_nn_parallel</name></member>
     <member refid="ckernel__engine_8h_1a3175d33b3e513cf585a31f96db726e39" kind="function"><name>gemm_nt_q4_k</name></member>
     <member refid="ckernel__engine_8h_1a64fc7f7c8582355c66edf044b9858964" kind="function"><name>gemm_nt_q4_k_q8_k</name></member>
+    <member refid="ckernel__engine_8h_1a7568db3d490c7a7372a5236d8b2fe207" kind="function"><name>gemm_nt_q6_k</name></member>
     <member refid="ckernel__engine_8h_1ac277a5257dc44a48af4ebaa8691806cf" kind="function"><name>gemm_q4_k</name></member>
     <member refid="ckernel__engine_8h_1ac52baba628268303f41c01413c445024" kind="function"><name>gemm_q4_k_q8_k</name></member>
+    <member refid="ckernel__engine_8h_1a07fcd594f867f5c6afb487ab989213e1" kind="function"><name>gemm_q6_k</name></member>
     <member refid="ckernel__engine_8h_1a2ae3bbf03cebc529c1e7962a7dba2568" kind="function"><name>gemm_swiglu_fused</name></member>
     <member refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" kind="function"><name>gemm_tn_avx512</name></member>
     <member refid="ckernel__engine_8h_1ae3bc36ea7b8562f9121e527f0f408b43" kind="function"><name>gemm_tn_blocked</name></member>
     <member refid="ckernel__engine_8h_1a84ce00fad7103b550ea75b52a21a98f7" kind="function"><name>gemm_tn_parallel</name></member>
     <member refid="ckernel__engine_8h_1a9beb124343d26ac4870d92b2f047d643" kind="function"><name>gemv_q4_k</name></member>
     <member refid="ckernel__engine_8h_1abd2ce09c06d448b502b30fac01bc1d30" kind="function"><name>gemv_q4_k_q8_k</name></member>
+    <member refid="ckernel__engine_8h_1a3c98619f74662804d8551efbd4d02b52" kind="function"><name>gemv_q6_k</name></member>
     <member refid="ckernel__engine_8h_1a86aec042bcceb0bd8955f0daf0d986c4" kind="function"><name>im2patch</name></member>
     <member refid="ckernel__engine_8h_1a57139580e075be2d5a65cfffc8e84898" kind="function"><name>im2patch_bf16</name></member>
     <member refid="ckernel__engine_8h_1a377bab84fd3d4ba79cf92024615c240a" kind="function"><name>kv_cache_repack_head_major_inplace</name></member>
@@ -883,27 +901,34 @@
     <member refid="ckernel__orchestration_8c_1a2afc01d06448f40b94c48a51a6951dc5" kind="function"><name>ck_attention_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1add4c3ac196a25f481496bf69f32a9ac6" kind="function"><name>ck_attention_project_head_major_backward</name></member>
     <member refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" kind="function"><name>ck_attention_project_head_major_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a107109f43bf909569b9ab2dd75bffb18" kind="function"><name>ck_attention_project_head_major_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a34e3e4ce864cbfd383097bcf417124ad" kind="function"><name>ck_attention_project_head_major_ref</name></member>
+    <member refid="ckernel__orchestration_8c_1a68ba045fc96143bbd080d0a410329d6c" kind="function"><name>ck_gemm_nt_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a1b75acba52e39a2063646dc1dff62ef4" kind="function"><name>ck_layer_backward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8c_1ab7dfa86e5bb0d80f0e346f85e870cb1d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8c_1a745d032ebb518826e284b4a3680a8cb5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode</name></member>
     <member refid="ckernel__orchestration_8c_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused</name></member>
     <member refid="ckernel__orchestration_8c_1abb01994013418ff7b8be71dc9bdcded5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1ae07680f1a438bd1824fa4b1c3e4e826e" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a4bfddd851b4b52f7502330118a3e853d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_quant</name></member>
     <member refid="ckernel__orchestration_8c_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a2e894b79792aaf694427446c1d89fab8" kind="function"><name>ck_mlp_swiglu_forward</name></member>
     <member refid="ckernel__orchestration_8c_1a6aaebd943ca5ad278729a207b401ab45" kind="function"><name>ck_mlp_swiglu_forward_fully_fused_token</name></member>
     <member refid="ckernel__orchestration_8c_1a266b9c19eafb8e11f3e51253c8dd0b45" kind="function"><name>ck_mlp_swiglu_forward_fused_token</name></member>
     <member refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" kind="function"><name>ck_mlp_swiglu_forward_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" kind="function"><name>ck_mlp_swiglu_forward_q4_k_q8_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a3754c7725e77065577179096b396c075" kind="function"><name>ck_mlp_swiglu_forward_quant</name></member>
     <member refid="ckernel__orchestration_8c_1ac841f4e0a273b07808cc036a715b742e" kind="function"><name>ck_mlp_swiglu_forward_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a45ad329928b675ddc00ad3d5059335b3" kind="function"><name>ck_q8k_activations_enabled</name></member>
     <member refid="ckernel__orchestration_8c_1ae1c428e05f8ea7795136ae8b160b8a0a" kind="function"><name>ck_qkv_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1aae6b6e1796c190320ef20f0476dc2e9d" kind="function"><name>ck_qkv_project_head_major_backward</name></member>
     <member refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" kind="function"><name>ck_qkv_project_head_major_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1aa1ebc47c823d864fbbe18d975df74704" kind="function"><name>ck_qkv_project_head_major_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a3678c4745f6b4d3f39e3c07cdff6db12" kind="function"><name>ck_qkv_project_head_major_ref</name></member>
     <member refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" kind="function"><name>ck_qkv_project_head_major_token_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" kind="function"><name>ck_qkv_project_head_major_token_q4_k_q8_k</name></member>
+    <member refid="ckernel__orchestration_8c_1ad9e143397c01620ba314aa448ed922a1" kind="function"><name>ck_qkv_project_head_major_token_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a35426895690beefd7b84cf090639b169" kind="function"><name>ck_residual_add_backward</name></member>
     <member refid="ckernel__orchestration_8c_1ab0948def8f4a6c6fd8a5288aacd22f01" kind="function"><name>ck_residual_add_token_major</name></member>
   </compound>
@@ -918,7 +943,9 @@
     <member refid="ckernel__orchestration_8h_1ad466e4eeb1c0ab92d9c9bf15cb51f679" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn</name></member>
     <member refid="ckernel__orchestration_8h_1a50899fc552648f5d1cadd0e4c5671dc1" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp</name></member>
     <member refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_q4_k</name></member>
+    <member refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_quant</name></member>
     <member refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_q4_k</name></member>
+    <member refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_quant</name></member>
     <member refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_ref</name></member>
     <member refid="ckernel__orchestration_8h_1a2e894b79792aaf694427446c1d89fab8" kind="function"><name>ck_mlp_swiglu_forward</name></member>
     <member refid="ckernel__orchestration_8h_1a6aaebd943ca5ad278729a207b401ab45" kind="function"><name>ck_mlp_swiglu_forward_fully_fused_token</name></member>
@@ -995,6 +1022,8 @@
     <member refid="dequant__kernels_8c_1a03dfd2a1c4ee71909e61cd5fd22ed259" kind="function"><name>dequant_q4_0_row</name></member>
     <member refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" kind="function"><name>dequant_q4_k_block</name></member>
     <member refid="dequant__kernels_8c_1af2d02981687e405f123c38e442a53030" kind="function"><name>dequant_q4_k_row</name></member>
+    <member refid="dequant__kernels_8c_1a5f456737b8276015b96f99a03daf11ad" kind="function"><name>dequant_q6_k_block</name></member>
+    <member refid="dequant__kernels_8c_1addb481c891fc0db58976bf3d363235a6" kind="function"><name>dequant_q6_k_row</name></member>
     <member refid="dequant__kernels_8c_1a4c08befff31f14a89c7355377e4c4ad5" kind="function"><name>dequant_q8_0_block</name></member>
     <member refid="dequant__kernels_8c_1a9fe84053743b560c755728a0f43c8887" kind="function"><name>dequant_q8_0_row</name></member>
     <member refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" kind="function"><name>dequant_row</name></member>
@@ -1098,8 +1127,25 @@
     <member refid="gemm__kernels__q4k__q8k_8c_1ac52baba628268303f41c01413c445024" kind="function"><name>gemm_q4_k_q8_k</name></member>
     <member refid="gemm__kernels__q4k__q8k_8c_1aaded34941ab8fd3ab697bcf9699fef6e" kind="function"><name>gemm_q4_k_q8_k_ref</name></member>
     <member refid="gemm__kernels__q4k__q8k_8c_1abd2ce09c06d448b502b30fac01bc1d30" kind="function"><name>gemv_q4_k_q8_k</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1a030c98b26ad610ccea6dabf993b60cdf" kind="function"><name>gemv_q4_k_q8_k_avx2</name></member>
     <member refid="gemm__kernels__q4k__q8k_8c_1ac01f8caf84e100f3c72919c71217010e" kind="function"><name>gemv_q4_k_q8_k_ref</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" kind="function"><name>gemv_q4_k_q8_k_vnni</name></member>
     <member refid="gemm__kernels__q4k__q8k_8c_1a64b28ca8a25883986a0d22e39a574a32" kind="function"><name>quantize_row_q8_k</name></member>
+  </compound>
+  <compound refid="gemm__kernels__q4k__q8k__avx2_8c" kind="file"><name>gemm_kernels_q4k_q8k_avx2.c</name>
+    <member refid="gemm__kernels__q4k__q8k__avx2_8c_1a030c98b26ad610ccea6dabf993b60cdf" kind="function"><name>gemv_q4_k_q8_k_avx2</name></member>
+    <member refid="gemm__kernels__q4k__q8k__avx2_8c_1ac01f8caf84e100f3c72919c71217010e" kind="function"><name>gemv_q4_k_q8_k_ref</name></member>
+  </compound>
+  <compound refid="gemm__kernels__q4k__q8k__vnni_8c" kind="file"><name>gemm_kernels_q4k_q8k_vnni.c</name>
+    <member refid="gemm__kernels__q4k__q8k__vnni_8c_1a030c98b26ad610ccea6dabf993b60cdf" kind="function"><name>gemv_q4_k_q8_k_avx2</name></member>
+    <member refid="gemm__kernels__q4k__q8k__vnni_8c_1ac01f8caf84e100f3c72919c71217010e" kind="function"><name>gemv_q4_k_q8_k_ref</name></member>
+    <member refid="gemm__kernels__q4k__q8k__vnni_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" kind="function"><name>gemv_q4_k_q8_k_vnni</name></member>
+  </compound>
+  <compound refid="gemm__kernels__q6k_8c" kind="file"><name>gemm_kernels_q6k.c</name>
+    <member refid="gemm__kernels__q6k_8c_1ab62992893fe8543ddcb7159102136a0a" kind="function"><name>dot_q6_k_ref</name></member>
+    <member refid="gemm__kernels__q6k_8c_1a7568db3d490c7a7372a5236d8b2fe207" kind="function"><name>gemm_nt_q6_k</name></member>
+    <member refid="gemm__kernels__q6k_8c_1a07fcd594f867f5c6afb487ab989213e1" kind="function"><name>gemm_q6_k</name></member>
+    <member refid="gemm__kernels__q6k_8c_1a3c98619f74662804d8551efbd4d02b52" kind="function"><name>gemv_q6_k</name></member>
   </compound>
   <compound refid="gemm__kernels__q8__0_8c" kind="file"><name>gemm_kernels_q8_0.c</name>
     <member refid="gemm__kernels__q8__0_8c_1af900f8a5b4172fadbb2342b63276e7c3" kind="function"><name>dot_q8_0</name></member>

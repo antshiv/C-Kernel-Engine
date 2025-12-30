@@ -136,9 +136,17 @@ def skip_bump_header(f):
     magic = f.read(8)
     if magic == b"BUMPWGT2":
         f.seek(HEADER_SIZE, 0)
-        return True
+        return HEADER_SIZE
+    if magic == b"BUMPWGT3":
+        f.seek(HEADER_SIZE, 0)
+        raw = f.read(4)
+        if len(raw) != 4:
+            raise SystemExit("Failed to read dtype table length")
+        (dtype_len,) = struct.unpack("<I", raw)
+        f.seek(HEADER_SIZE + 4 + dtype_len, 0)
+        return HEADER_SIZE + 4 + dtype_len
     f.seek(0, 0)
-    return False
+    return 0
 
 
 def read_floats(f, count):

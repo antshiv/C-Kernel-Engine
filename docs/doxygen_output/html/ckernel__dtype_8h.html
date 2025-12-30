@@ -155,9 +155,10 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a>
 , <a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>
 , <a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>
-, <a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>
+, <a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a>
 , <br />
-&#160;&#160;<a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a>
+&#160;&#160;<a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>
+, <a class="el" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a>
 <br />
  }</td></tr>
 <tr class="memdesc:a9d2373b6c685cf9421a6fb638964aa65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supported data types in C-Kernel-Engine.  <a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65">More...</a><br /></td></tr>
@@ -200,7 +201,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00044">44</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00046">46</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
 
 </div>
 </div>
@@ -217,7 +218,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00042">42</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00044">44</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
 
 </div>
 </div>
@@ -247,6 +248,7 @@ Functions</h2></td></tr>
 <p>GGML-compatible quantization (block-based with scales):</p><ul>
 <li>CK_DT_Q4_0: 4-bit, 32 weights/block, 1 FP16 scale</li>
 <li>CK_DT_Q4_K: 4-bit k-quant, 256 weights/block, nested scales (Q4_K_M)</li>
+<li>CK_DT_Q6_K: 6-bit k-quant, 256 weights/block, per-16 scales</li>
 <li>CK_DT_Q8_0: 8-bit, 32 weights/block, 1 FP16 scale </li>
 </ul>
 <table class="fieldtable">
@@ -257,38 +259,41 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2"></a>CK_DT_INT4&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930"></a>CK_DT_Q4_0&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a"></a>CK_DT_Q4_K&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5"></a>CK_DT_Q6_K&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f"></a>CK_DT_Q8_0&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218"></a>CK_DT_COUNT&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00024">24</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;             {</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="comment">/* Standard floating-point types */</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a> = 0,      <span class="comment">/* 4 bytes per element */</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a>,          <span class="comment">/* 2 bytes per element */</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a>,          <span class="comment">/* 2 bytes per element */</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="comment">/* Simple integer types (legacy) */</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a>,          <span class="comment">/* 1 byte per element */</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a>,          <span class="comment">/* 0.5 bytes per element (packed) */</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="comment">/* GGML-compatible block quantization */</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>,          <span class="comment">/* 4.5 bits/weight (18 bytes per 32 weights) */</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>,          <span class="comment">/* 4.5 bits/weight (144 bytes per 256 weights) - Q4_K_M */</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>,          <span class="comment">/* 8.5 bits/weight (34 bytes per 32 weights) */</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;} <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65">CKDataType</a>;</div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65">CKDataType</a></div><div class="ttdeci">CKDataType</div><div class="ttdoc">Supported data types in C-Kernel-Engine.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00024">ckernel_dtype.h:24</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a></div><div class="ttdeci">@ CK_DT_Q4_K</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00036">ckernel_dtype.h:36</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a></div><div class="ttdeci">@ CK_DT_COUNT</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00040">ckernel_dtype.h:39</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a></div><div class="ttdeci">@ CK_DT_Q4_0</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00035">ckernel_dtype.h:35</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a></div><div class="ttdeci">@ CK_DT_Q8_0</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00037">ckernel_dtype.h:37</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a></div><div class="ttdeci">@ CK_DT_FP32</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00026">ckernel_dtype.h:26</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a></div><div class="ttdeci">@ CK_DT_FP16</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00028">ckernel_dtype.h:28</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a></div><div class="ttdeci">@ CK_DT_INT4</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00032">ckernel_dtype.h:32</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a></div><div class="ttdeci">@ CK_DT_BF16</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00027">ckernel_dtype.h:27</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a></div><div class="ttdeci">@ CK_DT_INT8</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00031">ckernel_dtype.h:31</a></div></div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00025">25</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;             {</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="comment">/* Standard floating-point types */</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a> = 0,      <span class="comment">/* 4 bytes per element */</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a>,          <span class="comment">/* 2 bytes per element */</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a>,          <span class="comment">/* 2 bytes per element */</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="comment">/* Simple integer types (legacy) */</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a>,          <span class="comment">/* 1 byte per element */</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a>,          <span class="comment">/* 0.5 bytes per element (packed) */</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="comment">/* GGML-compatible block quantization */</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>,          <span class="comment">/* 4.5 bits/weight (18 bytes per 32 weights) */</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>,          <span class="comment">/* 4.5 bits/weight (144 bytes per 256 weights) - Q4_K_M */</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a>,          <span class="comment">/* 6.5 bits/weight (210 bytes per 256 weights) */</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>,          <span class="comment">/* 8.5 bits/weight (34 bytes per 32 weights) */</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;} <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65">CKDataType</a>;</div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65">CKDataType</a></div><div class="ttdeci">CKDataType</div><div class="ttdoc">Supported data types in C-Kernel-Engine.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00025">ckernel_dtype.h:25</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a></div><div class="ttdeci">@ CK_DT_Q4_K</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00037">ckernel_dtype.h:37</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a405b96894cae73fedf29bfa4cdcff218">CK_DT_COUNT</a></div><div class="ttdeci">@ CK_DT_COUNT</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00042">ckernel_dtype.h:41</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a></div><div class="ttdeci">@ CK_DT_Q4_0</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00036">ckernel_dtype.h:36</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a></div><div class="ttdeci">@ CK_DT_Q8_0</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00039">ckernel_dtype.h:39</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a></div><div class="ttdeci">@ CK_DT_FP32</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00027">ckernel_dtype.h:27</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a></div><div class="ttdeci">@ CK_DT_FP16</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00029">ckernel_dtype.h:29</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a></div><div class="ttdeci">@ CK_DT_Q6_K</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00038">ckernel_dtype.h:38</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a></div><div class="ttdeci">@ CK_DT_INT4</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00033">ckernel_dtype.h:33</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a></div><div class="ttdeci">@ CK_DT_BF16</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00028">ckernel_dtype.h:28</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b"><div class="ttname"><a href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a></div><div class="ttdeci">@ CK_DT_INT8</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00032">ckernel_dtype.h:32</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -319,24 +324,26 @@ Functions</h2></td></tr>
 
 <p>Get bytes per block for quantized types. </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00093">93</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;{</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>:</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keywordflow">return</span> 18;   <span class="comment">/* 2 (scale) + 16 (32 x 4-bit) */</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>:</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        <span class="keywordflow">return</span> 144;  <span class="comment">/* 2 + 2 + 12 + 128 */</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>:</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        <span class="keywordflow">return</span> 34;   <span class="comment">/* 2 (scale) + 32 (32 x 8-bit) */</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a>(dt);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    }</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
-<div class="ttc" id="ackernel__dtype_8h_html_ad28ce24863b3fe3ef1d1dfbdac821971"><div class="ttname"><a href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a></div><div class="ttdeci">static size_t ck_dtype_bytes(CKDataType dt)</div><div class="ttdoc">Get bytes per element for non-quantized types.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00058">ckernel_dtype.h:58</a></div></div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00096">96</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;{</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>:</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="keywordflow">return</span> 18;   <span class="comment">/* 2 (scale) + 16 (32 x 4-bit) */</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>:</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <span class="keywordflow">return</span> 144;  <span class="comment">/* 2 + 2 + 12 + 128 */</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a>:</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordflow">return</span> 210;  <span class="comment">/* 2 + 16 + 128 + 64 */</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>:</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordflow">return</span> 34;   <span class="comment">/* 2 (scale) + 32 (32 x 8-bit) */</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a>(dt);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    }</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
+<div class="ttc" id="ackernel__dtype_8h_html_ad28ce24863b3fe3ef1d1dfbdac821971"><div class="ttname"><a href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a></div><div class="ttdeci">static size_t ck_dtype_bytes(CKDataType dt)</div><div class="ttdoc">Get bytes per element for non-quantized types.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00060">ckernel_dtype.h:60</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00035">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_K</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q8_0</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00058">ck_dtype_bytes()</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q4_K</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00038">CK_DT_Q6_K</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00039">CK_DT_Q8_0</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00060">ck_dtype_bytes()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00110">ck_dtype_row_bytes()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00115">ck_dtype_row_bytes()</a>.</p>
 
 </div>
 </div>
@@ -366,22 +373,23 @@ Functions</h2></td></tr>
 
 <p>Get the number of elements per quantization block. </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00077">77</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;{</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>:</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>:</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        <span class="keywordflow">return</span> 32;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>:</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordflow">return</span> 256;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        <span class="keywordflow">return</span> 1; <span class="comment">/* Non-quantized types: 1 element per &quot;block&quot; */</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00079">79</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;{</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a>:</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>:</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordflow">return</span> 32;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a>:</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a>:</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keywordflow">return</span> 256;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordflow">return</span> 1; <span class="comment">/* Non-quantized types: 1 element per &quot;block&quot; */</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00035">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_K</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q8_0</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q4_K</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00038">CK_DT_Q6_K</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00039">CK_DT_Q8_0</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00110">ck_dtype_row_bytes()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00115">ck_dtype_row_bytes()</a>.</p>
 
 </div>
 </div>
@@ -412,25 +420,25 @@ Functions</h2></td></tr>
 <p>Get bytes per element for non-quantized types. </p>
 <dl class="section note"><dt>Note</dt><dd>For quantized types, use <a class="el" href="ckernel__dtype_8h.html#a5c8c0745aaf531bc18faf5fbabe496e3" title="Get bytes per block for quantized types.">ck_dtype_block_bytes()</a> and <a class="el" href="ckernel__dtype_8h.html#a2549fbebde03f39835ab71024c88210c" title="Get the number of elements per quantization block.">ck_dtype_block_size()</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00058">58</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;{</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a>:</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a>:</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keywordflow">return</span> 2;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a>:</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a>:</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <span class="keywordflow">return</span> 1; <span class="comment">/* Note: actually 0.5, but stored as pairs */</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a>:</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keywordflow">return</span> 4;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    }</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00060">60</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;{</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">switch</span> (dt) {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad5bc966d1f659bc298189a2187619ae6">CK_DT_BF16</a>:</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aa1958f2c31dacfab7164c8d63280cbb7">CK_DT_FP16</a>:</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        <span class="keywordflow">return</span> 2;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ade2ea8ec66225fe5cc020534982b192b">CK_DT_INT8</a>:</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65ad22b6769904497a4a1bc70f92229b0d2">CK_DT_INT4</a>:</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keywordflow">return</span> 1; <span class="comment">/* Note: actually 0.5, but stored as pairs */</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a9b7d39257d8dd8044a4012bc6db08e2b">CK_DT_FP32</a>:</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordflow">return</span> 4;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00027">CK_DT_BF16</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00028">CK_DT_FP16</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00026">CK_DT_FP32</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00032">CK_DT_INT4</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00031">CK_DT_INT8</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00028">CK_DT_BF16</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00029">CK_DT_FP16</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00027">CK_DT_FP32</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00033">CK_DT_INT4</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00032">CK_DT_INT8</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00093">ck_dtype_block_bytes()</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00110">ck_dtype_row_bytes()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00096">ck_dtype_block_bytes()</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00115">ck_dtype_row_bytes()</a>.</p>
 
 </div>
 </div>
@@ -460,14 +468,14 @@ Functions</h2></td></tr>
 
 <p>Check if a data type is block-quantized (GGML-style) </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00049">49</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;{</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">return</span> dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a> || dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a> || dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00051">51</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;{</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">return</span> dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4947444d825dd7d86e5afa588fa26930">CK_DT_Q4_0</a> || dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a">CK_DT_Q4_K</a> || dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65aad14a988ad6ac1381e87803ed92be1b5">CK_DT_Q6_K</a> || dt == <a class="code" href="ckernel__dtype_8h.html#a9d2373b6c685cf9421a6fb638964aa65a4a2a519d2f6b3af38d3780932aea8f3f">CK_DT_Q8_0</a>;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00035">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_K</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q8_0</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00036">CK_DT_Q4_0</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00037">CK_DT_Q4_K</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00038">CK_DT_Q6_K</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00039">CK_DT_Q8_0</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00110">ck_dtype_row_bytes()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__dtype_8h_source.html#l00115">ck_dtype_row_bytes()</a>.</p>
 
 </div>
 </div>
@@ -507,22 +515,22 @@ Functions</h2></td></tr>
 
 <p>Calculate total bytes for n_elements of given dtype. </p>
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00110">110</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;{</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="ckernel__dtype_8h.html#aa20c6f5e693f137425226d2f7085546e">ck_dtype_is_quantized</a>(dt)) {</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <span class="keywordtype">size_t</span> block_size = <a class="code" href="ckernel__dtype_8h.html#a2549fbebde03f39835ab71024c88210c">ck_dtype_block_size</a>(dt);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        <span class="keywordtype">size_t</span> n_blocks = (n_elements + block_size - 1) / block_size;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        <span class="keywordflow">return</span> n_blocks * <a class="code" href="ckernel__dtype_8h.html#a5c8c0745aaf531bc18faf5fbabe496e3">ck_dtype_block_bytes</a>(dt);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    }</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordflow">return</span> n_elements * <a class="code" href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a>(dt);</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
-<div class="ttc" id="ackernel__dtype_8h_html_a2549fbebde03f39835ab71024c88210c"><div class="ttname"><a href="ckernel__dtype_8h.html#a2549fbebde03f39835ab71024c88210c">ck_dtype_block_size</a></div><div class="ttdeci">static size_t ck_dtype_block_size(CKDataType dt)</div><div class="ttdoc">Get the number of elements per quantization block.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00077">ckernel_dtype.h:77</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_a5c8c0745aaf531bc18faf5fbabe496e3"><div class="ttname"><a href="ckernel__dtype_8h.html#a5c8c0745aaf531bc18faf5fbabe496e3">ck_dtype_block_bytes</a></div><div class="ttdeci">static size_t ck_dtype_block_bytes(CKDataType dt)</div><div class="ttdoc">Get bytes per block for quantized types.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00093">ckernel_dtype.h:93</a></div></div>
-<div class="ttc" id="ackernel__dtype_8h_html_aa20c6f5e693f137425226d2f7085546e"><div class="ttname"><a href="ckernel__dtype_8h.html#aa20c6f5e693f137425226d2f7085546e">ck_dtype_is_quantized</a></div><div class="ttdeci">static int ck_dtype_is_quantized(CKDataType dt)</div><div class="ttdoc">Check if a data type is block-quantized (GGML-style)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00049">ckernel_dtype.h:49</a></div></div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00115">115</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;{</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="ckernel__dtype_8h.html#aa20c6f5e693f137425226d2f7085546e">ck_dtype_is_quantized</a>(dt)) {</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        <span class="keywordtype">size_t</span> block_size = <a class="code" href="ckernel__dtype_8h.html#a2549fbebde03f39835ab71024c88210c">ck_dtype_block_size</a>(dt);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        <span class="keywordtype">size_t</span> n_blocks = (n_elements + block_size - 1) / block_size;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        <span class="keywordflow">return</span> n_blocks * <a class="code" href="ckernel__dtype_8h.html#a5c8c0745aaf531bc18faf5fbabe496e3">ck_dtype_block_bytes</a>(dt);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    }</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordflow">return</span> n_elements * <a class="code" href="ckernel__dtype_8h.html#ad28ce24863b3fe3ef1d1dfbdac821971">ck_dtype_bytes</a>(dt);</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;}</div>
+<div class="ttc" id="ackernel__dtype_8h_html_a2549fbebde03f39835ab71024c88210c"><div class="ttname"><a href="ckernel__dtype_8h.html#a2549fbebde03f39835ab71024c88210c">ck_dtype_block_size</a></div><div class="ttdeci">static size_t ck_dtype_block_size(CKDataType dt)</div><div class="ttdoc">Get the number of elements per quantization block.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00079">ckernel_dtype.h:79</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_a5c8c0745aaf531bc18faf5fbabe496e3"><div class="ttname"><a href="ckernel__dtype_8h.html#a5c8c0745aaf531bc18faf5fbabe496e3">ck_dtype_block_bytes</a></div><div class="ttdeci">static size_t ck_dtype_block_bytes(CKDataType dt)</div><div class="ttdoc">Get bytes per block for quantized types.</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00096">ckernel_dtype.h:96</a></div></div>
+<div class="ttc" id="ackernel__dtype_8h_html_aa20c6f5e693f137425226d2f7085546e"><div class="ttname"><a href="ckernel__dtype_8h.html#aa20c6f5e693f137425226d2f7085546e">ck_dtype_is_quantized</a></div><div class="ttdeci">static int ck_dtype_is_quantized(CKDataType dt)</div><div class="ttdoc">Check if a data type is block-quantized (GGML-style)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00051">ckernel_dtype.h:51</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00093">ck_dtype_block_bytes()</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00077">ck_dtype_block_size()</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00058">ck_dtype_bytes()</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00049">ck_dtype_is_quantized()</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00096">ck_dtype_block_bytes()</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00079">ck_dtype_block_size()</a>, <a class="el" href="ckernel__dtype_8h_source.html#l00060">ck_dtype_bytes()</a>, and <a class="el" href="ckernel__dtype_8h_source.html#l00051">ck_dtype_is_quantized()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="ckernel__orchestration_8c_source.html#l00124">ck_qkv_project_head_major_q4_k()</a>, <a class="el" href="ckernel__orchestration_8c_source.html#l01189">ck_qkv_project_head_major_token_q4_k()</a>, and <a class="el" href="ckernel__orchestration_8c_source.html#l01234">ck_qkv_project_head_major_token_q4_k_q8_k()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="ckernel__orchestration_8c_source.html#l00146">ck_qkv_project_head_major_q4_k()</a>, <a class="el" href="ckernel__orchestration_8c_source.html#l00195">ck_qkv_project_head_major_quant()</a>, <a class="el" href="ckernel__orchestration_8c_source.html#l01351">ck_qkv_project_head_major_token_q4_k()</a>, <a class="el" href="ckernel__orchestration_8c_source.html#l01396">ck_qkv_project_head_major_token_q4_k_q8_k()</a>, and <a class="el" href="ckernel__orchestration_8c_source.html#l01441">ck_qkv_project_head_major_token_quant()</a>.</p>
 
 </div>
 </div>
@@ -560,13 +568,13 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00120">120</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;{</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordflow">return</span> (mask &amp; <a class="code" href="ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb">CK_DT_MASK</a>(dt)) != 0;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;}</div>
-<div class="ttc" id="ackernel__dtype_8h_html_a15aeea2b64a849105b76d7b10244c4fb"><div class="ttname"><a href="ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb">CK_DT_MASK</a></div><div class="ttdeci">#define CK_DT_MASK(dt)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00044">ckernel_dtype.h:44</a></div></div>
+<p class="definition">Definition at line <a class="el" href="ckernel__dtype_8h_source.html#l00125">125</a> of file <a class="el" href="ckernel__dtype_8h_source.html">ckernel_dtype.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;{</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="keywordflow">return</span> (mask &amp; <a class="code" href="ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb">CK_DT_MASK</a>(dt)) != 0;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
+<div class="ttc" id="ackernel__dtype_8h_html_a15aeea2b64a849105b76d7b10244c4fb"><div class="ttname"><a href="ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb">CK_DT_MASK</a></div><div class="ttdeci">#define CK_DT_MASK(dt)</div><div class="ttdef"><b>Definition:</b> <a href="ckernel__dtype_8h_source.html#l00046">ckernel_dtype.h:46</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00044">CK_DT_MASK</a>.</p>
+<p class="reference">References <a class="el" href="ckernel__dtype_8h_source.html#l00046">CK_DT_MASK</a>.</p>
 
 </div>
 </div>

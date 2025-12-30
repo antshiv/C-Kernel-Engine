@@ -34,6 +34,35 @@ int ck_model_load_weights_flat(TransformerModel *m, const char *path)
                 path, strerror(errno));
         return -1;
     }
+    char magic[8];
+    if (fread(magic, 1, 8, f) == 8) {
+        if (memcmp(magic, "BUMPWGT2", 8) == 0) {
+            if (fseek(f, 128, SEEK_SET) != 0) {
+                fclose(f);
+                return -1;
+            }
+        } else if (memcmp(magic, "BUMPWGT3", 8) == 0) {
+            if (fseek(f, 128, SEEK_SET) != 0) {
+                fclose(f);
+                return -1;
+            }
+            uint32_t dtype_len = 0;
+            if (fread(&dtype_len, sizeof(uint32_t), 1, f) != 1) {
+                fclose(f);
+                return -1;
+            }
+            if (fseek(f, (long)dtype_len, SEEK_CUR) != 0) {
+                fclose(f);
+                return -1;
+            }
+        } else if (fseek(f, 0, SEEK_SET) != 0) {
+            fclose(f);
+            return -1;
+        }
+    } else if (fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        return -1;
+    }
 
     const int L   = m->cfg.num_layers;
     const int H   = m->cfg.hidden_size;

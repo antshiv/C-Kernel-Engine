@@ -3,16 +3,16 @@
 convert_gguf_to_bump.py
 =======================
 
-Converts a GGUF model file containing weight-only quantized tensors (e.g. Q4_K_M)
-into the C-Kernel-Engine `weights.bump` layout expected by the generated runtime.
+Converts a GGUF model file containing weight-only quantized tensors (e.g. Q4_K_M,
+Q6_K) into the C-Kernel-Engine `weights.bump` layout expected by the runtime.
 
 Notes:
   - This tool is intentionally "offline": it may convert/reshape tensors while
     writing the bump file so runtime code stays simple (no format juggling).
-  - For Q4_K models, we treat GGUF tensors of type GGML_TYPE_Q4_K as the canonical
-    on-disk representation (same block layout used by Q4_K_M).
-  - The bump file does not currently encode weight dtype; the generated runtime
-    selects it via `CK_WEIGHT_DTYPE` (e.g. `CK_WEIGHT_DTYPE=q4_k_m`).
+  - For Q4_K/Q6_K models, we treat GGUF tensors of type GGML_TYPE_Q4_K/Q6_K as the
+    canonical on-disk representation (same block layout as llama.cpp).
+  - The bump file encodes a per-tensor dtype table (BUMPWGT3). The runtime reads
+    it automatically to select the right kernel path.
 """
 
 from __future__ import annotations
@@ -30,6 +30,12 @@ import numpy as np
 
 HEADER_SIZE = 128
 CACHE_ALIGN = 64
+
+CK_DT_FP32 = 0
+CK_DT_BF16 = 1
+CK_DT_FP16 = 2
+CK_DT_Q4_K = 6
+CK_DT_Q6_K = 7
 
 
 def align_up(n: int, a: int) -> int:
@@ -263,6 +269,7 @@ GGML_TYPE_F16 = 1
 GGML_TYPE_Q4_0 = 2
 GGML_TYPE_Q8_0 = 8
 GGML_TYPE_Q4_K = 12
+GGML_TYPE_Q6_K = 14
 GGML_TYPE_BF16 = 16  # present in newer GGUFs
 
 
@@ -274,7 +281,32 @@ def ggml_type_name(t: int) -> str:
         GGML_TYPE_Q4_0: "Q4_0",
         GGML_TYPE_Q8_0: "Q8_0",
         GGML_TYPE_Q4_K: "Q4_K",
+        GGML_TYPE_Q6_K: "Q6_K",
     }.get(t, f"UNKNOWN({t})")
+
+
+def ck_dtype_from_ggml_type(ggml_type: int) -> int:
+    if ggml_type == GGML_TYPE_F32:
+        return CK_DT_FP32
+    if ggml_type == GGML_TYPE_F16:
+        return CK_DT_FP16
+    if ggml_type == GGML_TYPE_BF16:
+        return CK_DT_BF16
+    if ggml_type == GGML_TYPE_Q4_K:
+        return CK_DT_Q4_K
+    if ggml_type == GGML_TYPE_Q6_K:
+        return CK_DT_Q6_K
+    raise GGUFError(f"Unsupported ggml_type={ggml_type_name(ggml_type)} for bump output")
+
+
+def ck_dtype_name(dt: int) -> str:
+    return {
+        CK_DT_FP32: "FP32",
+        CK_DT_BF16: "BF16",
+        CK_DT_FP16: "FP16",
+        CK_DT_Q4_K: "Q4_K",
+        CK_DT_Q6_K: "Q6_K",
+    }.get(dt, f"DT({dt})")
 
 
 def ggml_row_bytes(ggml_type: int, ne0: int) -> int:
@@ -296,6 +328,10 @@ def ggml_row_bytes(ggml_type: int, ne0: int) -> int:
         if ne0 % 256 != 0:
             raise GGUFError(f"Q4_K requires ne0 % 256 == 0 (got ne0={ne0})")
         return (ne0 // 256) * 144
+    if ggml_type == GGML_TYPE_Q6_K:
+        if ne0 % 256 != 0:
+            raise GGUFError(f"Q6_K requires ne0 % 256 == 0 (got ne0={ne0})")
+        return (ne0 // 256) * 210
     raise GGUFError(f"Unsupported ggml_type={ggml_type_name(ggml_type)} for row sizing")
 
 
@@ -349,7 +385,7 @@ def copy_bytes_stream(f_in: BinaryIO, src_pos: int, nbytes: int, w_out: HashingW
         remaining -= take
 
 
-def copy_q4k_head_packed(
+def copy_qk_head_packed(
     f_in: BinaryIO,
     data_base: int,
     info: TensorInfo,
@@ -359,8 +395,8 @@ def copy_q4k_head_packed(
     aligned_head_dim: int,
     aligned_embed_dim: int,
 ) -> None:
-    if info.ggml_type != GGML_TYPE_Q4_K:
-        raise GGUFError(f"{info.name}: expected Q4_K, got {ggml_type_name(info.ggml_type)}")
+    if info.ggml_type not in (GGML_TYPE_Q4_K, GGML_TYPE_Q6_K, GGML_TYPE_F32):
+        raise GGUFError(f"{info.name}: expected Q4_K/Q6_K/F32, got {ggml_type_name(info.ggml_type)}")
     if len(info.dims) != 2:
         raise GGUFError(f"{info.name}: expected 2D, got dims={info.dims}")
 
@@ -420,7 +456,7 @@ def build_llama_config(
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Convert GGUF (Q4_K / Q4_K_M) weights to weights.bump")
+    ap = argparse.ArgumentParser(description="Convert GGUF (Q4_K / Q6_K) weights to weights.bump")
     ap.add_argument("--gguf", required=True, help="Input GGUF file (e.g. model.Q4_K_M.gguf)")
     ap.add_argument("--output", help="Output weights.bump path (required unless --inspect/--list)")
     ap.add_argument("--config-out", help="Optional config.json output path (HF-style minimal config)")
@@ -497,6 +533,7 @@ def main() -> None:
 
         arch = str(meta.get("general.architecture", "llama"))
 
+        inspect_only = False
         if args.inspect or args.list:
             # Summarize tensor dtypes so you can confirm what is actually quantized
             # in a given GGUF file (e.g. whether token embeddings / output head are
@@ -553,7 +590,8 @@ def main() -> None:
                 for name in sorted(tensors.keys()):
                     info = tensors[name]
                     print(f"  - {name}: {ggml_type_name(info.ggml_type)} dims={info.dims}")
-            return
+                return
+            inspect_only = True
 
         # Pull core dims from metadata first; fall back to tensor shapes.
         def meta_int(key: str) -> Optional[int]:
@@ -575,6 +613,13 @@ def main() -> None:
             if isinstance(v, (int, np.integer)):
                 return float(v)
             return None
+
+        def weight_dtype(info: TensorInfo, label: str) -> int:
+            if info.ggml_type not in (GGML_TYPE_Q4_K, GGML_TYPE_Q6_K, GGML_TYPE_F32):
+                raise GGUFError(
+                    f"{info.name}: expected Q4_K/Q6_K/F32 for {label}, got {ggml_type_name(info.ggml_type)}"
+                )
+            return ck_dtype_from_ggml_type(info.ggml_type)
 
         tok_name = "token_embd.weight"
         if tok_name not in tensors:
@@ -629,12 +674,6 @@ def main() -> None:
         head_dim = embed_dim // num_heads
         embed_kv = num_kv_heads * head_dim
 
-        # For Q4_K, keep aligned dims equal to model dims; K must be multiple of 256.
-        if embed_dim % 256 != 0:
-            raise GGUFError(f"Q4_K requires hidden_size multiple of 256 (got {embed_dim})")
-        if intermediate % 256 != 0:
-            raise GGUFError(f"Q4_K requires intermediate_size multiple of 256 (got {intermediate})")
-
         aligned_embed_dim = embed_dim
         aligned_head_dim = head_dim
         aligned_context = align_up_elems(context_len, 4, CACHE_ALIGN)
@@ -646,15 +685,149 @@ def main() -> None:
             if name not in tensors:
                 raise GGUFError(f"Missing required tensor: {name}")
 
+        token_dtype = weight_dtype(tok, "token_emb")
+        needs_k_quant = token_dtype in (CK_DT_Q4_K, CK_DT_Q6_K)
+
+        layer_infos = []
+        dtype_table = [token_dtype, CK_DT_FP32]
+        for layer in range(num_layers):
+            attn_norm = tensors.get(f"blk.{layer}.attn_norm.weight")
+            ffn_norm = tensors.get(f"blk.{layer}.ffn_norm.weight")
+            if not attn_norm or not ffn_norm:
+                raise GGUFError(f"Layer {layer}: missing attn_norm/ffn_norm tensors")
+
+            wq = tensors.get(f"blk.{layer}.attn_q.weight")
+            wk = tensors.get(f"blk.{layer}.attn_k.weight")
+            wv = tensors.get(f"blk.{layer}.attn_v.weight")
+            wo = tensors.get(f"blk.{layer}.attn_output.weight")
+            gate = tensors.get(f"blk.{layer}.ffn_gate.weight")
+            up = tensors.get(f"blk.{layer}.ffn_up.weight")
+            down = tensors.get(f"blk.{layer}.ffn_down.weight")
+            if not wq or not wk or not wv or not wo:
+                raise GGUFError(f"Layer {layer}: missing attention projection tensors (q/k/v/o)")
+            if not gate or not up or not down:
+                raise GGUFError(f"Layer {layer}: missing ffn tensors (gate/up/down)")
+
+            if wq.ne0 != embed_dim or wq.ne1 != embed_dim:
+                raise GGUFError(f"{wq.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wq.dims}")
+            for tensor, label in ((wk, "K"), (wv, "V")):
+                if tensor.ne0 != embed_dim or tensor.ne1 != embed_kv:
+                    raise GGUFError(
+                        f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={embed_kv}] for {label}, got {tensor.dims}"
+                    )
+            if wo.ne0 != embed_dim or wo.ne1 != embed_dim:
+                raise GGUFError(f"{wo.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wo.dims}")
+
+            for tensor, label in ((gate, "gate"), (up, "up")):
+                if tensor.ne0 != embed_dim or tensor.ne1 != intermediate:
+                    raise GGUFError(
+                        f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={intermediate}] for {label}, got {tensor.dims}"
+                    )
+            if down.ne0 != intermediate or down.ne1 != embed_dim:
+                raise GGUFError(
+                    f"{down.name}: expected dims [ne0={intermediate}, ne1={embed_dim}] for down, got {down.dims}"
+                )
+
+            wq_dt = weight_dtype(wq, "attn_q")
+            wk_dt = weight_dtype(wk, "attn_k")
+            wv_dt = weight_dtype(wv, "attn_v")
+            wo_dt = weight_dtype(wo, "attn_output")
+            gate_dt = weight_dtype(gate, "ffn_gate")
+            up_dt = weight_dtype(up, "ffn_up")
+            down_dt = weight_dtype(down, "ffn_down")
+            if gate_dt != up_dt:
+                raise GGUFError(
+                    f"Layer {layer}: ffn_gate ({ggml_type_name(gate.ggml_type)}) and "
+                    f"ffn_up ({ggml_type_name(up.ggml_type)}) must match"
+                )
+
+            needs_k_quant = needs_k_quant or any(
+                dt in (CK_DT_Q4_K, CK_DT_Q6_K)
+                for dt in (wq_dt, wk_dt, wv_dt, wo_dt, gate_dt, up_dt, down_dt)
+            )
+
+            dtype_table.extend([
+                CK_DT_FP32,  # ln1_gamma
+                CK_DT_FP32,  # ln2_gamma
+                wq_dt,
+                CK_DT_FP32,  # bq
+                wk_dt,
+                CK_DT_FP32,  # bk
+                wv_dt,
+                CK_DT_FP32,  # bv
+                wo_dt,
+                CK_DT_FP32,  # bo
+                gate_dt,
+                CK_DT_FP32,  # b1
+                down_dt,
+                CK_DT_FP32,  # b2
+            ])
+
+            layer_infos.append({
+                "attn_norm": attn_norm,
+                "ffn_norm": ffn_norm,
+                "wq": wq,
+                "wk": wk,
+                "wv": wv,
+                "wo": wo,
+                "gate": gate,
+                "up": up,
+                "down": down,
+                "wq_dt": wq_dt,
+                "wk_dt": wk_dt,
+                "wv_dt": wv_dt,
+                "wo_dt": wo_dt,
+                "gate_dt": gate_dt,
+                "up_dt": up_dt,
+                "down_dt": down_dt,
+            })
+
+        dtype_table.extend([CK_DT_FP32, CK_DT_FP32])
+        dtype_table_bytes = bytes(dtype_table)
+
+        if inspect_only:
+            expected_entries = num_layers * 14 + 4
+            counts = {}
+            for dt in dtype_table:
+                name = ck_dtype_name(dt)
+                counts[name] = counts.get(name, 0) + 1
+
+            print("[bump] dtype table preview:")
+            print(f"  entries={len(dtype_table)} expected={expected_entries}")
+            print(f"  token_emb={ck_dtype_name(dtype_table[0])} pos_emb={ck_dtype_name(dtype_table[1])}")
+            if num_layers > 0:
+                def layer_fmt(layer: int) -> str:
+                    base = 2 + layer * 14
+                    return (
+                        f"wq={ck_dtype_name(dtype_table[base + 2])} "
+                        f"wk={ck_dtype_name(dtype_table[base + 4])} "
+                        f"wv={ck_dtype_name(dtype_table[base + 6])} "
+                        f"wo={ck_dtype_name(dtype_table[base + 8])} "
+                        f"w1={ck_dtype_name(dtype_table[base + 10])} "
+                        f"w2={ck_dtype_name(dtype_table[base + 12])}"
+                    )
+                print(f"  layer0: {layer_fmt(0)}")
+                if num_layers > 1:
+                    print(f"  layer{num_layers - 1}: {layer_fmt(num_layers - 1)}")
+            print(f"  counts: {', '.join(f'{k}={v}' for k, v in sorted(counts.items()))}")
+            return
+
+        if needs_k_quant:
+            if embed_dim % 256 != 0:
+                raise GGUFError(f"K-quant requires hidden_size multiple of 256 (got {embed_dim})")
+            if intermediate % 256 != 0:
+                raise GGUFError(f"K-quant requires intermediate_size multiple of 256 (got {intermediate})")
+
         # Create output directory.
         os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
         with open(args.output, "w+b") as out_f:
             out_f.write(b"\x00" * HEADER_SIZE)
             w = HashingWriter(out_f)
 
-            # 1) token embeddings (quantized)
-            if tok.ggml_type != GGML_TYPE_Q4_K:
-                raise GGUFError(f"{tok_name}: expected Q4_K (Q4_K_M), got {ggml_type_name(tok.ggml_type)}")
+            w.write(struct.pack("<I", len(dtype_table_bytes)))
+            w.write(dtype_table_bytes)
+
+            # 1) token embeddings
             copy_bytes_stream(f, data_start + tok.offset, ggml_tensor_bytes(tok), w)
 
             # 2) pos_emb: not used by RoPE models; keep zeros for compatibility.
@@ -662,28 +835,14 @@ def main() -> None:
 
             # 3) per-layer
             for layer in range(num_layers):
-                attn_norm = tensors.get(f"blk.{layer}.attn_norm.weight")
-                ffn_norm = tensors.get(f"blk.{layer}.ffn_norm.weight")
-                if not attn_norm or not ffn_norm:
-                    raise GGUFError(f"Layer {layer}: missing attn_norm/ffn_norm tensors")
-
-                ln1 = read_vector_f32(f, data_start, attn_norm)
-                ln2 = read_vector_f32(f, data_start, ffn_norm)
+                info = layer_infos[layer]
+                ln1 = read_vector_f32(f, data_start, info["attn_norm"])
+                ln2 = read_vector_f32(f, data_start, info["ffn_norm"])
                 write_f32_padded(w, ln1, aligned_embed_dim)
                 write_f32_padded(w, ln2, aligned_embed_dim)
 
-                wq = tensors.get(f"blk.{layer}.attn_q.weight")
-                wk = tensors.get(f"blk.{layer}.attn_k.weight")
-                wv = tensors.get(f"blk.{layer}.attn_v.weight")
-                wo = tensors.get(f"blk.{layer}.attn_output.weight")
-                if not wq or not wk or not wv or not wo:
-                    raise GGUFError(f"Layer {layer}: missing attention projection tensors (q/k/v/o)")
-
-                # Q: [embed_dim x embed_dim]
-                if wq.ne0 != embed_dim or wq.ne1 != embed_dim:
-                    raise GGUFError(f"{wq.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wq.dims}")
-                copy_q4k_head_packed(
-                    f, data_start, wq, w,
+                copy_qk_head_packed(
+                    f, data_start, info["wq"], w,
                     group_count=num_heads,
                     head_dim=head_dim,
                     aligned_head_dim=aligned_head_dim,
@@ -692,14 +851,8 @@ def main() -> None:
                 # bq
                 write_f32_zeros(w, num_heads * aligned_head_dim)
 
-                # K/V: [embed_dim x embed_kv] (ne0=in, ne1=out)
-                for tensor, label in ((wk, "K"), (wv, "V")):
-                    if tensor.ne0 != embed_dim or tensor.ne1 != embed_kv:
-                        raise GGUFError(
-                            f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={embed_kv}] for {label}, got {tensor.dims}"
-                        )
-                copy_q4k_head_packed(
-                    f, data_start, wk, w,
+                copy_qk_head_packed(
+                    f, data_start, info["wk"], w,
                     group_count=num_kv_heads,
                     head_dim=head_dim,
                     aligned_head_dim=aligned_head_dim,
@@ -707,8 +860,8 @@ def main() -> None:
                 )
                 write_f32_zeros(w, num_kv_heads * aligned_head_dim)  # bk
 
-                copy_q4k_head_packed(
-                    f, data_start, wv, w,
+                copy_qk_head_packed(
+                    f, data_start, info["wv"], w,
                     group_count=num_kv_heads,
                     head_dim=head_dim,
                     aligned_head_dim=aligned_head_dim,
@@ -717,40 +870,15 @@ def main() -> None:
                 write_f32_zeros(w, num_kv_heads * aligned_head_dim)  # bv
 
                 # Wo: stored as a single [embed_dim x embed_dim] matrix for Q4_K path.
-                if wo.ggml_type != GGML_TYPE_Q4_K:
-                    raise GGUFError(f"{wo.name}: expected Q4_K, got {ggml_type_name(wo.ggml_type)}")
-                if wo.ne0 != embed_dim or wo.ne1 != embed_dim:
-                    raise GGUFError(f"{wo.name}: expected dims [ne0={embed_dim}, ne1={embed_dim}], got {wo.dims}")
-                copy_bytes_stream(f, data_start + wo.offset, ggml_tensor_bytes(wo), w)
+                copy_bytes_stream(f, data_start + info["wo"].offset, ggml_tensor_bytes(info["wo"]), w)
                 write_f32_zeros(w, aligned_embed_dim)  # bo
 
                 # MLP: gate/up concatenated into w1, down is w2.
-                gate = tensors.get(f"blk.{layer}.ffn_gate.weight")
-                up = tensors.get(f"blk.{layer}.ffn_up.weight")
-                down = tensors.get(f"blk.{layer}.ffn_down.weight")
-                if not gate or not up or not down:
-                    raise GGUFError(f"Layer {layer}: missing ffn tensors (gate/up/down)")
-
-                for tensor, label in ((gate, "gate"), (up, "up")):
-                    if tensor.ggml_type != GGML_TYPE_Q4_K:
-                        raise GGUFError(f"{tensor.name}: expected Q4_K for {label}, got {ggml_type_name(tensor.ggml_type)}")
-                    if tensor.ne0 != embed_dim or tensor.ne1 != intermediate:
-                        raise GGUFError(
-                            f"{tensor.name}: expected dims [ne0={embed_dim}, ne1={intermediate}] for {label}, got {tensor.dims}"
-                        )
-                # w1: [2*intermediate x embed_dim] stored row-major (gate rows then up rows).
-                copy_bytes_stream(f, data_start + gate.offset, ggml_tensor_bytes(gate), w)
-                copy_bytes_stream(f, data_start + up.offset, ggml_tensor_bytes(up), w)
+                copy_bytes_stream(f, data_start + info["gate"].offset, ggml_tensor_bytes(info["gate"]), w)
+                copy_bytes_stream(f, data_start + info["up"].offset, ggml_tensor_bytes(info["up"]), w)
                 write_f32_zeros(w, 2 * intermediate)  # b1
-
-                if down.ggml_type != GGML_TYPE_Q4_K:
-                    raise GGUFError(f"{down.name}: expected Q4_K for down, got {ggml_type_name(down.ggml_type)}")
-                if down.ne0 != intermediate or down.ne1 != embed_dim:
-                    raise GGUFError(
-                        f"{down.name}: expected dims [ne0={intermediate}, ne1={embed_dim}] for down, got {down.dims}"
-                    )
                 # w2: [embed_dim x intermediate] in our runtime layout; GGML stores [ne0=intermediate, ne1=embed].
-                copy_bytes_stream(f, data_start + down.offset, ggml_tensor_bytes(down), w)
+                copy_bytes_stream(f, data_start + info["down"].offset, ggml_tensor_bytes(info["down"]), w)
                 write_f32_zeros(w, aligned_embed_dim)  # b2
 
             # 4) final RMSNorm (gamma) and bias placeholder
@@ -760,11 +888,11 @@ def main() -> None:
 
             checksum = w.digest()
 
-            # Header: matches scripts/convert_hf_to_bump.py (BUMPWGT2, version 2).
+            # Header: matches scripts/convert_hf_to_bump.py (BUMPWGT3, version 3).
             out_f.flush()
             out_f.seek(0, os.SEEK_SET)
-            out_f.write(b"BUMPWGT2")
-            out_f.write(struct.pack("<I", 2))  # version
+            out_f.write(b"BUMPWGT3")
+            out_f.write(struct.pack("<I", 3))  # version
             out_f.write(struct.pack("<I", 1))  # model_type (legacy)
             out_f.write(struct.pack("<I", int(num_layers)))
             out_f.write(struct.pack("<I", int(vocab_size)))

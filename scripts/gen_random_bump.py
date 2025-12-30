@@ -10,6 +10,8 @@ ALIGN_BYTES = 64
 ELEM_BYTES = 4
 HEADER_SIZE = 128
 
+CK_DT_FP32 = 0
+
 
 def align_up_elems(elems, elem_bytes=ELEM_BYTES, align_bytes=ALIGN_BYTES):
     if align_bytes == 0:
@@ -37,6 +39,29 @@ def pick(cfg, keys, default=None):
 def write_zero_block(f, count):
     f.write(np.zeros(count, dtype=np.float32).tobytes())
     return count
+
+
+def build_dtype_table(num_layers: int) -> bytes:
+    dtypes = [CK_DT_FP32, CK_DT_FP32]  # token_emb, pos_emb
+    for _ in range(num_layers):
+        dtypes.extend([
+            CK_DT_FP32,  # ln1_gamma
+            CK_DT_FP32,  # ln2_gamma
+            CK_DT_FP32,  # wq
+            CK_DT_FP32,  # bq
+            CK_DT_FP32,  # wk
+            CK_DT_FP32,  # bk
+            CK_DT_FP32,  # wv
+            CK_DT_FP32,  # bv
+            CK_DT_FP32,  # wo
+            CK_DT_FP32,  # bo
+            CK_DT_FP32,  # w1
+            CK_DT_FP32,  # b1
+            CK_DT_FP32,  # w2
+            CK_DT_FP32,  # b2
+        ])
+    dtypes.extend([CK_DT_FP32, CK_DT_FP32])  # final_norm, final_bias
+    return bytes(dtypes)
 
 
 def write_vector(f, vec, aligned_dim):
@@ -120,8 +145,12 @@ def main():
     npz_data["final_ln_weight"] = None
     npz_data["final_ln_bias"] = None
 
+    dtype_table = build_dtype_table(num_layers)
+
     with open(args.output, "w+b") as f:
         f.write(b"\x00" * HEADER_SIZE)
+        f.write(struct.pack("<I", len(dtype_table)))
+        f.write(dtype_table)
         total_elems = 0
 
         def write_and_count(count):
@@ -193,8 +222,8 @@ def main():
         payload = f.read()
         checksum = hashlib.sha256(payload).digest()
         f.seek(0)
-        f.write(b"BUMPWGT2")
-        f.write(struct.pack("I", 2))
+        f.write(b"BUMPWGT3")
+        f.write(struct.pack("I", 3))
         f.write(struct.pack("I", 1))
         f.write(struct.pack("I", int(num_layers)))
         f.write(struct.pack("I", int(vocab_size)))
@@ -213,7 +242,7 @@ def main():
         np.savez(args.npz, **npz_data)
         print(f"Wrote {args.npz} (logical weights)")
 
-    mb = (HEADER_SIZE + total_elems * ELEM_BYTES) / (1024 * 1024)
+    mb = (HEADER_SIZE + 4 + len(dtype_table) + total_elems * ELEM_BYTES) / (1024 * 1024)
     print(f"Wrote {args.output} ({mb:.2f} MB, seed={args.seed})")
 
 

@@ -15,9 +15,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="88" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="88" bodyend="-1"/>
-        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="104" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="104" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="86" endline="126">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a030c98b26ad610ccea6dabf993b60cdf" compoundref="gemm__kernels__q4k__q8k__avx2_8c" startline="78" endline="126">gemv_q4_k_q8_k_avx2</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" compoundref="gemm__kernels__q4k__q8k__vnni_8c" startline="84" endline="134">gemv_q4_k_q8_k_vnni</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="34" endline="84">quantize_row_q8_k</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -30,9 +32,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="86" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="86" bodyend="-1"/>
-        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="102" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="102" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="86" endline="126">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a030c98b26ad610ccea6dabf993b60cdf" compoundref="gemm__kernels__q4k__q8k__avx2_8c" startline="78" endline="126">gemv_q4_k_q8_k_avx2</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" compoundref="gemm__kernels__q4k__q8k__vnni_8c" startline="84" endline="134">gemv_q4_k_q8_k_vnni</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="34" endline="84">quantize_row_q8_k</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structblock__q8__K_1ac7219c4dba2b1f4192beca610a3999fc" prot="public" static="no" mutable="no">
         <type>int8_t</type>
@@ -45,16 +49,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="87" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="87" bodyend="-1"/>
-        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="103" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="103" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="86" endline="126">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a030c98b26ad610ccea6dabf993b60cdf" compoundref="gemm__kernels__q4k__q8k__avx2_8c" startline="78" endline="126">gemv_q4_k_q8_k_avx2</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" compoundref="gemm__kernels__q4k__q8k__vnni_8c" startline="84" endline="134">gemv_q4_k_q8_k_vnni</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="34" endline="84">quantize_row_q8_k</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="85" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="85" bodyend="89"/>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="101" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="101" bodyend="105"/>
     <listofallmembers>
       <member refid="structblock__q8__K_1ad3e3b87f42780053e576d03c01ac4176" prot="public" virt="non-virtual"><scope>block_q8_K</scope><name>bsums</name></member>
       <member refid="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" prot="public" virt="non-virtual"><scope>block_q8_K</scope><name>d</name></member>

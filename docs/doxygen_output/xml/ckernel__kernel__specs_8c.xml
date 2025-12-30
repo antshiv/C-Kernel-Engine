@@ -59,7 +59,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="115" column="18" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="115" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="781" endline="851">emit_kernel_manifest</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="820" endline="890">emit_kernel_manifest</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1a42241607f71ab42ad23c344eacc3421f" prot="public" static="no" mutable="no">
         <type>const size_t</type>
@@ -74,7 +74,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="129" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="129" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="781" endline="851">emit_kernel_manifest</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="820" endline="890">emit_kernel_manifest</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1ae9be980801e3c3b9e00b575e2eb132bd" prot="public" static="no" mutable="no">
         <type>const size_t</type>
@@ -90,14 +90,14 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="83" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="83" bodyend="-1"/>
         <referencedby refid="ckernel__codegen_8c_1a19907ff45ce4075112ea38814eacf709" compoundref="ckernel__codegen_8c" startline="31" endline="42">ck_find_buffer_spec</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" compoundref="ckernel__codegen_8c" startline="559" endline="572">ck_first_layer_buffer_name</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" compoundref="ckernel__codegen_8c" startline="359" endline="378">emit_global_aliases_to_layer</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" compoundref="ckernel__codegen_8c" startline="278" endline="325">emit_global_allocations</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a1e4c00df57df3f0cef59922cf24cfeb6" compoundref="ckernel__codegen_8c" startline="101" endline="113">emit_global_offset_fields</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4c46961fca73555c03f910795fba04c1" compoundref="ckernel__codegen_8c" startline="327" endline="357">emit_layer_allocations</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1ad3379f6a59f22753041f8ed2959573a9" compoundref="ckernel__codegen_8c" startline="85" endline="99">emit_layer_offsets_struct</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4e189806b5b6eab5d516f362d2cf55b5" compoundref="ckernel__codegen_8c" startline="420" endline="489">emit_sgd_update</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1aa4fbf6c78963864659b31924249cb09e" compoundref="ckernel__codegen_8c" startline="380" endline="418">emit_zero_grad</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" compoundref="ckernel__codegen_8c" startline="598" endline="611">ck_first_layer_buffer_name</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" compoundref="ckernel__codegen_8c" startline="398" endline="417">emit_global_aliases_to_layer</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" compoundref="ckernel__codegen_8c" startline="311" endline="361">emit_global_allocations</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a1e4c00df57df3f0cef59922cf24cfeb6" compoundref="ckernel__codegen_8c" startline="134" endline="146">emit_global_offset_fields</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4c46961fca73555c03f910795fba04c1" compoundref="ckernel__codegen_8c" startline="363" endline="396">emit_layer_allocations</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1ad3379f6a59f22753041f8ed2959573a9" compoundref="ckernel__codegen_8c" startline="111" endline="132">emit_layer_offsets_struct</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4e189806b5b6eab5d516f362d2cf55b5" compoundref="ckernel__codegen_8c" startline="459" endline="528">emit_sgd_update</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1aa4fbf6c78963864659b31924249cb09e" compoundref="ckernel__codegen_8c" startline="419" endline="457">emit_zero_grad</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1ad9257c11ae490b3da865862c61a8c5cf" prot="public" static="no" mutable="no">
         <type>const <ref refid="structCKBufferSpec" kindref="compound">CKBufferSpec</ref></type>
@@ -112,14 +112,14 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="3" column="20" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="3" bodyend="-1"/>
         <referencedby refid="ckernel__codegen_8c_1a19907ff45ce4075112ea38814eacf709" compoundref="ckernel__codegen_8c" startline="31" endline="42">ck_find_buffer_spec</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" compoundref="ckernel__codegen_8c" startline="559" endline="572">ck_first_layer_buffer_name</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" compoundref="ckernel__codegen_8c" startline="359" endline="378">emit_global_aliases_to_layer</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" compoundref="ckernel__codegen_8c" startline="278" endline="325">emit_global_allocations</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a1e4c00df57df3f0cef59922cf24cfeb6" compoundref="ckernel__codegen_8c" startline="101" endline="113">emit_global_offset_fields</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4c46961fca73555c03f910795fba04c1" compoundref="ckernel__codegen_8c" startline="327" endline="357">emit_layer_allocations</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1ad3379f6a59f22753041f8ed2959573a9" compoundref="ckernel__codegen_8c" startline="85" endline="99">emit_layer_offsets_struct</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4e189806b5b6eab5d516f362d2cf55b5" compoundref="ckernel__codegen_8c" startline="420" endline="489">emit_sgd_update</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1aa4fbf6c78963864659b31924249cb09e" compoundref="ckernel__codegen_8c" startline="380" endline="418">emit_zero_grad</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" compoundref="ckernel__codegen_8c" startline="598" endline="611">ck_first_layer_buffer_name</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" compoundref="ckernel__codegen_8c" startline="398" endline="417">emit_global_aliases_to_layer</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" compoundref="ckernel__codegen_8c" startline="311" endline="361">emit_global_allocations</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a1e4c00df57df3f0cef59922cf24cfeb6" compoundref="ckernel__codegen_8c" startline="134" endline="146">emit_global_offset_fields</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4c46961fca73555c03f910795fba04c1" compoundref="ckernel__codegen_8c" startline="363" endline="396">emit_layer_allocations</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1ad3379f6a59f22753041f8ed2959573a9" compoundref="ckernel__codegen_8c" startline="111" endline="132">emit_layer_offsets_struct</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4e189806b5b6eab5d516f362d2cf55b5" compoundref="ckernel__codegen_8c" startline="459" endline="528">emit_sgd_update</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1aa4fbf6c78963864659b31924249cb09e" compoundref="ckernel__codegen_8c" startline="419" endline="457">emit_zero_grad</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1a383b37a8b40251a4c98762a31982f5f2" prot="public" static="no" mutable="no">
         <type>const <ref refid="structCKPlanStep" kindref="compound">CKPlanStep</ref></type>
@@ -146,7 +146,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="99" column="18" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="99" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="781" endline="851">emit_kernel_manifest</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="820" endline="890">emit_kernel_manifest</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1a7b169d0eafc6b23adf4dc42551b8a38e" prot="public" static="no" mutable="no">
         <type>const size_t</type>
@@ -161,7 +161,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="113" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="113" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="781" endline="851">emit_kernel_manifest</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="820" endline="890">emit_kernel_manifest</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1ae2c418c152f247ea5d6c9be09ae02b3f" prot="public" static="no" mutable="no">
         <type>const size_t</type>
@@ -177,7 +177,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" line="97" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_kernel_specs.c" bodystart="97" bodyend="-1"/>
         <referencedby refid="ckernel__codegen_8c_1a131b54ed9c63b8b78d09d9e43792cecd" compoundref="ckernel__codegen_8c" startline="44" endline="55">ck_find_kernel_spec</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="781" endline="851">emit_kernel_manifest</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a44da171956824603104927a1c1af8516" compoundref="ckernel__codegen_8c" startline="820" endline="890">emit_kernel_manifest</referencedby>
       </memberdef>
       <memberdef kind="variable" id="ckernel__kernel__specs_8c_1aa20bb688c0d74340b5300e106e14e72a" prot="public" static="no" mutable="no">
         <type>const <ref refid="structCKKernelSpec" kindref="compound">CKKernelSpec</ref></type>

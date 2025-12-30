@@ -14,6 +14,16 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
       <node id="2">
         <label>stdint.h</label>
@@ -290,10 +300,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4_0.c" line="171" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4_0.c" bodystart="171" bodyend="201"/>
-        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="246">CK_FP16_TO_FP32</references>
-        <references refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" compoundref="ckernel__quant_8h" startline="37">block_q4_0::d</references>
-        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="34">QK4_0</references>
-        <references refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" compoundref="ckernel__quant_8h" startline="38">block_q4_0::qs</references>
+        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="264">CK_FP16_TO_FP32</references>
+        <references refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" compoundref="ckernel__quant_8h" startline="38">block_q4_0::d</references>
+        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="35">QK4_0</references>
+        <references refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" compoundref="ckernel__quant_8h" startline="39">block_q4_0::qs</references>
         <referencedby refid="gemm__kernels__q4__0_8c_1a423cd6b7c6ef81dab2446e07fad37d15" compoundref="gemm__kernels__q4__0_8c" startline="259" endline="269">gemv_q4_0_backward</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4__0_8c_1af35977d728d85efdd22cd2d53768c4b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -371,10 +381,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4_0.c" line="40" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4_0.c" bodystart="40" bodyend="68"/>
-        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="246">CK_FP16_TO_FP32</references>
-        <references refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" compoundref="ckernel__quant_8h" startline="37">block_q4_0::d</references>
-        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="34">QK4_0</references>
-        <references refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" compoundref="ckernel__quant_8h" startline="38">block_q4_0::qs</references>
+        <references refid="ckernel__quant_8h_1a7edd411b02255eed928c775b91396c2a" compoundref="ckernel__quant_8h" startline="264">CK_FP16_TO_FP32</references>
+        <references refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" compoundref="ckernel__quant_8h" startline="38">block_q4_0::d</references>
+        <references refid="ckernel__quant_8h_1a997a3f77c076f00da9fd4f6eb3d2b9da" compoundref="ckernel__quant_8h" startline="35">QK4_0</references>
+        <references refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" compoundref="ckernel__quant_8h" startline="39">block_q4_0::qs</references>
         <referencedby refid="gemm__kernels__q4__0_8c_1afabf6422c50382a3bcc897b43c18f0ac" compoundref="gemm__kernels__q4__0_8c" startline="123" endline="133">gemv_q4_0</referencedby>
       </memberdef>
       </sectiondef>

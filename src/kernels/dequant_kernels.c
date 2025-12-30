@@ -2,7 +2,7 @@
  * @file dequant_kernels.c
  * @brief Dequantization kernels for GGML-compatible formats
  *
- * Implements dequantization from Q4_0, Q4_K, Q8_0 to FP32.
+ * Implements dequantization from Q4_0, Q4_K, Q6_K, Q8_0 to FP32.
  * These kernels are used as building blocks for quantized GEMM/GEMV.
  *
  * Key optimization: Dequantize into registers, use immediately in FMA,
@@ -209,6 +209,56 @@ void dequant_q4_k_row(const void *src, float *dst, size_t n_elements)
     }
 }
 
+/* ============================================================================
+ * Q6_K Dequantization
+ * - 256 weights per block
+ * - 16 sub-blocks of 16 weights, int8 scales + FP16 super-scale
+ * ============================================================================ */
+
+/**
+ * @brief Dequantize a single Q6_K block to FP32
+ */
+void dequant_q6_k_block(const block_q6_K *block, float *output)
+{
+    const float d = GGML_FP16_TO_FP32(block->d);
+    const uint8_t *ql = block->ql;
+    const uint8_t *qh = block->qh;
+    const int8_t *sc = block->scales;
+    float *y = output;
+
+    for (int n = 0; n < QK_K; n += 128) {
+        for (int l = 0; l < 32; ++l) {
+            const int is = l / 16;
+            const int8_t q1 = (int8_t)((ql[l + 0] & 0xF) | (((qh[l] >> 0) & 3) << 4)) - 32;
+            const int8_t q2 = (int8_t)((ql[l + 32] & 0xF) | (((qh[l] >> 2) & 3) << 4)) - 32;
+            const int8_t q3 = (int8_t)((ql[l + 0] >> 4) | (((qh[l] >> 4) & 3) << 4)) - 32;
+            const int8_t q4 = (int8_t)((ql[l + 32] >> 4) | (((qh[l] >> 6) & 3) << 4)) - 32;
+
+            y[l + 0] = d * (float)sc[is + 0] * (float)q1;
+            y[l + 32] = d * (float)sc[is + 2] * (float)q2;
+            y[l + 64] = d * (float)sc[is + 4] * (float)q3;
+            y[l + 96] = d * (float)sc[is + 6] * (float)q4;
+        }
+        y += 128;
+        ql += 64;
+        qh += 32;
+        sc += 8;
+    }
+}
+
+/**
+ * @brief Dequantize Q6_K row (multiple blocks)
+ */
+void dequant_q6_k_row(const void *src, float *dst, size_t n_elements)
+{
+    const block_q6_K *blocks = (const block_q6_K *)src;
+    const size_t n_blocks = n_elements / QK_K;
+
+    for (size_t b = 0; b < n_blocks; b++) {
+        dequant_q6_k_block(&blocks[b], &dst[b * QK_K]);
+    }
+}
+
 #ifdef __AVX512F__
 /**
  * @brief Dequantize one Q4_K sub-block (32 weights) using AVX-512
@@ -300,6 +350,9 @@ void dequant_row(CKDataType dtype, const void *src, float *dst, size_t n_element
         break;
     case CK_DT_Q4_K:
         dequant_q4_k_row(src, dst, n_elements);
+        break;
+    case CK_DT_Q6_K:
+        dequant_q6_k_row(src, dst, n_elements);
         break;
     case CK_DT_Q8_0:
         dequant_q8_0_row(src, dst, n_elements);

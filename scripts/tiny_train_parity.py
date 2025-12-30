@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import struct
 import subprocess
 import sys
 
@@ -139,6 +140,13 @@ def read_bump_weights(path, cfg):
         magic = f.read(8)
         if magic == b"BUMPWGT2":
             f.seek(128)
+        elif magic == b"BUMPWGT3":
+            f.seek(128)
+            raw = f.read(4)
+            if len(raw) != 4:
+                raise ValueError("unexpected EOF while reading dtype table length")
+            (dtype_len,) = struct.unpack("<I", raw)
+            f.seek(128 + 4 + dtype_len)
         else:
             f.seek(0)
 

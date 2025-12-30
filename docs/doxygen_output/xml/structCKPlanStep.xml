@@ -16,7 +16,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="67" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="67" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" compoundref="ckernel__codegen_8c" startline="515" endline="527">ck_plan_step_enabled</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" compoundref="ckernel__codegen_8c" startline="554" endline="566">ck_plan_step_enabled</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKPlanStep_1a07deae3fde9109078baca99987e58ad1" prot="public" static="no" mutable="no">
         <type>const char *</type>
@@ -30,7 +30,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="66" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="66" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8c_1a7e42133d4d709775d7d860a084a457a9" compoundref="ckernel__codegen_8c" startline="529" endline="557">emit_plan_sources</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a7e42133d4d709775d7d860a084a457a9" compoundref="ckernel__codegen_8c" startline="568" endline="596">emit_plan_sources</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

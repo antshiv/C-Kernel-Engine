@@ -14,6 +14,9 @@ CACHE_ALIGN = 64
 FLOAT_SIZE = 4
 HEADER_SIZE = 128
 
+CK_DT_FP32 = 0
+CK_DT_Q4_K = 6
+
 
 def align_up_elems(elems, elem_bytes=FLOAT_SIZE, align_bytes=CACHE_ALIGN):
     if align_bytes == 0:
@@ -92,6 +95,32 @@ def write_matrix_q4_k(w: HashingWriter, mat, out_dim, in_dim, aligned_in, aligne
             row[:in_dim] = mat[r, :in_dim].astype(np.float32)
         bytes_written += write_row_q4_k(w, row)
     return bytes_written
+
+
+def build_dtype_table(num_layers: int, use_q4k: bool) -> bytes:
+    weight_dtype = CK_DT_Q4_K if use_q4k else CK_DT_FP32
+    dtypes = [weight_dtype]  # token_emb
+    dtypes.append(CK_DT_FP32)  # pos_emb
+    for _ in range(num_layers):
+        dtypes.extend([
+            CK_DT_FP32,  # ln1_gamma
+            CK_DT_FP32,  # ln2_gamma
+            weight_dtype,  # wq
+            CK_DT_FP32,  # bq
+            weight_dtype,  # wk
+            CK_DT_FP32,  # bk
+            weight_dtype,  # wv
+            CK_DT_FP32,  # bv
+            weight_dtype,  # wo
+            CK_DT_FP32,  # bo
+            weight_dtype,  # w1
+            CK_DT_FP32,  # b1
+            weight_dtype,  # w2
+            CK_DT_FP32,  # b2
+        ])
+    dtypes.append(CK_DT_FP32)  # final_norm
+    dtypes.append(CK_DT_FP32)  # final_bias
+    return bytes(dtypes)
 
 
 def pack_qkv_weight(weight, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim):
@@ -282,9 +311,14 @@ def main():
 
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
 
+    dtype_table = build_dtype_table(num_layers, q4k)
+
     with open(args.output, "w+b") as f:
         f.write(b"\x00" * HEADER_SIZE)
         w = HashingWriter(f)
+
+        w.write(struct.pack("<I", len(dtype_table)))
+        w.write(dtype_table)
 
         tok = get_tensor(
             state_dict,
@@ -401,8 +435,8 @@ def main():
         f.flush()
         checksum = w.digest()
         f.seek(0)
-        f.write(b"BUMPWGT2")
-        f.write(struct.pack("I", 2))
+        f.write(b"BUMPWGT3")
+        f.write(struct.pack("I", 3))
         f.write(struct.pack("I", 1))
         f.write(struct.pack("I", int(num_layers)))
         f.write(struct.pack("I", int(vocab_size)))

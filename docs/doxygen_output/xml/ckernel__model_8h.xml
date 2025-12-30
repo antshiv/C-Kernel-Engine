@@ -93,7 +93,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_model.h" line="115" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_model_load.c" bodystart="24" bodyend="157" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_model.h" declline="115" declcolumn="5"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_model.h" line="115" column="5" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/ckernel_model_load.c" bodystart="24" bodyend="186" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_model.h" declline="115" declcolumn="5"/>
         <references refid="structCKLayerLayout_1aaece9ea1e0a761b00bdce132c24aa6a0" compoundref="ckernel__model_8h" startline="29">CKLayerLayout::attn_proj_bias_offset</references>
         <references refid="structCKLayerLayout_1ace90b671a13ec6e8cb08fac170a25038" compoundref="ckernel__model_8h" startline="28">CKLayerLayout::attn_proj_weight_offset</references>
         <references refid="structTransformerModel_1af6538865812c32df1cbd785b2d40e370" compoundref="ckernel__model_8h" startline="39">TransformerModel::cfg</references>

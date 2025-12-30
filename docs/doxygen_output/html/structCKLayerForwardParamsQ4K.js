@@ -40,9 +40,15 @@ var structCKLayerForwardParamsQ4K =
     [ "tokens", "structCKLayerForwardParamsQ4K.html#a70dcc9d69d068743233b527d879154b1", null ],
     [ "v", "structCKLayerForwardParamsQ4K.html#a7b17e1545dee689697df5da4751de3ea", null ],
     [ "w1", "structCKLayerForwardParamsQ4K.html#aafad2b7a679b5775026053a2b3cf82b1", null ],
+    [ "w1_dtype", "structCKLayerForwardParamsQ4K.html#ac06d139d08ab948841316c9ff74987f2", null ],
     [ "w2", "structCKLayerForwardParamsQ4K.html#aac721dc3d07b7f9f3a0fcbdc6101e4bb", null ],
+    [ "w2_dtype", "structCKLayerForwardParamsQ4K.html#a07d7c68eeabbb2d5702ba6bdb13a3ebb", null ],
     [ "wk", "structCKLayerForwardParamsQ4K.html#ad6e110f69299b040cd07f83ed612548b", null ],
+    [ "wk_dtype", "structCKLayerForwardParamsQ4K.html#a150feea348e2b0c728b05364bc291d68", null ],
     [ "wo", "structCKLayerForwardParamsQ4K.html#a52ce0d74a3fdff1ea8b04030a733fc1d", null ],
+    [ "wo_dtype", "structCKLayerForwardParamsQ4K.html#aaebd5f600a687e1e30800e831ecc5cb6", null ],
     [ "wq", "structCKLayerForwardParamsQ4K.html#a2b71fe14402b1fa2a52ff6d212a42a21", null ],
-    [ "wv", "structCKLayerForwardParamsQ4K.html#a35349f8d709bd6b19b8bdc1b46cbf10f", null ]
+    [ "wq_dtype", "structCKLayerForwardParamsQ4K.html#ad7671a4ac45c1d65be5e28c03c700d2a", null ],
+    [ "wv", "structCKLayerForwardParamsQ4K.html#a35349f8d709bd6b19b8bdc1b46cbf10f", null ],
+    [ "wv_dtype", "structCKLayerForwardParamsQ4K.html#a1ed95932b94db2f9a45cdb1cc987f6da", null ]
 ];

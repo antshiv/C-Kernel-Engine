@@ -2,6 +2,7 @@ var ckernel__quant_8h =
 [
     [ "block_q4_0", "structblock__q4__0.html", "structblock__q4__0" ],
     [ "block_q4_K", "structblock__q4__K.html", "structblock__q4__K" ],
+    [ "block_q6_K", "structblock__q6__K.html", "structblock__q6__K" ],
     [ "block_q8_0", "structblock__q8__0.html", "structblock__q8__0" ],
     [ "block_q8_K", "structblock__q8__K.html", "structblock__q8__K" ],
     [ "CK_FP16_TO_FP32", "ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a", null ],

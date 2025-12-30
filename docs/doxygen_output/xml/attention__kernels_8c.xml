@@ -229,7 +229,7 @@
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
         <referencedby refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" compoundref="attention__kernels_8c" startline="1071" endline="1092">attention_backward_causal_head_major</referencedby>
         <referencedby refid="ckernel__engine_8h_1a1a95c2e93bfbe603df487d0c0eb5ea2b" compoundref="attention__kernels_8c" startline="884" endline="940">attention_backward_causal_head_major_gqa_bf16</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="1658" endline="1798">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1a1a95c2e93bfbe603df487d0c0eb5ea2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -526,9 +526,10 @@
         <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="116" endline="297">causal_softmax_head_major</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
-        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="587" endline="692">ck_layer_forward_rmsnorm_swiglu</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="694" endline="799">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="749" endline="854">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1af749b0ec6a9cc8a63033fa2069759722" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -700,9 +701,10 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" line="749" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="749" bodyend="796"/>
         <references refid="attention__kernels_8c_1a686599872afcb86c5fc7ad5e5e5b4773">FLASH_QUERY_IMPL</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
-        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="587" endline="692">ck_layer_forward_rmsnorm_swiglu</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1279" endline="1384">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="694" endline="799">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="749" endline="854">ck_layer_forward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1a84803f8c5509c325dd6b9feec50a0493" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -757,10 +759,11 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" line="798" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="798" bodyend="847"/>
         <references refid="attention__kernels_8c_1aba8a26d95a9c96411b5fea006f2097e4">FLASH_QUERY_IMPL_DECODE</references>
-        <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="878" endline="1034">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1036" endline="1187">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
         <referencedby refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" compoundref="attention__decode__fused_8c" startline="165" endline="323">ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__kernels_8c_1a4113194a0a57126146cb4d5471c05bd5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>float *</type>

@@ -15,7 +15,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="72" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="72" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="73" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="73" bodyend="-1"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
@@ -31,7 +31,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="73" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="73" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="74" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="74" bodyend="-1"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
@@ -47,10 +47,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="75" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="75" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="76" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="76" bodyend="-1"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
-        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="86" endline="126">dot_q4_k_q8_k_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a030c98b26ad610ccea6dabf993b60cdf" compoundref="gemm__kernels__q4k__q8k__avx2_8c" startline="78" endline="126">gemv_q4_k_q8_k_avx2</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1a53c1355c32a77df5522e2b8eff8fc3f5" compoundref="gemm__kernels__q4k__q8k__vnni_8c" startline="84" endline="134">gemv_q4_k_q8_k_vnni</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" prot="public" static="no" mutable="no">
@@ -64,7 +66,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="74" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="74" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="75" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="75" bodyend="-1"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
@@ -74,7 +76,7 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="71" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="71" bodyend="76"/>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="72" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="72" bodyend="77"/>
     <listofallmembers>
       <member refid="structblock__q4__K_1a37fe013be58ed82df03c3362450590d3" prot="public" virt="non-virtual"><scope>block_q4_K</scope><name>d</name></member>
       <member refid="structblock__q4__K_1a86e4a2173d9a1def4939ccb248a1bc49" prot="public" virt="non-virtual"><scope>block_q4_K</scope><name>dmin</name></member>

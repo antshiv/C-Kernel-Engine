@@ -16,6 +16,9 @@
     <innerfile refid="gemm__kernels__q4__0_8c">gemm_kernels_q4_0.c</innerfile>
     <innerfile refid="gemm__kernels__q4k_8c">gemm_kernels_q4k.c</innerfile>
     <innerfile refid="gemm__kernels__q4k__q8k_8c">gemm_kernels_q4k_q8k.c</innerfile>
+    <innerfile refid="gemm__kernels__q4k__q8k__avx2_8c">gemm_kernels_q4k_q8k_avx2.c</innerfile>
+    <innerfile refid="gemm__kernels__q4k__q8k__vnni_8c">gemm_kernels_q4k_q8k_vnni.c</innerfile>
+    <innerfile refid="gemm__kernels__q6k_8c">gemm_kernels_q6k.c</innerfile>
     <innerfile refid="gemm__kernels__q8__0_8c">gemm_kernels_q8_0.c</innerfile>
     <innerfile refid="gemm__microkernel_8c">gemm_microkernel.c</innerfile>
     <innerfile refid="kv__cache__kernels_8c">kv_cache_kernels.c</innerfile>
