@@ -64,14 +64,14 @@ def dequant_q6_k_block_ref(block_data: bytes) -> np.ndarray:
     for _ in range(0, QK_K, 128):
         for l in range(32):
             iscale = l // 16
-            q1 = ((ql_ptr[l + 0] & 0xF) | (((qh_ptr[l] >> 0) & 3) << 4)) - 32
-            q2 = ((ql_ptr[l + 32] & 0xF) | (((qh_ptr[l] >> 2) & 3) << 4)) - 32
-            q3 = ((ql_ptr[l + 0] >> 4) | (((qh_ptr[l] >> 4) & 3) << 4)) - 32
-            q4 = ((ql_ptr[l + 32] >> 4) | (((qh_ptr[l] >> 6) & 3) << 4)) - 32
-            y[l + 0] = d * sc_ptr[iscale + 0] * q1
-            y[l + 32] = d * sc_ptr[iscale + 2] * q2
-            y[l + 64] = d * sc_ptr[iscale + 4] * q3
-            y[l + 96] = d * sc_ptr[iscale + 6] * q4
+            q1 = ((int(ql_ptr[l + 0]) & 0xF) | (((int(qh_ptr[l]) >> 0) & 3) << 4)) - 32
+            q2 = ((int(ql_ptr[l + 32]) & 0xF) | (((int(qh_ptr[l]) >> 2) & 3) << 4)) - 32
+            q3 = ((int(ql_ptr[l + 0]) >> 4) | (((int(qh_ptr[l]) >> 4) & 3) << 4)) - 32
+            q4 = ((int(ql_ptr[l + 32]) >> 4) | (((int(qh_ptr[l]) >> 6) & 3) << 4)) - 32
+            y[l + 0] = d * float(sc_ptr[iscale + 0]) * q1
+            y[l + 32] = d * float(sc_ptr[iscale + 2]) * q2
+            y[l + 64] = d * float(sc_ptr[iscale + 4]) * q3
+            y[l + 96] = d * float(sc_ptr[iscale + 6]) * q4
         y = y[128:]
         ql_ptr = ql_ptr[64:]
         qh_ptr = qh_ptr[32:]
