@@ -197,6 +197,12 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
                                            int token_index,
                                            int cache_capacity);
 
+// Decode-style layer forward using fused SwiGLU (gate+up) matvec.
+// Inference-only fast path: produces the same outputs as the unfused decode path.
+void ck_layer_forward_rmsnorm_swiglu_decode_fused(const CKLayerForwardParams *p,
+                                                  int token_index,
+                                                  int cache_capacity);
+
 /* ============================================================================
  * Quantized (Q4_K / Q4_K_M) inference orchestration
  *

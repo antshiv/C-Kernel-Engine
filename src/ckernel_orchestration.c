@@ -863,6 +863,41 @@ static void ck_attention_project_head_major_decode_token(const float *attn_token
     }
 }
 
+static void ck_mlp_swiglu_forward_fused_token(const float *input_row,
+                                              const float *w1,
+                                              const float *b1,
+                                              const float *w2,
+                                              const float *b2,
+                                              float *swiglu_row,
+                                              float *output_row,
+                                              int aligned_embed_dim,
+                                              int aligned_intermediate_dim)
+{
+    if (!input_row || !w1 || !w2 || !swiglu_row || !output_row) {
+        return;
+    }
+
+    const float *w_gate = w1;
+    const float *w_up = w1 + (size_t)aligned_intermediate_dim * (size_t)aligned_embed_dim;
+    const float *b_gate = b1;
+    const float *b_up = b1 ? (b1 + aligned_intermediate_dim) : NULL;
+
+    gemm_swiglu_fused(input_row,
+                      w_gate,
+                      w_up,
+                      b_gate,
+                      b_up,
+                      swiglu_row,
+                      /*M=*/1,
+                      /*N=*/aligned_intermediate_dim,
+                      /*K=*/aligned_embed_dim);
+
+    gemm_blocked_serial(swiglu_row, w2, b2, output_row,
+                        /*M=*/1,
+                        /*N=*/aligned_embed_dim,
+                        /*K=*/aligned_intermediate_dim);
+}
+
 void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
                                            int token_index,
                                            int cache_capacity)
@@ -1012,6 +1047,159 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
                           /*tokens=*/1,
                           aligned_D,
                           aligned_intermediate);
+
+    // Final residual.
+    ck_residual_add_token_major(residual_row,
+                                mlp_row,
+                                out_row,
+                                /*tokens=*/1,
+                                aligned_D);
+}
+
+void ck_layer_forward_rmsnorm_swiglu_decode_fused(const CKLayerForwardParams *p,
+                                                 int token_index,
+                                                 int cache_capacity)
+{
+    if (!p) {
+        return;
+    }
+    if (!p->input || !p->ln1_gamma || !p->ln2_gamma || !p->ln1_out || !p->ln2_out ||
+        !p->wq || !p->wk || !p->wv || !p->wo || !p->w1 || !p->w2 ||
+        !p->k || !p->v || !p->swiglu_out ||
+        !p->proj_tmp || !p->residual1 || !p->mlp_out || !p->output) {
+        return;
+    }
+    if (token_index < 0 || cache_capacity <= 0 || token_index >= cache_capacity) {
+        return;
+    }
+    if (p->num_heads <= 0 || p->num_kv_heads <= 0 || p->aligned_head_dim <= 0) {
+        return;
+    }
+
+    const int D = p->embed_dim;
+    const int aligned_D = p->aligned_embed_dim;
+    const int H = p->num_heads;
+    const int H_kv = p->num_kv_heads;
+    const int hd = p->head_dim;
+    const int ad = p->aligned_head_dim;
+    const int aligned_intermediate = p->aligned_intermediate_dim;
+
+    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
+    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
+    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
+    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+
+    float ln1_rstd_tmp = 0.0f;
+    float ln2_rstd_tmp = 0.0f;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+
+    // Scratch for a single token in head-major layout: [head, aligned_head_dim].
+    size_t q_elems = (size_t)H * (size_t)ad;
+    size_t kv_elems = (size_t)H_kv * (size_t)ad;
+    float q_token[q_elems];
+    float k_token[kv_elems];
+    float v_token[kv_elems];
+    float attn_token[q_elems];
+
+    // LN1 / RMSNorm.
+    rmsnorm_forward(input_row,
+                    p->ln1_gamma,
+                    ln1_row,
+                    ln1_rstd,
+                    /*tokens=*/1,
+                    D,
+                    aligned_D,
+                    p->eps);
+
+    // Project Q/K/V for the new token.
+    ck_qkv_project_head_major_token(ln1_row,
+                                    p->wq, p->bq,
+                                    p->wk, p->bk,
+                                    p->wv, p->bv,
+                                    q_token, k_token, v_token,
+                                    aligned_D,
+                                    H,
+                                    H_kv,
+                                    ad);
+
+    // RoPE for the new token at absolute position `p->rope_pos_offset`.
+    if (p->rope_cos && p->rope_sin) {
+        rope_forward_qk(q_token,
+                        k_token,
+                        p->rope_cos,
+                        p->rope_sin,
+                        H,
+                        H_kv,
+                        /*num_tokens=*/1,
+                        hd,
+                        ad,
+                        p->rope_pos_offset);
+    }
+
+    // Update KV cache (stores k/v for this token and clears padded lanes).
+    kv_cache_write_head_major(k_token,
+                              v_token,
+                              p->k,
+                              p->v,
+                              H_kv,
+                              token_index,
+                              cache_capacity,
+                              hd,
+                              ad);
+
+    // Decode attention for this token using the KV cache.
+    attention_forward_decode_head_major_gqa_flash(q_token,
+                                                  p->k,
+                                                  p->v,
+                                                  attn_token,
+                                                  H,
+                                                  H_kv,
+                                                  /*kv_tokens=*/token_index + 1,
+                                                  cache_capacity,
+                                                  hd,
+                                                  ad);
+
+    // Output projection (Wo) into token-major buffer (decode-specialized).
+    ck_attention_project_head_major_decode_token(attn_token,
+                                                 p->wo,
+                                                 p->bo,
+                                                 proj_row,
+                                                 D,
+                                                 aligned_D,
+                                                 H,
+                                                 ad);
+
+    // Residual + LN2 / RMSNorm.
+    ck_residual_add_token_major(input_row,
+                                proj_row,
+                                residual_row,
+                                /*tokens=*/1,
+                                aligned_D);
+
+    rmsnorm_forward(residual_row,
+                    p->ln2_gamma,
+                    ln2_row,
+                    ln2_rstd,
+                    /*tokens=*/1,
+                    D,
+                    aligned_D,
+                    p->eps);
+
+    // MLP block for this token (fused gate+up projection).
+    ck_mlp_swiglu_forward_fused_token(ln2_row,
+                                      p->w1,
+                                      p->b1,
+                                      p->w2,
+                                      p->b2,
+                                      swiglu_row,
+                                      mlp_row,
+                                      aligned_D,
+                                      aligned_intermediate);
 
     // Final residual.
     ck_residual_add_token_major(residual_row,

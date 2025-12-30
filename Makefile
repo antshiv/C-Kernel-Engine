@@ -227,6 +227,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_mlp.py \
             unittest/test_rmsnorm.py \
             unittest/test_swiglu.py \
+            unittest/test_fused_swiglu_decode.py \
             unittest/test_sigmoid.py \
             unittest/test_relu.py \
             unittest/test_attention.py \
@@ -496,6 +497,7 @@ tests-list:
 	@echo "  unittest/test_cross_entropy.py     - Cross-entropy loss vs PyTorch"
 	@echo "  unittest/test_orchestration_layer.py - Full layer stitch (GQA/MHA)"
 	@echo "  unittest/test_lm_head_litmus.py    - LM head + CE end-to-end test"
+	@echo "  unittest/test_fused_swiglu_decode.py - Fused SwiGLU decode MLP parity"
 	@echo ""
 	@echo "┌──────────────────────────────────────────────────────────────────────────────┐"
 	@echo "│  BF16 Unit Tests                                                             │"
@@ -807,6 +809,7 @@ help:
 	@echo "  unittest/test_swiglu.py      - SwiGLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_relu.py        - ReLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_orchestration_layer.py - Full layer forward stitch vs PyTorch (GQA/MHA)"
+	@echo "  unittest/test_fused_swiglu_decode.py - Fused SwiGLU decode MLP parity"
 	@echo "  unittest/bf16/test_sigmoid_bf16.py     - BF16 sigmoid forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_rmsnorm_bf16.py    - BF16 RMSNorm forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_mlp_bf16.py        - BF16 MLP forward vs PyTorch"

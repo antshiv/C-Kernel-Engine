@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #define CK_VERSION "0.1.0"
 #define CK_CACHE_DIR ".cache/ck-engine/models"
@@ -86,6 +87,8 @@ typedef struct {
     bool generate_only;      /* Generate C file only, don't compile to .so */
     bool debug;              /* Run pre-flight checks and show diagnostics */
     int num_cores;           /* Number of CPU cores to use (0 = auto) */
+    int fuse_swiglu_decode;  /* -1=auto, 0=off, 1=on */
+    bool inference_only;     /* Force inference-only mode */
     char prompt[4096];       /* Optional prompt for non-interactive mode */
 
     /* Model info (parsed from config.json) */
@@ -152,6 +155,9 @@ static void print_usage(void) {
     printf("  --max-tokens <n>  Max tokens to generate (default: 512)\n");
     printf("  --threads <n>     Number of CPU threads to use (default: auto)\n");
     printf("  --ncores <n>      Alias for --threads\n");
+    printf("  --fuse-swiglu-decode  Enable fused SwiGLU in KV-cache decode path (alias: --fused)\n");
+    printf("  --no-fuse-swiglu-decode  Disable fused SwiGLU in KV-cache decode path (alias: --no-fused)\n");
+    printf("  --inference-only Force inference-only mode (disable training env)\n");
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
     printf("  --force-convert   Re-convert weights and recompile\n");
@@ -630,7 +636,7 @@ static int codegen_and_compile(CKConfig *cfg) {
     char model_c[MAX_PATH];
     char model_so[MAX_PATH];
     char model_stamp[MAX_PATH];
-    const char *compile_sig = "ck-model-build-v3-openmp-threads";
+    const char *compile_sig = "ck-model-build-v4-fused-swiglu-decode";
 
     snprintf(model_c, sizeof(model_c), "%s/model.c", cfg->cache_dir);
     snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
@@ -1089,6 +1095,21 @@ static int run_preflight_checks(CKConfig *cfg) {
     return 0;
 }
 
+static void append_env(char *buf, size_t cap, const char *fmt, ...)
+{
+    if (!buf || cap == 0) {
+        return;
+    }
+    size_t len = strlen(buf);
+    if (len >= cap - 1) {
+        return;
+    }
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf + len, cap - len, fmt, args);
+    va_end(args);
+}
+
 static int run_chat(CKConfig *cfg) {
     /* Run pre-flight checks in debug mode */
     if (cfg->debug) {
@@ -1166,6 +1187,20 @@ static int run_chat(CKConfig *cfg) {
             printf(C_DIM "  Using %d CPU cores (OMP_NUM_THREADS=%d, MKL_NUM_THREADS=%d)\n" C_RESET,
                    cfg->num_cores, cfg->num_cores, cfg->num_cores);
         }
+    }
+    if (cfg->fuse_swiglu_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_SWIGLU_DECODE=%d ", cfg->fuse_swiglu_decode);
+    }
+    if (cfg->inference_only) {
+        append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
+    }
+    if (cfg->fuse_swiglu_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_SWIGLU_DECODE=%d ", cfg->fuse_swiglu_decode);
+    }
+    if (cfg->inference_only) {
+        append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
     }
 
     if (cfg->prompt[0] != '\0') {
@@ -1456,6 +1491,8 @@ int main(int argc, char *argv[]) {
         cfg.generate_only = false;
         cfg.debug = false;
         cfg.num_cores = 0;  /* 0 = auto-detect */
+        cfg.fuse_swiglu_decode = -1;
+        cfg.inference_only = false;
 
         /* Parse model argument */
         if (setup_config(&cfg, argv[2]) != 0) {
@@ -1474,6 +1511,12 @@ int main(int argc, char *argv[]) {
                 cfg.max_tokens = atoi(argv[++i]);
             } else if ((strcmp(argv[i], "--threads") == 0 || strcmp(argv[i], "--ncores") == 0) && i + 1 < argc) {
                 cfg.num_cores = atoi(argv[++i]);
+            } else if (strcmp(argv[i], "--fuse-swiglu-decode") == 0 || strcmp(argv[i], "--fused") == 0) {
+                cfg.fuse_swiglu_decode = 1;
+            } else if (strcmp(argv[i], "--no-fuse-swiglu-decode") == 0 || strcmp(argv[i], "--no-fused") == 0) {
+                cfg.fuse_swiglu_decode = 0;
+            } else if (strcmp(argv[i], "--inference-only") == 0) {
+                cfg.inference_only = true;
             } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
                 cfg.verbose = true;
             } else if (strcmp(argv[i], "--force-download") == 0) {
