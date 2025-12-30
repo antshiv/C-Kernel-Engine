@@ -133,6 +133,7 @@ SRCS    := src/backend_native.c \
            src/cpu_features.c \
             src/kernels/gemm_kernels.c \
             src/kernels/gemm_fused_kernels.c \
+            src/kernels/mlp_fused_decode.c \
             src/kernels/gemm_microkernel.c \
 	           src/kernels/layernorm_kernels.c \
 	           src/kernels/layernorm_kernels_bf16.c \
@@ -141,6 +142,7 @@ SRCS    := src/backend_native.c \
 	           src/kernels/softmax_kernels.c \
 	           src/kernels/softmax_kernels_bf16.c \
 	           src/kernels/attention_kernels.c \
+	           src/kernels/attention_decode_fused.c \
 	           src/kernels/embedding_kernels.c \
 	           src/kernels/embedding_kernels_bf16.c \
 	           src/kernels/loss_kernels.c \
@@ -228,6 +230,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_rmsnorm.py \
             unittest/test_swiglu.py \
             unittest/test_fused_swiglu_decode.py \
+            unittest/test_fused_attention_decode.py \
             unittest/test_sigmoid.py \
             unittest/test_relu.py \
             unittest/test_attention.py \
@@ -498,6 +501,7 @@ tests-list:
 	@echo "  unittest/test_orchestration_layer.py - Full layer stitch (GQA/MHA)"
 	@echo "  unittest/test_lm_head_litmus.py    - LM head + CE end-to-end test"
 	@echo "  unittest/test_fused_swiglu_decode.py - Fused SwiGLU decode MLP parity"
+	@echo "  unittest/test_fused_attention_decode.py - Fused attention decode parity"
 	@echo ""
 	@echo "┌──────────────────────────────────────────────────────────────────────────────┐"
 	@echo "│  BF16 Unit Tests                                                             │"
@@ -810,6 +814,7 @@ help:
 	@echo "  unittest/test_relu.py        - ReLU activation forward/backward vs PyTorch"
 	@echo "  unittest/test_orchestration_layer.py - Full layer forward stitch vs PyTorch (GQA/MHA)"
 	@echo "  unittest/test_fused_swiglu_decode.py - Fused SwiGLU decode MLP parity"
+	@echo "  unittest/test_fused_attention_decode.py - Fused attention decode parity"
 	@echo "  unittest/bf16/test_sigmoid_bf16.py     - BF16 sigmoid forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_rmsnorm_bf16.py    - BF16 RMSNorm forward/backward vs PyTorch"
 	@echo "  unittest/bf16/test_mlp_bf16.py        - BF16 MLP forward vs PyTorch"
@@ -828,9 +833,11 @@ TEST_HARNESS_SRCS := src/backend_native.c \
 	src/ckernel_registry.c \
 	src/cpu_features.c \
 	src/kernels/attention_kernels.c \
+	src/kernels/attention_decode_fused.c \
 	src/kernels/gelu_kernels.c \
 	src/kernels/gemm_kernels.c \
 	src/kernels/gemm_fused_kernels.c \
+	src/kernels/mlp_fused_decode.c \
 	src/kernels/gemm_microkernel.c \
 	src/kernels/layernorm_kernels.c \
 	src/kernels/mlp_kernels.c \

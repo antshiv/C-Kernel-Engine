@@ -88,6 +88,7 @@ typedef struct {
     bool debug;              /* Run pre-flight checks and show diagnostics */
     int num_cores;           /* Number of CPU cores to use (0 = auto) */
     int fuse_swiglu_decode;  /* -1=auto, 0=off, 1=on */
+    int fuse_attn_decode;    /* -1=auto, 0=off, 1=on */
     bool inference_only;     /* Force inference-only mode */
     char prompt[4096];       /* Optional prompt for non-interactive mode */
 
@@ -155,8 +156,12 @@ static void print_usage(void) {
     printf("  --max-tokens <n>  Max tokens to generate (default: 512)\n");
     printf("  --threads <n>     Number of CPU threads to use (default: auto)\n");
     printf("  --ncores <n>      Alias for --threads\n");
-    printf("  --fuse-swiglu-decode  Enable fused SwiGLU in KV-cache decode path (alias: --fused)\n");
-    printf("  --no-fuse-swiglu-decode  Disable fused SwiGLU in KV-cache decode path (alias: --no-fused)\n");
+    printf("  --fused           Enable fused decode ops (attention + SwiGLU)\n");
+    printf("  --no-fused        Disable fused decode ops\n");
+    printf("  --fuse-attn-decode  Enable fused attention in KV-cache decode path\n");
+    printf("  --no-fuse-attn-decode  Disable fused attention in KV-cache decode path\n");
+    printf("  --fuse-swiglu-decode  Enable fused SwiGLU in KV-cache decode path\n");
+    printf("  --no-fuse-swiglu-decode  Disable fused SwiGLU in KV-cache decode path\n");
     printf("  --inference-only Force inference-only mode (disable training env)\n");
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
@@ -636,7 +641,7 @@ static int codegen_and_compile(CKConfig *cfg) {
     char model_c[MAX_PATH];
     char model_so[MAX_PATH];
     char model_stamp[MAX_PATH];
-    const char *compile_sig = "ck-model-build-v4-fused-swiglu-decode";
+    const char *compile_sig = "ck-model-build-v5-fused-attn-decode";
 
     snprintf(model_c, sizeof(model_c), "%s/model.c", cfg->cache_dir);
     snprintf(model_so, sizeof(model_so), "%s/libmodel.so", cfg->cache_dir);
@@ -1192,12 +1197,20 @@ static int run_chat(CKConfig *cfg) {
         append_env(thread_env, sizeof(thread_env),
                    "CK_FUSE_SWIGLU_DECODE=%d ", cfg->fuse_swiglu_decode);
     }
+    if (cfg->fuse_attn_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_ATTN_DECODE=%d ", cfg->fuse_attn_decode);
+    }
     if (cfg->inference_only) {
         append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
     }
     if (cfg->fuse_swiglu_decode >= 0) {
         append_env(thread_env, sizeof(thread_env),
                    "CK_FUSE_SWIGLU_DECODE=%d ", cfg->fuse_swiglu_decode);
+    }
+    if (cfg->fuse_attn_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_ATTN_DECODE=%d ", cfg->fuse_attn_decode);
     }
     if (cfg->inference_only) {
         append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
@@ -1492,6 +1505,7 @@ int main(int argc, char *argv[]) {
         cfg.debug = false;
         cfg.num_cores = 0;  /* 0 = auto-detect */
         cfg.fuse_swiglu_decode = -1;
+        cfg.fuse_attn_decode = -1;
         cfg.inference_only = false;
 
         /* Parse model argument */
@@ -1511,10 +1525,20 @@ int main(int argc, char *argv[]) {
                 cfg.max_tokens = atoi(argv[++i]);
             } else if ((strcmp(argv[i], "--threads") == 0 || strcmp(argv[i], "--ncores") == 0) && i + 1 < argc) {
                 cfg.num_cores = atoi(argv[++i]);
-            } else if (strcmp(argv[i], "--fuse-swiglu-decode") == 0 || strcmp(argv[i], "--fused") == 0) {
+            } else if (strcmp(argv[i], "--fused") == 0) {
                 cfg.fuse_swiglu_decode = 1;
-            } else if (strcmp(argv[i], "--no-fuse-swiglu-decode") == 0 || strcmp(argv[i], "--no-fused") == 0) {
+                cfg.fuse_attn_decode = 1;
+            } else if (strcmp(argv[i], "--no-fused") == 0) {
                 cfg.fuse_swiglu_decode = 0;
+                cfg.fuse_attn_decode = 0;
+            } else if (strcmp(argv[i], "--fuse-swiglu-decode") == 0) {
+                cfg.fuse_swiglu_decode = 1;
+            } else if (strcmp(argv[i], "--no-fuse-swiglu-decode") == 0) {
+                cfg.fuse_swiglu_decode = 0;
+            } else if (strcmp(argv[i], "--fuse-attn-decode") == 0) {
+                cfg.fuse_attn_decode = 1;
+            } else if (strcmp(argv[i], "--no-fuse-attn-decode") == 0) {
+                cfg.fuse_attn_decode = 0;
             } else if (strcmp(argv[i], "--inference-only") == 0) {
                 cfg.inference_only = true;
             } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {

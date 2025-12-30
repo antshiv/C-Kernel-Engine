@@ -178,6 +178,55 @@ void gemm_swiglu_fused(const float *x,
                        float *output,
                        int M, int N, int K);
 
+// =============================================================================
+// Fully Fused MLP Decode Kernels (T=1 token generation)
+// =============================================================================
+// These kernels fuse the ENTIRE MLP block: Gate + Up + SwiGLU + Down
+// Key benefit: Intermediate swiglu values stay in L1/L2, never touch DRAM
+// Target: AVX-512 / Intel Xeon 5th Gen (Sapphire/Emerald Rapids)
+
+// Version 1: Tiled fusion with thread-local accumulators
+// Best for: Small number of cores, when critical section overhead is low
+void fused_mlp_swiglu_decode(
+    const float *x,           // [D] input
+    const float *W_gate,      // [Hff, D] gate projection
+    const float *W_up,        // [Hff, D] up projection
+    const float *W_down,      // [D, Hff] down projection
+    const float *b_gate,      // [Hff] or NULL
+    const float *b_up,        // [Hff] or NULL
+    const float *b_down,      // [D] or NULL
+    float *output,            // [D] output
+    int D,                    // hidden dimension
+    int Hff);                 // intermediate dimension
+
+// Version 2: Two-phase (swiglu then down projection)
+// Best for: Many cores (24+), avoids critical section, better parallelism
+void fused_mlp_swiglu_decode_v2(
+    const float *x,
+    const float *W_gate,
+    const float *W_up,
+    const float *W_down,
+    const float *b_gate,
+    const float *b_up,
+    const float *b_down,
+    float *output,
+    int D,
+    int Hff);
+
+// Version 3: Tiled with atomic accumulation
+// Best for: Large L2 cache (2MB+), good cache reuse
+void fused_mlp_swiglu_decode_tiled(
+    const float *x,
+    const float *W_gate,
+    const float *W_up,
+    const float *W_down,
+    const float *b_gate,
+    const float *b_up,
+    const float *b_down,
+    float *output,
+    int D,
+    int Hff);
+
 // High-performance GEMM microkernel with 8x8 register blocking
 // Inspired by oneDNN/BLIS - keeps all 64 accumulator values in registers
 // C[M,N] = A[M,K] @ B[K,N] or C[M,N] = A[M,K] @ B[N,K].T

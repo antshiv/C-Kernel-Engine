@@ -740,138 +740,15 @@ void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p)
                                 p->aligned_embed_dim);
 }
 
-static void ck_qkv_project_head_major_token(const float *input_row,
-                                            const float *wq, const float *bq,
-                                            const float *wk, const float *bk,
-                                            const float *wv, const float *bv,
-                                            float *q_token,
-                                            float *k_token,
-                                            float *v_token,
-                                            int aligned_embed_dim,
-                                            int num_heads,
-                                            int num_kv_heads,
-                                            int aligned_head_dim)
-{
-    // Decode-time QKV is a matrix-vector multiply (tokens=1). Parallelizing over heads
-    // caps parallelism at small head counts (e.g., H=9). Since Wq is stored head-major as
-    // contiguous rows ([H*D_head, D_model] row-major), we can flatten Q heads and expose a
-    // larger N to GEMM for better multi-core utilization.
-    const int q_out = num_heads * aligned_head_dim;
-    gemm_blocked_serial(input_row, wq, bq, q_token,
-                        /*tokens=*/1, q_out, aligned_embed_dim);
-
-    // K/V have fewer heads (GQA), so keep head-parallel projection here to avoid the
-    // overhead of spawning many threads for small N.
-    size_t head_weight_stride = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
-#pragma omp parallel for schedule(static) if(num_kv_heads > 1)
-    for (int h = 0; h < num_kv_heads; ++h) {
-        const float *wk_h = wk + (size_t)h * head_weight_stride;
-        const float *wv_h = wv + (size_t)h * head_weight_stride;
-        const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *k_h = k_token + (size_t)h * (size_t)aligned_head_dim;
-        float *v_h = v_token + (size_t)h * (size_t)aligned_head_dim;
-
-        gemm_blocked_serial(input_row, wk_h, bk_h, k_h,
-                            /*tokens=*/1, aligned_head_dim, aligned_embed_dim);
-        gemm_blocked_serial(input_row, wv_h, bv_h, v_h,
-                            /*tokens=*/1, aligned_head_dim, aligned_embed_dim);
-    }
-}
-
-#if defined(__AVX__) && !defined(__AVX512F__)
-static inline float ck_hsum256_ps(__m256 v)
-{
-    __m128 lo = _mm256_castps256_ps128(v);
-    __m128 hi = _mm256_extractf128_ps(v, 1);
-    __m128 sum128 = _mm_add_ps(lo, hi);
-    __m128 shuf = _mm_movehdup_ps(sum128);
-    __m128 sums = _mm_add_ps(sum128, shuf);
-    shuf = _mm_movehl_ps(shuf, sums);
-    sums = _mm_add_ss(sums, shuf);
-    return _mm_cvtss_f32(sums);
-}
-#endif
-
-static inline float ck_dot_f32(const float *a, const float *b, int len)
-{
-#if defined(__AVX512F__)
-    __m512 acc = _mm512_setzero_ps();
-    int i = 0;
-    for (; i <= len - 16; i += 16) {
-        __m512 va = _mm512_loadu_ps(a + i);
-        __m512 vb = _mm512_loadu_ps(b + i);
-        acc = _mm512_fmadd_ps(va, vb, acc);
-    }
-    float sum = _mm512_reduce_add_ps(acc);
-    for (; i < len; ++i) {
-        sum += a[i] * b[i];
-    }
-    return sum;
-#elif defined(__AVX__)
-    __m256 acc = _mm256_setzero_ps();
-    int i = 0;
-    for (; i <= len - 8; i += 8) {
-        __m256 va = _mm256_loadu_ps(a + i);
-        __m256 vb = _mm256_loadu_ps(b + i);
-        acc = _mm256_add_ps(acc, _mm256_mul_ps(va, vb));
-    }
-    float sum = ck_hsum256_ps(acc);
-    for (; i < len; ++i) {
-        sum += a[i] * b[i];
-    }
-    return sum;
-#else
-    float sum = 0.0f;
-    for (int i = 0; i < len; ++i) {
-        sum += a[i] * b[i];
-    }
-    return sum;
-#endif
-}
-
-// Decode-specialized output projection:
-//   out[embed_dim] = sum_h (attn[h] @ Wo[h]^T) + bias
-// This is equivalent to the loop in ck_attention_project_head_major for tokens=1,
-// but exposes enough parallelism (over output channels) to use many cores.
-static void ck_attention_project_head_major_decode_token(const float *attn_token,
-                                                        const float *wo,
-                                                        const float *bo,
-                                                        float *out_token,
-                                                        int embed_dim,
-                                                        int aligned_embed_dim,
-                                                        int num_heads,
-                                                        int aligned_head_dim)
-{
-    const size_t head_in_stride = (size_t)aligned_head_dim;
-    const size_t head_weight_stride = (size_t)aligned_embed_dim * (size_t)aligned_head_dim;
-
-#pragma omp parallel for schedule(static)
-    for (int j = 0; j < embed_dim; ++j) {
-        float sum = bo ? bo[j] : 0.0f;
-        for (int h = 0; h < num_heads; ++h) {
-            const float *head_in = attn_token + (size_t)h * head_in_stride;
-            const float *wo_row = wo + (size_t)h * head_weight_stride + (size_t)j * (size_t)aligned_head_dim;
-            sum += ck_dot_f32(head_in, wo_row, aligned_head_dim);
-        }
-        out_token[j] = sum;
-    }
-
-    // Clear padded output lanes so downstream GEMMs never see uninitialized data.
-    for (int j = embed_dim; j < aligned_embed_dim; ++j) {
-        out_token[j] = 0.0f;
-    }
-}
-
-static void ck_mlp_swiglu_forward_fused_token(const float *input_row,
-                                              const float *w1,
-                                              const float *b1,
-                                              const float *w2,
-                                              const float *b2,
-                                              float *swiglu_row,
-                                              float *output_row,
-                                              int aligned_embed_dim,
-                                              int aligned_intermediate_dim)
+void ck_mlp_swiglu_forward_fused_token(const float *input_row,
+                                       const float *w1,
+                                       const float *b1,
+                                       const float *w2,
+                                       const float *b2,
+                                       float *swiglu_row,
+                                       float *output_row,
+                                       int aligned_embed_dim,
+                                       int aligned_intermediate_dim)
 {
     if (!input_row || !w1 || !w2 || !swiglu_row || !output_row) {
         return;
@@ -896,6 +773,47 @@ static void ck_mlp_swiglu_forward_fused_token(const float *input_row,
                         /*M=*/1,
                         /*N=*/aligned_embed_dim,
                         /*K=*/aligned_intermediate_dim);
+}
+
+void ck_mlp_swiglu_forward_fully_fused_token(const float *input_row,
+                                              const float *w1,
+                                              const float *b1,
+                                              const float *w2,
+                                              const float *b2,
+                                              float *output_row,
+                                              int embed_dim,
+                                              int intermediate_dim)
+{
+    if (!input_row || !w1 || !w2 || !output_row) {
+        return;
+    }
+
+    // Split w1 into gate and up projections
+    // w1 layout: [2 * intermediate_dim, embed_dim]
+    //   First half: W_gate [intermediate_dim, embed_dim]
+    //   Second half: W_up [intermediate_dim, embed_dim]
+    const float *w_gate = w1;
+    const float *w_up = w1 + (size_t)intermediate_dim * (size_t)embed_dim;
+
+    // Split b1 into gate and up biases (if present)
+    const float *b_gate = b1;
+    const float *b_up = b1 ? (b1 + intermediate_dim) : NULL;
+
+    // w2 is W_down: [embed_dim, intermediate_dim]
+    const float *w_down = w2;
+    const float *b_down = b2;
+
+    // Call the fully fused kernel - eliminates DRAM round-trip for swiglu
+    fused_mlp_swiglu_decode_v2(input_row,
+                                w_gate,
+                                w_up,
+                                w_down,
+                                b_gate,
+                                b_up,
+                                b_down,
+                                output_row,
+                                embed_dim,
+                                intermediate_dim);
 }
 
 void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,

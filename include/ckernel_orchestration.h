@@ -158,6 +158,18 @@ void ck_qkv_project_head_major(const float *input,
                                int num_kv_heads,
                                int aligned_head_dim);
 
+void ck_qkv_project_head_major_token(const float *input_row,
+                                     const float *wq, const float *bq,
+                                     const float *wk, const float *bk,
+                                     const float *wv, const float *bv,
+                                     float *q_token,
+                                     float *k_token,
+                                     float *v_token,
+                                     int aligned_embed_dim,
+                                     int num_heads,
+                                     int num_kv_heads,
+                                     int aligned_head_dim);
+
 void ck_attention_project_head_major(const float *attn_out,
                                      const float *wo,
                                      const float *bo,
@@ -167,6 +179,15 @@ void ck_attention_project_head_major(const float *attn_out,
                                      int aligned_embed_dim,
                                      int num_heads,
                                      int aligned_head_dim);
+
+void ck_attention_project_head_major_decode_token(const float *attn_token,
+                                                  const float *wo,
+                                                  const float *bo,
+                                                  float *out_token,
+                                                  int embed_dim,
+                                                  int aligned_embed_dim,
+                                                  int num_heads,
+                                                  int aligned_head_dim);
 
 void ck_mlp_swiglu_forward(const float *input,
                            const float *w1,
@@ -179,6 +200,29 @@ void ck_mlp_swiglu_forward(const float *input,
                            int tokens,
                            int aligned_embed_dim,
                            int aligned_intermediate_dim);
+
+void ck_mlp_swiglu_forward_fused_token(const float *input_row,
+                                       const float *w1,
+                                       const float *b1,
+                                       const float *w2,
+                                       const float *b2,
+                                       float *swiglu_row,
+                                       float *output_row,
+                                       int aligned_embed_dim,
+                                       int aligned_intermediate_dim);
+
+// Fully fused MLP for decode (single token).
+// All three projections (gate, up, down) fused into one kernel.
+// Eliminates DRAM round-trip for intermediate swiglu values.
+// Best for AVX-512 systems with many cores (24+).
+void ck_mlp_swiglu_forward_fully_fused_token(const float *input_row,
+                                              const float *w1,
+                                              const float *b1,
+                                              const float *w2,
+                                              const float *b2,
+                                              float *output_row,
+                                              int embed_dim,
+                                              int intermediate_dim);
 
 void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p);
 void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p);
@@ -202,6 +246,16 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
 void ck_layer_forward_rmsnorm_swiglu_decode_fused(const CKLayerForwardParams *p,
                                                   int token_index,
                                                   int cache_capacity);
+
+// Decode-style layer forward using fused attention (QKV+RoPE+KV+attention+Wo).
+// Optionally pairs with fused SwiGLU via ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp.
+void ck_layer_forward_rmsnorm_swiglu_decode_fused_attn(const CKLayerForwardParams *p,
+                                                       int token_index,
+                                                       int cache_capacity);
+
+void ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp(const CKLayerForwardParams *p,
+                                                           int token_index,
+                                                           int cache_capacity);
 
 /* ============================================================================
  * Quantized (Q4_K / Q4_K_M) inference orchestration
