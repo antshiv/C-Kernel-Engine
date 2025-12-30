@@ -404,11 +404,11 @@ def main():
         embed_dim = weights["embed_dim"]
         intermediate = weights["intermediate"]
         results = run_case(embed_dim, intermediate, seed=args.seed, weights=weights,
-                          benchmark=args.benchmark, num_iters=args.iters)
+                          benchmark=not args.no_benchmark, num_iters=args.iters)
         shape = f"model={args.model_dir} layer={args.layer} D={embed_dim} Hff={intermediate}"
     else:
         results = run_case(args.embed, args.intermediate, seed=args.seed, weights=None,
-                          benchmark=args.benchmark, num_iters=args.iters)
+                          benchmark=not args.no_benchmark, num_iters=args.iters)
         shape = f"D={args.embed} Hff={args.intermediate}"
 
     report = TestReport(
