@@ -66,6 +66,13 @@ class GGUFError(RuntimeError):
 class GGUFReader:
     def __init__(self, f: BinaryIO) -> None:
         self._f = f
+        try:
+            self._file_size = os.fstat(f.fileno()).st_size
+        except Exception:
+            self._file_size = None
+
+    def file_size(self) -> Optional[int]:
+        return self._file_size
 
     def tell(self) -> int:
         return int(self._f.tell())
@@ -79,6 +86,15 @@ class GGUFReader:
         self._f.seek(int(n), os.SEEK_CUR)
 
     def _read_exact(self, n: int) -> bytes:
+        if n < 0:
+            raise GGUFError(f"Unexpected read size {n}")
+        if self._file_size is not None:
+            remaining = int(self._file_size) - self.tell()
+            if n > remaining:
+                raise GGUFError(
+                    f"Unexpected EOF (wanted {n} bytes, remaining {remaining}). "
+                    "File may be truncated or header counts are corrupt."
+                )
         data = self._f.read(n)
         if len(data) != n:
             raise GGUFError(f"Unexpected EOF (wanted {n} bytes, got {len(data)})")
@@ -436,8 +452,25 @@ def main() -> None:
             raise GGUFError(f"{args.gguf}: invalid magic {magic!r} (expected b'GGUF')")
 
         version = r.u32()
-        n_tensors = r.u32()
-        n_kv = r.u32()
+        # GGUF v2+ stores tensor/kv counts as u64 (v1 used u32).
+        if version >= 2:
+            n_tensors = r.u64()
+            n_kv = r.u64()
+        else:
+            n_tensors = r.u32()
+            n_kv = r.u32()
+
+        file_size = r.file_size()
+        if file_size is not None and file_size < r.tell():
+            raise GGUFError(
+                f"{args.gguf}: file too small for GGUF header "
+                f"(size={file_size}, header={r.tell()})"
+            )
+        if n_tensors > 1_000_000 or n_kv > 1_000_000:
+            raise GGUFError(
+                f"{args.gguf}: GGUF header counts look corrupt "
+                f"(n_tensors={n_tensors}, n_kv={n_kv})"
+            )
 
         meta: Dict[str, object] = {}
         for _ in range(n_kv):

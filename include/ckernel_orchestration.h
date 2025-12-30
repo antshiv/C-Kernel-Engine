@@ -261,7 +261,9 @@ void ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp(const CKLayerForwardP
  * Quantized (Q4_K / Q4_K_M) inference orchestration
  *
  * These entry points mirror the fp32 paths but accept weight matrices stored
- * in GGML-compatible Q4_K blocks. Activations remain fp32.
+ * in GGML-compatible Q4_K blocks. Activations remain fp32 by default; the
+ * decode path can switch to Q8_K activations via CK_Q8K_ACTIVATIONS=1 (or
+ * auto-enable when strict parity is off).
  *
  * Design note:
  *  - If you enable Q4_K weights, ensure the relevant K dimensions are a

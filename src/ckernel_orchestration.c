@@ -2,6 +2,7 @@
 
 #include "ckernel_engine.h"
 #include "ckernel_dtype.h"
+#include "ckernel_quant.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -84,13 +85,35 @@ void ck_qkv_project_head_major(const float *input,
     }
 }
 
+static int ck_q8k_activations_enabled(void)
+{
+    static int cached = -2;
+    if (cached != -2) {
+        return cached;
+    }
+
+    const char *env = getenv("CK_Q8K_ACTIVATIONS");
+    if (!env || !env[0]) {
+        cached = ck_strict_parity_enabled() ? 0 : 1;
+        return cached;
+    }
+    if (env[0] == '0' || env[0] == 'n' || env[0] == 'N' ||
+        env[0] == 'f' || env[0] == 'F') {
+        cached = 0;
+    } else {
+        cached = 1;
+    }
+    return cached;
+}
+
 /* ============================================================================
  * Q4_K (Q4_K_M) forward-only paths
  * ============================================================================
  *
  * These helpers keep the same activation layouts as the fp32 code paths, but
  * accept weight matrices stored as GGML-compatible Q4_K blocks. This is meant
- * for weight-only quantized inference: activations remain fp32.
+ * for weight-only quantized inference: activations remain fp32 by default, but
+ * decode can switch to Q8_K activations via CK_Q8K_ACTIVATIONS=1.
  *
  * Important constraints:
  *   - Q4_K kernels require K (the input dimension) to be a multiple of 256.
@@ -203,6 +226,41 @@ static void ck_mlp_swiglu_forward_q4_k(const float *input,
 
     gemm_nt_q4_k(swiglu_out, w2, b2, output,
                  tokens, aligned_embed_dim, aligned_intermediate_dim);
+}
+
+static void ck_mlp_swiglu_forward_q4_k_q8_k(const float *input,
+                                            const void *w1,
+                                            const float *b1,
+                                            const void *w2,
+                                            const float *b2,
+                                            float *fc1_out,
+                                            float *swiglu_out,
+                                            float *output,
+                                            int aligned_embed_dim,
+                                            int aligned_intermediate_dim)
+{
+    if (!input || !w1 || !w2 || !fc1_out || !swiglu_out || !output) {
+        return;
+    }
+    if ((aligned_embed_dim % QK_K) != 0 || (aligned_intermediate_dim % QK_K) != 0) {
+        return;
+    }
+
+    const int up_dim = 2 * aligned_intermediate_dim;
+    const int q8_blocks_embed = aligned_embed_dim / QK_K;
+    const int q8_blocks_inter = aligned_intermediate_dim / QK_K;
+    const int q8_blocks_max = (q8_blocks_embed > q8_blocks_inter) ? q8_blocks_embed : q8_blocks_inter;
+    block_q8_K q8_buf[q8_blocks_max];
+
+    quantize_row_q8_k(input, q8_buf, aligned_embed_dim);
+    gemm_nt_q4_k_q8_k(q8_buf, w1, b1, fc1_out,
+                      /*M=*/1, /*N=*/up_dim, /*K=*/aligned_embed_dim);
+
+    swiglu_forward(fc1_out, swiglu_out, /*tokens=*/1, aligned_intermediate_dim);
+
+    quantize_row_q8_k(swiglu_out, q8_buf, aligned_intermediate_dim);
+    gemm_nt_q4_k_q8_k(q8_buf, w2, b2, output,
+                      /*M=*/1, /*N=*/aligned_embed_dim, /*K=*/aligned_intermediate_dim);
 }
 
 static void ck_qkv_project_head_major_ref(const float *input,
@@ -1173,6 +1231,51 @@ static void ck_qkv_project_head_major_token_q4_k(const float *input_row,
     }
 }
 
+static void ck_qkv_project_head_major_token_q4_k_q8_k(const block_q8_K *input_q8,
+                                                      const void *wq, const float *bq,
+                                                      const void *wk, const float *bk,
+                                                      const void *wv, const float *bv,
+                                                      float *q_token,
+                                                      float *k_token,
+                                                      float *v_token,
+                                                      int aligned_embed_dim,
+                                                      int num_heads,
+                                                      int num_kv_heads,
+                                                      int aligned_head_dim)
+{
+    if (!input_q8 || !wq || !wk || !wv || !q_token || !k_token || !v_token) {
+        return;
+    }
+
+    const size_t head_w_elems = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
+    const size_t head_w_bytes = ck_dtype_row_bytes(CK_DT_Q4_K, head_w_elems);
+
+    const uint8_t *wq_bytes = (const uint8_t *)wq;
+    const uint8_t *wk_bytes = (const uint8_t *)wk;
+    const uint8_t *wv_bytes = (const uint8_t *)wv;
+
+    for (int h = 0; h < num_heads; ++h) {
+        const void *wq_h = wq_bytes + (size_t)h * head_w_bytes;
+        const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        float *q_h = q_token + (size_t)h * (size_t)aligned_head_dim;
+        gemm_nt_q4_k_q8_k(input_q8, wq_h, bq_h, q_h,
+                          /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+    }
+
+    for (int h = 0; h < num_kv_heads; ++h) {
+        const void *wk_h = wk_bytes + (size_t)h * head_w_bytes;
+        const void *wv_h = wv_bytes + (size_t)h * head_w_bytes;
+        const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
+        float *k_h = k_token + (size_t)h * (size_t)aligned_head_dim;
+        float *v_h = v_token + (size_t)h * (size_t)aligned_head_dim;
+        gemm_nt_q4_k_q8_k(input_q8, wk_h, bk_h, k_h,
+                          /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+        gemm_nt_q4_k_q8_k(input_q8, wv_h, bv_h, v_h,
+                          /*M=*/1, /*N=*/aligned_head_dim, /*K=*/aligned_embed_dim);
+    }
+}
+
 void ck_layer_forward_rmsnorm_swiglu_q4_k(const CKLayerForwardParamsQ4K *p)
 {
     if (!p) {
@@ -1336,6 +1439,118 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                     D,
                     aligned_D,
                     p->eps);
+
+    if (ck_q8k_activations_enabled()) {
+        if ((aligned_D % QK_K) == 0 && (aligned_intermediate % QK_K) == 0) {
+        const int q8_blocks_embed = aligned_D / QK_K;
+        const int q8_blocks_inter = aligned_intermediate / QK_K;
+        const int q8_blocks_max = (q8_blocks_embed > q8_blocks_inter) ? q8_blocks_embed : q8_blocks_inter;
+        block_q8_K q8_buf[q8_blocks_max];
+
+        /* Project Q/K/V with Q8_K activations. */
+        quantize_row_q8_k(ln1_row, q8_buf, aligned_D);
+        ck_qkv_project_head_major_token_q4_k_q8_k(q8_buf,
+                                                  p->wq, p->bq,
+                                                  p->wk, p->bk,
+                                                  p->wv, p->bv,
+                                                  q_token, k_token, v_token,
+                                                  aligned_D,
+                                                  H,
+                                                  H_kv,
+                                                  ad);
+
+        /* RoPE for the new token at absolute position `p->rope_pos_offset`. */
+        if (p->rope_cos && p->rope_sin) {
+            rope_forward_qk(q_token,
+                            k_token,
+                            p->rope_cos,
+                            p->rope_sin,
+                            H,
+                            H_kv,
+                            /*num_tokens=*/1,
+                            hd,
+                            ad,
+                            p->rope_pos_offset);
+        }
+
+        /* Update KV cache. */
+        kv_cache_write_head_major(k_token,
+                                  v_token,
+                                  p->k,
+                                  p->v,
+                                  H_kv,
+                                  token_index,
+                                  cache_capacity,
+                                  hd,
+                                  ad);
+
+        /* Decode attention for this token using the KV cache. */
+        attention_forward_decode_head_major_gqa_flash(q_token,
+                                                      p->k,
+                                                      p->v,
+                                                      attn_token,
+                                                      H,
+                                                      H_kv,
+                                                      /*kv_tokens=*/token_index + 1,
+                                                      cache_capacity,
+                                                      hd,
+                                                      ad);
+
+        /* Quantized output projection (Wo) with Q8_K activations. */
+        quantize_row_q8_k(attn_token, q8_buf, aligned_D);
+        gemm_nt_q4_k_q8_k(q8_buf,
+                          p->wo,
+                          p->bo,
+                          proj_row,
+                          /*M=*/1,
+                          aligned_D,
+                          /*K=*/K_concat);
+
+        for (int j = D; j < aligned_D; ++j) {
+            proj_row[j] = 0.0f;
+        }
+
+        /* Residual + LN2 / RMSNorm. */
+        ck_residual_add_token_major(input_row,
+                                    proj_row,
+                                    residual_row,
+                                    /*tokens=*/1,
+                                    aligned_D);
+
+        rmsnorm_forward(residual_row,
+                        p->ln2_gamma,
+                        ln2_row,
+                        ln2_rstd,
+                        /*tokens=*/1,
+                        D,
+                        aligned_D,
+                        p->eps);
+
+        /* MLP block for this token (Q8_K activations). */
+        int up_dim = 2 * aligned_intermediate;
+        float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
+        float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+
+        ck_mlp_swiglu_forward_q4_k_q8_k(ln2_row,
+                                        p->w1,
+                                        p->b1,
+                                        p->w2,
+                                        p->b2,
+                                        fc1_row,
+                                        swiglu_row,
+                                        mlp_row,
+                                        aligned_D,
+                                        aligned_intermediate);
+
+        /* Final residual. */
+        ck_residual_add_token_major(residual_row,
+                                    mlp_row,
+                                    out_row,
+                                    /*tokens=*/1,
+                                    aligned_D);
+        return;
+        }
+    }
 
     /* Project Q/K/V for the new token (Q4_K weights). */
     ck_qkv_project_head_major_token_q4_k(ln1_row,

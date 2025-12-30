@@ -31,15 +31,21 @@ else
 FMA_FLAGS :=
 endif
 # Detect AVX level
+DEFAULT_AVX_FLAGS :=
 ifneq (,$(findstring avx512f,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx512f $(FMA_FLAGS)
-else ifneq (,$(findstring avx2,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx2 $(FMA_FLAGS)
-else ifneq (,$(findstring avx,$(CPU_FLAGS)))
-AVX_FLAGS ?= -mavx $(FMA_FLAGS)
-else
-AVX_FLAGS ?=
+DEFAULT_AVX_FLAGS := -mavx512f $(FMA_FLAGS)
+ifneq (,$(findstring avx512vnni,$(CPU_FLAGS)))
+DEFAULT_AVX_FLAGS += -mavx512vnni
 endif
+ifneq (,$(findstring avx512_vnni,$(CPU_FLAGS)))
+DEFAULT_AVX_FLAGS += -mavx512vnni
+endif
+else ifneq (,$(findstring avx2,$(CPU_FLAGS)))
+DEFAULT_AVX_FLAGS := -mavx2 $(FMA_FLAGS)
+else ifneq (,$(findstring avx,$(CPU_FLAGS)))
+DEFAULT_AVX_FLAGS := -mavx $(FMA_FLAGS)
+endif
+AVX_FLAGS ?= $(DEFAULT_AVX_FLAGS)
 INCLUDES := -Iinclude
 CFLAGS  := -O3 -fPIC $(OPENMP_FLAG) -Wall $(AVX_FLAGS) $(INCLUDES)
 CXX ?= g++
@@ -168,6 +174,9 @@ SRCS    := src/backend_native.c \
 	           src/kernels/gemm_kernels_bf16.c \
 	           src/kernels/gemm_kernels_q4_0.c \
 	           src/kernels/gemm_kernels_q4k.c \
+	           src/kernels/gemm_kernels_q4k_q8k.c \
+	           src/kernels/gemm_kernels_q4k_q8k_avx2.c \
+	           src/kernels/gemm_kernels_q4k_q8k_vnni.c \
 	           src/kernels/gemm_kernels_q8_0.c \
 	           src/kernels/gemm_kernels_f16.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
@@ -182,7 +191,6 @@ LIB_RELU     := $(BUILD_DIR)/libckernel_relu.so
 LIB_VISION   := $(BUILD_DIR)/libckernel_vision.so
 LIB_ATTENTION := $(BUILD_DIR)/libckernel_attention.so
 LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
-BENCH_GEMM_ONEDNN := $(BUILD_DIR)/bench_gemm_onednn
 
 IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 DEFAULT_CONFIG := default.config.json
@@ -224,6 +232,7 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_softmax.py \
             unittest/test_softmax_backward.py \
             unittest/test_gemm.py \
+            unittest/test_q4_k_q8_k_matvec.py \
             unittest/test_gemm_fused.py \
             unittest/test_gemm_microkernel.py \
             unittest/test_mlp.py \
@@ -326,8 +335,8 @@ $(LIB_ATTENTION): $(BUILD_STAMP) src/kernels/attention_kernels.c src/kernels/sof
 $(LIB_ROPE): $(BUILD_STAMP) src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c include/ckernel_engine.h
 	$(CC) $(CFLAGS) -shared -o $@ src/kernels/rope_kernels.c src/kernels/rope_kernels_bf16.c -lm
 
-$(LIB_QUANT): $(BUILD_STAMP) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
-	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
+$(LIB_QUANT): $(BUILD_STAMP) src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c include/ckernel_quant.h include/ckernel_dtype.h
+	$(CC) $(CFLAGS) -shared -o $@ src/kernels/dequant_kernels.c src/kernels/gemm_kernels_q4_0.c src/kernels/gemm_kernels_q4k.c src/kernels/gemm_kernels_q4k_q8k.c src/kernels/gemm_kernels_q4k_q8k_avx2.c src/kernels/gemm_kernels_q4k_q8k_vnni.c src/kernels/gemm_kernels_q8_0.c src/kernels/gemm_kernels_f16.c -lm
 
 # Convenience alias targets so existing commands still work.
 libckernel_gelu.so: $(LIB_GELU)
@@ -374,6 +383,7 @@ test-libs: $(LIB_GELU) $(LIB_RMSNORM) $(LIB_LN) $(LIB_SOFT) $(LIB_SWIGLU) $(LIB_
 test-quant: $(LIB_QUANT)
 	@set -e; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_quant_kernels.py; \
+	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q4_k_q8_k_matvec.py; \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH $(PYTHON) $(PYTHONFLAGS) unittest/test_q4_k_quantize.py
 
 gguf-inspect:
@@ -487,6 +497,7 @@ tests-list:
 	@echo "  unittest/test_softmax.py           - Causal softmax forward vs PyTorch"
 	@echo "  unittest/test_softmax_backward.py  - Causal softmax backward vs PyTorch"
 	@echo "  unittest/test_gemm.py              - GEMM variants vs PyTorch matmul"
+	@echo "  unittest/test_q4_k_q8_k_matvec.py  - Q4_K x Q8_K matvec (inference)"
 	@echo "  unittest/test_gemm_fused.py        - Fused GEMM+activation (ReLU/GELU/SiLU/SwiGLU)"
 	@echo "  unittest/test_gemm_microkernel.py  - GEMM 8x8 microkernel with register blocking"
 	@echo "  unittest/test_mlp.py               - MLP block forward/backward vs PyTorch"
@@ -519,27 +530,11 @@ tests-list:
 	@echo "  unittest/bf16/test_cross_entropy_bf16.py - BF16 cross-entropy loss"
 	@echo ""
 
-$(BUILD_DIR)/bench_gemm_onednn.o: tools/bench_gemm_onednn.cpp include/ckernel_engine.h
-	$(BENCH_CXX) -O3 -std=c++17 -Iinclude -I$(DNNL_INC) -c -o $@ tools/bench_gemm_onednn.cpp
-
 $(BUILD_DIR)/bench_gemm_gemm_kernels.o: src/kernels/gemm_kernels.c include/ckernel_engine.h
 	$(BENCH_CC) -O3 -Wall $(AVX_FLAGS) $(OPENMP_FLAG) -Iinclude -c -o $@ src/kernels/gemm_kernels.c
 
 $(BUILD_DIR)/bench_gemm_strict.o: src/ckernel_strict.c include/ckernel_engine.h
 	$(BENCH_CC) -O3 -Wall -Iinclude -c -o $@ src/ckernel_strict.c
-
-$(BENCH_GEMM_ONEDNN): $(BUILD_DIR) $(BUILD_DIR)/bench_gemm_onednn.o $(BUILD_DIR)/bench_gemm_gemm_kernels.o $(BUILD_DIR)/bench_gemm_strict.o
-	$(BENCH_CXX) -O3 -o $@ $(BUILD_DIR)/bench_gemm_onednn.o $(BUILD_DIR)/bench_gemm_gemm_kernels.o $(BUILD_DIR)/bench_gemm_strict.o \
-	    -L$(DNNL_LIB) -ldnnl -lm $(OPENMP_FLAG) -Wl,-rpath,$(DNNL_LIB)
-
-bench-gemm-onednn:
-ifeq ($(DNNL_HPP),)
-	@echo "oneDNN headers not found at $(DNNL_INC) (set DNNL_ROOT=/path/to/install)"; \
-	exit 1
-else
-	$(MAKE) $(BENCH_GEMM_ONEDNN)
-	LD_LIBRARY_PATH=$(DNNL_LIB):$$LD_LIBRARY_PATH ./$(BENCH_GEMM_ONEDNN) $(ARGS)
-endif
 
 rope-test: $(LIB) test-libs
 	$(PYTHON) $(PYTHONFLAGS) unittest/test_rope.py
@@ -765,7 +760,6 @@ help:
 	@echo "  make bench_gemm      Compare GEMM: Native vs MKL vs PyTorch"
 	@echo "  make bench_gemm_native  Benchmark GEMM: Native vs PyTorch"
 	@echo "  make bench_gemm_mkl     Benchmark GEMM: MKL vs PyTorch (requires oneAPI MKL)"
-	@echo "  make bench-gemm-onednn  Compare GEMM: oneDNN vs CK (requires oneDNN)"
 	@echo "  make profile-memory  Run Valgrind memcheck on tiny model"
 	@echo "  make profile-heap    Run Valgrind massif heap profiler"
 	@echo "  make profile-cpu     Run perf CPU profiler"
@@ -789,6 +783,7 @@ help:
 	@echo "Main CLI (ollama-style orchestrator):"
 	@echo "  make ck-cli           Build the 'ck' orchestrator CLI"
 	@echo "    ./build/ck run HuggingFaceTB/SmolLM-135M"
+	@echo "    ./build/ck run HuggingFaceTB/SmolLM-135M --threads <n> --inference-only --q8k-activations"
 	@echo "    ./build/ck run https://huggingface.co/Qwen/Qwen2-0.5B --server"
 	@echo "    ./build/ck list     List cached models"
 	@echo "    ./build/ck remove <model>  Remove cached model"

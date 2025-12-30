@@ -106,6 +106,25 @@ void gemm_nt_q4_k(const float *A,
 
 void dequant_q4_k_row(const void *src, float *dst, size_t n_elements);
 
+// Q4_K weights with Q8_K activations (inference-only)
+void quantize_row_q8_k(const float *x, void *y, int k);
+
+void gemv_q4_k_q8_k(float *y,
+                    const void *W,
+                    const void *x_q8,
+                    int M, int K);
+
+void gemm_q4_k_q8_k(float *Y,
+                    const void *W,
+                    const void *X_q8,
+                    int M, int N, int K);
+
+void gemm_nt_q4_k_q8_k(const void *A_q8,
+                       const void *B,
+                       const float *bias,
+                       float *C,
+                       int M, int N, int K);
+
 // GEMM_NN: C[M,N] = A[M,K] @ B[K,N] + bias[N]
 // B is stored row-major as [K,N] (no transpose on B)
 // Used for backward d_input = d_output @ W

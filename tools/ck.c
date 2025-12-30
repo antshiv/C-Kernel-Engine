@@ -89,6 +89,7 @@ typedef struct {
     int num_cores;           /* Number of CPU cores to use (0 = auto) */
     int fuse_swiglu_decode;  /* -1=auto, 0=off, 1=on */
     int fuse_attn_decode;    /* -1=auto, 0=off, 1=on */
+    int q8k_activations;     /* -1=auto, 0=off, 1=on */
     bool inference_only;     /* Force inference-only mode */
     char prompt[4096];       /* Optional prompt for non-interactive mode */
 
@@ -162,6 +163,8 @@ static void print_usage(void) {
     printf("  --no-fuse-attn-decode  Disable fused attention in KV-cache decode path\n");
     printf("  --fuse-swiglu-decode  Enable fused SwiGLU in KV-cache decode path\n");
     printf("  --no-fuse-swiglu-decode  Disable fused SwiGLU in KV-cache decode path\n");
+    printf("  --q8k-activations Enable Q8_K activations for Q4_K decode matvecs\n");
+    printf("  --no-q8k-activations Disable Q8_K activations (use FP32 activations)\n");
     printf("  --inference-only Force inference-only mode (disable training env)\n");
     printf("  --prompt <text>   Run single prompt (non-interactive mode)\n");
     printf("  --force-download  Re-download model files\n");
@@ -1201,6 +1204,10 @@ static int run_chat(CKConfig *cfg) {
         append_env(thread_env, sizeof(thread_env),
                    "CK_FUSE_ATTN_DECODE=%d ", cfg->fuse_attn_decode);
     }
+    if (cfg->q8k_activations >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_Q8K_ACTIVATIONS=%d ", cfg->q8k_activations);
+    }
     if (cfg->inference_only) {
         append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
     }
@@ -1211,6 +1218,10 @@ static int run_chat(CKConfig *cfg) {
     if (cfg->fuse_attn_decode >= 0) {
         append_env(thread_env, sizeof(thread_env),
                    "CK_FUSE_ATTN_DECODE=%d ", cfg->fuse_attn_decode);
+    }
+    if (cfg->q8k_activations >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_Q8K_ACTIVATIONS=%d ", cfg->q8k_activations);
     }
     if (cfg->inference_only) {
         append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
@@ -1296,6 +1307,21 @@ static int run_server(CKConfig *cfg) {
             printf(C_DIM "  Using %d CPU cores (OMP_NUM_THREADS=%d, MKL_NUM_THREADS=%d)\n" C_RESET,
                    cfg->num_cores, cfg->num_cores, cfg->num_cores);
         }
+    }
+    if (cfg->fuse_swiglu_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_SWIGLU_DECODE=%d ", cfg->fuse_swiglu_decode);
+    }
+    if (cfg->fuse_attn_decode >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_FUSE_ATTN_DECODE=%d ", cfg->fuse_attn_decode);
+    }
+    if (cfg->q8k_activations >= 0) {
+        append_env(thread_env, sizeof(thread_env),
+                   "CK_Q8K_ACTIVATIONS=%d ", cfg->q8k_activations);
+    }
+    if (cfg->inference_only) {
+        append_env(thread_env, sizeof(thread_env), "CK_ENABLE_TRAINING=0 ");
     }
 
     char cmd[MAX_CMD];
@@ -1506,6 +1532,7 @@ int main(int argc, char *argv[]) {
         cfg.num_cores = 0;  /* 0 = auto-detect */
         cfg.fuse_swiglu_decode = -1;
         cfg.fuse_attn_decode = -1;
+        cfg.q8k_activations = -1;
         cfg.inference_only = false;
 
         /* Parse model argument */
@@ -1539,6 +1566,10 @@ int main(int argc, char *argv[]) {
                 cfg.fuse_attn_decode = 1;
             } else if (strcmp(argv[i], "--no-fuse-attn-decode") == 0) {
                 cfg.fuse_attn_decode = 0;
+            } else if (strcmp(argv[i], "--q8k-activations") == 0) {
+                cfg.q8k_activations = 1;
+            } else if (strcmp(argv[i], "--no-q8k-activations") == 0) {
+                cfg.q8k_activations = 0;
             } else if (strcmp(argv[i], "--inference-only") == 0) {
                 cfg.inference_only = true;
             } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
