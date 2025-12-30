@@ -100,14 +100,18 @@ static inline __m512 silu_avx512(__m512 x) {
     return _mm512_mul_ps(x, sigmoid);
 }
 
-// Horizontal sum of __m512
+// Horizontal sum of __m512 (AVX-512F only, no DQ required)
 static inline float hsum512_ps(__m512 v) {
+    // Use shuffle-based reduction (AVX-512F compatible)
+    // Reduce 16 -> 8
     __m256 lo = _mm512_castps512_ps256(v);
-    __m256 hi = _mm512_extractf32x8_ps(v, 1);
-    __m256 sum = _mm256_add_ps(lo, hi);
-    __m128 lo128 = _mm256_castps256_ps128(sum);
-    __m128 hi128 = _mm256_extractf128_ps(sum, 1);
+    __m256 hi = _mm256_castpd_ps(_mm512_extractf64x4_pd(_mm512_castps_pd(v), 1));
+    __m256 sum256 = _mm256_add_ps(lo, hi);
+    // Reduce 8 -> 4
+    __m128 lo128 = _mm256_castps256_ps128(sum256);
+    __m128 hi128 = _mm256_extractf128_ps(sum256, 1);
     __m128 sum128 = _mm_add_ps(lo128, hi128);
+    // Reduce 4 -> 2 -> 1
     sum128 = _mm_hadd_ps(sum128, sum128);
     sum128 = _mm_hadd_ps(sum128, sum128);
     return _mm_cvtss_f32(sum128);
