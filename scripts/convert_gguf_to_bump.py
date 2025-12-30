@@ -131,7 +131,7 @@ class GGUFReader:
         return struct.unpack("<d", self._read_exact(8))[0]
 
     def key_str(self) -> str:
-        n = self.u32()
+        n = self.u64()
         return self._read_exact(n).decode("utf-8")
 
     def val_str(self) -> str:
