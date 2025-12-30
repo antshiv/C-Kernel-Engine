@@ -95,8 +95,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels_bf16.c" line="8" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels_bf16.c" bodystart="8" bodyend="40"/>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="30" endline="35">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="37" endline="42">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
         <references refid="ckernel__engine_8h_1aed0168fe0364ab17b0d9dd02b1ac3ffa" compoundref="loss__kernels_8c" startline="5" endline="59">softmax_cross_entropy_loss</references>
       </memberdef>
       </sectiondef>

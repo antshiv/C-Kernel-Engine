@@ -211,11 +211,11 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    free(d_scores_f);</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    free(weights_f);</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00037">bf16_utils.h:37</a></div></div>
-<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00030">bf16_utils.h:30</a></div></div>
-<div class="ttc" id="ackernel__engine_8h_html_a3d0ffc191c77d983b953984f8012589d"><div class="ttname"><a href="ckernel__engine_8h.html#a3d0ffc191c77d983b953984f8012589d">backward_causal_softmax_head_major</a></div><div class="ttdeci">void backward_causal_softmax_head_major(float *d_scores, const float *weights, int num_heads, int num_tokens, int aligned_context_window)</div><div class="ttdef"><b>Definition:</b> <a href="softmax__kernels_8c_source.html#l00051">softmax_kernels.c:51</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00232">bf16_utils.h:232</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00211">bf16_utils.h:211</a></div></div>
+<div class="ttc" id="ackernel__engine_8h_html_a3d0ffc191c77d983b953984f8012589d"><div class="ttname"><a href="ckernel__engine_8h.html#a3d0ffc191c77d983b953984f8012589d">backward_causal_softmax_head_major</a></div><div class="ttdeci">void backward_causal_softmax_head_major(float *d_scores, const float *weights, int num_heads, int num_tokens, int aligned_context_window)</div><div class="ttdef"><b>Definition:</b> <a href="softmax__kernels_8c_source.html#l00345">softmax_kernels.c:345</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="softmax__kernels_8c_source.html#l00051">backward_causal_softmax_head_major()</a>, <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, and <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>.</p>
+<p class="reference">References <a class="el" href="softmax__kernels_8c_source.html#l00345">backward_causal_softmax_head_major()</a>, <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, and <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>.</p>
 
 </div>
 </div>
@@ -277,9 +277,9 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    free(tmp);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;}</div>
-<div class="ttc" id="ackernel__engine_8h_html_a920868f80137fe3e0c9cd11acb7ba567"><div class="ttname"><a href="ckernel__engine_8h.html#a920868f80137fe3e0c9cd11acb7ba567">causal_softmax_head_major</a></div><div class="ttdeci">void causal_softmax_head_major(float *scores, int num_heads, int num_tokens, int aligned_context_window)</div><div class="ttdef"><b>Definition:</b> <a href="softmax__kernels_8c_source.html#l00010">softmax_kernels.c:10</a></div></div>
+<div class="ttc" id="ackernel__engine_8h_html_a920868f80137fe3e0c9cd11acb7ba567"><div class="ttname"><a href="ckernel__engine_8h.html#a920868f80137fe3e0c9cd11acb7ba567">causal_softmax_head_major</a></div><div class="ttdeci">void causal_softmax_head_major(float *scores, int num_heads, int num_tokens, int aligned_context_window)</div><div class="ttdef"><b>Definition:</b> <a href="softmax__kernels_8c_source.html#l00116">softmax_kernels.c:116</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, <a class="el" href="softmax__kernels_8c_source.html#l00010">causal_softmax_head_major()</a>, and <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>.</p>
+<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, <a class="el" href="softmax__kernels_8c_source.html#l00116">causal_softmax_head_major()</a>, and <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>.</p>
 
 </div>
 </div>

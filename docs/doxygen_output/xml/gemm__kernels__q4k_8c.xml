@@ -93,6 +93,54 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="362" column="7" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="362" bodyend="367"/>
         <references refid="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" compoundref="gemm__kernels__q4k_8c" startline="164" endline="174">gemv_q4_k</references>
       </memberdef>
+      <memberdef kind="function" id="gemm__kernels__q4k_8c_1a3175d33b3e513cf585a31f96db726e39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gemm_nt_q4_k</definition>
+        <argsstring>(const float *A, const void *B, const float *bias, float *C, int M, int N, int K)</argsstring>
+        <name>gemm_nt_q4_k</name>
+        <param>
+          <type>const float *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>B</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>bias</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>C</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>M</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>K</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="545" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="545" bodyend="573"/>
+        <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
+        <references refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" compoundref="gemm__kernels__q4k_8c" startline="337" endline="347">gemm_q4_k</references>
+        <referencedby refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" compoundref="ckernel__orchestration_8c" startline="173" endline="207">ck_attention_project_head_major_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1386" endline="1656">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" compoundref="ckernel__orchestration_8c" startline="209" endline="229">ck_mlp_swiglu_forward_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="124" endline="171">ck_qkv_project_head_major_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1189" endline="1232">ck_qkv_project_head_major_token_q4_k</referencedby>
+      </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void gemm_q4_k</definition>
@@ -131,6 +179,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="337" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="337" bodyend="347"/>
         <references refid="gemm__kernels__q4k_8c_1a08a08de1123b852180ff148975b3cbcc" compoundref="gemm__kernels__q4k_8c" startline="193" endline="202">gemm_q4_k_ref</references>
+        <referencedby refid="ckernel__engine_8h_1a3175d33b3e513cf585a31f96db726e39" compoundref="gemm__kernels__q4k_8c" startline="545" endline="573">gemm_nt_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k_8c_1a1a70f4800925dc2cc6dc91a776dd1df7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -259,7 +308,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" line="193" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c" bodystart="193" bodyend="202"/>
         <references refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</references>
-        <referencedby refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" compoundref="gemm__kernels__q4k_8c" startline="337" endline="347">gemm_q4_k</referencedby>
+        <referencedby refid="ckernel__engine_8h_1ac277a5257dc44a48af4ebaa8691806cf" compoundref="gemm__kernels__q4k_8c" startline="337" endline="347">gemm_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -500,7 +549,7 @@
         <references refid="structblock__q4__K_1a3a603ea5f9ee6a3732d96a244cb6a3b5" compoundref="ckernel__quant_8h" startline="74">block_q4_K::scales</references>
         <references refid="ckernel__quant_8h_1adc037213865781c5c1ea63708ef94307" compoundref="ckernel__quant_8h" startline="145" endline="171">unpack_q4_k_scales</references>
         <referencedby refid="gemm__kernels__q4k_8c_1a08a08de1123b852180ff148975b3cbcc" compoundref="gemm__kernels__q4k_8c" startline="193" endline="202">gemm_q4_k_ref</referencedby>
-        <referencedby refid="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" compoundref="gemm__kernels__q4k_8c" startline="164" endline="174">gemv_q4_k</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a9beb124343d26ac4870d92b2f047d643" compoundref="gemm__kernels__q4k_8c" startline="164" endline="174">gemv_q4_k</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
@@ -684,7 +733,7 @@
 <codeline lineno="161"><highlight class="comment">/**</highlight></codeline>
 <codeline lineno="162"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Auto-dispatch<sp/>GEMV<sp/>based<sp/>on<sp/>available<sp/>SIMD</highlight></codeline>
 <codeline lineno="163"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="164" refid="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" kindref="member">gemv_q4_k</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*y,</highlight></codeline>
+<codeline lineno="164" refid="ckernel__engine_8h_1a9beb124343d26ac4870d92b2f047d643" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gemm__kernels__q4k_8c_1a9beb124343d26ac4870d92b2f047d643" kindref="member">gemv_q4_k</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*y,</highlight></codeline>
 <codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*W,</highlight></codeline>
 <codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*x,</highlight></codeline>
 <codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K)</highlight></codeline>
@@ -857,7 +906,7 @@
 <codeline lineno="334"><highlight class="comment">/**</highlight></codeline>
 <codeline lineno="335"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Auto-dispatch<sp/>GEMM<sp/>based<sp/>on<sp/>available<sp/>SIMD</highlight></codeline>
 <codeline lineno="336"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="337" refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" kindref="member">gemm_q4_k</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*Y,</highlight></codeline>
+<codeline lineno="337" refid="ckernel__engine_8h_1ac277a5257dc44a48af4ebaa8691806cf" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" kindref="member">gemm_q4_k</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*Y,</highlight></codeline>
 <codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*W,</highlight></codeline>
 <codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*X,</highlight></codeline>
 <codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K)</highlight></codeline>
@@ -1047,6 +1096,53 @@
 <codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="gemm__kernels__q4k_8c_1a46e8ba6be5972385ee543a75f00ef7a0" kindref="member">gemv_q4_k_backward</ref>(&amp;dX[n<sp/>*<sp/>K],<sp/>W,<sp/>&amp;dY[n<sp/>*<sp/>M],<sp/>M,<sp/>K);</highlight></codeline>
 <codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="526"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"></highlight></codeline>
+<codeline lineno="528"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>============================================================================</highlight></codeline>
+<codeline lineno="529"><highlight class="comment"><sp/>*<sp/>Engine-compatible<sp/>wrapper:<sp/>GEMM_NT<sp/>with<sp/>Q4_K<sp/>weights</highlight></codeline>
+<codeline lineno="530"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="531"><highlight class="comment"><sp/>*<sp/>The<sp/>core<sp/>q4_k<sp/>kernels<sp/>in<sp/>this<sp/>file<sp/>use<sp/>the<sp/>convention:</highlight></codeline>
+<codeline lineno="532"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>W:<sp/>[M_out<sp/>x<sp/>K]<sp/>(quantized<sp/>row-major)</highlight></codeline>
+<codeline lineno="533"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>X:<sp/>[N_batch<sp/>x<sp/>K]<sp/>(fp32)</highlight></codeline>
+<codeline lineno="534"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>Y:<sp/>[N_batch<sp/>x<sp/>M_out]<sp/>(fp32)</highlight></codeline>
+<codeline lineno="535"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="536"><highlight class="comment"><sp/>*<sp/>The<sp/>C-Kernel-Engine<sp/>convention<sp/>for<sp/>NN<sp/>weights<sp/>uses:</highlight></codeline>
+<codeline lineno="537"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>A:<sp/>[M_tokens<sp/>x<sp/>K]<sp/>(fp32)</highlight></codeline>
+<codeline lineno="538"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>B:<sp/>[N_out<sp/>x<sp/>K]<sp/>(quantized<sp/>row-major,<sp/>transposed<sp/>layout)</highlight></codeline>
+<codeline lineno="539"><highlight class="comment"><sp/>*<sp/><sp/><sp/>-<sp/>C:<sp/>[M_tokens<sp/>x<sp/>N_out]<sp/>(fp32)</highlight></codeline>
+<codeline lineno="540"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="541"><highlight class="comment"><sp/>*<sp/>This<sp/>wrapper<sp/>swaps<sp/>(M_out,<sp/>N_batch)<sp/>to<sp/>match<sp/>the<sp/>engine<sp/>layout<sp/>and<sp/>applies</highlight></codeline>
+<codeline lineno="542"><highlight class="comment"><sp/>*<sp/>an<sp/>optional<sp/>bias.</highlight></codeline>
+<codeline lineno="543"><highlight class="comment"><sp/>*<sp/>============================================================================<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="normal"></highlight></codeline>
+<codeline lineno="545" refid="ckernel__engine_8h_1a3175d33b3e513cf585a31f96db726e39" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="gemm__kernels__q4k_8c_1a3175d33b3e513cf585a31f96db726e39" kindref="member">gemm_nt_q4_k</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*A,</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*B,</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*<ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K)</highlight></codeline>
+<codeline lineno="550"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!A<sp/>||<sp/>!B<sp/>||<sp/>!<ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(M<sp/>&lt;=<sp/>0<sp/>||<sp/>N<sp/>&lt;=<sp/>0<sp/>||<sp/>K<sp/>&lt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"></highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>gemm_q4_k<sp/>produces<sp/>Y<sp/>as<sp/>[batch<sp/>x<sp/>M_out].<sp/>Here:</highlight></codeline>
+<codeline lineno="559"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/><sp/><sp/>batch<sp/>=<sp/>M<sp/>(tokens)</highlight></codeline>
+<codeline lineno="560"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/><sp/><sp/>M_out<sp/>=<sp/>N<sp/>(output<sp/>channels)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" kindref="member">gemm_q4_k</ref>(<ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/>B,<sp/>A,<sp/></highlight><highlight class="comment">/*M_out=*/</highlight><highlight class="normal">N,<sp/></highlight><highlight class="comment">/*N_batch=*/</highlight><highlight class="normal">M,<sp/>K);</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"></highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bias)<sp/>{</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"></highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>M;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*row<sp/>=<sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref><sp/>+<sp/>(size_t)i<sp/>*<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)N;</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>N;<sp/>++j)<sp/>{</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>row[j]<sp/>+=<sp/>bias[j];</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="573"><highlight class="normal">}</highlight></codeline>
     </programlisting>
     <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k.c"/>
   </compounddef>

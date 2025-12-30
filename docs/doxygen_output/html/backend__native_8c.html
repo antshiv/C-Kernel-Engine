@@ -134,7 +134,7 @@ $(document).ready(function(){initNavTree('backend__native_8c.html',''); initResi
 Functions</h2></td></tr>
 <tr class="memitem:a6c6a2e37aa74b6f118d94eb08debcff3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structCKMathBackend.html">CKMathBackend</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="backend__native_8c.html#a6c6a2e37aa74b6f118d94eb08debcff3">ckernel_backend_native</a> (void)</td></tr>
 <tr class="separator:a6c6a2e37aa74b6f118d94eb08debcff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9008610196b2d6750454c58f87a6cc78"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="backend__native_8c.html#a9008610196b2d6750454c58f87a6cc78">ckernel_sgemm_native</a> (int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *C, int ldc)</td></tr>
+<tr class="memitem:a9008610196b2d6750454c58f87a6cc78"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="backend__native_8c.html#a9008610196b2d6750454c58f87a6cc78">ckernel_sgemm_native</a> (int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *<a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int ldc)</td></tr>
 <tr class="separator:a9008610196b2d6750454c58f87a6cc78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -254,7 +254,7 @@ Functions</h2></td></tr>
 <p>Layout assumptions (identical to C-Transformer/main.c):</p><ul>
 <li>A: [M x K], row-major, A(i,k) = A[i*K + k]</li>
 <li>B: [N x K], row-major, B(j,k) = B[j*K + k]</li>
-<li>C: [M x N], row-major, C(i,j) = C[i*N + j]</li>
+<li>C: [M x N], row-major, <a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C(i,j)</a> = C[i*N + j]</li>
 </ul>
 <p>This is a straight copy of gemm_blocked_serial with a thin wrapper to match the <a class="el" href="structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4">CKMathBackend.sgemm</a> signature. It is intentionally minimal. </p>
 
@@ -263,7 +263,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="comment">/* Honor caller-provided strides so padded matrices still compute correctly. */</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; M; ++i) {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keyword">const</span> <span class="keywordtype">float</span> *a_row = A + (size_t)i * lda;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keywordtype">float</span> *c_row = C + (size_t)i * ldc;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keywordtype">float</span> *c_row = <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> + (size_t)i * ldc;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; N; ++j) {</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            <span class="keywordtype">float</span> sum = bias ? bias[j] : 0.0f;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;            <span class="keyword">const</span> <span class="keywordtype">float</span> *b_row = B + (size_t)j * ldb;</div>
@@ -274,7 +274,10 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        }</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    }</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;}</div>
+<div class="ttc" id="ashow__config_8c_html_a3d5cffd490a70d568b820514b5a0f937"><div class="ttname"><a href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a></div><div class="ttdeci">#define C(color)</div><div class="ttdef"><b>Definition:</b> <a href="show__config_8c_source.html#l00039">show_config.c:39</a></div></div>
 </div><!-- fragment -->
+<p class="reference">References <a class="el" href="show__config_8c_source.html#l00039">C</a>.</p>
+
 <p class="reference">Referenced by <a class="el" href="backend__native_8c_source.html#l00039">ckernel_backend_native()</a>.</p>
 
 </div>

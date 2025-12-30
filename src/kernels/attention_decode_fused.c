@@ -124,6 +124,8 @@ void ck_attention_project_head_major_decode_token(const float *attn_token,
     }
 }
 
+// Per-output dot products keep the attn token hot, but can be slower than a matvec
+// microkernel on some CPUs.
 static void ck_attention_project_head_major_decode_token_residual(const float *attn_token,
                                                                   const float *wo,
                                                                   const float *bo,
@@ -286,8 +288,8 @@ static void ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl(const CKLayer
                     p->eps);
 
     if (fuse_mlp) {
-        // Use fully fused MLP kernel - all 3 projections in one pass
-        // Eliminates DRAM round-trip for swiglu intermediate values
+        // Fully fused MLP avoids writing SwiGLU activations to DRAM (aligned dims
+        // match padded weight layout).
         ck_mlp_swiglu_forward_fully_fused_token(ln2_row,
                                                  p->w1,
                                                  p->b1,

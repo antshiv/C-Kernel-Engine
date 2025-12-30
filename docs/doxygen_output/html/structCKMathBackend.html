@@ -131,7 +131,7 @@ $(document).ready(function(){initNavTree('structCKMathBackend.html',''); initRes
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a7e59ba4baa9c776241287338a219d9c4"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4">sgemm</a> )(int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *C, int ldc)</td></tr>
+<tr class="memitem:a7e59ba4baa9c776241287338a219d9c4"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4">sgemm</a> )(int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *<a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int ldc)</td></tr>
 <tr class="separator:a7e59ba4baa9c776241287338a219d9c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -140,7 +140,7 @@ Data Fields</h2></td></tr>
 <p>Layout assumptions (LLM-style shapes):</p><ul>
 <li>A: [M x K], row-major, A(i,k) = A[i*K + k]</li>
 <li>B: [N x K], row-major, B(j,k) = B[j*K + k]</li>
-<li>C: [M x N], row-major, C(i,j) = C[i*N + j]</li>
+<li>C: [M x N], row-major, <a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C(i,j)</a> = C[i*N + j]</li>
 <li>bias: optional [N], added per output column j </li>
 </ul>
 
@@ -153,7 +153,7 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* CKMathBackend::sgemm) (int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *C, int ldc)</td>
+          <td class="memname">void(* CKMathBackend::sgemm) (int M, int N, int K, const float *A, int lda, const float *B, int ldb, const float *bias, float *<a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int ldc)</td>
         </tr>
       </table>
 </div><div class="memdoc">

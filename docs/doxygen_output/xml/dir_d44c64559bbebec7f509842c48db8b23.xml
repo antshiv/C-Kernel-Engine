@@ -15,6 +15,7 @@
     <innerfile refid="ckernel__quant_8h">ckernel_quant.h</innerfile>
     <innerfile refid="ckernel__registry_8h">ckernel_registry.h</innerfile>
     <innerfile refid="cpu__features_8h">cpu_features.h</innerfile>
+    <innerfile refid="system__topology_8h">system_topology.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

@@ -90,13 +90,23 @@ for page in "$PAGES_DIR"/*.html; do
 
         # Clear all nav active states
         header="${header//\{\{NAV_INDEX\}\}/}"
+        header="${header//\{\{NAV_QUICKSTART\}\}/}"
+        header="${header//\{\{NAV_DEVGUIDE\}\}/}"
+        header="${header//\{\{NAV_SCALING\}\}/}"
         header="${header//\{\{NAV_ARCHITECTURE\}\}/}"
         header="${header//\{\{NAV_KERNELS\}\}/}"
+        header="${header//\{\{NAV_GEMM\}\}/}"
+        header="${header//\{\{NAV_QUANTIZATION\}\}/}"
+        header="${header//\{\{NAV_SIMD\}\}/}"
         header="${header//\{\{NAV_CODEGEN\}\}/}"
-        header="${header//\{\{NAV_BENCHMARKS\}\}/}"
+        header="${header//\{\{NAV_MEMORY\}\}/}"
+        header="${header//\{\{NAV_PROFILING\}\}/}"
+        header="${header//\{\{NAV_CONCEPTS\}\}/}"
+        header="${header//\{\{NAV_TESTING\}\}/}"
         header="${header//\{\{NAV_PARITY\}\}/}"
         header="${header//\{\{NAV_RESEARCH\}\}/}"
         header="${header//\{\{NAV_API\}\}/}"
+        header="${header//\{\{NAV_CONTRIBUTING\}\}/}"
 
         if [ -n "$nav_active" ]; then
             header="${header//\{\{NAV_${nav_active^^}\}\}/active}"

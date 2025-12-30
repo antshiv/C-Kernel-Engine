@@ -103,10 +103,12 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" line="11" column="7" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/sigmoid_kernels.c" bodystart="11" bodyend="14"/>
         <referencedby refid="ckernel__engine_8h_1aad3b3666d63fcbaa243ad4a988e187d8" compoundref="sigmoid__kernels_8c" startline="123" endline="138">sigmoid_backward</referencedby>
         <referencedby refid="ckernel__engine_8h_1af621782be75fb6a9acf541f7935b87d5" compoundref="sigmoid__kernels_8c" startline="107" endline="118">sigmoid_forward</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" compoundref="swiglu__kernels_8c" startline="45" endline="76">swiglu_backward</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a77fb89fc5fa2dcc73d9d37ccf9c50322" compoundref="swiglu__kernels__bf16_8c" startline="32" endline="67">swiglu_backward_bf16</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="13" endline="35">swiglu_forward</referencedby>
-        <referencedby refid="ckernel__engine_8h_1a41a1dfc5976b7c2e2539a2811dc0b07f" compoundref="swiglu__kernels__bf16_8c" startline="6" endline="30">swiglu_forward_bf16</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" compoundref="swiglu__kernels_8c" startline="192" endline="301">swiglu_backward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a77fb89fc5fa2dcc73d9d37ccf9c50322" compoundref="swiglu__kernels__bf16_8c" startline="92" endline="152">swiglu_backward_bf16</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a771ec9e8b054416576cf1788ea8d3747" compoundref="swiglu__kernels_8c" startline="334" endline="366">swiglu_backward_exact</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" compoundref="swiglu__kernels_8c" startline="111" endline="182">swiglu_forward</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a41a1dfc5976b7c2e2539a2811dc0b07f" compoundref="swiglu__kernels__bf16_8c" startline="50" endline="90">swiglu_forward_bf16</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a102617ea5d170076dc9e1d6ac167617c" compoundref="swiglu__kernels_8c" startline="308" endline="331">swiglu_forward_exact</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

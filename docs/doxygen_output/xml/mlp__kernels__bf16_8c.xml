@@ -125,8 +125,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" line="29" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_bf16.c" bodystart="310" bodyend="362" declfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" declline="29" declcolumn="13"/>
-        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="7" endline="15">bf16_to_float</references>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" line="29" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_bf16.c" bodystart="291" bodyend="343" declfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" declline="29" declcolumn="13"/>
+        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
+        <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
         <referencedby refid="ckernel__engine_8h_1a488697bbc4656ba8037ab3eb79314e5e" compoundref="mlp__kernels__bf16_8c" startline="85" endline="191">mlp_token_parallel_bf16</referencedby>
         <referencedby refid="mlp__kernels__bf16_8c_1ad863c8765e72bbaf7d00c2ec7a577fd4" compoundref="mlp__kernels__bf16_8c" startline="198" endline="269">mlp_token_parallel_bf16_fp32act</referencedby>
       </memberdef>
@@ -189,10 +190,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" line="85" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" bodystart="85" bodyend="191"/>
-        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="7" endline="15">bf16_to_float</references>
-        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="17" endline="28">float_to_bf16</references>
+        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
+        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
         <references refid="mlp__kernels__bf16_8c_1a27c361a6bca1a4eb302dcecfc2d4b53c" compoundref="mlp__kernels__bf16_8c" startline="34" endline="40">gelu_scalar</references>
-        <references refid="mlp__kernels__bf16_8c_1a8647bb8c6a9a965a92e1c98330f237af" compoundref="gemm__kernels__bf16_8c" startline="310" endline="362">gemm_bf16_fp32out</references>
+        <references refid="mlp__kernels__bf16_8c_1a8647bb8c6a9a965a92e1c98330f237af" compoundref="gemm__kernels__bf16_8c" startline="291" endline="343">gemm_bf16_fp32out</references>
       </memberdef>
       <memberdef kind="function" id="mlp__kernels__bf16_8c_1ad863c8765e72bbaf7d00c2ec7a577fd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -247,10 +248,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" line="198" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels_bf16.c" bodystart="198" bodyend="269"/>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="30" endline="35">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="37" endline="42">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
         <references refid="mlp__kernels__bf16_8c_1a27c361a6bca1a4eb302dcecfc2d4b53c" compoundref="mlp__kernels__bf16_8c" startline="34" endline="40">gelu_scalar</references>
-        <references refid="mlp__kernels__bf16_8c_1a8647bb8c6a9a965a92e1c98330f237af" compoundref="gemm__kernels__bf16_8c" startline="310" endline="362">gemm_bf16_fp32out</references>
+        <references refid="mlp__kernels__bf16_8c_1a8647bb8c6a9a965a92e1c98330f237af" compoundref="gemm__kernels__bf16_8c" startline="291" endline="343">gemm_bf16_fp32out</references>
       </memberdef>
       </sectiondef>
     <briefdescription>
@@ -287,7 +288,7 @@
 <codeline lineno="27"><highlight class="normal"></highlight></codeline>
 <codeline lineno="28"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Forward<sp/>declaration<sp/>of<sp/>optimized<sp/>BF16<sp/>GEMM<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="mlp__kernels__bf16_8c_1a8647bb8c6a9a965a92e1c98330f237af" kindref="member">gemm_bf16_fp32out</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*A,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*B,</highlight></codeline>
-<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*C,</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*bias,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*<ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,</highlight></codeline>
 <codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>M,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>K);</highlight></codeline>
 <codeline lineno="32"><highlight class="normal"></highlight></codeline>
 <codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>GELU<sp/>activation:<sp/>0.5<sp/>*<sp/>x<sp/>*<sp/>(1<sp/>+<sp/>tanh(sqrt(2/pi)<sp/>*<sp/>(x<sp/>+<sp/>0.044715<sp/>*<sp/>x^3)))<sp/>*/</highlight><highlight class="normal"></highlight></codeline>

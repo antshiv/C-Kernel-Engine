@@ -136,9 +136,9 @@ $(document).ready(function(){initNavTree('vision__kernels__bf16_8c.html',''); in
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a57139580e075be2d5a65cfffc8e84898"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vision__kernels__bf16_8c.html#a57139580e075be2d5a65cfffc8e84898">im2patch_bf16</a> (const uint16_t *image, uint16_t *patches, int C, int H, int W, int P)</td></tr>
+<tr class="memitem:a57139580e075be2d5a65cfffc8e84898"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vision__kernels__bf16_8c.html#a57139580e075be2d5a65cfffc8e84898">im2patch_bf16</a> (const uint16_t *image, uint16_t *patches, int <a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int H, int W, int P)</td></tr>
 <tr class="separator:a57139580e075be2d5a65cfffc8e84898"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee95c2d2b45191471be617739a41ac0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vision__kernels__bf16_8c.html#aee95c2d2b45191471be617739a41ac0d">patch2im_bf16</a> (const uint16_t *d_patches, uint16_t *d_image, int C, int H, int W, int P)</td></tr>
+<tr class="memitem:aee95c2d2b45191471be617739a41ac0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vision__kernels__bf16_8c.html#aee95c2d2b45191471be617739a41ac0d">patch2im_bf16</a> (const uint16_t *d_patches, uint16_t *d_image, int <a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int H, int W, int P)</td></tr>
 <tr class="separator:aee95c2d2b45191471be617739a41ac0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -194,20 +194,20 @@ Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="vision__kernels__bf16_8c_source.html#l00008">8</a> of file <a class="el" href="vision__kernels__bf16_8c_source.html">vision_kernels_bf16.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;{</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordflow">if</span> (!image || !patches || C &lt;= 0 || H &lt;= 0 || W &lt;= 0 || P &lt;= 0) {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordflow">if</span> (!image || !patches || <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> &lt;= 0 || H &lt;= 0 || W &lt;= 0 || P &lt;= 0) {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    }</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">int</span> num_patches_h = H / P;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">int</span> num_patches_w = W / P;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span> patch_dim = C * P * P;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span> patch_dim = <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> * P * P;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ph = 0; ph &lt; num_patches_h; ++ph) {</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> pw = 0; pw &lt; num_patches_w; ++pw) {</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;            <span class="keywordtype">int</span> patch_idx = ph * num_patches_w + pw;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            uint16_t *dst_patch = patches + (size_t)patch_idx * (<span class="keywordtype">size_t</span>)patch_dim;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> c = 0; c &lt; C; ++c) {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> c = 0; c &lt; <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>; ++c) {</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> py = 0; py &lt; P; ++py) {</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                    <span class="keywordtype">int</span> y = ph * P + py;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                    <span class="keywordtype">int</span> x = pw * P;</div>
@@ -221,7 +221,10 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        }</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    }</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;}</div>
+<div class="ttc" id="ashow__config_8c_html_a3d5cffd490a70d568b820514b5a0f937"><div class="ttname"><a href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a></div><div class="ttdeci">#define C(color)</div><div class="ttdef"><b>Definition:</b> <a href="show__config_8c_source.html#l00039">show_config.c:39</a></div></div>
 </div><!-- fragment -->
+<p class="reference">References <a class="el" href="show__config_8c_source.html#l00039">C</a>.</p>
+
 </div>
 </div>
 <a id="aee95c2d2b45191471be617739a41ac0d"></a>
@@ -276,22 +279,22 @@ Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="vision__kernels__bf16_8c_source.html#l00043">43</a> of file <a class="el" href="vision__kernels__bf16_8c_source.html">vision_kernels_bf16.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;{</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordflow">if</span> (!d_patches || !d_image || C &lt;= 0 || H &lt;= 0 || W &lt;= 0 || P &lt;= 0) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordflow">if</span> (!d_patches || !d_image || <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> &lt;= 0 || H &lt;= 0 || W &lt;= 0 || P &lt;= 0) {</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">int</span> num_patches_h = H / P;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">int</span> num_patches_w = W / P;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">int</span> patch_dim = C * P * P;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">int</span> patch_dim = <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> * P * P;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    memset(d_image, 0, (<span class="keywordtype">size_t</span>)C * (<span class="keywordtype">size_t</span>)H * (<span class="keywordtype">size_t</span>)W * <span class="keyword">sizeof</span>(uint16_t));</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    memset(d_image, 0, (<span class="keywordtype">size_t</span>)<a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> * (<span class="keywordtype">size_t</span>)H * (<span class="keywordtype">size_t</span>)W * <span class="keyword">sizeof</span>(uint16_t));</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ph = 0; ph &lt; num_patches_h; ++ph) {</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> pw = 0; pw &lt; num_patches_w; ++pw) {</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            <span class="keywordtype">int</span> patch_idx = ph * num_patches_w + pw;</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            <span class="keyword">const</span> uint16_t *src_patch = d_patches + (size_t)patch_idx * (<span class="keywordtype">size_t</span>)patch_dim;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> c = 0; c &lt; C; ++c) {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> c = 0; c &lt; <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>; ++c) {</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;                <span class="keywordflow">for</span> (<span class="keywordtype">int</span> py = 0; py &lt; P; ++py) {</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;                    <span class="keywordtype">int</span> y = ph * P + py;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;                    <span class="keywordtype">int</span> x = pw * P;</div>
@@ -308,10 +311,10 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        }</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a174b16a92b3a5972230d7519fc0c5aa3"><div class="ttname"><a href="bf16__utils_8h.html#a174b16a92b3a5972230d7519fc0c5aa3">float_to_bf16</a></div><div class="ttdeci">static uint16_t float_to_bf16(float f)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00017">bf16_utils.h:17</a></div></div>
-<div class="ttc" id="abf16__utils_8h_html_a314c3970fd5e2770d19b1bb49aefcf94"><div class="ttname"><a href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a></div><div class="ttdeci">static float bf16_to_float(uint16_t v)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00007">bf16_utils.h:7</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a174b16a92b3a5972230d7519fc0c5aa3"><div class="ttname"><a href="bf16__utils_8h.html#a174b16a92b3a5972230d7519fc0c5aa3">float_to_bf16</a></div><div class="ttdeci">static uint16_t float_to_bf16(float f)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00090">bf16_utils.h:90</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a314c3970fd5e2770d19b1bb49aefcf94"><div class="ttname"><a href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a></div><div class="ttdeci">static float bf16_to_float(uint16_t v)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00038">bf16_utils.h:38</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00007">bf16_to_float()</a>, and <a class="el" href="bf16__utils_8h_source.html#l00017">float_to_bf16()</a>.</p>
+<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00038">bf16_to_float()</a>, <a class="el" href="show__config_8c_source.html#l00039">C</a>, and <a class="el" href="bf16__utils_8h_source.html#l00090">float_to_bf16()</a>.</p>
 
 </div>
 </div>

@@ -16,6 +16,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="88" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="88" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -29,6 +31,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="86" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="86" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structblock__q8__K_1ac7219c4dba2b1f4192beca610a3999fc" prot="public" static="no" mutable="no">
         <type>int8_t</type>
@@ -42,6 +46,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="87" column="12" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="87" bodyend="-1"/>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" compoundref="gemm__kernels__q4k__q8k_8c" startline="24" endline="74">quantize_row_q8_k</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

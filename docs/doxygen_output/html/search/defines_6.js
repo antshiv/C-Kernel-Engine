@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['k_5fscale_5fsize_1298',['K_SCALE_SIZE',['../ckernel__quant_8h.html#a35e7df2837511bd7d807cc770a1f2524',1,'ckernel_quant.h']]],
-  ['kc_1299',['KC',['../gemm__microkernel_8c.html#a73764abcca0b8bbf6bf355d9f1bab0b9',1,'gemm_microkernel.c']]]
+  ['huge_5fpage_5fsize_1810',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
 ];

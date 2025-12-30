@@ -139,6 +139,14 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="ckernel__engine_8h.html#a27adb4761d436aeea3317ce0595dc67a">ckernel_engine.h</a>
 , <a class="el" href="gelu__kernels__bf16_8c.html#a27adb4761d436aeea3317ce0595dc67a">gelu_kernels_bf16.c</a>
 </li>
+<li>gelu_backward_scalar()
+: <a class="el" href="ckernel__engine_8h.html#ac4d3711dee095194f24437af73ad1763">ckernel_engine.h</a>
+, <a class="el" href="gelu__kernels_8c.html#ac4d3711dee095194f24437af73ad1763">gelu_kernels.c</a>
+</li>
+<li>gelu_exact_inplace()
+: <a class="el" href="ckernel__engine_8h.html#a315f43ac44656b5d77360d9879c5f122">ckernel_engine.h</a>
+, <a class="el" href="gelu__kernels_8c.html#a315f43ac44656b5d77360d9879c5f122">gelu_kernels.c</a>
+</li>
 <li>gelu_fast_inplace()
 : <a class="el" href="ckernel__engine_8h.html#abc5977fca1e95c2406a779657c4d2365">ckernel_engine.h</a>
 , <a class="el" href="gelu__kernels_8c.html#abc5977fca1e95c2406a779657c4d2365">gelu_kernels.c</a>
@@ -151,8 +159,8 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="mlp__kernels__bf16_8c.html#a27c361a6bca1a4eb302dcecfc2d4b53c">mlp_kernels_bf16.c</a>
 </li>
 <li>gemm_avx512_parallel()
-: <a class="el" href="gemm__kernels_8c.html#a9af477f77eb64b2cdd2ccddae9c84e72">gemm_kernels.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a9af477f77eb64b2cdd2ccddae9c84e72">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a9af477f77eb64b2cdd2ccddae9c84e72">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels_8c.html#a9af477f77eb64b2cdd2ccddae9c84e72">gemm_kernels.c</a>
 </li>
 <li>gemm_bf16_fp32out()
 : <a class="el" href="gemm__kernels__bf16_8c.html#a8647bb8c6a9a965a92e1c98330f237af">gemm_kernels_bf16.c</a>
@@ -198,12 +206,12 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="gemm__microkernel_8c.html#a2ecba71250e316cfb6a7415be7346f1c">gemm_microkernel.c</a>
 </li>
 <li>gemm_microkernel()
-: <a class="el" href="gemm__microkernel_8c.html#a594a440cd88e67b89068125123f52c9e">gemm_microkernel.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a594a440cd88e67b89068125123f52c9e">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a594a440cd88e67b89068125123f52c9e">ckernel_engine.h</a>
+, <a class="el" href="gemm__microkernel_8c.html#a594a440cd88e67b89068125123f52c9e">gemm_microkernel.c</a>
 </li>
 <li>gemm_microkernel_blocked()
-: <a class="el" href="ckernel__engine_8h.html#ac779265214c020d37db4915eee9937c8">ckernel_engine.h</a>
-, <a class="el" href="gemm__microkernel_8c.html#ac779265214c020d37db4915eee9937c8">gemm_microkernel.c</a>
+: <a class="el" href="gemm__microkernel_8c.html#ac779265214c020d37db4915eee9937c8">gemm_microkernel.c</a>
+, <a class="el" href="ckernel__engine_8h.html#ac779265214c020d37db4915eee9937c8">ckernel_engine.h</a>
 </li>
 <li>gemm_microkernel_blocked_bt()
 : <a class="el" href="ckernel__engine_8h.html#add90afcf3ff08dff14e0c824ad1075f6">ckernel_engine.h</a>
@@ -227,8 +235,8 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="gemm__kernels_8c.html#a155ee359c94e8d25746f5a2828c6c448">gemm_kernels.c</a>
 </li>
 <li>gemm_nn_avx512()
-: <a class="el" href="gemm__kernels_8c.html#a91c10e18555ecb27791d5405c8dc3ae4">gemm_kernels.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a91c10e18555ecb27791d5405c8dc3ae4">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a91c10e18555ecb27791d5405c8dc3ae4">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels_8c.html#a91c10e18555ecb27791d5405c8dc3ae4">gemm_kernels.c</a>
 </li>
 <li>gemm_nn_bf16()
 : <a class="el" href="gemm__kernels__bf16_8c.html#ab1ff051870eb81a06b9d60bcda0c9399">gemm_kernels_bf16.c</a>
@@ -244,6 +252,17 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 <li>gemm_nn_serial_double()
 : <a class="el" href="gemm__kernels_8c.html#a2731fd00008f7e887e94ec03af77325d">gemm_kernels.c</a>
 </li>
+<li>gemm_nt_matvec_parallel()
+: <a class="el" href="gemm__kernels_8c.html#a44c450ce25774bb9d5fab4e5fd172e98">gemm_kernels.c</a>
+</li>
+<li>gemm_nt_q4_k()
+: <a class="el" href="ckernel__engine_8h.html#a3175d33b3e513cf585a31f96db726e39">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels__q4k_8c.html#a3175d33b3e513cf585a31f96db726e39">gemm_kernels_q4k.c</a>
+</li>
+<li>gemm_nt_q4_k_q8_k()
+: <a class="el" href="ckernel__engine_8h.html#a64fc7f7c8582355c66edf044b9858964">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels__q4k__q8k_8c.html#a64fc7f7c8582355c66edf044b9858964">gemm_kernels_q4k_q8k.c</a>
+</li>
 <li>gemm_q4_0()
 : <a class="el" href="gemm__kernels__q4__0_8c.html#aa2d4cca5c7fc6941f9218d2882612ddc">gemm_kernels_q4_0.c</a>
 </li>
@@ -251,10 +270,18 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="gemm__kernels__q4__0_8c.html#a5922964b94d53325488493e8aeeb9a9b">gemm_kernels_q4_0.c</a>
 </li>
 <li>gemm_q4_k()
-: <a class="el" href="gemm__kernels__q4k_8c.html#ac277a5257dc44a48af4ebaa8691806cf">gemm_kernels_q4k.c</a>
+: <a class="el" href="ckernel__engine_8h.html#ac277a5257dc44a48af4ebaa8691806cf">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels__q4k_8c.html#ac277a5257dc44a48af4ebaa8691806cf">gemm_kernels_q4k.c</a>
 </li>
 <li>gemm_q4_k_backward()
 : <a class="el" href="gemm__kernels__q4k_8c.html#a1a70f4800925dc2cc6dc91a776dd1df7">gemm_kernels_q4k.c</a>
+</li>
+<li>gemm_q4_k_q8_k()
+: <a class="el" href="gemm__kernels__q4k__q8k_8c.html#ac52baba628268303f41c01413c445024">gemm_kernels_q4k_q8k.c</a>
+, <a class="el" href="ckernel__engine_8h.html#ac52baba628268303f41c01413c445024">ckernel_engine.h</a>
+</li>
+<li>gemm_q4_k_q8_k_ref()
+: <a class="el" href="gemm__kernels__q4k__q8k_8c.html#aaded34941ab8fd3ab697bcf9699fef6e">gemm_kernels_q4k_q8k.c</a>
 </li>
 <li>gemm_q4_k_ref()
 : <a class="el" href="gemm__kernels__q4k_8c.html#a08a08de1123b852180ff148975b3cbcc">gemm_kernels_q4k.c</a>
@@ -312,13 +339,21 @@ $(document).ready(function(){initNavTree('globals_func_g.html',''); initResizabl
 : <a class="el" href="gemm__kernels__q4__0_8c.html#af35977d728d85efdd22cd2d53768c4b0">gemm_kernels_q4_0.c</a>
 </li>
 <li>gemv_q4_k()
-: <a class="el" href="gemm__kernels__q4k_8c.html#a9beb124343d26ac4870d92b2f047d643">gemm_kernels_q4k.c</a>
+: <a class="el" href="ckernel__engine_8h.html#a9beb124343d26ac4870d92b2f047d643">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels__q4k_8c.html#a9beb124343d26ac4870d92b2f047d643">gemm_kernels_q4k.c</a>
 </li>
 <li>gemv_q4_k_backward()
 : <a class="el" href="gemm__kernels__q4k_8c.html#a46e8ba6be5972385ee543a75f00ef7a0">gemm_kernels_q4k.c</a>
 </li>
 <li>gemv_q4_k_backward_ref()
 : <a class="el" href="gemm__kernels__q4k_8c.html#a5932901345563fd991c906b9bd5afcdb">gemm_kernels_q4k.c</a>
+</li>
+<li>gemv_q4_k_q8_k()
+: <a class="el" href="ckernel__engine_8h.html#abd2ce09c06d448b502b30fac01bc1d30">ckernel_engine.h</a>
+, <a class="el" href="gemm__kernels__q4k__q8k_8c.html#abd2ce09c06d448b502b30fac01bc1d30">gemm_kernels_q4k_q8k.c</a>
+</li>
+<li>gemv_q4_k_q8_k_ref()
+: <a class="el" href="gemm__kernels__q4k__q8k_8c.html#ac01f8caf84e100f3c72919c71217010e">gemm_kernels_q4k_q8k.c</a>
 </li>
 <li>gemv_q4_k_ref()
 : <a class="el" href="gemm__kernels__q4k_8c.html#a55c547c2be59d44bfaadc80d08858117">gemm_kernels_q4k.c</a>

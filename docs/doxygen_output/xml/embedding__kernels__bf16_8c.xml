@@ -108,8 +108,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" line="58" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="58" bodyend="99"/>
-        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="7" endline="15">bf16_to_float</references>
-        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="17" endline="28">float_to_bf16</references>
+        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
+        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
       </memberdef>
       <memberdef kind="function" id="embedding__kernels__bf16_8c_1a6d58689c662e670a5423eedd0291d6b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -163,8 +163,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" line="7" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="7" bodyend="56"/>
-        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="7" endline="15">bf16_to_float</references>
-        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="17" endline="28">float_to_bf16</references>
+        <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
+        <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
       </memberdef>
       </sectiondef>
     <briefdescription>

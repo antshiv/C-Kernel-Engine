@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_5f_5fattribute_5f_5f_741',['__attribute__',['../gemm__kernels__bf16_8c.html#a36f229bbda63818246ec86181b1fdd42',1,'gemm_kernels_bf16.c']]]
+  ['_5f_5fattribute_5f_5f_1026',['__attribute__',['../gemm__kernels__bf16_8c.html#a36f229bbda63818246ec86181b1fdd42',1,'gemm_kernels_bf16.c']]]
 ];

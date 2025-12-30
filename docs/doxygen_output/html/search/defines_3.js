@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['fp16_5fto_5ffp32_1290',['fp16_to_fp32',['../gemm__kernels__f16_8c.html#a5f379940f9b0147bf4f339d732f3341d',1,'gemm_kernels_f16.c']]],
-  ['fp32_5fto_5ffp16_1291',['fp32_to_fp16',['../gemm__kernels__f16_8c.html#ae9f44b9540b2b8d83760c1941ce8ccd2',1,'gemm_kernels_f16.c']]]
+  ['dim_1799',['DIM',['../show__config_8c.html#ac25189db92959bff3c6c2adf4c34b50a',1,'show_config.c']]]
 ];

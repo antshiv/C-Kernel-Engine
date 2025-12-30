@@ -1,9 +1,12 @@
 var annotated_dup =
 [
+    [ "AffinityInfo", "structAffinityInfo.html", "structAffinityInfo" ],
     [ "block_q4_0", "structblock__q4__0.html", "structblock__q4__0" ],
     [ "block_q4_K", "structblock__q4__K.html", "structblock__q4__K" ],
     [ "block_q8_0", "structblock__q8__0.html", "structblock__q8__0" ],
     [ "block_q8_K", "structblock__q8__K.html", "structblock__q8__K" ],
+    [ "CacheInfo", "structCacheInfo.html", "structCacheInfo" ],
+    [ "CacheTopology", "structCacheTopology.html", "structCacheTopology" ],
     [ "CKBufferSpec", "structCKBufferSpec.html", "structCKBufferSpec" ],
     [ "CKDimToken", "structCKDimToken.html", "structCKDimToken" ],
     [ "CKInputRef", "structCKInputRef.html", "structCKInputRef" ],
@@ -13,6 +16,7 @@ var annotated_dup =
     [ "CKKernelSpec", "structCKKernelSpec.html", "structCKKernelSpec" ],
     [ "CKLayerBackwardParams", "structCKLayerBackwardParams.html", "structCKLayerBackwardParams" ],
     [ "CKLayerForwardParams", "structCKLayerForwardParams.html", "structCKLayerForwardParams" ],
+    [ "CKLayerForwardParamsQ4K", "structCKLayerForwardParamsQ4K.html", "structCKLayerForwardParamsQ4K" ],
     [ "CKLayerLayout", "structCKLayerLayout.html", "structCKLayerLayout" ],
     [ "CKMathBackend", "structCKMathBackend.html", "structCKMathBackend" ],
     [ "CKMemPool", "structCKMemPool.html", "structCKMemPool" ],
@@ -24,5 +28,16 @@ var annotated_dup =
     [ "CKVocabEntry", "structCKVocabEntry.html", "structCKVocabEntry" ],
     [ "CPUInfo", "structCPUInfo.html", "structCPUInfo" ],
     [ "GEMMParams", "structGEMMParams.html", "structGEMMParams" ],
+    [ "MemoryInfo", "structMemoryInfo.html", "structMemoryInfo" ],
+    [ "MemorySlot", "structMemorySlot.html", "structMemorySlot" ],
+    [ "NetworkInterface", "structNetworkInterface.html", "structNetworkInterface" ],
+    [ "NetworkTopology", "structNetworkTopology.html", "structNetworkTopology" ],
+    [ "NUMANode", "structNUMANode.html", "structNUMANode" ],
+    [ "NUMATopology", "structNUMATopology.html", "structNUMATopology" ],
+    [ "PCIeDevice", "structPCIeDevice.html", "structPCIeDevice" ],
+    [ "PCIeTopology", "structPCIeTopology.html", "structPCIeTopology" ],
+    [ "Recommendation", "structRecommendation.html", "structRecommendation" ],
+    [ "RecommendationList", "structRecommendationList.html", "structRecommendationList" ],
+    [ "SystemTopology", "structSystemTopology.html", "structSystemTopology" ],
     [ "TransformerModel", "structTransformerModel.html", "structTransformerModel" ]
 ];

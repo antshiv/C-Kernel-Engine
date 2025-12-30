@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.9.1" xml:lang="en-US">
+  <compound refid="structAffinityInfo" kind="struct"><name>AffinityInfo</name>
+    <member refid="structAffinityInfo_1a905e3d4bab481748227b9b65665a82fa" kind="variable"><name>affinity_cpus</name></member>
+    <member refid="structAffinityInfo_1ad7c543698d7fa66a65b006a8e16e5368" kind="variable"><name>affinity_set</name></member>
+    <member refid="structAffinityInfo_1aa8aceed4896f9d850b42199624e74f02" kind="variable"><name>num_affinity_cpus</name></member>
+    <member refid="structAffinityInfo_1a335a14b8b3b93f722ef8e2b6455122f5" kind="variable"><name>omp_num_threads</name></member>
+    <member refid="structAffinityInfo_1ac336f376702b1b1724111b291c9fac84" kind="variable"><name>omp_places</name></member>
+    <member refid="structAffinityInfo_1aed549054fb9376cc874f3d8d710d1e89" kind="variable"><name>omp_proc_bind</name></member>
+  </compound>
   <compound refid="structblock__q4__0" kind="struct"><name>block_q4_0</name>
     <member refid="structblock__q4__0_1a10fb3b42900b17eb3524821658b871b9" kind="variable"><name>d</name></member>
     <member refid="structblock__q4__0_1a494b8bced6d0e46eb9b990397dfe2721" kind="variable"><name>qs</name></member>
@@ -18,6 +26,19 @@
     <member refid="structblock__q8__K_1ad3e3b87f42780053e576d03c01ac4176" kind="variable"><name>bsums</name></member>
     <member refid="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" kind="variable"><name>d</name></member>
     <member refid="structblock__q8__K_1ac7219c4dba2b1f4192beca610a3999fc" kind="variable"><name>qs</name></member>
+  </compound>
+  <compound refid="structCacheInfo" kind="struct"><name>CacheInfo</name>
+    <member refid="structCacheInfo_1a2bbafb632144b03c4ac4d74fea63b438" kind="variable"><name>level</name></member>
+    <member refid="structCacheInfo_1a6998f8578822bdc01a41f3a9d695e7ac" kind="variable"><name>line_size_bytes</name></member>
+    <member refid="structCacheInfo_1aefdbeadd9d601084c823c530a35e4e5c" kind="variable"><name>shared_by_cores</name></member>
+    <member refid="structCacheInfo_1af0d7fd2b3b6d58a409f2e91419970a87" kind="variable"><name>size_kb</name></member>
+    <member refid="structCacheInfo_1a2d480cc7cf9fcab61720174ffad45770" kind="variable"><name>type</name></member>
+    <member refid="structCacheInfo_1a9ad45f782f3a898bbd3848b8a5f52d83" kind="variable"><name>ways_of_associativity</name></member>
+  </compound>
+  <compound refid="structCacheTopology" kind="struct"><name>CacheTopology</name>
+    <member refid="structCacheTopology_1aad6fb272149cb50628325bed91adfa37" kind="variable"><name>l3_total_kb</name></member>
+    <member refid="structCacheTopology_1a312d10896e318962d7a948eb04aaddd0" kind="variable"><name>levels</name></member>
+    <member refid="structCacheTopology_1a7d8f011d2962b633861d25e320df4d7b" kind="variable"><name>num_levels</name></member>
   </compound>
   <compound refid="structck__huge__alloc__entry__t" kind="struct"><name>ck_huge_alloc_entry_t</name>
     <member refid="structck__huge__alloc__entry__t_1aa8e497bf3b899693add04d9cc165c844" kind="variable"><name>len</name></member>
@@ -186,6 +207,53 @@
     <member refid="structCKLayerForwardParams_1a621ed21298acc47932068d4a97ba72d7" kind="variable"><name>wq</name></member>
     <member refid="structCKLayerForwardParams_1a7e8ccf20ccec87eb230737334d589f5d" kind="variable"><name>wv</name></member>
   </compound>
+  <compound refid="structCKLayerForwardParamsQ4K" kind="struct"><name>CKLayerForwardParamsQ4K</name>
+    <member refid="structCKLayerForwardParamsQ4K_1abf258991c7054233b5c72f0370862c42" kind="variable"><name>aligned_context_window</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a00e5d63076d9e3306bb3b189a47b1e14" kind="variable"><name>aligned_embed_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ada91d4c0f5e6040aca475655f7f1bcab" kind="variable"><name>aligned_head_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a4384a52ba7c2f30d4895d3edd4321cab" kind="variable"><name>aligned_intermediate_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a3372d9668e65bc5a77fcdb3e69547af3" kind="variable"><name>attn_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a2aecde76c05afca045048df499be02f5" kind="variable"><name>b1</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a715be17f92fbcb0aa10ce00dcde62939" kind="variable"><name>b2</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a882236cfb15923ee4962013a53f893a0" kind="variable"><name>bk</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1aaaba47dd4ef07fdb1a6662a88c2014cb" kind="variable"><name>bo</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a5624ab23e1e9c41d5ea3b4b9e8569d03" kind="variable"><name>bq</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a1c7b2b14198b4296631e7169eec94919" kind="variable"><name>bv</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ad8373aa2774d6b69c1e4ea1d151d2646" kind="variable"><name>embed_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a002187e74b3fa26e39bd17a965c72f8b" kind="variable"><name>eps</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a7871fd5d96ccc288a12c6e08415c82dc" kind="variable"><name>fc1_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a8f8ca9f6b17918a424041cc9003229e9" kind="variable"><name>head_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ad73e1dbeb642314392d9bd140dd0aff8" kind="variable"><name>input</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1af9afcd6bc50e22482a16dd1237aee02e" kind="variable"><name>intermediate_dim</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a31e2ba79a8c69429c6e31c20ee1c6efa" kind="variable"><name>k</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1afae06ea5bb1f1d1aed99a1bfd54dd6bf" kind="variable"><name>ln1_gamma</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a7ea6e14a98a47d72837f92f2a5601566" kind="variable"><name>ln1_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a658fef23434f9427fab5f76ef0cea95a" kind="variable"><name>ln1_rstd</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a5241512944a07c6e9e9beee22d05c566" kind="variable"><name>ln2_gamma</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1af0407fc50e027301417628d774a41ff3" kind="variable"><name>ln2_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a2309c41abca4ad1bc357dd780e55fecb" kind="variable"><name>ln2_rstd</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a755532817e588edf60f4f9cf86f52f07" kind="variable"><name>mlp_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a5f55a51a93b0a9b2f02520fd02c8dd0e" kind="variable"><name>num_heads</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1aac37dcd8276a700a4a0123a4f3af8dc3" kind="variable"><name>num_kv_heads</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a2532f454e8565aafe5bc975e518e90e2" kind="variable"><name>output</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ac6fb5da685cc15ae713f5760f2c05c41" kind="variable"><name>proj_scratch</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a66da64885aa1cf87cb9e687ad7fcd34b" kind="variable"><name>proj_tmp</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a63efa0f23630574508730fb141c113e9" kind="variable"><name>q</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a7ae4c7affb31c2e7a6ad09688e56ba42" kind="variable"><name>residual1</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a2ddfb5a4e6442a028d7475dc1e9266cd" kind="variable"><name>rope_cos</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a1923b2ba97133951c6705efd90978c72" kind="variable"><name>rope_pos_offset</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a716869dbb8759abc3d3d236ba7482383" kind="variable"><name>rope_sin</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a9b6d571cb8120f8b62ca87a176edb0f2" kind="variable"><name>scores</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a976fb97749625cdc0f8e16e690c5e5a0" kind="variable"><name>swiglu_out</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a70dcc9d69d068743233b527d879154b1" kind="variable"><name>tokens</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a7b17e1545dee689697df5da4751de3ea" kind="variable"><name>v</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1aafad2b7a679b5775026053a2b3cf82b1" kind="variable"><name>w1</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1aac721dc3d07b7f9f3a0fcbdc6101e4bb" kind="variable"><name>w2</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1ad6e110f69299b040cd07f83ed612548b" kind="variable"><name>wk</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a52ce0d74a3fdff1ea8b04030a733fc1d" kind="variable"><name>wo</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a2b71fe14402b1fa2a52ff6d212a42a21" kind="variable"><name>wq</name></member>
+    <member refid="structCKLayerForwardParamsQ4K_1a35349f8d709bd6b19b8bdc1b46cbf10f" kind="variable"><name>wv</name></member>
+  </compound>
   <compound refid="structCKLayerLayout" kind="struct"><name>CKLayerLayout</name>
     <member refid="structCKLayerLayout_1aaece9ea1e0a761b00bdce132c24aa6a0" kind="variable"><name>attn_proj_bias_offset</name></member>
     <member refid="structCKLayerLayout_1ace90b671a13ec6e8cb08fac170a25038" kind="variable"><name>attn_proj_weight_offset</name></member>
@@ -257,15 +325,41 @@
     <member refid="structCKVocabEntry_1a667d73bdaec1e4affe0a3f5f397aba85" kind="variable"><name>token_len</name></member>
   </compound>
   <compound refid="structCPUInfo" kind="struct"><name>CPUInfo</name>
+    <member refid="structCPUInfo_1acfedda3a3d92c0fd6dde00f5757fdf92" kind="variable"><name>base_freq_mhz</name></member>
+    <member refid="structCPUInfo_1a56944d65b1cfd32ed417f22613fd3625" kind="variable"><name>cores_per_socket</name></member>
+    <member refid="structCPUInfo_1a943858d53173dca145611d8cb192f0ca" kind="variable"><name>family</name></member>
+    <member refid="structCPUInfo_1ac41947b54c3a9b315338aee3113b5714" kind="variable"><name>has_amx</name></member>
+    <member refid="structCPUInfo_1a7983ac279a57f5d5992248d720452dfe" kind="variable"><name>has_amx_bf16</name></member>
+    <member refid="structCPUInfo_1a660af436345a21868c7c6f0160cd7513" kind="variable"><name>has_amx_int8</name></member>
+    <member refid="structCPUInfo_1ad5a579994982f5cee575bb9674abd238" kind="variable"><name>has_amx_tile</name></member>
     <member refid="structCPUInfo_1a6981442ec8c03e3486d68e5011cbe02c" kind="variable"><name>has_avx</name></member>
+    <member refid="structCPUInfo_1ac02376e5e445112e00ec31ff39f0bd17" kind="variable"><name>has_avx</name></member>
     <member refid="structCPUInfo_1a5392c3ca44cc97b171ee980e48408e03" kind="variable"><name>has_avx2</name></member>
+    <member refid="structCPUInfo_1ade0ca8a679c8ba6761283507550f2b84" kind="variable"><name>has_avx2</name></member>
+    <member refid="structCPUInfo_1a2f0697cf41068e3a7b9acfaa03b72dc1" kind="variable"><name>has_avx512_bf16</name></member>
+    <member refid="structCPUInfo_1a17a91fbcd0b73af602d2504a754a1e62" kind="variable"><name>has_avx512bw</name></member>
     <member refid="structCPUInfo_1a72c59fe4c03be35b475dd733bd17860c" kind="variable"><name>has_avx512f</name></member>
+    <member refid="structCPUInfo_1aabf53af233c0f5d4692beb98fa2c2434" kind="variable"><name>has_avx512f</name></member>
+    <member refid="structCPUInfo_1ac60a906dc4aaa71a6ca5453d6628fa2e" kind="variable"><name>has_avx512vl</name></member>
     <member refid="structCPUInfo_1a675b39fcccd4eac9995984acbe5d3d15" kind="variable"><name>has_fma</name></member>
+    <member refid="structCPUInfo_1ad3efc23f84451ced9b6085cb036ceb7d" kind="variable"><name>has_sse4_2</name></member>
+    <member refid="structCPUInfo_1a2d0f8aabf38b410e7242db59a3ea63ae" kind="variable"><name>has_vnni</name></member>
     <member refid="structCPUInfo_1aec1d73dace532ccaa255243ad9222d44" kind="variable"><name>l1_line_size</name></member>
     <member refid="structCPUInfo_1a2e9b76fe6d69b6a1b6c194cd4ca35d86" kind="variable"><name>l1d_size</name></member>
     <member refid="structCPUInfo_1accaf39347e29f639b10e0d99825a0ca5" kind="variable"><name>l2_size</name></member>
     <member refid="structCPUInfo_1a50cf2d09ca804dfbdbbc1759cb71943c" kind="variable"><name>l3_size</name></member>
+    <member refid="structCPUInfo_1a0a2cdfebf8fbd74229912ed3689e753b" kind="variable"><name>logical_cores</name></member>
+    <member refid="structCPUInfo_1a34e7cc2aa5fd5ec5cf99828837563a61" kind="variable"><name>max_freq_mhz</name></member>
+    <member refid="structCPUInfo_1a934706fb3c631457a24c2616c293b20e" kind="variable"><name>model</name></member>
+    <member refid="structCPUInfo_1a1bb3083068d81b050ad1b9aedf28e0d1" kind="variable"><name>model_name</name></member>
     <member refid="structCPUInfo_1aa4bcdef1bf48fa3860742a28a7d57d6d" kind="variable"><name>num_cores</name></member>
+    <member refid="structCPUInfo_1a20091b580953be0d9a6dde8938545036" kind="variable"><name>pcie_generation</name></member>
+    <member refid="structCPUInfo_1aa67080f78191b764515728bdabf55924" kind="variable"><name>pcie_lanes_total</name></member>
+    <member refid="structCPUInfo_1a703824b64f9035d0adf5641c9d20527e" kind="variable"><name>physical_cores</name></member>
+    <member refid="structCPUInfo_1aef5b41cc946c52f34e354c69a66bcde3" kind="variable"><name>sockets</name></member>
+    <member refid="structCPUInfo_1a1f7fa60b1c2d20e0eb7bc2f780461ebb" kind="variable"><name>stepping</name></member>
+    <member refid="structCPUInfo_1aaf14c11cad59d839d69e7fa7e367dd05" kind="variable"><name>threads_per_core</name></member>
+    <member refid="structCPUInfo_1a49e6a0b2a711e5acbb16ab29ed9da21f" kind="variable"><name>vendor</name></member>
   </compound>
   <compound refid="structGEMMParams" kind="struct"><name>GEMMParams</name>
     <member refid="structGEMMParams_1aa84a148f54c8ec49fec73e7b2354761c" kind="variable"><name>KC</name></member>
@@ -278,6 +372,117 @@
     <member refid="structJSONParser_1ad02d3479d890d3c6b8766ef1ffd49381" kind="variable"><name>data</name></member>
     <member refid="structJSONParser_1a2005522c47a154aa4985e3e8d3226aa6" kind="variable"><name>end</name></member>
     <member refid="structJSONParser_1a2e7bc4f4f61c2ef0afcb5928a8c7db1a" kind="variable"><name>pos</name></member>
+  </compound>
+  <compound refid="structMemoryInfo" kind="struct"><name>MemoryInfo</name>
+    <member refid="structMemoryInfo_1a72adfc47f767bf59141275a7e542f5e2" kind="variable"><name>available_mb</name></member>
+    <member refid="structMemoryInfo_1acc92d92ac02ffaf28749375c652956e2" kind="variable"><name>cached_mb</name></member>
+    <member refid="structMemoryInfo_1ac20112f20e405d5fafdd560b3535f000" kind="variable"><name>channel_config</name></member>
+    <member refid="structMemoryInfo_1a4a595e517746ef202bb268465dd605b4" kind="variable"><name>channels_populated</name></member>
+    <member refid="structMemoryInfo_1a3f07269515a43e096aa98be0daa48f46" kind="variable"><name>measured_bandwidth_gbs</name></member>
+    <member refid="structMemoryInfo_1a8cf60ff7368ef5b531d0722edf78b2e2" kind="variable"><name>memory_speed_mhz</name></member>
+    <member refid="structMemoryInfo_1a8ac82d5b5a76eb7a19634cff450bb897" kind="variable"><name>memory_type</name></member>
+    <member refid="structMemoryInfo_1a0ff8aa8993baa2138de40490c4545fff" kind="variable"><name>num_channels</name></member>
+    <member refid="structMemoryInfo_1a2409920ad9ccdec3d75c1d81f1a664d2" kind="variable"><name>num_slots</name></member>
+    <member refid="structMemoryInfo_1af06394a062088cdac896d705b504ae9b" kind="variable"><name>slots</name></member>
+    <member refid="structMemoryInfo_1ab747a208ec62ee715eb864cfe1daec4d" kind="variable"><name>slots_populated</name></member>
+    <member refid="structMemoryInfo_1a558d233f4cd92a4c8fcde4e49da7db9d" kind="variable"><name>theoretical_bandwidth_gbs</name></member>
+    <member refid="structMemoryInfo_1a53dbc361ce7012951ceff084c52b17b9" kind="variable"><name>total_mb</name></member>
+  </compound>
+  <compound refid="structMemorySlot" kind="struct"><name>MemorySlot</name>
+    <member refid="structMemorySlot_1af95b0bc9c39a80072ba71c88506125d3" kind="variable"><name>data_width_bits</name></member>
+    <member refid="structMemorySlot_1a6173783f7bdc94d89af5a150e3fdc7b3" kind="variable"><name>locator</name></member>
+    <member refid="structMemorySlot_1a8db087de44e502b76946628000b9ce14" kind="variable"><name>populated</name></member>
+    <member refid="structMemorySlot_1a9ac221e5878a5d6ce26d7c711fced364" kind="variable"><name>rank</name></member>
+    <member refid="structMemorySlot_1a5c71e7350e86f396ab2912410be1a162" kind="variable"><name>size_mb</name></member>
+    <member refid="structMemorySlot_1a2ea9f80423c6a3be54933babf9d1db0f" kind="variable"><name>slot_number</name></member>
+    <member refid="structMemorySlot_1afed85487a039a8b26e3e1b92453c6f59" kind="variable"><name>speed_mhz</name></member>
+    <member refid="structMemorySlot_1a2356cb4cf76513cf5ef48c8c2732b5aa" kind="variable"><name>type</name></member>
+  </compound>
+  <compound refid="structNetworkInterface" kind="struct"><name>NetworkInterface</name>
+    <member refid="structNetworkInterface_1a63e2fdf290d8a23dc2f92cf28e87e870" kind="variable"><name>driver</name></member>
+    <member refid="structNetworkInterface_1a6aeca68cb500898ceebc5a70b984ed10" kind="variable"><name>has_link</name></member>
+    <member refid="structNetworkInterface_1a84e07456601797298baa97779bbee579" kind="variable"><name>ib_port</name></member>
+    <member refid="structNetworkInterface_1aa20cea6954f397c45963b6b2af648424" kind="variable"><name>is_infiniband</name></member>
+    <member refid="structNetworkInterface_1a4d1f0f6d6f8e5ba00f06945274ac913b" kind="variable"><name>is_up</name></member>
+    <member refid="structNetworkInterface_1ac8dc723c11bc1dec2ae9e5f1cdd23a6f" kind="variable"><name>mac_address</name></member>
+    <member refid="structNetworkInterface_1aa5b7cc8f6a3d7e752041f23e84231e5b" kind="variable"><name>mtu</name></member>
+    <member refid="structNetworkInterface_1a260f76fbda4cab4180579f1bf506bf76" kind="variable"><name>name</name></member>
+    <member refid="structNetworkInterface_1a5c06474416d85a879cf5ae151eaff925" kind="variable"><name>pci_address</name></member>
+    <member refid="structNetworkInterface_1ab9e58b0578b858e7b6b56e12bd14d22c" kind="variable"><name>pcie_bandwidth_gbs</name></member>
+    <member refid="structNetworkInterface_1a156a7eee11ff7323838f53326e25d730" kind="variable"><name>pcie_gen</name></member>
+    <member refid="structNetworkInterface_1a96c5c432b9800d9475c5b71b03d956d4" kind="variable"><name>pcie_width</name></member>
+    <member refid="structNetworkInterface_1a9d513cd66a61a93b6b09cd3ab6cfe923" kind="variable"><name>speed_mbps</name></member>
+    <member refid="structNetworkInterface_1a3a7b2f85e17f8e861ea160f94ade4a46" kind="variable"><name>supports_rdma</name></member>
+    <member refid="structNetworkInterface_1a943270da345cf36912ed3ec3a957e15c" kind="variable"><name>supports_roce</name></member>
+  </compound>
+  <compound refid="structNetworkTopology" kind="struct"><name>NetworkTopology</name>
+    <member refid="structNetworkTopology_1adcb93d96209df982a321bc0a16c37637" kind="variable"><name>best_interface_idx</name></member>
+    <member refid="structNetworkTopology_1ac4760fd463a39d60907a0a453846c1e2" kind="variable"><name>has_rdma</name></member>
+    <member refid="structNetworkTopology_1a31ec354a019961b6c7619bd2f71696ca" kind="variable"><name>interfaces</name></member>
+    <member refid="structNetworkTopology_1a5f8d19a3f445156a99bef038300d3887" kind="variable"><name>max_bandwidth_gbs</name></member>
+    <member refid="structNetworkTopology_1a7a5a3efd266abd1e16b70d230996ff2a" kind="variable"><name>num_interfaces</name></member>
+  </compound>
+  <compound refid="structNUMANode" kind="struct"><name>NUMANode</name>
+    <member refid="structNUMANode_1a0c71fe04154d6a80d08829e547f5145d" kind="variable"><name>cpu_list</name></member>
+    <member refid="structNUMANode_1abe328366c0632dadc801508c6bbc44df" kind="variable"><name>memory_free_mb</name></member>
+    <member refid="structNUMANode_1ad207fd0ff088689dc91e40729dc9c60a" kind="variable"><name>memory_total_mb</name></member>
+    <member refid="structNUMANode_1a11cae96c43efc187a78bb509aa86355b" kind="variable"><name>node_id</name></member>
+    <member refid="structNUMANode_1aad2dccb35d57507ce243031012618337" kind="variable"><name>num_cpus</name></member>
+  </compound>
+  <compound refid="structNUMATopology" kind="struct"><name>NUMATopology</name>
+    <member refid="structNUMATopology_1a2a61e03ff57dd6feb35b92d1e03c0cdd" kind="variable"><name>distances</name></member>
+    <member refid="structNUMATopology_1a4f4876ca34eed1e6c7732e611a13a674" kind="variable"><name>nodes</name></member>
+    <member refid="structNUMATopology_1ab0befa19cd4b9b08a68d901f301e9de7" kind="variable"><name>num_nodes</name></member>
+  </compound>
+  <compound refid="structPCIeDevice" kind="struct"><name>PCIeDevice</name>
+    <member refid="structPCIeDevice_1afc8e2ec8cb06bb20fd879836155ad92a" kind="variable"><name>bandwidth_gbs</name></member>
+    <member refid="structPCIeDevice_1ae2b77fabb6cbd4700ce8cff006bdf2ab" kind="variable"><name>bandwidth_max_gbs</name></member>
+    <member refid="structPCIeDevice_1a3c9a5d7185811db52d5443d767c155e7" kind="variable"><name>bus</name></member>
+    <member refid="structPCIeDevice_1a97e23b1ccdb120c47d9fef6beb9b050b" kind="variable"><name>device</name></member>
+    <member refid="structPCIeDevice_1a7179511c6502936e503a2ff80dcf464d" kind="variable"><name>device_name</name></member>
+    <member refid="structPCIeDevice_1a8dbbcf7fbfc94195d0832c48ae5c4fd0" kind="variable"><name>domain</name></member>
+    <member refid="structPCIeDevice_1a492fb416b29956d0442ec47c57c3f091" kind="variable"><name>function</name></member>
+    <member refid="structPCIeDevice_1ae033008e7db3ee6fb53a892836d93cf0" kind="variable"><name>is_gpu</name></member>
+    <member refid="structPCIeDevice_1afc1f0a1bb21313d965608d9dac1f2ab4" kind="variable"><name>is_nic</name></member>
+    <member refid="structPCIeDevice_1a3abe79544a7e4bac54aa643d784ed815" kind="variable"><name>is_nvme</name></member>
+    <member refid="structPCIeDevice_1adccc4e7aa824d93f3b046cb67e5fbf5b" kind="variable"><name>link_speed</name></member>
+    <member refid="structPCIeDevice_1acd83cab295bf599ca7f3d1e8d6268094" kind="variable"><name>link_speed_max</name></member>
+    <member refid="structPCIeDevice_1a8119bb375e580a3302f3110f689fc213" kind="variable"><name>link_width</name></member>
+    <member refid="structPCIeDevice_1adca9565208f9aefc3cee61726d1a86de" kind="variable"><name>link_width_max</name></member>
+    <member refid="structPCIeDevice_1a3acd9044981a0acf21e4bbad490782b0" kind="variable"><name>slot_id</name></member>
+    <member refid="structPCIeDevice_1ad0ee5cdc2f18d4a309e541766e95a5e6" kind="variable"><name>vendor</name></member>
+  </compound>
+  <compound refid="structPCIeTopology" kind="struct"><name>PCIeTopology</name>
+    <member refid="structPCIeTopology_1a8abdf84a7b22a1bd888b4d50efc10e8c" kind="variable"><name>devices</name></member>
+    <member refid="structPCIeTopology_1a609de1883e5729bd1a9e658ef6f062fe" kind="variable"><name>empty_x16_slots</name></member>
+    <member refid="structPCIeTopology_1a63e90e092c8c9aa11e8d664fa2a21afd" kind="variable"><name>empty_x4_slots</name></member>
+    <member refid="structPCIeTopology_1a1bee054acd7b3485af38b94205bfd15a" kind="variable"><name>empty_x8_slots</name></member>
+    <member refid="structPCIeTopology_1ac42eaf6c16f881a6098cf8e443503936" kind="variable"><name>num_devices</name></member>
+    <member refid="structPCIeTopology_1a8fabded9e6dd8d7efb115abfd5d38044" kind="variable"><name>total_lanes_available</name></member>
+    <member refid="structPCIeTopology_1ad6202b8874dbca1e0fdd88dc9a899203" kind="variable"><name>total_lanes_used</name></member>
+  </compound>
+  <compound refid="structRecommendation" kind="struct"><name>Recommendation</name>
+    <member refid="structRecommendation_1ad4009263d6f5d6e3feeab261f071beaf" kind="variable"><name>action</name></member>
+    <member refid="structRecommendation_1aa8cbf25679d19f8407ac276b25c1b1bf" kind="variable"><name>category</name></member>
+    <member refid="structRecommendation_1ac691a32118bd2279bf9536d183329119" kind="variable"><name>description</name></member>
+    <member refid="structRecommendation_1a2dea715a398d739605559094647c11eb" kind="variable"><name>priority</name></member>
+    <member refid="structRecommendation_1ab10fd7bc5c1c6eee44e39a537f53cc51" kind="variable"><name>title</name></member>
+  </compound>
+  <compound refid="structRecommendationList" kind="struct"><name>RecommendationList</name>
+    <member refid="structRecommendationList_1a07a86874728786aa76e45da00a7f5af9" kind="variable"><name>num_recommendations</name></member>
+    <member refid="structRecommendationList_1a63246ddf4369acfa638cf19f1de2cf3e" kind="variable"><name>recommendations</name></member>
+  </compound>
+  <compound refid="structSystemTopology" kind="struct"><name>SystemTopology</name>
+    <member refid="structSystemTopology_1afe211eb662869fd63bc5191d0fde7086" kind="variable"><name>affinity</name></member>
+    <member refid="structSystemTopology_1a5987f9ac86ee94f588a8fcfaf85d2cf7" kind="variable"><name>cache</name></member>
+    <member refid="structSystemTopology_1adc508695d39b4d03b78e2cda88d0f936" kind="variable"><name>cpu</name></member>
+    <member refid="structSystemTopology_1aeb78a0d10978d57768a6d03e4a94497b" kind="variable"><name>has_root_access</name></member>
+    <member refid="structSystemTopology_1a8c3a908fdf3d9b0c50e3346a66f68a13" kind="variable"><name>hostname</name></member>
+    <member refid="structSystemTopology_1aea0398c023b6251b7e490f65c74edc73" kind="variable"><name>kernel_version</name></member>
+    <member refid="structSystemTopology_1ade48f238648fc39edab32fb0b27c71bd" kind="variable"><name>memory</name></member>
+    <member refid="structSystemTopology_1acd053af7e490ac86ff6e4d0703daf8dc" kind="variable"><name>network</name></member>
+    <member refid="structSystemTopology_1a614df36f023f6261b3819210d15a5fe7" kind="variable"><name>numa</name></member>
+    <member refid="structSystemTopology_1a9dcefa468bbc7aaceb4d0a8cab2d3a31" kind="variable"><name>pcie</name></member>
   </compound>
   <compound refid="structTransformerModel" kind="struct"><name>TransformerModel</name>
     <member refid="structTransformerModel_1af6538865812c32df1cbd785b2d40e370" kind="variable"><name>cfg</name></member>
@@ -296,14 +501,27 @@
     <member refid="structTransformerModel_1a9fb01acf28cf0c0f53a8b4c416cedd59" kind="variable"><name>total_bytes</name></member>
     <member refid="structTransformerModel_1aa1da3a055e1f53a6aa8aa54d380e04d1" kind="variable"><name>total_floats</name></member>
   </compound>
+  <compound refid="attention__decode__fused_8c" kind="file"><name>attention_decode_fused.c</name>
+    <member refid="attention__decode__fused_8c_1ade31f5d0f381b108e331db103adc6251" kind="function"><name>ck_attention_project_head_major_decode_token</name></member>
+    <member refid="attention__decode__fused_8c_1a606857bd1c4a89fc378a6787ce01d348" kind="function"><name>ck_attention_project_head_major_decode_token_residual</name></member>
+    <member refid="attention__decode__fused_8c_1a481d5a4d4ee37e40f432109b3873bc05" kind="function"><name>ck_dot_f32</name></member>
+    <member refid="attention__decode__fused_8c_1ad466e4eeb1c0ab92d9c9bf15cb51f679" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn</name></member>
+    <member refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</name></member>
+    <member refid="attention__decode__fused_8c_1a50899fc552648f5d1cadd0e4c5671dc1" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp</name></member>
+    <member refid="attention__decode__fused_8c_1ab6c6524b0f30733a077e3783bb55a592" kind="function"><name>ck_qkv_project_head_major_token</name></member>
+  </compound>
   <compound refid="attention__kernels_8c" kind="file"><name>attention_kernels.c</name>
+    <member refid="attention__kernels_8c_1a686599872afcb86c5fc7ad5e5e5b4773" kind="define"><name>FLASH_QUERY_IMPL</name></member>
+    <member refid="attention__kernels_8c_1aba8a26d95a9c96411b5fea006f2097e4" kind="define"><name>FLASH_QUERY_IMPL_DECODE</name></member>
     <member refid="attention__kernels_8c_1ad611fd5e8dba3e906482d6e68f919788" kind="function"><name>attention_backward_causal_head_major</name></member>
     <member refid="attention__kernels_8c_1adbd2b55fbc53b6e288c98813b61cd6e3" kind="function"><name>attention_backward_causal_head_major_gqa</name></member>
     <member refid="attention__kernels_8c_1a1a95c2e93bfbe603df487d0c0eb5ea2b" kind="function"><name>attention_backward_causal_head_major_gqa_bf16</name></member>
     <member refid="attention__kernels_8c_1aa09ace92ab625ae8365e61f47c3d93a5" kind="function"><name>attention_flash_query_causal</name></member>
     <member refid="attention__kernels_8c_1a3d8664b9e0808546484af9ec7d4ddfe1" kind="function"><name>attention_forward_causal_head_major</name></member>
+    <member refid="attention__kernels_8c_1a57b7a6f6f08b030fd8d5fbf87fa31ac7" kind="function"><name>attention_forward_causal_head_major_exact</name></member>
     <member refid="attention__kernels_8c_1a3e1aa7c55e515fd996318da27c2c5ade" kind="function"><name>attention_forward_causal_head_major_gqa</name></member>
     <member refid="attention__kernels_8c_1af749b0ec6a9cc8a63033fa2069759722" kind="function"><name>attention_forward_causal_head_major_gqa_bf16</name></member>
+    <member refid="attention__kernels_8c_1a04febaa686747fdfad9e915b627a0915" kind="function"><name>attention_forward_causal_head_major_gqa_exact</name></member>
     <member refid="attention__kernels_8c_1aac305a28084fe73b2264ae57613ba3ea" kind="function"><name>attention_forward_causal_head_major_gqa_flash</name></member>
     <member refid="attention__kernels_8c_1a84803f8c5509c325dd6b9feec50a0493" kind="function"><name>attention_forward_decode_head_major_gqa_flash</name></member>
     <member refid="attention__kernels_8c_1a4113194a0a57126146cb4d5471c05bd5" kind="function"><name>convert_bf16_tensor</name></member>
@@ -381,6 +599,7 @@
   </compound>
   <compound refid="ckernel__codegen_8c" kind="file"><name>ckernel_codegen.c</name>
     <member refid="ckernel__codegen_8c_1a9f6b5ba2373060f9e3c58c05b2deb62f" kind="function"><name>ck_buffer_should_alloc</name></member>
+    <member refid="ckernel__codegen_8c_1a0d99b05053127df34304034c70bc81dd" kind="function"><name>ck_buffer_uses_weight_dtype</name></member>
     <member refid="ckernel__codegen_8c_1aae1b0d88edbdfac3f1c0108f88e1f02b" kind="function"><name>ck_codegen_c_skeleton</name></member>
     <member refid="ckernel__codegen_8c_1a120f32d0bd6569e3d76d63823e442b93" kind="function"><name>ck_codegen_emit_runtime</name></member>
     <member refid="ckernel__codegen_8c_1a19907ff45ce4075112ea38814eacf709" kind="function"><name>ck_find_buffer_spec</name></member>
@@ -388,6 +607,7 @@
     <member refid="ckernel__codegen_8c_1a46dfc6552104cefa888791e06e2bdddf" kind="function"><name>ck_first_layer_buffer_name</name></member>
     <member refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" kind="function"><name>ck_plan_step_enabled</name></member>
     <member refid="ckernel__codegen_8c_1aba851166f7304fab8907b83d64b2dc27" kind="function"><name>emit_bump_bytes_assignment</name></member>
+    <member refid="ckernel__codegen_8c_1a7ba2fc31a6ebfc83ceed542ed89520dd" kind="function"><name>emit_bump_bytes_assignment_weight_dtype</name></member>
     <member refid="ckernel__codegen_8c_1a6ee49714bc7fde8782f0acced37247a2" kind="function"><name>emit_dim_expr</name></member>
     <member refid="ckernel__codegen_8c_1af35d2ef997b4de84524dddc75ee16265" kind="function"><name>emit_global_aliases_to_layer</name></member>
     <member refid="ckernel__codegen_8c_1a8bc926e0e8d00aff4c41bff6c2b9871f" kind="function"><name>emit_global_allocations</name></member>
@@ -439,27 +659,39 @@
     <member refid="ckernel__engine_8h_1adbd2b55fbc53b6e288c98813b61cd6e3" kind="function"><name>attention_backward_causal_head_major_gqa</name></member>
     <member refid="ckernel__engine_8h_1a1a95c2e93bfbe603df487d0c0eb5ea2b" kind="function"><name>attention_backward_causal_head_major_gqa_bf16</name></member>
     <member refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" kind="function"><name>attention_forward_causal_head_major</name></member>
+    <member refid="ckernel__engine_8h_1a57b7a6f6f08b030fd8d5fbf87fa31ac7" kind="function"><name>attention_forward_causal_head_major_exact</name></member>
     <member refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" kind="function"><name>attention_forward_causal_head_major_gqa</name></member>
     <member refid="ckernel__engine_8h_1af749b0ec6a9cc8a63033fa2069759722" kind="function"><name>attention_forward_causal_head_major_gqa_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a04febaa686747fdfad9e915b627a0915" kind="function"><name>attention_forward_causal_head_major_gqa_exact</name></member>
     <member refid="ckernel__engine_8h_1aac305a28084fe73b2264ae57613ba3ea" kind="function"><name>attention_forward_causal_head_major_gqa_flash</name></member>
     <member refid="ckernel__engine_8h_1a84803f8c5509c325dd6b9feec50a0493" kind="function"><name>attention_forward_decode_head_major_gqa_flash</name></member>
     <member refid="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" kind="function"><name>backward_causal_softmax_head_major</name></member>
     <member refid="ckernel__engine_8h_1afe83b7a562f3b21fef1993782ff3792b" kind="function"><name>backward_causal_softmax_head_major_bf16</name></member>
     <member refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" kind="function"><name>causal_softmax_head_major</name></member>
     <member refid="ckernel__engine_8h_1a1cc637a888846ddbcf1a58ac72b4aaf6" kind="function"><name>causal_softmax_head_major_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" kind="function"><name>causal_softmax_head_major_exact</name></member>
+    <member refid="ckernel__engine_8h_1aedf852ec498fe7db175f59f810886b9f" kind="function"><name>ck_get_num_threads</name></member>
+    <member refid="ckernel__engine_8h_1a7ff78bf68a9657c2d6858b64df79f7ae" kind="function"><name>ck_get_physical_cores</name></member>
+    <member refid="ckernel__engine_8h_1a2b48c2a890de67e5830bc4239e01bd13" kind="function"><name>ck_set_num_threads</name></member>
     <member refid="ckernel__engine_8h_1a8bcb6fa03c4861c8f45d59fa424d1146" kind="function"><name>ck_set_strict_parity</name></member>
     <member refid="ckernel__engine_8h_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
     <member refid="ckernel__engine_8h_1a6c6a2e37aa74b6f118d94eb08debcff3" kind="function"><name>ckernel_backend_native</name></member>
+    <member refid="ckernel__engine_8h_1af2d02981687e405f123c38e442a53030" kind="function"><name>dequant_q4_k_row</name></member>
     <member refid="ckernel__engine_8h_1a7fb7087da26dca964798795062f5b0a5" kind="function"><name>embedding_backward</name></member>
     <member refid="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" kind="function"><name>embedding_backward_bf16</name></member>
     <member refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
     <member refid="ckernel__engine_8h_1a6d58689c662e670a5423eedd0291d6b5" kind="function"><name>embedding_forward_bf16</name></member>
     <member refid="ckernel__engine_8h_1a73e088d0e2388c78920e8fc99b0c3846" kind="function"><name>fc1_backward_kernel</name></member>
     <member refid="ckernel__engine_8h_1a89a29fc853aae0baf9f6094fee52562a" kind="function"><name>fc2_backward_kernel</name></member>
+    <member refid="ckernel__engine_8h_1a3897324e415431e53b4dba88a774e804" kind="function"><name>fused_mlp_swiglu_decode</name></member>
+    <member refid="ckernel__engine_8h_1a36d3ddf5aa9f0d689888e2782eb9e608" kind="function"><name>fused_mlp_swiglu_decode_tiled</name></member>
+    <member refid="ckernel__engine_8h_1ac7e379fa8eb4c8b963e70daf7e761277" kind="function"><name>fused_mlp_swiglu_decode_v2</name></member>
     <member refid="ckernel__engine_8h_1a3075b77764b4b408e3c1c9b89a2822ad" kind="function"><name>gelu_backward_exact</name></member>
     <member refid="ckernel__engine_8h_1ac8572265a21098caf2060797cb18a978" kind="function"><name>gelu_backward_exact_bf16</name></member>
     <member refid="ckernel__engine_8h_1aeaf518a5239f4588f8c28b05b96d5478" kind="function"><name>gelu_backward_fast</name></member>
     <member refid="ckernel__engine_8h_1a27adb4761d436aeea3317ce0595dc67a" kind="function"><name>gelu_backward_fast_bf16</name></member>
+    <member refid="ckernel__engine_8h_1ac4d3711dee095194f24437af73ad1763" kind="function"><name>gelu_backward_scalar</name></member>
+    <member refid="ckernel__engine_8h_1a315f43ac44656b5d77360d9879c5f122" kind="function"><name>gelu_exact_inplace</name></member>
     <member refid="ckernel__engine_8h_1abc5977fca1e95c2406a779657c4d2365" kind="function"><name>gelu_fast_inplace</name></member>
     <member refid="ckernel__engine_8h_1aa64dae6724ac5d649be339cad62126cb" kind="function"><name>gelu_fast_inplace_bf16</name></member>
     <member refid="ckernel__engine_8h_1a9af477f77eb64b2cdd2ccddae9c84e72" kind="function"><name>gemm_avx512_parallel</name></member>
@@ -477,10 +709,16 @@
     <member refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" kind="function"><name>gemm_nn_avx512</name></member>
     <member refid="ckernel__engine_8h_1afd447dc190bd77241a42d8972f9c5fba" kind="function"><name>gemm_nn_blocked</name></member>
     <member refid="ckernel__engine_8h_1a3549b849a914ea46c5d51c7d485fecec" kind="function"><name>gemm_nn_parallel</name></member>
+    <member refid="ckernel__engine_8h_1a3175d33b3e513cf585a31f96db726e39" kind="function"><name>gemm_nt_q4_k</name></member>
+    <member refid="ckernel__engine_8h_1a64fc7f7c8582355c66edf044b9858964" kind="function"><name>gemm_nt_q4_k_q8_k</name></member>
+    <member refid="ckernel__engine_8h_1ac277a5257dc44a48af4ebaa8691806cf" kind="function"><name>gemm_q4_k</name></member>
+    <member refid="ckernel__engine_8h_1ac52baba628268303f41c01413c445024" kind="function"><name>gemm_q4_k_q8_k</name></member>
     <member refid="ckernel__engine_8h_1a2ae3bbf03cebc529c1e7962a7dba2568" kind="function"><name>gemm_swiglu_fused</name></member>
     <member refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" kind="function"><name>gemm_tn_avx512</name></member>
     <member refid="ckernel__engine_8h_1ae3bc36ea7b8562f9121e527f0f408b43" kind="function"><name>gemm_tn_blocked</name></member>
     <member refid="ckernel__engine_8h_1a84ce00fad7103b550ea75b52a21a98f7" kind="function"><name>gemm_tn_parallel</name></member>
+    <member refid="ckernel__engine_8h_1a9beb124343d26ac4870d92b2f047d643" kind="function"><name>gemv_q4_k</name></member>
+    <member refid="ckernel__engine_8h_1abd2ce09c06d448b502b30fac01bc1d30" kind="function"><name>gemv_q4_k_q8_k</name></member>
     <member refid="ckernel__engine_8h_1a86aec042bcceb0bd8955f0daf0d986c4" kind="function"><name>im2patch</name></member>
     <member refid="ckernel__engine_8h_1a57139580e075be2d5a65cfffc8e84898" kind="function"><name>im2patch_bf16</name></member>
     <member refid="ckernel__engine_8h_1a377bab84fd3d4ba79cf92024615c240a" kind="function"><name>kv_cache_repack_head_major_inplace</name></member>
@@ -495,8 +733,10 @@
     <member refid="ckernel__engine_8h_1a3c0c758ac557839bfc06d1037d15b91e" kind="function"><name>layernorm_naive_serial_matched_precision</name></member>
     <member refid="ckernel__engine_8h_1a5b4ac7df82788956de18c6e1b4f37609" kind="function"><name>mlp_token_parallel</name></member>
     <member refid="ckernel__engine_8h_1a488697bbc4656ba8037ab3eb79314e5e" kind="function"><name>mlp_token_parallel_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a8037bdad390d9b4f5c2e8b8ad0cff5a8" kind="function"><name>mlp_token_parallel_exact</name></member>
     <member refid="ckernel__engine_8h_1a3ffa58aab7da5c6e77096ad19385329a" kind="function"><name>patch2im</name></member>
     <member refid="ckernel__engine_8h_1aee95c2d2b45191471be617739a41ac0d" kind="function"><name>patch2im_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a8a2064dd87b86a56f41b163bef7bdd9d" kind="function"><name>quantize_row_q8_k</name></member>
     <member refid="ckernel__engine_8h_1a434da7f0647cdada09cd6ad435560467" kind="function"><name>relu_backward</name></member>
     <member refid="ckernel__engine_8h_1af64829ad63a9c81784d64d4f447ee39a" kind="function"><name>relu_backward_bf16</name></member>
     <member refid="ckernel__engine_8h_1a856216dca72f3534c079f429d1d58d48" kind="function"><name>relu_forward</name></member>
@@ -530,8 +770,10 @@
     <member refid="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" kind="function"><name>softmax_cross_entropy_loss_bf16</name></member>
     <member refid="ckernel__engine_8h_1a2d1ada314dda9d7788371a08067917d6" kind="function"><name>swiglu_backward</name></member>
     <member refid="ckernel__engine_8h_1a77fb89fc5fa2dcc73d9d37ccf9c50322" kind="function"><name>swiglu_backward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a771ec9e8b054416576cf1788ea8d3747" kind="function"><name>swiglu_backward_exact</name></member>
     <member refid="ckernel__engine_8h_1a26369aa07808fb6aae4502d54a1ba650" kind="function"><name>swiglu_forward</name></member>
     <member refid="ckernel__engine_8h_1a41a1dfc5976b7c2e2539a2811dc0b07f" kind="function"><name>swiglu_forward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a102617ea5d170076dc9e1d6ac167617c" kind="function"><name>swiglu_forward_exact</name></member>
   </compound>
   <compound refid="ckernel__ir_8c" kind="file"><name>ckernel_ir.c</name>
     <member refid="ckernel__ir_8c_1a3f8c54849f7d89d835a5f27a065a2937" kind="function"><name>ck_build_decoder_backward_ir</name></member>
@@ -640,30 +882,50 @@
     <member refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" kind="function"><name>ck_add_inplace</name></member>
     <member refid="ckernel__orchestration_8c_1a2afc01d06448f40b94c48a51a6951dc5" kind="function"><name>ck_attention_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1add4c3ac196a25f481496bf69f32a9ac6" kind="function"><name>ck_attention_project_head_major_backward</name></member>
+    <member refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" kind="function"><name>ck_attention_project_head_major_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1a34e3e4ce864cbfd383097bcf417124ad" kind="function"><name>ck_attention_project_head_major_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a1b75acba52e39a2063646dc1dff62ef4" kind="function"><name>ck_layer_backward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8c_1ab7dfa86e5bb0d80f0e346f85e870cb1d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8c_1a745d032ebb518826e284b4a3680a8cb5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode</name></member>
+    <member refid="ckernel__orchestration_8c_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused</name></member>
+    <member refid="ckernel__orchestration_8c_1abb01994013418ff7b8be71dc9bdcded5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a2e894b79792aaf694427446c1d89fab8" kind="function"><name>ck_mlp_swiglu_forward</name></member>
+    <member refid="ckernel__orchestration_8c_1a6aaebd943ca5ad278729a207b401ab45" kind="function"><name>ck_mlp_swiglu_forward_fully_fused_token</name></member>
+    <member refid="ckernel__orchestration_8c_1a266b9c19eafb8e11f3e51253c8dd0b45" kind="function"><name>ck_mlp_swiglu_forward_fused_token</name></member>
+    <member refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" kind="function"><name>ck_mlp_swiglu_forward_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" kind="function"><name>ck_mlp_swiglu_forward_q4_k_q8_k</name></member>
     <member refid="ckernel__orchestration_8c_1ac841f4e0a273b07808cc036a715b742e" kind="function"><name>ck_mlp_swiglu_forward_ref</name></member>
+    <member refid="ckernel__orchestration_8c_1a45ad329928b675ddc00ad3d5059335b3" kind="function"><name>ck_q8k_activations_enabled</name></member>
     <member refid="ckernel__orchestration_8c_1ae1c428e05f8ea7795136ae8b160b8a0a" kind="function"><name>ck_qkv_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1aae6b6e1796c190320ef20f0476dc2e9d" kind="function"><name>ck_qkv_project_head_major_backward</name></member>
+    <member refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" kind="function"><name>ck_qkv_project_head_major_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1a3678c4745f6b4d3f39e3c07cdff6db12" kind="function"><name>ck_qkv_project_head_major_ref</name></member>
-    <member refid="ckernel__orchestration_8c_1ae7e167cf7de25dabc3616efae8bc91a7" kind="function"><name>ck_qkv_project_head_major_token</name></member>
+    <member refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" kind="function"><name>ck_qkv_project_head_major_token_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" kind="function"><name>ck_qkv_project_head_major_token_q4_k_q8_k</name></member>
     <member refid="ckernel__orchestration_8c_1a35426895690beefd7b84cf090639b169" kind="function"><name>ck_residual_add_backward</name></member>
     <member refid="ckernel__orchestration_8c_1ab0948def8f4a6c6fd8a5288aacd22f01" kind="function"><name>ck_residual_add_token_major</name></member>
   </compound>
   <compound refid="ckernel__orchestration_8h" kind="file"><name>ckernel_orchestration.h</name>
     <member refid="ckernel__orchestration_8h_1a2afc01d06448f40b94c48a51a6951dc5" kind="function"><name>ck_attention_project_head_major</name></member>
     <member refid="ckernel__orchestration_8h_1add4c3ac196a25f481496bf69f32a9ac6" kind="function"><name>ck_attention_project_head_major_backward</name></member>
+    <member refid="ckernel__orchestration_8h_1ade31f5d0f381b108e331db103adc6251" kind="function"><name>ck_attention_project_head_major_decode_token</name></member>
     <member refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" kind="function"><name>ck_layer_backward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu</name></member>
     <member refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode</name></member>
+    <member refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused</name></member>
+    <member refid="ckernel__orchestration_8h_1ad466e4eeb1c0ab92d9c9bf15cb51f679" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn</name></member>
+    <member refid="ckernel__orchestration_8h_1a50899fc552648f5d1cadd0e4c5671dc1" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_mlp</name></member>
+    <member refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_decode_q4_k</name></member>
+    <member refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_q4_k</name></member>
     <member refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" kind="function"><name>ck_layer_forward_rmsnorm_swiglu_ref</name></member>
     <member refid="ckernel__orchestration_8h_1a2e894b79792aaf694427446c1d89fab8" kind="function"><name>ck_mlp_swiglu_forward</name></member>
+    <member refid="ckernel__orchestration_8h_1a6aaebd943ca5ad278729a207b401ab45" kind="function"><name>ck_mlp_swiglu_forward_fully_fused_token</name></member>
+    <member refid="ckernel__orchestration_8h_1a266b9c19eafb8e11f3e51253c8dd0b45" kind="function"><name>ck_mlp_swiglu_forward_fused_token</name></member>
     <member refid="ckernel__orchestration_8h_1ae1c428e05f8ea7795136ae8b160b8a0a" kind="function"><name>ck_qkv_project_head_major</name></member>
     <member refid="ckernel__orchestration_8h_1aae6b6e1796c190320ef20f0476dc2e9d" kind="function"><name>ck_qkv_project_head_major_backward</name></member>
+    <member refid="ckernel__orchestration_8h_1ab6c6524b0f30733a077e3783bb55a592" kind="function"><name>ck_qkv_project_head_major_token</name></member>
     <member refid="ckernel__orchestration_8h_1a35426895690beefd7b84cf090639b169" kind="function"><name>ck_residual_add_backward</name></member>
     <member refid="ckernel__orchestration_8h_1ab0948def8f4a6c6fd8a5288aacd22f01" kind="function"><name>ck_residual_add_token_major</name></member>
   </compound>
@@ -697,7 +959,14 @@
     <member refid="ckernel__registry_8h_1a4178dea993cf3973166fd2dc9d1f2223" kind="function"><name>ck_op_supported</name></member>
   </compound>
   <compound refid="ckernel__strict_8c" kind="file"><name>ckernel_strict.c</name>
+    <member refid="ckernel__strict_8c_1ad94b76f11ab5b09db24682947452e946" kind="define"><name>CK_ADD_PAIR</name></member>
     <member refid="ckernel__strict_8c_1a6dbb8ec1125b21473b47d31ae92427c3" kind="variable"><name>ck_strict_parity</name></member>
+    <member refid="ckernel__strict_8c_1a3bf77bbe5d25ed7435e759b80410546f" kind="variable"><name>g_num_threads</name></member>
+    <member refid="ckernel__strict_8c_1adcc8293c7a06a4f12c2acfccb8d3cac0" kind="variable"><name>g_threads_initialized</name></member>
+    <member refid="ckernel__strict_8c_1aedf852ec498fe7db175f59f810886b9f" kind="function"><name>ck_get_num_threads</name></member>
+    <member refid="ckernel__strict_8c_1a7ff78bf68a9657c2d6858b64df79f7ae" kind="function"><name>ck_get_physical_cores</name></member>
+    <member refid="ckernel__strict_8c_1a0878a8fbdd6fbda1d6e6efcd6682b8ae" kind="function"><name>ck_parse_env_int</name></member>
+    <member refid="ckernel__strict_8c_1a2b48c2a890de67e5830bc4239e01bd13" kind="function"><name>ck_set_num_threads</name></member>
     <member refid="ckernel__strict_8c_1a8bcb6fa03c4861c8f45d59fa424d1146" kind="function"><name>ck_set_strict_parity</name></member>
     <member refid="ckernel__strict_8c_1aef8c9a331116ff9c2d77b03152aa8004" kind="function"><name>ck_strict_parity_enabled</name></member>
   </compound>
@@ -741,6 +1010,8 @@
   <compound refid="gelu__kernels_8c" kind="file"><name>gelu_kernels.c</name>
     <member refid="gelu__kernels_8c_1a3075b77764b4b408e3c1c9b89a2822ad" kind="function"><name>gelu_backward_exact</name></member>
     <member refid="gelu__kernels_8c_1aeaf518a5239f4588f8c28b05b96d5478" kind="function"><name>gelu_backward_fast</name></member>
+    <member refid="gelu__kernels_8c_1ac4d3711dee095194f24437af73ad1763" kind="function"><name>gelu_backward_scalar</name></member>
+    <member refid="gelu__kernels_8c_1a315f43ac44656b5d77360d9879c5f122" kind="function"><name>gelu_exact_inplace</name></member>
     <member refid="gelu__kernels_8c_1abc5977fca1e95c2406a779657c4d2365" kind="function"><name>gelu_fast_inplace</name></member>
   </compound>
   <compound refid="gelu__kernels__bf16_8c" kind="file"><name>gelu_kernels_bf16.c</name>
@@ -769,6 +1040,7 @@
     <member refid="gemm__kernels_8c_1afd447dc190bd77241a42d8972f9c5fba" kind="function"><name>gemm_nn_blocked</name></member>
     <member refid="gemm__kernels_8c_1a3549b849a914ea46c5d51c7d485fecec" kind="function"><name>gemm_nn_parallel</name></member>
     <member refid="gemm__kernels_8c_1a2731fd00008f7e887e94ec03af77325d" kind="function"><name>gemm_nn_serial_double</name></member>
+    <member refid="gemm__kernels_8c_1a44c450ce25774bb9d5fab4e5fd172e98" kind="function"><name>gemm_nt_matvec_parallel</name></member>
     <member refid="gemm__kernels_8c_1afe5bf17f909def227c3e25b0c4338f93" kind="function"><name>gemm_tn_avx512</name></member>
     <member refid="gemm__kernels_8c_1ae3bc36ea7b8562f9121e527f0f408b43" kind="function"><name>gemm_tn_blocked</name></member>
     <member refid="gemm__kernels_8c_1a84ce00fad7103b550ea75b52a21a98f7" kind="function"><name>gemm_tn_parallel</name></member>
@@ -810,6 +1082,7 @@
   </compound>
   <compound refid="gemm__kernels__q4k_8c" kind="file"><name>gemm_kernels_q4k.c</name>
     <member refid="gemm__kernels__q4k_8c_1a173c8b44a7eef15005d73d9175cf9883" kind="function"><name>dot_q4_k</name></member>
+    <member refid="gemm__kernels__q4k_8c_1a3175d33b3e513cf585a31f96db726e39" kind="function"><name>gemm_nt_q4_k</name></member>
     <member refid="gemm__kernels__q4k_8c_1ac277a5257dc44a48af4ebaa8691806cf" kind="function"><name>gemm_q4_k</name></member>
     <member refid="gemm__kernels__q4k_8c_1a1a70f4800925dc2cc6dc91a776dd1df7" kind="function"><name>gemm_q4_k_backward</name></member>
     <member refid="gemm__kernels__q4k_8c_1a08a08de1123b852180ff148975b3cbcc" kind="function"><name>gemm_q4_k_ref</name></member>
@@ -817,6 +1090,16 @@
     <member refid="gemm__kernels__q4k_8c_1a46e8ba6be5972385ee543a75f00ef7a0" kind="function"><name>gemv_q4_k_backward</name></member>
     <member refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" kind="function"><name>gemv_q4_k_backward_ref</name></member>
     <member refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" kind="function"><name>gemv_q4_k_ref</name></member>
+  </compound>
+  <compound refid="gemm__kernels__q4k__q8k_8c" kind="file"><name>gemm_kernels_q4k_q8k.c</name>
+    <member refid="gemm__kernels__q4k__q8k_8c_1ab5a6ee098afcfc17f8e2da12535945aa" kind="function"><name>ck_nearest_int</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" kind="function"><name>dot_q4_k_q8_k_ref</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1a64fc7f7c8582355c66edf044b9858964" kind="function"><name>gemm_nt_q4_k_q8_k</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1ac52baba628268303f41c01413c445024" kind="function"><name>gemm_q4_k_q8_k</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1aaded34941ab8fd3ab697bcf9699fef6e" kind="function"><name>gemm_q4_k_q8_k_ref</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1abd2ce09c06d448b502b30fac01bc1d30" kind="function"><name>gemv_q4_k_q8_k</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1ac01f8caf84e100f3c72919c71217010e" kind="function"><name>gemv_q4_k_q8_k_ref</name></member>
+    <member refid="gemm__kernels__q4k__q8k_8c_1a64b28ca8a25883986a0d22e39a574a32" kind="function"><name>quantize_row_q8_k</name></member>
   </compound>
   <compound refid="gemm__kernels__q8__0_8c" kind="file"><name>gemm_kernels_q8_0.c</name>
     <member refid="gemm__kernels__q8__0_8c_1af900f8a5b4172fadbb2342b63276e7c3" kind="function"><name>dot_q8_0</name></member>
@@ -875,10 +1158,20 @@
   <compound refid="loss__kernels__bf16_8c" kind="file"><name>loss_kernels_bf16.c</name>
     <member refid="loss__kernels__bf16_8c_1a5e87177162b6dd565515e53e56dcd0f5" kind="function"><name>softmax_cross_entropy_loss_bf16</name></member>
   </compound>
+  <compound refid="mlp__fused__decode_8c" kind="file"><name>mlp_fused_decode.c</name>
+    <member refid="mlp__fused__decode_8c_1af121c16885cb3138dea592522e77e592" kind="define"><name>MAX_SWIGLU_STACK</name></member>
+    <member refid="mlp__fused__decode_8c_1a6caa91a6fc1f8f0503d2bb8f0248a4f3" kind="define"><name>MLP_TILE_SIZE</name></member>
+    <member refid="mlp__fused__decode_8c_1ac530c6f483bbeb9bd8758030aa2857b4" kind="define"><name>OUTPUT_TILE_SIZE</name></member>
+    <member refid="mlp__fused__decode_8c_1a3897324e415431e53b4dba88a774e804" kind="function"><name>fused_mlp_swiglu_decode</name></member>
+    <member refid="mlp__fused__decode_8c_1a36d3ddf5aa9f0d689888e2782eb9e608" kind="function"><name>fused_mlp_swiglu_decode_tiled</name></member>
+    <member refid="mlp__fused__decode_8c_1ac7e379fa8eb4c8b963e70daf7e761277" kind="function"><name>fused_mlp_swiglu_decode_v2</name></member>
+    <member refid="mlp__fused__decode_8c_1a7e1099a11aedb31545ad636aeb9d97ed" kind="function"><name>silu_scalar</name></member>
+  </compound>
   <compound refid="mlp__kernels_8c" kind="file"><name>mlp_kernels.c</name>
     <member refid="mlp__kernels_8c_1a73e088d0e2388c78920e8fc99b0c3846" kind="function"><name>fc1_backward_kernel</name></member>
     <member refid="mlp__kernels_8c_1a89a29fc853aae0baf9f6094fee52562a" kind="function"><name>fc2_backward_kernel</name></member>
     <member refid="mlp__kernels_8c_1a5b4ac7df82788956de18c6e1b4f37609" kind="function"><name>mlp_token_parallel</name></member>
+    <member refid="mlp__kernels_8c_1a8037bdad390d9b4f5c2e8b8ad0cff5a8" kind="function"><name>mlp_token_parallel_exact</name></member>
   </compound>
   <compound refid="mlp__kernels__bf16_8c" kind="file"><name>mlp_kernels_bf16.c</name>
     <member refid="mlp__kernels__bf16_8c_1a27c361a6bca1a4eb302dcecfc2d4b53c" kind="function"><name>gelu_scalar</name></member>
@@ -941,6 +1234,42 @@
     <member refid="rope__kernels__bf16_8c_1a241f0f417dcac38a99613c909e6f3a5d" kind="function"><name>rope_forward_bf16</name></member>
     <member refid="rope__kernels__bf16_8c_1aac704c77b897a1fbef2f63f7e7de9ef1" kind="function"><name>rope_forward_qk_bf16</name></member>
   </compound>
+  <compound refid="show__config_8c" kind="file"><name>show_config.c</name>
+    <member refid="show__config_8c_1a369266c24eacffb87046522897a570d5" kind="define"><name>_GNU_SOURCE</name></member>
+    <member refid="show__config_8c_1ac351fb4567ed6655a5b39769cc5dfd04" kind="define"><name>BG_GREEN</name></member>
+    <member refid="show__config_8c_1ac317d04c219b630f9c36b0241d9d4be7" kind="define"><name>BG_RED</name></member>
+    <member refid="show__config_8c_1ab31fe3e74b1137650d30ede5c9b86218" kind="define"><name>BG_YELLOW</name></member>
+    <member refid="show__config_8c_1a79d10e672abb49ad63eeaa8aaef57c38" kind="define"><name>BLUE</name></member>
+    <member refid="show__config_8c_1a26cdbb1a00213c810caccf21cd33a631" kind="define"><name>BOLD</name></member>
+    <member refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kind="define"><name>C</name></member>
+    <member refid="show__config_8c_1ad243f93c16bc4c1d3e0a13b84421d760" kind="define"><name>CYAN</name></member>
+    <member refid="show__config_8c_1ac25189db92959bff3c6c2adf4c34b50a" kind="define"><name>DIM</name></member>
+    <member refid="show__config_8c_1acfbc006ea433ad708fdee3e82996e721" kind="define"><name>GREEN</name></member>
+    <member refid="show__config_8c_1a6f699060902f800f12aaae150f3a708e" kind="define"><name>MAGENTA</name></member>
+    <member refid="show__config_8c_1a8d23feea868a983c8c2b661e1e16972f" kind="define"><name>RED</name></member>
+    <member refid="show__config_8c_1ab702106cf3b3e96750b6845ded4e0299" kind="define"><name>RESET</name></member>
+    <member refid="show__config_8c_1a87b537f5fa5c109d3c05c13d6b18f382" kind="define"><name>WHITE</name></member>
+    <member refid="show__config_8c_1abf681265909adf3d3e8116c93c0ba179" kind="define"><name>YELLOW</name></member>
+    <member refid="show__config_8c_1a7d98e2dd1964a2c9cdb897cc63f23d0b" kind="variable"><name>use_colors</name></member>
+    <member refid="show__config_8c_1a38ce831d1f0763a0f8a382f9d761f64d" kind="function"><name>format_bandwidth</name></member>
+    <member refid="show__config_8c_1ad43efc8d1d3c186a3e8471bc7c71b72a" kind="function"><name>format_size</name></member>
+    <member refid="show__config_8c_1a0ddf1224851353fc92bfbff6f499fa97" kind="function"><name>main</name></member>
+    <member refid="show__config_8c_1ae982fbde8b0c5efdf8fdbff3afb2267f" kind="function"><name>print_header</name></member>
+    <member refid="show__config_8c_1a1ad1f845f9555efa12973c1d8df3cf1d" kind="function"><name>print_ok</name></member>
+    <member refid="show__config_8c_1a5ad74591e35c618d722ab994172697ce" kind="function"><name>print_section</name></member>
+    <member refid="show__config_8c_1a50fd172a7f98da1b9a2882645fc7ecb3" kind="function"><name>print_tree_item</name></member>
+    <member refid="show__config_8c_1aa89d156e8491ad3112f448c5918b21e2" kind="function"><name>print_warning</name></member>
+    <member refid="show__config_8c_1ab03a6d20880e7f93998b361c0036ea44" kind="function"><name>topology_print_affinity</name></member>
+    <member refid="show__config_8c_1a8ee00e3f2fafaa6dd117d874b3f56020" kind="function"><name>topology_print_cache</name></member>
+    <member refid="show__config_8c_1a621b3bfcacc31268f4aad1bd39ecb3a2" kind="function"><name>topology_print_cpu</name></member>
+    <member refid="show__config_8c_1a4d42196463c5ba39847e24ebe52bfbad" kind="function"><name>topology_print_distributed_potential</name></member>
+    <member refid="show__config_8c_1a274dcedf2b6259112dff57aa23f55d15" kind="function"><name>topology_print_memory</name></member>
+    <member refid="show__config_8c_1a440e3e819b2e718bf7ea8513f33b1f30" kind="function"><name>topology_print_network</name></member>
+    <member refid="show__config_8c_1a46871b4f109241ccef66725b222830b7" kind="function"><name>topology_print_numa</name></member>
+    <member refid="show__config_8c_1a49b1de1d6444775ae1462fc35c1c990e" kind="function"><name>topology_print_pcie</name></member>
+    <member refid="show__config_8c_1adaa69e0d4a8c8c3b9e50adcd45db083b" kind="function"><name>topology_print_recommendations</name></member>
+    <member refid="show__config_8c_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" kind="function"><name>topology_print_summary</name></member>
+  </compound>
   <compound refid="sigmoid__kernels_8c" kind="file"><name>sigmoid_kernels.c</name>
     <member refid="sigmoid__kernels_8c_1aad3b3666d63fcbaa243ad4a988e187d8" kind="function"><name>sigmoid_backward</name></member>
     <member refid="sigmoid__kernels_8c_1af621782be75fb6a9acf541f7935b87d5" kind="function"><name>sigmoid_forward</name></member>
@@ -954,6 +1283,7 @@
   <compound refid="softmax__kernels_8c" kind="file"><name>softmax_kernels.c</name>
     <member refid="softmax__kernels_8c_1a3d0ffc191c77d983b953984f8012589d" kind="function"><name>backward_causal_softmax_head_major</name></member>
     <member refid="softmax__kernels_8c_1a920868f80137fe3e0c9cd11acb7ba567" kind="function"><name>causal_softmax_head_major</name></member>
+    <member refid="softmax__kernels_8c_1a6ea7267298ef550524a6277b817a8ffb" kind="function"><name>causal_softmax_head_major_exact</name></member>
   </compound>
   <compound refid="softmax__kernels__bf16_8c" kind="file"><name>softmax_kernels_bf16.c</name>
     <member refid="softmax__kernels__bf16_8c_1afe83b7a562f3b21fef1993782ff3792b" kind="function"><name>backward_causal_softmax_head_major_bf16</name></member>
@@ -961,11 +1291,77 @@
   </compound>
   <compound refid="swiglu__kernels_8c" kind="file"><name>swiglu_kernels.c</name>
     <member refid="swiglu__kernels_8c_1a2d1ada314dda9d7788371a08067917d6" kind="function"><name>swiglu_backward</name></member>
+    <member refid="swiglu__kernels_8c_1a771ec9e8b054416576cf1788ea8d3747" kind="function"><name>swiglu_backward_exact</name></member>
     <member refid="swiglu__kernels_8c_1a26369aa07808fb6aae4502d54a1ba650" kind="function"><name>swiglu_forward</name></member>
+    <member refid="swiglu__kernels_8c_1a102617ea5d170076dc9e1d6ac167617c" kind="function"><name>swiglu_forward_exact</name></member>
   </compound>
   <compound refid="swiglu__kernels__bf16_8c" kind="file"><name>swiglu_kernels_bf16.c</name>
     <member refid="swiglu__kernels__bf16_8c_1a77fb89fc5fa2dcc73d9d37ccf9c50322" kind="function"><name>swiglu_backward_bf16</name></member>
     <member refid="swiglu__kernels__bf16_8c_1a41a1dfc5976b7c2e2539a2811dc0b07f" kind="function"><name>swiglu_forward_bf16</name></member>
+  </compound>
+  <compound refid="system__topology_8c" kind="file"><name>system_topology.c</name>
+    <member refid="system__topology_8c_1a369266c24eacffb87046522897a570d5" kind="define"><name>_GNU_SOURCE</name></member>
+    <member refid="system__topology_8c_1a817c234eb71a734950fee25dceb5b02b" kind="function"><name>count_set_bits</name></member>
+    <member refid="system__topology_8c_1af800908eb32ad8a0e9f7886de612b66f" kind="function"><name>has_cpu_flag</name></member>
+    <member refid="system__topology_8c_1adfd7a4ea82a4bee21021195cf398e284" kind="function"><name>pcie_bandwidth_gbs</name></member>
+    <member refid="system__topology_8c_1ac3c7b781cd07570159767e034c90938a" kind="function"><name>read_file_int</name></member>
+    <member refid="system__topology_8c_1afa3b302a31c3fe70d5a615a60d3df7f7" kind="function"><name>read_file_string</name></member>
+    <member refid="system__topology_8c_1a314b4992493c6b32bcb3258fca5f5eca" kind="function"><name>read_file_uint64</name></member>
+    <member refid="system__topology_8c_1a74f7ad14b6c779249df057c693cfada4" kind="function"><name>run_command</name></member>
+    <member refid="system__topology_8c_1a3fd4135ab056f548986d55e3864316f2" kind="function"><name>topology_discover</name></member>
+    <member refid="system__topology_8c_1af347a49445c57e42f3d5edba2039591e" kind="function"><name>topology_discover_affinity</name></member>
+    <member refid="system__topology_8c_1a6a740276441a137e33d3b11888bfd2da" kind="function"><name>topology_discover_cache</name></member>
+    <member refid="system__topology_8c_1a4367943c7d4c62e0865d1171252a6b84" kind="function"><name>topology_discover_cpu</name></member>
+    <member refid="system__topology_8c_1a349f2755a1cb7361bbbe5c729985136d" kind="function"><name>topology_discover_memory</name></member>
+    <member refid="system__topology_8c_1a8d1095a0656548a8adae0cf8ad6a59cd" kind="function"><name>topology_discover_network</name></member>
+    <member refid="system__topology_8c_1afd3ae767003bf9070768199caa3f7ee1" kind="function"><name>topology_discover_numa</name></member>
+    <member refid="system__topology_8c_1a3e80c10682d58f63c4fa70b98e6a7dfb" kind="function"><name>topology_discover_pcie</name></member>
+    <member refid="system__topology_8c_1ae541edad293faa847014c35c8e6411a5" kind="function"><name>topology_estimate_memory_bandwidth</name></member>
+    <member refid="system__topology_8c_1ab165ff3667f6ee7cca36f51b5a6bad20" kind="function"><name>topology_estimate_network_training_time</name></member>
+    <member refid="system__topology_8c_1ac739fbe17c86f1c7e9da9c6ad2a8b176" kind="function"><name>topology_generate_recommendations</name></member>
+    <member refid="system__topology_8c_1a6d93f41b7303c9e4c21b16e0ce3e858f" kind="function"><name>trim_string</name></member>
+  </compound>
+  <compound refid="system__topology_8h" kind="file"><name>system_topology.h</name>
+    <member refid="system__topology_8h_1a5a07324805d0e6b5535ccfd66a198a43" kind="define"><name>MAX_CACHE_LEVELS</name></member>
+    <member refid="system__topology_8h_1a87cbc7cff225b4ad63d67d47c21f933f" kind="define"><name>MAX_CPUS</name></member>
+    <member refid="system__topology_8h_1a653d809668c0f9aed5323a47614f16b5" kind="define"><name>MAX_MEMORY_SLOTS</name></member>
+    <member refid="system__topology_8h_1ab44d92c45e9155a2b343f0372630ec35" kind="define"><name>MAX_NICS</name></member>
+    <member refid="system__topology_8h_1a5f98c1cce60eca018b6a3adc59298f90" kind="define"><name>MAX_NUMA_NODES</name></member>
+    <member refid="system__topology_8h_1aeb96e2b430111e055cfe76293dbf2258" kind="define"><name>MAX_PCIE_DEVICES</name></member>
+    <member refid="system__topology_8h_1a418478bfd80cdc978000fcd7e8ab9c28" kind="define"><name>MAX_RECOMMENDATIONS</name></member>
+    <member refid="system__topology_8h_1a58ce36916c399104e18d32ff090f21c6" kind="define"><name>MAX_STR_LEN</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446" kind="enum"><name>RecommendationCategory</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446a86e1aa77256345474354d36dade4c2cc" kind="enumvalue"><name>REC_CATEGORY_MEMORY</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446a532135b3b6ed583aaf4bf2864793255e" kind="enumvalue"><name>REC_CATEGORY_CPU</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446aa27b104e8216e409c0e049077a3259ba" kind="enumvalue"><name>REC_CATEGORY_NETWORK</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446a2c69bb37dc1534af0986f7fb4a63f83b" kind="enumvalue"><name>REC_CATEGORY_AFFINITY</name></member>
+    <member refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446ab4c62d868d6055729709c1e2b51bf688" kind="enumvalue"><name>REC_CATEGORY_PCIE</name></member>
+    <member refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69" kind="enum"><name>RecommendationPriority</name></member>
+    <member refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69aff18fa78a746a2cfe6521f96f2985d0d" kind="enumvalue"><name>REC_PRIORITY_LOW</name></member>
+    <member refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69ac060aa16ba5ff6de278ec1a69c992740" kind="enumvalue"><name>REC_PRIORITY_MEDIUM</name></member>
+    <member refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69ae2b3a4412e439de7cd932d5c9c239628" kind="enumvalue"><name>REC_PRIORITY_HIGH</name></member>
+    <member refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69ad2c44c068f9a309b584934d165738405" kind="enumvalue"><name>REC_PRIORITY_CRITICAL</name></member>
+    <member refid="system__topology_8h_1a3fd4135ab056f548986d55e3864316f2" kind="function"><name>topology_discover</name></member>
+    <member refid="system__topology_8h_1af347a49445c57e42f3d5edba2039591e" kind="function"><name>topology_discover_affinity</name></member>
+    <member refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" kind="function"><name>topology_discover_cache</name></member>
+    <member refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" kind="function"><name>topology_discover_cpu</name></member>
+    <member refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" kind="function"><name>topology_discover_memory</name></member>
+    <member refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" kind="function"><name>topology_discover_network</name></member>
+    <member refid="system__topology_8h_1afd3ae767003bf9070768199caa3f7ee1" kind="function"><name>topology_discover_numa</name></member>
+    <member refid="system__topology_8h_1a3e80c10682d58f63c4fa70b98e6a7dfb" kind="function"><name>topology_discover_pcie</name></member>
+    <member refid="system__topology_8h_1ae541edad293faa847014c35c8e6411a5" kind="function"><name>topology_estimate_memory_bandwidth</name></member>
+    <member refid="system__topology_8h_1ab165ff3667f6ee7cca36f51b5a6bad20" kind="function"><name>topology_estimate_network_training_time</name></member>
+    <member refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" kind="function"><name>topology_generate_recommendations</name></member>
+    <member refid="system__topology_8h_1ab03a6d20880e7f93998b361c0036ea44" kind="function"><name>topology_print_affinity</name></member>
+    <member refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" kind="function"><name>topology_print_cache</name></member>
+    <member refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" kind="function"><name>topology_print_cpu</name></member>
+    <member refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" kind="function"><name>topology_print_distributed_potential</name></member>
+    <member refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" kind="function"><name>topology_print_memory</name></member>
+    <member refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" kind="function"><name>topology_print_network</name></member>
+    <member refid="system__topology_8h_1a46871b4f109241ccef66725b222830b7" kind="function"><name>topology_print_numa</name></member>
+    <member refid="system__topology_8h_1a49b1de1d6444775ae1462fc35c1c990e" kind="function"><name>topology_print_pcie</name></member>
+    <member refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" kind="function"><name>topology_print_recommendations</name></member>
+    <member refid="system__topology_8h_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" kind="function"><name>topology_print_summary</name></member>
   </compound>
   <compound refid="vision__kernels_8c" kind="file"><name>vision_kernels.c</name>
     <member refid="vision__kernels_8c_1a86aec042bcceb0bd8955f0daf0d986c4" kind="function"><name>im2patch</name></member>

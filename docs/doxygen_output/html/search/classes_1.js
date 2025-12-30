@@ -1,22 +1,7 @@
 var searchData=
 [
-  ['ckbufferspec_657',['CKBufferSpec',['../structCKBufferSpec.html',1,'']]],
-  ['ckdimtoken_658',['CKDimToken',['../structCKDimToken.html',1,'']]],
-  ['ckinputref_659',['CKInputRef',['../structCKInputRef.html',1,'']]],
-  ['ckirgraph_660',['CKIRGraph',['../structCKIRGraph.html',1,'']]],
-  ['ckirnode_661',['CKIRNode',['../structCKIRNode.html',1,'']]],
-  ['ckkernelid_662',['CKKernelId',['../structCKKernelId.html',1,'']]],
-  ['ckkernelspec_663',['CKKernelSpec',['../structCKKernelSpec.html',1,'']]],
-  ['cklayerbackwardparams_664',['CKLayerBackwardParams',['../structCKLayerBackwardParams.html',1,'']]],
-  ['cklayerforwardparams_665',['CKLayerForwardParams',['../structCKLayerForwardParams.html',1,'']]],
-  ['cklayerlayout_666',['CKLayerLayout',['../structCKLayerLayout.html',1,'']]],
-  ['ckmathbackend_667',['CKMathBackend',['../structCKMathBackend.html',1,'']]],
-  ['ckmempool_668',['CKMemPool',['../structCKMemPool.html',1,'']]],
-  ['ckmergerule_669',['CKMergeRule',['../structCKMergeRule.html',1,'']]],
-  ['ckmodelconfig_670',['CKModelConfig',['../structCKModelConfig.html',1,'']]],
-  ['ckplanstep_671',['CKPlanStep',['../structCKPlanStep.html',1,'']]],
-  ['ckpoolblock_672',['CKPoolBlock',['../structCKPoolBlock.html',1,'']]],
-  ['cktokenizer_673',['CKTokenizer',['../structCKTokenizer.html',1,'']]],
-  ['ckvocabentry_674',['CKVocabEntry',['../structCKVocabEntry.html',1,'']]],
-  ['cpuinfo_675',['CPUInfo',['../structCPUInfo.html',1,'']]]
+  ['block_5fq4_5f0_918',['block_q4_0',['../structblock__q4__0.html',1,'']]],
+  ['block_5fq4_5fk_919',['block_q4_K',['../structblock__q4__K.html',1,'']]],
+  ['block_5fq8_5f0_920',['block_q8_0',['../structblock__q8__0.html',1,'']]],
+  ['block_5fq8_5fk_921',['block_q8_K',['../structblock__q8__K.html',1,'']]]
 ];

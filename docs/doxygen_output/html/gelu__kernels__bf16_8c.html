@@ -176,7 +176,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">float</span> *)malloc(count * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>));</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">Referenced by <a class="el" href="gelu__kernels__bf16_8c_source.html#l00035">gelu_backward_exact_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00062">gelu_backward_fast_bf16()</a>, and <a class="el" href="gelu__kernels__bf16_8c_source.html#l00021">gelu_fast_inplace_bf16()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="gelu__kernels__bf16_8c_source.html#l00037">gelu_backward_exact_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00066">gelu_backward_fast_bf16()</a>, and <a class="el" href="gelu__kernels__bf16_8c_source.html#l00021">gelu_fast_inplace_bf16()</a>.</p>
 
 </div>
 </div>
@@ -209,7 +209,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    free(buf);</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">Referenced by <a class="el" href="gelu__kernels__bf16_8c_source.html#l00035">gelu_backward_exact_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00062">gelu_backward_fast_bf16()</a>, and <a class="el" href="gelu__kernels__bf16_8c_source.html#l00021">gelu_fast_inplace_bf16()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="gelu__kernels__bf16_8c_source.html#l00037">gelu_backward_exact_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00066">gelu_backward_fast_bf16()</a>, and <a class="el" href="gelu__kernels__bf16_8c_source.html#l00021">gelu_fast_inplace_bf16()</a>.</p>
 
 </div>
 </div>
@@ -251,36 +251,38 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="gelu__kernels__bf16_8c_source.html#l00035">35</a> of file <a class="el" href="gelu__kernels__bf16_8c_source.html">gelu_kernels_bf16.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;{</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">float</span> *input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">float</span> *d_output_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">float</span> *d_input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">if</span> (!input_f || !d_output_f || !d_input_f) {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    }</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(input, input_f, n);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(d_output, d_output_f, n);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <a class="code" href="ckernel__engine_8h.html#a3075b77764b4b408e3c1c9b89a2822ad">gelu_backward_exact</a>(input_f, d_output_f, d_input_f, n);</div>
+<p class="definition">Definition at line <a class="el" href="gelu__kernels__bf16_8c_source.html#l00037">37</a> of file <a class="el" href="gelu__kernels__bf16_8c_source.html">gelu_kernels_bf16.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;{</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">float</span> *input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">float</span> *d_output_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">float</span> *d_input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">if</span> (!input_f || !d_output_f || !d_input_f) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(input, input_f, n);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(d_output, d_output_f, n);</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(d_input_f, d_input, n);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00037">bf16_utils.h:37</a></div></div>
-<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00030">bf16_utils.h:30</a></div></div>
-<div class="ttc" id="ackernel__engine_8h_html_a3075b77764b4b408e3c1c9b89a2822ad"><div class="ttname"><a href="ckernel__engine_8h.html#a3075b77764b4b408e3c1c9b89a2822ad">gelu_backward_exact</a></div><div class="ttdeci">void gelu_backward_exact(const float *input, const float *d_output, float *d_input, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00022">gelu_kernels.c:22</a></div></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="comment">// Use scalar exact version to avoid fast tanh approximation error</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="comment">// accumulating with BF16 precision loss.</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="ckernel__engine_8h.html#ac4d3711dee095194f24437af73ad1763">gelu_backward_scalar</a>(input_f, d_output_f, d_input_f, n);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(d_input_f, d_input, n);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
+<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00232">bf16_utils.h:232</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00211">bf16_utils.h:211</a></div></div>
+<div class="ttc" id="ackernel__engine_8h_html_ac4d3711dee095194f24437af73ad1763"><div class="ttname"><a href="ckernel__engine_8h.html#ac4d3711dee095194f24437af73ad1763">gelu_backward_scalar</a></div><div class="ttdeci">void gelu_backward_scalar(const float *input, const float *d_output, float *d_input, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00433">gelu_kernels.c:433</a></div></div>
 <div class="ttc" id="agelu__kernels__bf16_8c_html_aa7946eb3033d476c9c89e3dd89f23bb4"><div class="ttname"><a href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a></div><div class="ttdeci">static float * alloc_float_buffer(size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels__bf16_8c_source.html#l00011">gelu_kernels_bf16.c:11</a></div></div>
 <div class="ttc" id="agelu__kernels__bf16_8c_html_ab9b5d2e5ae35502dbd6249d4aa0187d2"><div class="ttname"><a href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a></div><div class="ttdeci">static void free_float_buffer(float *buf)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels__bf16_8c_source.html#l00016">gelu_kernels_bf16.c:16</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00022">gelu_backward_exact()</a>.</p>
+<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00433">gelu_backward_scalar()</a>.</p>
 
 </div>
 </div>
@@ -322,32 +324,32 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="gelu__kernels__bf16_8c_source.html#l00062">62</a> of file <a class="el" href="gelu__kernels__bf16_8c_source.html">gelu_kernels_bf16.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;{</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">float</span> *input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">float</span> *d_output_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">float</span> *d_input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordflow">if</span> (!input_f || !d_output_f || !d_input_f) {</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    }</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(input, input_f, n);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(d_output, d_output_f, n);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="ckernel__engine_8h.html#aeaf518a5239f4588f8c28b05b96d5478">gelu_backward_fast</a>(input_f, d_output_f, d_input_f, n);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(d_input_f, d_input, n);</div>
+<p class="definition">Definition at line <a class="el" href="gelu__kernels__bf16_8c_source.html#l00066">66</a> of file <a class="el" href="gelu__kernels__bf16_8c_source.html">gelu_kernels_bf16.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;{</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">float</span> *input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">float</span> *d_output_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">float</span> *d_input_f = <a class="code" href="gelu__kernels__bf16_8c.html#aa7946eb3033d476c9c89e3dd89f23bb4">alloc_float_buffer</a>(n);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">if</span> (!input_f || !d_output_f || !d_input_f) {</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(input, input_f, n);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(d_output, d_output_f, n);</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>
-<div class="ttc" id="ackernel__engine_8h_html_aeaf518a5239f4588f8c28b05b96d5478"><div class="ttname"><a href="ckernel__engine_8h.html#aeaf518a5239f4588f8c28b05b96d5478">gelu_backward_fast</a></div><div class="ttdeci">void gelu_backward_fast(const float *input, const float *d_output, float *d_input, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00049">gelu_kernels.c:49</a></div></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="ckernel__engine_8h.html#aeaf518a5239f4588f8c28b05b96d5478">gelu_backward_fast</a>(input_f, d_output_f, d_input_f, n);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(d_input_f, d_input, n);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(input_f);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_output_f);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(d_input_f);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
+<div class="ttc" id="ackernel__engine_8h_html_aeaf518a5239f4588f8c28b05b96d5478"><div class="ttname"><a href="ckernel__engine_8h.html#aeaf518a5239f4588f8c28b05b96d5478">gelu_backward_fast</a></div><div class="ttdeci">void gelu_backward_fast(const float *input, const float *d_output, float *d_input, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00457">gelu_kernels.c:457</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00049">gelu_backward_fast()</a>.</p>
+<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00457">gelu_backward_fast()</a>.</p>
 
 </div>
 </div>
@@ -385,14 +387,16 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    }</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a>(data, tmp, n);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="ckernel__engine_8h.html#abc5977fca1e95c2406a779657c4d2365">gelu_fast_inplace</a>(tmp, n);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(tmp, data, n);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(tmp);</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
-<div class="ttc" id="ackernel__engine_8h_html_abc5977fca1e95c2406a779657c4d2365"><div class="ttname"><a href="ckernel__engine_8h.html#abc5977fca1e95c2406a779657c4d2365">gelu_fast_inplace</a></div><div class="ttdeci">void gelu_fast_inplace(float *data, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00006">gelu_kernels.c:6</a></div></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="comment">// Use exact version to avoid fast tanh approximation error accumulating</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="comment">// with BF16 precision loss. Conversion overhead dominates anyway.</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <a class="code" href="ckernel__engine_8h.html#a315f43ac44656b5d77360d9879c5f122">gelu_exact_inplace</a>(tmp, n);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a>(tmp, data, n);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <a class="code" href="gelu__kernels__bf16_8c.html#ab9b5d2e5ae35502dbd6249d4aa0187d2">free_float_buffer</a>(tmp);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;}</div>
+<div class="ttc" id="ackernel__engine_8h_html_a315f43ac44656b5d77360d9879c5f122"><div class="ttname"><a href="ckernel__engine_8h.html#a315f43ac44656b5d77360d9879c5f122">gelu_exact_inplace</a></div><div class="ttdeci">void gelu_exact_inplace(float *data, size_t n)</div><div class="ttdef"><b>Definition:</b> <a href="gelu__kernels_8c_source.html#l00417">gelu_kernels.c:417</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00006">gelu_fast_inplace()</a>.</p>
+<p class="reference">References <a class="el" href="gelu__kernels__bf16_8c_source.html#l00011">alloc_float_buffer()</a>, <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>, <a class="el" href="gelu__kernels__bf16_8c_source.html#l00016">free_float_buffer()</a>, and <a class="el" href="gelu__kernels_8c_source.html#l00417">gelu_exact_inplace()</a>.</p>
 
 </div>
 </div>

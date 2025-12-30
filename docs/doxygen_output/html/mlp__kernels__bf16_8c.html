@@ -139,7 +139,7 @@ $(document).ready(function(){initNavTree('mlp__kernels__bf16_8c.html',''); initR
 Functions</h2></td></tr>
 <tr class="memitem:a27c361a6bca1a4eb302dcecfc2d4b53c"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mlp__kernels__bf16_8c.html#a27c361a6bca1a4eb302dcecfc2d4b53c">gelu_scalar</a> (float x)</td></tr>
 <tr class="separator:a27c361a6bca1a4eb302dcecfc2d4b53c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8647bb8c6a9a965a92e1c98330f237af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mlp__kernels__bf16_8c.html#a8647bb8c6a9a965a92e1c98330f237af">gemm_bf16_fp32out</a> (const uint16_t *A, const uint16_t *B, const float *bias, float *C, int M, int N, int K)</td></tr>
+<tr class="memitem:a8647bb8c6a9a965a92e1c98330f237af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mlp__kernels__bf16_8c.html#a8647bb8c6a9a965a92e1c98330f237af">gemm_bf16_fp32out</a> (const uint16_t *A, const uint16_t *B, const float *bias, float *<a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>, int M, int N, int K)</td></tr>
 <tr class="separator:a8647bb8c6a9a965a92e1c98330f237af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a488697bbc4656ba8037ab3eb79314e5e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mlp__kernels__bf16_8c.html#a488697bbc4656ba8037ab3eb79314e5e">mlp_token_parallel_bf16</a> (const uint16_t *input, const uint16_t *W_fc1, const uint16_t *b_fc1, const uint16_t *W_fc2, const uint16_t *b_fc2, float *fc1_output, float *output, int T, int aligned_dim, int num_threads)</td></tr>
 <tr class="separator:a488697bbc4656ba8037ab3eb79314e5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,58 +241,59 @@ Functions</h2></td></tr>
 <p>Optimized BF16 MLP Kernels</p>
 <p>Uses direct BF16 GEMM instead of converting to FP32. Layout: input[T,D] -&gt; fc1[T,4D] -&gt; GELU -&gt; fc2[T,D] </p>
 
-<p class="definition">Definition at line <a class="el" href="gemm__kernels__bf16_8c_source.html#l00310">310</a> of file <a class="el" href="gemm__kernels__bf16_8c_source.html">gemm_kernels_bf16.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;{</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <span class="keywordflow">if</span> (!A || !B || !C || M &lt;= 0 || N &lt;= 0 || K &lt;= 0) {</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    }</div>
+<p class="definition">Definition at line <a class="el" href="gemm__kernels__bf16_8c_source.html#l00291">291</a> of file <a class="el" href="gemm__kernels__bf16_8c_source.html">gemm_kernels_bf16.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;{</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="keywordflow">if</span> (!A || !B || !<a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a> || M &lt;= 0 || N &lt;= 0 || K &lt;= 0) {</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    }</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor">#if defined(__AVX512F__)</span></div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="preprocessor">    #pragma omp parallel for schedule(dynamic)</span></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; M; ++i) {</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;        <span class="keyword">const</span> uint16_t *a_row = A + (size_t)i * K;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160; </div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; N; ++j) {</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            <span class="keyword">const</span> uint16_t *b_row = B + (size_t)j * K;</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            __m512 sum_vec = _mm512_setzero_ps();</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160; </div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;            <span class="keywordtype">int</span> k = 0;</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;            <span class="keywordflow">for</span> (; k &lt;= K - 16; k += 16) {</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;                __m256i a_bf16 = _mm256_loadu_si256((<span class="keyword">const</span> __m256i *)(a_row + k));</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;                __m256i b_bf16 = _mm256_loadu_si256((<span class="keyword">const</span> __m256i *)(b_row + k));</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                sum_vec = bf16_dot16(a_bf16, b_bf16, sum_vec);</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;            }</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160; </div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;            <span class="keywordtype">float</span> sum = _mm512_reduce_add_ps(sum_vec);</div>
 <div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="preprocessor">#if defined(__AVX512F__)</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;<span class="preprocessor">    #pragma omp parallel for schedule(dynamic)</span></div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; M; ++i) {</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        <span class="keyword">const</span> uint16_t *a_row = A + (size_t)i * K;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160; </div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; N; ++j) {</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;            <span class="keyword">const</span> uint16_t *b_row = B + (size_t)j * K;</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;            <span class="keywordflow">for</span> (; k &lt; K; ++k) {</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;                sum += <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(a_row[k]) * <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(b_row[k]);</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;            }</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160; </div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            <span class="keywordflow">if</span> (bias) {</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                sum += bias[j];</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;            }</div>
 <div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160; </div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;            __m512 sum_vec = _mm512_setzero_ps();</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160; </div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;            <span class="keywordtype">int</span> k = 0;</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;            <span class="keywordflow">for</span> (; k &lt;= K - 16; k += 16) {</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                __m256i a_bf16 = _mm256_loadu_si256((<span class="keyword">const</span> __m256i *)(a_row + k));</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                __m256i b_bf16 = _mm256_loadu_si256((<span class="keyword">const</span> __m256i *)(b_row + k));</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                sum_vec = bf16_dot16(a_bf16, b_bf16, sum_vec);</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;            }</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160; </div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;            <span class="keywordtype">float</span> sum = _mm512_reduce_add_ps(sum_vec);</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;            <span class="keywordflow">for</span> (; k &lt; K; ++k) {</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;                sum += <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(a_row[k]) * <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(b_row[k]);</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;            }</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160; </div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;            <span class="keywordflow">if</span> (bias) {</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;                sum += bias[j];</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;            }</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160; </div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;            C[(size_t)i * N + j] = sum;</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;        }</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;    }</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; M; ++i) {</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; N; ++j) {</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;            <span class="keywordtype">float</span> sum = bias ? bias[j] : 0.0f;</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; K; ++k) {</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;                sum += <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(A[(<span class="keywordtype">size_t</span>)i * K + k]) *</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;                       <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(B[(<span class="keywordtype">size_t</span>)j * K + k]);</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;            }</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;            C[(size_t)i * N + j] = sum;</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        }</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    }</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a314c3970fd5e2770d19b1bb49aefcf94"><div class="ttname"><a href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a></div><div class="ttdeci">static float bf16_to_float(uint16_t v)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00007">bf16_utils.h:7</a></div></div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;            <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>[(size_t)i * N + j] = sum;</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        }</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    }</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; M; ++i) {</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; N; ++j) {</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;            <span class="keywordtype">float</span> sum = bias ? bias[j] : 0.0f;</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; K; ++k) {</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;                sum += <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(A[(<span class="keywordtype">size_t</span>)i * K + k]) *</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;                       <a class="code" href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a>(B[(<span class="keywordtype">size_t</span>)j * K + k]);</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;            }</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;            <a class="code" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a>[(size_t)i * N + j] = sum;</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;        }</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    }</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;}</div>
+<div class="ttc" id="abf16__utils_8h_html_a314c3970fd5e2770d19b1bb49aefcf94"><div class="ttname"><a href="bf16__utils_8h.html#a314c3970fd5e2770d19b1bb49aefcf94">bf16_to_float</a></div><div class="ttdeci">static float bf16_to_float(uint16_t v)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00038">bf16_utils.h:38</a></div></div>
+<div class="ttc" id="ashow__config_8c_html_a3d5cffd490a70d568b820514b5a0f937"><div class="ttname"><a href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">C</a></div><div class="ttdeci">#define C(color)</div><div class="ttdef"><b>Definition:</b> <a href="show__config_8c_source.html#l00039">show_config.c:39</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00007">bf16_to_float()</a>.</p>
+<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00038">bf16_to_float()</a>, and <a class="el" href="show__config_8c_source.html#l00039">C</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="mlp__kernels__bf16_8c_source.html#l00085">mlp_token_parallel_bf16()</a>, and <a class="el" href="mlp__kernels__bf16_8c_source.html#l00198">mlp_token_parallel_bf16_fp32act()</a>.</p>
 
@@ -476,11 +477,11 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    free(bias1_f);</div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    free(bias2_f);</div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a174b16a92b3a5972230d7519fc0c5aa3"><div class="ttname"><a href="bf16__utils_8h.html#a174b16a92b3a5972230d7519fc0c5aa3">float_to_bf16</a></div><div class="ttdeci">static uint16_t float_to_bf16(float f)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00017">bf16_utils.h:17</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a174b16a92b3a5972230d7519fc0c5aa3"><div class="ttname"><a href="bf16__utils_8h.html#a174b16a92b3a5972230d7519fc0c5aa3">float_to_bf16</a></div><div class="ttdeci">static uint16_t float_to_bf16(float f)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00090">bf16_utils.h:90</a></div></div>
 <div class="ttc" id="amlp__kernels__bf16_8c_html_a27c361a6bca1a4eb302dcecfc2d4b53c"><div class="ttname"><a href="mlp__kernels__bf16_8c.html#a27c361a6bca1a4eb302dcecfc2d4b53c">gelu_scalar</a></div><div class="ttdeci">static float gelu_scalar(float x)</div><div class="ttdef"><b>Definition:</b> <a href="mlp__kernels__bf16_8c_source.html#l00034">mlp_kernels_bf16.c:34</a></div></div>
-<div class="ttc" id="amlp__kernels__bf16_8c_html_a8647bb8c6a9a965a92e1c98330f237af"><div class="ttname"><a href="mlp__kernels__bf16_8c.html#a8647bb8c6a9a965a92e1c98330f237af">gemm_bf16_fp32out</a></div><div class="ttdeci">void gemm_bf16_fp32out(const uint16_t *A, const uint16_t *B, const float *bias, float *C, int M, int N, int K)</div><div class="ttdef"><b>Definition:</b> <a href="gemm__kernels__bf16_8c_source.html#l00310">gemm_kernels_bf16.c:310</a></div></div>
+<div class="ttc" id="amlp__kernels__bf16_8c_html_a8647bb8c6a9a965a92e1c98330f237af"><div class="ttname"><a href="mlp__kernels__bf16_8c.html#a8647bb8c6a9a965a92e1c98330f237af">gemm_bf16_fp32out</a></div><div class="ttdeci">void gemm_bf16_fp32out(const uint16_t *A, const uint16_t *B, const float *bias, float *C, int M, int N, int K)</div><div class="ttdef"><b>Definition:</b> <a href="gemm__kernels__bf16_8c_source.html#l00291">gemm_kernels_bf16.c:291</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00007">bf16_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00017">float_to_bf16()</a>, <a class="el" href="mlp__kernels__bf16_8c_source.html#l00034">gelu_scalar()</a>, and <a class="el" href="gemm__kernels__bf16_8c_source.html#l00310">gemm_bf16_fp32out()</a>.</p>
+<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00038">bf16_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00090">float_to_bf16()</a>, <a class="el" href="mlp__kernels__bf16_8c_source.html#l00034">gelu_scalar()</a>, and <a class="el" href="gemm__kernels__bf16_8c_source.html#l00291">gemm_bf16_fp32out()</a>.</p>
 
 </div>
 </div>
@@ -622,10 +623,10 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    free(bias1_f);</div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    free(bias2_f);</div>
 <div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;}</div>
-<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00037">bf16_utils.h:37</a></div></div>
-<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00030">bf16_utils.h:30</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a027b5c4dd4c6ce7f656e922fc694e52a"><div class="ttname"><a href="bf16__utils_8h.html#a027b5c4dd4c6ce7f656e922fc694e52a">float_tensor_to_bf16</a></div><div class="ttdeci">static void float_tensor_to_bf16(const float *src, uint16_t *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00232">bf16_utils.h:232</a></div></div>
+<div class="ttc" id="abf16__utils_8h_html_a94c0b1e3b43eb46dcce37900ed5c1333"><div class="ttname"><a href="bf16__utils_8h.html#a94c0b1e3b43eb46dcce37900ed5c1333">bf16_tensor_to_float</a></div><div class="ttdeci">static void bf16_tensor_to_float(const uint16_t *src, float *dst, size_t count)</div><div class="ttdef"><b>Definition:</b> <a href="bf16__utils_8h_source.html#l00211">bf16_utils.h:211</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00030">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00037">float_tensor_to_bf16()</a>, <a class="el" href="mlp__kernels__bf16_8c_source.html#l00034">gelu_scalar()</a>, and <a class="el" href="gemm__kernels__bf16_8c_source.html#l00310">gemm_bf16_fp32out()</a>.</p>
+<p class="reference">References <a class="el" href="bf16__utils_8h_source.html#l00211">bf16_tensor_to_float()</a>, <a class="el" href="bf16__utils_8h_source.html#l00232">float_tensor_to_bf16()</a>, <a class="el" href="mlp__kernels__bf16_8c_source.html#l00034">gelu_scalar()</a>, and <a class="el" href="gemm__kernels__bf16_8c_source.html#l00291">gemm_bf16_fp32out()</a>.</p>
 
 </div>
 </div>

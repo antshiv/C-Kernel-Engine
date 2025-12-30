@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['unk_5fid_637',['unk_id',['../structCKTokenizer.html#a35f73551a504361ab117452f40fe81bf',1,'CKTokenizer']]],
-  ['unpack_5fq4_5fk_5fscales_638',['unpack_q4_k_scales',['../ckernel__quant_8h.html#adc037213865781c5c1ea63708ef94307',1,'ckernel_quant.h']]],
-  ['used_639',['used',['../structCKPoolBlock.html#ad15144404362a0676f0c46a5b5a8d0ba',1,'CKPoolBlock']]]
+  ['unk_5fid_896',['unk_id',['../structCKTokenizer.html#a35f73551a504361ab117452f40fe81bf',1,'CKTokenizer']]],
+  ['unpack_5fq4_5fk_5fscales_897',['unpack_q4_k_scales',['../ckernel__quant_8h.html#adc037213865781c5c1ea63708ef94307',1,'ckernel_quant.h']]],
+  ['use_5fcolors_898',['use_colors',['../show__config_8c.html#a7d98e2dd1964a2c9cdb897cc63f23d0b',1,'show_config.c']]],
+  ['used_899',['used',['../structCKPoolBlock.html#ad15144404362a0676f0c46a5b5a8d0ba',1,'CKPoolBlock']]]
 ];

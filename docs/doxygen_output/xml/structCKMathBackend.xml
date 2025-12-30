@@ -27,7 +27,7 @@
 <para>Layout assumptions (LLM-style shapes):<itemizedlist>
 <listitem><para>A: [M x K], row-major, A(i,k) = A[i*K + k]</para>
 </listitem><listitem><para>B: [N x K], row-major, B(j,k) = B[j*K + k]</para>
-</listitem><listitem><para>C: [M x N], row-major, C(i,j) = C[i*N + j]</para>
+</listitem><listitem><para>C: [M x N], row-major, <ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C(i,j)</ref> = C[i*N + j]</para>
 </listitem><listitem><para>bias: optional [N], added per output column j </para>
 </listitem></itemizedlist>
 </para>

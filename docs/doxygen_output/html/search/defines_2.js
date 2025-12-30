@@ -1,11 +1,14 @@
 var searchData=
 [
-  ['cacheline_5fbytes_1282',['CACHELINE_BYTES',['../ckernel__model__layout_8c.html#a4538b5ec4a295a2b8a52560e61575041',1,'ckernel_model_layout.c']]],
-  ['ck_5fdt_5fmask_1283',['CK_DT_MASK',['../ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb',1,'ckernel_dtype.h']]],
-  ['ck_5ffp16_5fto_5ffp32_1284',['CK_FP16_TO_FP32',['../ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a',1,'ckernel_quant.h']]],
-  ['ck_5ffp32_5fto_5ffp16_1285',['CK_FP32_TO_FP16',['../ckernel__quant_8h.html#aa217c07d43400999fb76ccfcdda2a47d',1,'ckernel_quant.h']]],
-  ['ck_5fmax_5ftoken_5flen_1286',['CK_MAX_TOKEN_LEN',['../ck__tokenizer_8h.html#abb08eb27f9bc2409d72e7062f332feeb',1,'ck_tokenizer.h']]],
-  ['ck_5fmax_5fvocab_5fsize_1287',['CK_MAX_VOCAB_SIZE',['../ck__tokenizer_8h.html#a28501527109241976fb03e6118259a32',1,'ck_tokenizer.h']]],
-  ['ck_5fpool_5fblock_5fsize_1288',['CK_POOL_BLOCK_SIZE',['../ck__tokenizer_8h.html#aafbed2100fc7b365d7cb7acdd8548b13',1,'ck_tokenizer.h']]],
-  ['ckernel_5fmax_5fkernel_5fsources_1289',['CKERNEL_MAX_KERNEL_SOURCES',['../ckernel__kernel__specs_8h.html#a072f487d7dacdd66b7e3c7893cf1a146',1,'ckernel_kernel_specs.h']]]
+  ['c_1788',['C',['../show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937',1,'show_config.c']]],
+  ['cacheline_5fbytes_1789',['CACHELINE_BYTES',['../ckernel__model__layout_8c.html#a4538b5ec4a295a2b8a52560e61575041',1,'ckernel_model_layout.c']]],
+  ['ck_5fadd_5fpair_1790',['CK_ADD_PAIR',['../ckernel__strict_8c.html#ad94b76f11ab5b09db24682947452e946',1,'ckernel_strict.c']]],
+  ['ck_5fdt_5fmask_1791',['CK_DT_MASK',['../ckernel__dtype_8h.html#a15aeea2b64a849105b76d7b10244c4fb',1,'ckernel_dtype.h']]],
+  ['ck_5ffp16_5fto_5ffp32_1792',['CK_FP16_TO_FP32',['../ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a',1,'ckernel_quant.h']]],
+  ['ck_5ffp32_5fto_5ffp16_1793',['CK_FP32_TO_FP16',['../ckernel__quant_8h.html#aa217c07d43400999fb76ccfcdda2a47d',1,'ckernel_quant.h']]],
+  ['ck_5fmax_5ftoken_5flen_1794',['CK_MAX_TOKEN_LEN',['../ck__tokenizer_8h.html#abb08eb27f9bc2409d72e7062f332feeb',1,'ck_tokenizer.h']]],
+  ['ck_5fmax_5fvocab_5fsize_1795',['CK_MAX_VOCAB_SIZE',['../ck__tokenizer_8h.html#a28501527109241976fb03e6118259a32',1,'ck_tokenizer.h']]],
+  ['ck_5fpool_5fblock_5fsize_1796',['CK_POOL_BLOCK_SIZE',['../ck__tokenizer_8h.html#aafbed2100fc7b365d7cb7acdd8548b13',1,'ck_tokenizer.h']]],
+  ['ckernel_5fmax_5fkernel_5fsources_1797',['CKERNEL_MAX_KERNEL_SOURCES',['../ckernel__kernel__specs_8h.html#a072f487d7dacdd66b7e3c7893cf1a146',1,'ckernel_kernel_specs.h']]],
+  ['cyan_1798',['CYAN',['../show__config_8c.html#ad243f93c16bc4c1d3e0a13b84421d760',1,'show_config.c']]]
 ];

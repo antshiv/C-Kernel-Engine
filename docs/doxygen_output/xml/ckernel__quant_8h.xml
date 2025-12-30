@@ -4,10 +4,12 @@
     <compoundname>ckernel_quant.h</compoundname>
     <includes local="no">stdint.h</includes>
     <includes local="no">stddef.h</includes>
+    <includedby refid="ckernel__orchestration_8c" local="yes">ckernel_orchestration.c</includedby>
     <includedby refid="dequant__kernels_8c" local="yes">dequant_kernels.c</includedby>
     <includedby refid="gemm__kernels__f16_8c" local="yes">gemm_kernels_f16.c</includedby>
     <includedby refid="gemm__kernels__q4__0_8c" local="yes">gemm_kernels_q4_0.c</includedby>
     <includedby refid="gemm__kernels__q4k_8c" local="yes">gemm_kernels_q4k.c</includedby>
+    <includedby refid="gemm__kernels__q4k__q8k_8c" local="yes">gemm_kernels_q4k_q8k.c</includedby>
     <includedby refid="gemm__kernels__q8__0_8c" local="yes">gemm_kernels_q8_0.c</includedby>
     <incdepgraph>
       <node id="1">
@@ -39,26 +41,38 @@
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
       </node>
-      <node id="6">
+      <node id="2">
+        <label>ckernel_orchestration.c</label>
+        <link refid="ckernel__orchestration_8c"/>
+      </node>
+      <node id="8">
         <label>gemm_kernels_q8_0.c</label>
         <link refid="gemm__kernels__q8__0_8c"/>
       </node>
-      <node id="2">
+      <node id="3">
         <label>dequant_kernels.c</label>
         <link refid="dequant__kernels_8c"/>
       </node>
-      <node id="4">
+      <node id="5">
         <label>gemm_kernels_q4_0.c</label>
         <link refid="gemm__kernels__q4__0_8c"/>
       </node>
-      <node id="5">
+      <node id="6">
         <label>gemm_kernels_q4k.c</label>
         <link refid="gemm__kernels__q4k_8c"/>
       </node>
-      <node id="3">
+      <node id="4">
         <label>gemm_kernels_f16.c</label>
         <link refid="gemm__kernels__f16_8c"/>
+      </node>
+      <node id="7">
+        <label>gemm_kernels_q4k_q8k.c</label>
+        <link refid="gemm__kernels__q4k__q8k_8c"/>
       </node>
     </invincdepgraph>
     <innerclass refid="structblock__q4__0" prot="public">block_q4_0</innerclass>
@@ -361,6 +375,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="145" column="20" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="145" bodyend="171"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
       </memberdef>

@@ -770,9 +770,9 @@
         </button>
         <nav class="site-nav">
             <a href="index.html" class="">Home</a>
-            <a href="quickstart.html" class="{{NAV_QUICKSTART}}">Getting Started</a>
-            <a href="developer-guide.html" class="{{NAV_DEVGUIDE}}">Developer Guide</a>
-            <a href="scaling.html" class="{{NAV_SCALING}}">Scaling</a>
+            <a href="quickstart.html" class="">Getting Started</a>
+            <a href="developer-guide.html" class="">Developer Guide</a>
+            <a href="scaling.html" class="">Scaling</a>
             <div class="nav-dropdown">
                 <span class="nav-trigger">Architecture</span>
                 <div class="nav-dropdown-menu">
@@ -791,6 +791,10 @@
                     <a href="quantization.html">
                         Quantization
                         <small>INT8, FP16, mixed precision</small>
+                    </a>
+                    <a href="simd-architecture.html">
+                        SIMD Architecture
+                        <small>AVX-512, VNNI, AMX deep dive</small>
                     </a>
                     <a href="codegen.html">
                         Code Generation
@@ -1076,7 +1080,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-28 11:11</span>
+        <span class="folder-updated">Updated: 2025-12-30 07:19</span>
     </div>
     <pre class="tree-output">
 .
@@ -1111,6 +1115,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |   |-- quickstart.html
 |   |   |-- research.html
 |   |   |-- scaling.html
+|   |   |-- simd-architecture.html
 |   |   |-- testing.html
 |   |   `-- test-viewer.html
 |   |-- study-materials
@@ -1129,7 +1134,10 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- 02-kernel-parallelism-and-backends.md
 |   |-- 03-ir-and-codegen-design.md
 |   |-- architecture_diagram.md
+|   |-- bf16_format.svg
+|   |-- bf16_rounding.svg
 |   |-- developer-guide.md
+|   |-- DEVLOG.md
 |   |-- Doxyfile
 |   |-- doxygen_header.html
 |   |-- gemm-in-transformers.md
@@ -1137,6 +1145,8 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- kernel-catalog.md
 |   |-- kernel-design-pattern.md
 |   |-- QUANTIZATION_GUIDE.md
+|   |-- qwen_layer_dataflow.md
+|   |-- qwen_layer_dataflow.svg
 |   `-- threading-strategy.md
 |-- errata
 |   `-- smolm.md
@@ -1153,7 +1163,8 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- ckernel_quant.h
 |   |-- ckernel_registry.h
 |   |-- ck_tokenizer.h
-|   `-- cpu_features.h
+|   |-- cpu_features.h
+|   `-- system_topology.h
 |-- issues
 |   |-- errors.txt
 |   `-- run.txt
@@ -1172,6 +1183,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- decoder_layer_plan.json
 |   |-- global_buffers.json
 |   `-- README.md
+|-- llama.cpp -&gt; /home/antshiv/Workspace/3rd-Party/llama.cpp/
 |-- logs
 |   |-- 2025-12-26-training-fix
 |   |   |-- CHANGES.md
@@ -1194,12 +1206,14 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- ck_download.py
 |   |-- compare_bump_payload.py
 |   |-- compare_bump_to_hf.py
+|   |-- convert_gguf_to_bump.py
 |   |-- convert_hf_to_bump.py
 |   |-- gen_kernel_specs.py
 |   |-- gen_random_bump.py
 |   |-- gen_random_tokens.py
 |   |-- kernel_coverage.py
 |   |-- optimization_status.py
+|   |-- q4_k_quantize.py
 |   |-- run_all_tests.sh
 |   |-- run_litmus_demo.sh
 |   |-- smollm_forward_parity.py
@@ -1215,6 +1229,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   `-- version_check.py
 |-- src
 |   |-- kernels
+|   |   |-- attention_decode_fused.c
 |   |   |-- attention_kernels.c
 |   |   |-- dequant_kernels.c
 |   |   |-- embedding_kernels_bf16.c
@@ -1227,6 +1242,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |   |-- gemm_kernels_f16.c
 |   |   |-- gemm_kernels_q4_0.c
 |   |   |-- gemm_kernels_q4k.c
+|   |   |-- gemm_kernels_q4k_q8k.c
 |   |   |-- gemm_kernels_q8_0.c
 |   |   |-- gemm_microkernel.c
 |   |   |-- kv_cache_kernels.c
@@ -1234,6 +1250,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |   |-- layernorm_kernels.c
 |   |   |-- loss_kernels_bf16.c
 |   |   |-- loss_kernels.c
+|   |   |-- mlp_fused_decode.c
 |   |   |-- mlp_kernels_bf16.c
 |   |   |-- mlp_kernels.c
 |   |   |-- relu_kernels_bf16.c
@@ -1264,10 +1281,13 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- ckernel_registry.c
 |   |-- ckernel_strict.c
 |   |-- ck_tokenizer.c
-|   `-- cpu_features.c
+|   |-- cpu_features.c
+|   |-- show_config.c
+|   `-- system_topology.c
 |-- tests
 |-- tools
 |   |-- bench_gemm_onednn.cpp
+|   |-- cache_analysis.py
 |   |-- ck.c
 |   `-- ck_server.c
 |-- unittest
@@ -1291,6 +1311,8 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- test_attention.py
 |   |-- test_cross_entropy.py
 |   |-- test_embedding.py
+|   |-- test_fused_attention_decode.py
+|   |-- test_fused_swiglu_decode.py
 |   |-- test_gelu.py
 |   |-- test_gemm_fused.py
 |   |-- test_gemm_microkernel.py
@@ -1304,6 +1326,8 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- test_orchestration_layer.py
 |   |-- test_pytorch_parity.py
 |   |-- test_q4k_kernels.py
+|   |-- test_q4_k_q8_k_matvec.py
+|   |-- test_q4_k_quantize.py
 |   |-- test_quant_kernels.py
 |   |-- test_relu.py
 |   |-- test_rmsnorm.py
@@ -1314,24 +1338,34 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- test_swiglu.py
 |   |-- test_utils.py
 |   `-- test_vision.py
-|-- bench_gemm.txt
-|-- ck_cli.txt
+|-- bf_16_test.txt
+|-- build_errors.txt.txt
 |-- config.json
+|-- cores.txt
+|-- debug_cpu_flags.c
 |-- default.config.json
 |-- default.json
 |-- devstral2.json
-|-- ggml_models.txt
+|-- errors.txt
+|-- fused_test.txt
+|-- lamacpp.txt
+|-- llama_cpp_plan.txt
+|-- make_config.txt
 |-- Makefile
 |-- make_test.txt
 |-- qwen2_0.5.json
+|-- qwen2.5-3b-instruct-q4_k_m.gguf
+|-- qwen_model.c
 |-- README.md
+|-- show_config.txt
 |-- small10mb.config.json
 |-- smolLM-135.json
+|-- SmolLM-1.7B-Instruct.Q4_K_M.gguf
 |-- TESTING.md
 |-- tiny.config.json
 `-- valgrind.supp
 
-31 directories, 219 files
+32 directories, 248 files
 </pre>
 </div>
 
@@ -1583,7 +1617,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-28</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2025-12-30</p>
             </div>
         </div>
     </footer>

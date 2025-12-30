@@ -1,10 +1,19 @@
 var searchData=
 [
-  ['pad_5fid_1179',['pad_id',['../structCKTokenizer.html#af683cca99ab7ca70c6b680c4a276277b',1,'CKTokenizer']]],
-  ['pool_1180',['pool',['../structCKTokenizer.html#a32688c8d51853200d766b68f9e27b3e4',1,'CKTokenizer']]],
-  ['pos_5femb_5foffset_1181',['pos_emb_offset',['../structTransformerModel.html#a79f34fccbab0e1d127d521b03df5b327',1,'TransformerModel']]],
-  ['priority_1182',['priority',['../structCKMergeRule.html#af89e288682de3079e22683c57b629d4c',1,'CKMergeRule']]],
-  ['producer_1183',['producer',['../structCKInputRef.html#a952a97cab88682ffb36027b353492e6f',1,'CKInputRef']]],
-  ['proj_5fscratch_1184',['proj_scratch',['../structCKLayerForwardParams.html#a1d16cc6fe19fb9e3b934eccba86c35b0',1,'CKLayerForwardParams']]],
-  ['proj_5ftmp_1185',['proj_tmp',['../structCKLayerForwardParams.html#a1fa5c8ae6f1c35f1edd9041c6007731d',1,'CKLayerForwardParams']]]
+  ['pad_5fid_1635',['pad_id',['../structCKTokenizer.html#af683cca99ab7ca70c6b680c4a276277b',1,'CKTokenizer']]],
+  ['pci_5faddress_1636',['pci_address',['../structNetworkInterface.html#a5c06474416d85a879cf5ae151eaff925',1,'NetworkInterface']]],
+  ['pcie_1637',['pcie',['../structSystemTopology.html#a9dcefa468bbc7aaceb4d0a8cab2d3a31',1,'SystemTopology']]],
+  ['pcie_5fbandwidth_5fgbs_1638',['pcie_bandwidth_gbs',['../structNetworkInterface.html#ab9e58b0578b858e7b6b56e12bd14d22c',1,'NetworkInterface']]],
+  ['pcie_5fgen_1639',['pcie_gen',['../structNetworkInterface.html#a156a7eee11ff7323838f53326e25d730',1,'NetworkInterface']]],
+  ['pcie_5fgeneration_1640',['pcie_generation',['../structCPUInfo.html#a20091b580953be0d9a6dde8938545036',1,'CPUInfo']]],
+  ['pcie_5flanes_5ftotal_1641',['pcie_lanes_total',['../structCPUInfo.html#aa67080f78191b764515728bdabf55924',1,'CPUInfo']]],
+  ['pcie_5fwidth_1642',['pcie_width',['../structNetworkInterface.html#a96c5c432b9800d9475c5b71b03d956d4',1,'NetworkInterface']]],
+  ['physical_5fcores_1643',['physical_cores',['../structCPUInfo.html#a703824b64f9035d0adf5641c9d20527e',1,'CPUInfo']]],
+  ['pool_1644',['pool',['../structCKTokenizer.html#a32688c8d51853200d766b68f9e27b3e4',1,'CKTokenizer']]],
+  ['populated_1645',['populated',['../structMemorySlot.html#a8db087de44e502b76946628000b9ce14',1,'MemorySlot']]],
+  ['pos_5femb_5foffset_1646',['pos_emb_offset',['../structTransformerModel.html#a79f34fccbab0e1d127d521b03df5b327',1,'TransformerModel']]],
+  ['priority_1647',['priority',['../structCKMergeRule.html#af89e288682de3079e22683c57b629d4c',1,'CKMergeRule::priority()'],['../structRecommendation.html#a2dea715a398d739605559094647c11eb',1,'Recommendation::priority()']]],
+  ['producer_1648',['producer',['../structCKInputRef.html#a952a97cab88682ffb36027b353492e6f',1,'CKInputRef']]],
+  ['proj_5fscratch_1649',['proj_scratch',['../structCKLayerForwardParams.html#a1d16cc6fe19fb9e3b934eccba86c35b0',1,'CKLayerForwardParams::proj_scratch()'],['../structCKLayerForwardParamsQ4K.html#ac6fb5da685cc15ae713f5760f2c05c41',1,'CKLayerForwardParamsQ4K::proj_scratch()']]],
+  ['proj_5ftmp_1650',['proj_tmp',['../structCKLayerForwardParams.html#a1fa5c8ae6f1c35f1edd9041c6007731d',1,'CKLayerForwardParams::proj_tmp()'],['../structCKLayerForwardParamsQ4K.html#a66da64885aa1cf87cb9e687ad7fcd34b',1,'CKLayerForwardParamsQ4K::proj_tmp()']]]
 ];

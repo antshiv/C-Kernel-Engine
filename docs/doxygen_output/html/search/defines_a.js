@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['qk4_5f0_1308',['QK4_0',['../ckernel__quant_8h.html#a997a3f77c076f00da9fd4f6eb3d2b9da',1,'ckernel_quant.h']]],
-  ['qk8_5f0_1309',['QK8_0',['../ckernel__quant_8h.html#af13e8b7fd92d0f48c1cfca7161552d4a',1,'ckernel_quant.h']]],
-  ['qk_5fk_1310',['QK_K',['../ckernel__quant_8h.html#afd2f43dcca46f268b2008cb200198e50',1,'ckernel_quant.h']]]
+  ['output_5ftile_5fsize_1831',['OUTPUT_TILE_SIZE',['../mlp__fused__decode_8c.html#ac530c6f483bbeb9bd8758030aa2857b4',1,'mlp_fused_decode.c']]]
 ];

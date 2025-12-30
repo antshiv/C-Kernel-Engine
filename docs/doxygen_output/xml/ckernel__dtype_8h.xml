@@ -5,6 +5,7 @@
     <includes local="no">stdint.h</includes>
     <includes local="no">stddef.h</includes>
     <includedby refid="ckernel__kernel__specs_8h" local="yes">ckernel_kernel_specs.h</includedby>
+    <includedby refid="ckernel__orchestration_8c" local="yes">ckernel_orchestration.c</includedby>
     <includedby refid="dequant__kernels_8c" local="yes">dequant_kernels.c</includedby>
     <incdepgraph>
       <node id="1">
@@ -30,6 +31,12 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ckernel_orchestration.c</label>
+        <link refid="ckernel__orchestration_8c"/>
       </node>
       <node id="2">
         <label>ckernel_kernel_specs.h</label>
@@ -39,7 +46,7 @@
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="5">
+      <node id="6">
         <label>dequant_kernels.c</label>
         <link refid="dequant__kernels_8c"/>
       </node>
@@ -297,6 +304,9 @@
         <references refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" compoundref="ckernel__dtype_8h" startline="77" endline="88">ck_dtype_block_size</references>
         <references refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" compoundref="ckernel__dtype_8h" startline="58" endline="72">ck_dtype_bytes</references>
         <references refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" compoundref="ckernel__dtype_8h" startline="49" endline="52">ck_dtype_is_quantized</references>
+        <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="124" endline="171">ck_qkv_project_head_major_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1189" endline="1232">ck_qkv_project_head_major_token_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" compoundref="ckernel__orchestration_8c" startline="1234" endline="1277">ck_qkv_project_head_major_token_q4_k_q8_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>int</type>

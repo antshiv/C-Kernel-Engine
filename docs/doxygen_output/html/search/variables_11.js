@@ -1,10 +1,23 @@
 var searchData=
 [
-  ['scales_1198',['scales',['../structblock__q4__K.html#a3a603ea5f9ee6a3732d96a244cb6a3b5',1,'block_q4_K']]],
-  ['scope_1199',['scope',['../structCKBufferSpec.html#a81f2619d250bfb5c7401070c0345353a',1,'CKBufferSpec']]],
-  ['scores_1200',['scores',['../structCKLayerForwardParams.html#a9b1930ef9e3d94dae2f16bacd354dc2d',1,'CKLayerForwardParams::scores()'],['../structCKLayerBackwardParams.html#a9e4a1e13e1a03430dfb1d4c35137a0c3',1,'CKLayerBackwardParams::scores()']]],
-  ['sgemm_1201',['sgemm',['../structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4',1,'CKMathBackend']]],
-  ['shape_1202',['shape',['../structCKBufferSpec.html#ae34b00c892e6e3ffd7928a0a31924b59',1,'CKBufferSpec']]],
-  ['sources_1203',['sources',['../structCKKernelSpec.html#a702e1368abaa202d24597a58f2f5c751',1,'CKKernelSpec']]],
-  ['swiglu_5fout_1204',['swiglu_out',['../structCKLayerForwardParams.html#a64b3c9bf08573696fe23f773e0af3f4a',1,'CKLayerForwardParams::swiglu_out()'],['../structCKLayerBackwardParams.html#aa82d1124a56c3e119f2bb9336bfb364b',1,'CKLayerBackwardParams::swiglu_out()']]]
+  ['scales_1665',['scales',['../structblock__q4__K.html#a3a603ea5f9ee6a3732d96a244cb6a3b5',1,'block_q4_K']]],
+  ['scope_1666',['scope',['../structCKBufferSpec.html#a81f2619d250bfb5c7401070c0345353a',1,'CKBufferSpec']]],
+  ['scores_1667',['scores',['../structCKLayerForwardParams.html#a9b1930ef9e3d94dae2f16bacd354dc2d',1,'CKLayerForwardParams::scores()'],['../structCKLayerBackwardParams.html#a9e4a1e13e1a03430dfb1d4c35137a0c3',1,'CKLayerBackwardParams::scores()'],['../structCKLayerForwardParamsQ4K.html#a9b6d571cb8120f8b62ca87a176edb0f2',1,'CKLayerForwardParamsQ4K::scores()']]],
+  ['sgemm_1668',['sgemm',['../structCKMathBackend.html#a7e59ba4baa9c776241287338a219d9c4',1,'CKMathBackend']]],
+  ['shape_1669',['shape',['../structCKBufferSpec.html#ae34b00c892e6e3ffd7928a0a31924b59',1,'CKBufferSpec']]],
+  ['shared_5fby_5fcores_1670',['shared_by_cores',['../structCacheInfo.html#aefdbeadd9d601084c823c530a35e4e5c',1,'CacheInfo']]],
+  ['size_5fkb_1671',['size_kb',['../structCacheInfo.html#af0d7fd2b3b6d58a409f2e91419970a87',1,'CacheInfo']]],
+  ['size_5fmb_1672',['size_mb',['../structMemorySlot.html#a5c71e7350e86f396ab2912410be1a162',1,'MemorySlot']]],
+  ['slot_5fid_1673',['slot_id',['../structPCIeDevice.html#a3acd9044981a0acf21e4bbad490782b0',1,'PCIeDevice']]],
+  ['slot_5fnumber_1674',['slot_number',['../structMemorySlot.html#a2ea9f80423c6a3be54933babf9d1db0f',1,'MemorySlot']]],
+  ['slots_1675',['slots',['../structMemoryInfo.html#af06394a062088cdac896d705b504ae9b',1,'MemoryInfo']]],
+  ['slots_5fpopulated_1676',['slots_populated',['../structMemoryInfo.html#ab747a208ec62ee715eb864cfe1daec4d',1,'MemoryInfo']]],
+  ['sockets_1677',['sockets',['../structCPUInfo.html#aef5b41cc946c52f34e354c69a66bcde3',1,'CPUInfo']]],
+  ['sources_1678',['sources',['../structCKKernelSpec.html#a702e1368abaa202d24597a58f2f5c751',1,'CKKernelSpec']]],
+  ['speed_5fmbps_1679',['speed_mbps',['../structNetworkInterface.html#a9d513cd66a61a93b6b09cd3ab6cfe923',1,'NetworkInterface']]],
+  ['speed_5fmhz_1680',['speed_mhz',['../structMemorySlot.html#afed85487a039a8b26e3e1b92453c6f59',1,'MemorySlot']]],
+  ['stepping_1681',['stepping',['../structCPUInfo.html#a1f7fa60b1c2d20e0eb7bc2f780461ebb',1,'CPUInfo']]],
+  ['supports_5frdma_1682',['supports_rdma',['../structNetworkInterface.html#a3a7b2f85e17f8e861ea160f94ade4a46',1,'NetworkInterface']]],
+  ['supports_5froce_1683',['supports_roce',['../structNetworkInterface.html#a943270da345cf36912ed3ec3a957e15c',1,'NetworkInterface']]],
+  ['swiglu_5fout_1684',['swiglu_out',['../structCKLayerForwardParams.html#a64b3c9bf08573696fe23f773e0af3f4a',1,'CKLayerForwardParams::swiglu_out()'],['../structCKLayerBackwardParams.html#aa82d1124a56c3e119f2bb9336bfb364b',1,'CKLayerBackwardParams::swiglu_out()'],['../structCKLayerForwardParamsQ4K.html#a976fb97749625cdc0f8e16e690c5e5a0',1,'CKLayerForwardParamsQ4K::swiglu_out()']]]
 ];

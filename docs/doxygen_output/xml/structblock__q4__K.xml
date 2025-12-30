@@ -49,6 +49,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" line="75" column="13" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_quant.h" bodystart="75" bodyend="-1"/>
         <referencedby refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</referencedby>
+        <referencedby refid="gemm__kernels__q4k__q8k_8c_1adfa872f261f44f596eaf4e25599b0e3c" compoundref="gemm__kernels__q4k__q8k_8c" startline="76" endline="116">dot_q4_k_q8_k_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a5932901345563fd991c906b9bd5afcdb" compoundref="gemm__kernels__q4k_8c" startline="389" endline="432">gemv_q4_k_backward_ref</referencedby>
         <referencedby refid="gemm__kernels__q4k_8c_1a55c547c2be59d44bfaadc80d08858117" compoundref="gemm__kernels__q4k_8c" startline="43" endline="86">gemv_q4_k_ref</referencedby>
       </memberdef>

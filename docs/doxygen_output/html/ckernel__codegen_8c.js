@@ -1,6 +1,7 @@
 var ckernel__codegen_8c =
 [
     [ "ck_buffer_should_alloc", "ckernel__codegen_8c.html#a9f6b5ba2373060f9e3c58c05b2deb62f", null ],
+    [ "ck_buffer_uses_weight_dtype", "ckernel__codegen_8c.html#a0d99b05053127df34304034c70bc81dd", null ],
     [ "ck_codegen_c_skeleton", "ckernel__codegen_8c.html#aae1b0d88edbdfac3f1c0108f88e1f02b", null ],
     [ "ck_codegen_emit_runtime", "ckernel__codegen_8c.html#a120f32d0bd6569e3d76d63823e442b93", null ],
     [ "ck_find_buffer_spec", "ckernel__codegen_8c.html#a19907ff45ce4075112ea38814eacf709", null ],
@@ -8,6 +9,7 @@ var ckernel__codegen_8c =
     [ "ck_first_layer_buffer_name", "ckernel__codegen_8c.html#a46dfc6552104cefa888791e06e2bdddf", null ],
     [ "ck_plan_step_enabled", "ckernel__codegen_8c.html#a493944ab9ed72ae3f62ed77e58bd7207", null ],
     [ "emit_bump_bytes_assignment", "ckernel__codegen_8c.html#aba851166f7304fab8907b83d64b2dc27", null ],
+    [ "emit_bump_bytes_assignment_weight_dtype", "ckernel__codegen_8c.html#a7ba2fc31a6ebfc83ceed542ed89520dd", null ],
     [ "emit_dim_expr", "ckernel__codegen_8c.html#a6ee49714bc7fde8782f0acced37247a2", null ],
     [ "emit_global_aliases_to_layer", "ckernel__codegen_8c.html#af35d2ef997b4de84524dddc75ee16265", null ],
     [ "emit_global_allocations", "ckernel__codegen_8c.html#a8bc926e0e8d00aff4c41bff6c2b9871f", null ],

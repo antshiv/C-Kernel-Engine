@@ -1,5 +1,6 @@
 var files_dup =
 [
+    [ "attention_decode_fused.c", "attention__decode__fused_8c.html", "attention__decode__fused_8c" ],
     [ "attention_kernels.c", "attention__kernels_8c.html", "attention__kernels_8c" ],
     [ "backend_native.c", "backend__native_8c.html", "backend__native_8c" ],
     [ "bf16_utils.h", "bf16__utils_8h.html", "bf16__utils_8h" ],
@@ -38,6 +39,7 @@ var files_dup =
     [ "gemm_kernels_f16.c", "gemm__kernels__f16_8c.html", "gemm__kernels__f16_8c" ],
     [ "gemm_kernels_q4_0.c", "gemm__kernels__q4__0_8c.html", "gemm__kernels__q4__0_8c" ],
     [ "gemm_kernels_q4k.c", "gemm__kernels__q4k_8c.html", "gemm__kernels__q4k_8c" ],
+    [ "gemm_kernels_q4k_q8k.c", "gemm__kernels__q4k__q8k_8c.html", "gemm__kernels__q4k__q8k_8c" ],
     [ "gemm_kernels_q8_0.c", "gemm__kernels__q8__0_8c.html", "gemm__kernels__q8__0_8c" ],
     [ "gemm_microkernel.c", "gemm__microkernel_8c.html", "gemm__microkernel_8c" ],
     [ "kv_cache_kernels.c", "kv__cache__kernels_8c.html", "kv__cache__kernels_8c" ],
@@ -45,6 +47,7 @@ var files_dup =
     [ "layernorm_kernels_bf16.c", "layernorm__kernels__bf16_8c.html", "layernorm__kernels__bf16_8c" ],
     [ "loss_kernels.c", "loss__kernels_8c.html", "loss__kernels_8c" ],
     [ "loss_kernels_bf16.c", "loss__kernels__bf16_8c.html", "loss__kernels__bf16_8c" ],
+    [ "mlp_fused_decode.c", "mlp__fused__decode_8c.html", "mlp__fused__decode_8c" ],
     [ "mlp_kernels.c", "mlp__kernels_8c.html", "mlp__kernels_8c" ],
     [ "mlp_kernels_bf16.c", "mlp__kernels__bf16_8c.html", "mlp__kernels__bf16_8c" ],
     [ "relu_kernels.c", "relu__kernels_8c.html", "relu__kernels_8c" ],
@@ -55,12 +58,15 @@ var files_dup =
     [ "rmsnorm_kernels_int8.c", "rmsnorm__kernels__int8_8c.html", "rmsnorm__kernels__int8_8c" ],
     [ "rope_kernels.c", "rope__kernels_8c.html", "rope__kernels_8c" ],
     [ "rope_kernels_bf16.c", "rope__kernels__bf16_8c.html", "rope__kernels__bf16_8c" ],
+    [ "show_config.c", "show__config_8c.html", "show__config_8c" ],
     [ "sigmoid_kernels.c", "sigmoid__kernels_8c.html", "sigmoid__kernels_8c" ],
     [ "sigmoid_kernels_bf16.c", "sigmoid__kernels__bf16_8c.html", "sigmoid__kernels__bf16_8c" ],
     [ "softmax_kernels.c", "softmax__kernels_8c.html", "softmax__kernels_8c" ],
     [ "softmax_kernels_bf16.c", "softmax__kernels__bf16_8c.html", "softmax__kernels__bf16_8c" ],
     [ "swiglu_kernels.c", "swiglu__kernels_8c.html", "swiglu__kernels_8c" ],
     [ "swiglu_kernels_bf16.c", "swiglu__kernels__bf16_8c.html", "swiglu__kernels__bf16_8c" ],
+    [ "system_topology.c", "system__topology_8c.html", "system__topology_8c" ],
+    [ "system_topology.h", "system__topology_8h.html", "system__topology_8h" ],
     [ "vision_kernels.c", "vision__kernels_8c.html", "vision__kernels_8c" ],
     [ "vision_kernels_bf16.c", "vision__kernels__bf16_8c.html", "vision__kernels__bf16_8c" ]
 ];

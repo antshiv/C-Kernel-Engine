@@ -16,14 +16,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="30" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="30" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
         <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="157">ck_model_load_weights_flat</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
         <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="21" endline="153">layout_transformer_from_ir</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1afd04ffe4db48600b90f32904c49d73af" prot="public" static="no" mutable="no">
@@ -38,14 +38,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="25" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="25" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
         <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="157">ck_model_load_weights_flat</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
         <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="21" endline="153">layout_transformer_from_ir</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1a2da9b0b988ccf3b7117a611da5984d34" prot="public" static="no" mutable="no">
@@ -60,14 +60,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="26" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="26" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
         <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="157">ck_model_load_weights_flat</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
         <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="21" endline="153">layout_transformer_from_ir</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1a3e5c8e6d2da07805365ec6b4db29b9ea" prot="public" static="no" mutable="no">
@@ -82,13 +82,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="27" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="27" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1a902b19335449fa61c1e532d9999aa342" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -102,13 +102,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="28" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="28" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1a01453afe2f69986d9ca04a10f7b9d0a4" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -123,14 +123,14 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="24" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="24" bodyend="-1"/>
         <referencedby refid="ckernel__ir_8h_1a172c72d0dd9688733a74dcb3b7b307d6" compoundref="ckernel__ir_8c" startline="305" endline="440">ck_build_decoder_ir</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
         <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="157">ck_model_load_weights_flat</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
         <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="21" endline="153">layout_transformer_from_ir</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1a907585baeae2d601dcbf41a59785852e" prot="public" static="no" mutable="no">
@@ -145,13 +145,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="31" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="31" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -165,14 +165,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="32" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="32" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" compoundref="ckernel__codegen_8c" startline="470" endline="482">ck_plan_step_enabled</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a493944ab9ed72ae3f62ed77e58bd7207" compoundref="ckernel__codegen_8c" startline="515" endline="527">ck_plan_step_enabled</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -186,14 +186,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" line="29" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_ir.h" bodystart="29" bodyend="-1"/>
-        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="529" endline="672">ck_codegen_c_skeleton</referencedby>
-        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1112" endline="2227">ck_codegen_emit_runtime</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" compoundref="ckernel__codegen_8c" startline="574" endline="717">ck_codegen_c_skeleton</referencedby>
+        <referencedby refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" compoundref="ckernel__codegen_8c" startline="1305" endline="2586">ck_codegen_emit_runtime</referencedby>
         <referencedby refid="ckernel__ir_8h_1a8b19233a301b84f08529651764f76eeb" compoundref="ckernel__ir_8c" startline="524" endline="573">ck_ir_dump</referencedby>
         <referencedby refid="ckernel__ir_8h_1ad7bf30d5d03182c1b05159f068aa94a9" compoundref="ckernel__ir_8c" startline="665" endline="851">ck_ir_parse_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1a2de46e1fdc26cd83db161c34b4ca1b0d" compoundref="ckernel__ir_8c" startline="575" endline="644">ck_ir_serialize_json</referencedby>
         <referencedby refid="ckernel__ir_8h_1acd82d4aceebe2b6c8feafb9d1fc9c8db" compoundref="ckernel__ir_8c" startline="209" endline="303">ck_model_config_from_hf_json</referencedby>
         <referencedby refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" compoundref="ckernel__model__load_8c" startline="24" endline="157">ck_model_load_weights_flat</referencedby>
-        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="797" endline="1110">emit_library_api</referencedby>
+        <referencedby refid="ckernel__codegen_8c_1a4aec526467c9aee89d0bd5989c78acb9" compoundref="ckernel__codegen_8c" startline="854" endline="1303">emit_library_api</referencedby>
         <referencedby refid="ckernel__model_8h_1a0c71a82f45792351885418444cbfd5cd" compoundref="ckernel__model__layout_8c" startline="21" endline="153">layout_transformer_from_ir</referencedby>
       </memberdef>
       </sectiondef>

@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['pack_5fthreshold_1307',['PACK_THRESHOLD',['../gemm__microkernel_8c.html#a757a5b148b758bc38cbc87a99d33de9f',1,'gemm_microkernel.c']]]
+  ['nc_1828',['NC',['../gemm__microkernel_8c.html#a1fa2460e32327ade49189c95740bc1b5',1,'gemm_microkernel.c']]],
+  ['nr_1829',['NR',['../gemm__microkernel_8c.html#af146485306ae74a2edf18636300fd107',1,'gemm_microkernel.c']]],
+  ['nr_5ffixed_1830',['NR_FIXED',['../gemm__microkernel_8c.html#af3dd4e1707c284abe511ed15be5c4f8f',1,'gemm_microkernel.c']]]
 ];
