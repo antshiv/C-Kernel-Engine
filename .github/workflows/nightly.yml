@@ -56,11 +56,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install torch numpy safetensors requests tqdm
+          pip install -r requirements.txt
           pip list | grep -E "(torch|numpy)"
 
       - name: Build library
