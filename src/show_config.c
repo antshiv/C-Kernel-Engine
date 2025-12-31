@@ -169,6 +169,10 @@ void topology_print_cpu(const CPUInfo *cpu) {
 void topology_print_cache(const CacheTopology *cache, int logical_cores) {
     print_section("CACHE HIERARCHY");
 
+    // Show data source
+    printf("  %sSource: /sys/devices/system/cpu/cpu0/cache/%s\n\n",
+           C(DIM), C(RESET));
+
     for (int i = 0; i < cache->num_levels; i++) {
         const CacheInfo *c = &cache->levels[i];
         int is_last = (i == cache->num_levels - 1);
@@ -206,11 +210,45 @@ void topology_print_cache(const CacheTopology *cache, int logical_cores) {
     }
 }
 
-void topology_print_numa(const NUMATopology *numa) {
-    if (numa->num_nodes <= 1) return;  // Skip for single-node systems
-
+void topology_print_numa(const NUMATopology *numa, int sockets) {
     print_section("NUMA TOPOLOGY");
 
+    // Show source
+    printf("  %sSource: /sys/devices/system/node/%s\n", C(DIM), C(RESET));
+
+    // Single NUMA node - UMA system
+    if (numa->num_nodes <= 1) {
+        printf("\n  %s✓ Single NUMA node (Uniform Memory Access)%s\n", C(GREEN), C(RESET));
+        printf("  %s  All memory is local - no NUMA penalties%s\n", C(DIM), C(RESET));
+        printf("\n  %sNote: Sub-NUMA Clustering (SNC) / NUMA-Per-Socket (NPS) not detected.%s\n",
+               C(DIM), C(RESET));
+        printf("  %s  On Xeon/EPYC, check BIOS settings or run: numactl --hardware%s\n",
+               C(DIM), C(RESET));
+        return;
+    }
+
+    // Detect potential Sub-NUMA Clustering (SNC) or NUMA-Per-Socket (NPS)
+    // If num_nodes > sockets, SNC/NPS is likely enabled
+    // SNC divides each socket's memory channels into groups, one per sub-NUMA node
+    if (sockets > 0 && numa->num_nodes > sockets) {
+        int nodes_per_socket = numa->num_nodes / sockets;
+        printf("\n  %s⚠ Sub-NUMA detected: %d NUMA nodes on %d socket(s) = SNC%d or NPS%d%s\n",
+               C(YELLOW), numa->num_nodes, sockets, nodes_per_socket, nodes_per_socket, C(RESET));
+        printf("  %s  Intel: Sub-NUMA Clustering (SNC) | AMD: NUMA-Per-Socket (NPS)%s\n",
+               C(DIM), C(RESET));
+        printf("  %s  Each sub-node has its own memory channels for lower latency%s\n",
+               C(DIM), C(RESET));
+    } else if (sockets > 1) {
+        // Multi-socket without SNC
+        printf("\n  %sMulti-socket system: %d sockets, %d NUMA nodes%s\n",
+               C(CYAN), sockets, numa->num_nodes, C(RESET));
+        printf("  %s  SNC/NPS not enabled - each socket is one NUMA node%s\n",
+               C(DIM), C(RESET));
+        printf("  %s  💡 Enable SNC in BIOS to partition channels for lower latency%s\n",
+               C(DIM), C(RESET));
+    }
+
+    printf("\n");
     char size_buf[32];
 
     for (int i = 0; i < numa->num_nodes; i++) {
@@ -226,7 +264,7 @@ void topology_print_numa(const NUMATopology *numa) {
 
     // Print distance matrix if more than 2 nodes
     if (numa->num_nodes >= 2 && numa->distances[0][1] > 0) {
-        printf("\n  NUMA Distances:\n");
+        printf("\n  NUMA Distances (10=local, higher=remote):\n");
         printf("       ");
         for (int i = 0; i < numa->num_nodes; i++) {
             printf(" N%d ", i);
@@ -245,15 +283,24 @@ void topology_print_numa(const NUMATopology *numa) {
             printf("\n");
         }
     }
+
+    // Tip for accurate per-node bandwidth
+    printf("\n  %s💡 Per-node bandwidth: numactl --cpunodebind=0 --membind=0 ./build/show_config%s\n",
+           C(CYAN), C(RESET));
 }
 
 void topology_print_memory(const MemoryInfo *mem) {
     print_section("MEMORY");
 
-    char total_buf[32], avail_buf[32], bw_buf[32];
+    // Show data sources
+    printf("  %sSource: /proc/meminfo, dmidecode (if root), STREAM benchmark%s\n\n",
+           C(DIM), C(RESET));
+
+    char total_buf[32], avail_buf[32], theo_bw_buf[32], meas_bw_buf[32];
     format_size(mem->total_mb, total_buf, sizeof(total_buf));
     format_size(mem->available_mb, avail_buf, sizeof(avail_buf));
-    format_bandwidth(mem->theoretical_bandwidth_gbs, bw_buf, sizeof(bw_buf));
+    format_bandwidth(mem->theoretical_bandwidth_gbs, theo_bw_buf, sizeof(theo_bw_buf));
+    format_bandwidth(mem->measured_bandwidth_gbs, meas_bw_buf, sizeof(meas_bw_buf));
 
     printf("  %sTotal: %s%s (%s available)\n",
            C(BOLD), total_buf, C(RESET), avail_buf);
@@ -269,9 +316,49 @@ void topology_print_memory(const MemoryInfo *mem) {
                         mem->slots_populated, mem->num_slots);
     }
 
-    print_tree_item(0, 1, "Theoretical Bandwidth: %s%s%s",
-                    C(mem->theoretical_bandwidth_gbs > 50 ? GREEN : YELLOW),
-                    bw_buf, C(RESET));
+    // Show bandwidth measurements with explanation
+    printf("\n  %sBandwidth Analysis:%s\n", C(CYAN), C(RESET));
+
+    // Theoretical bandwidth calculation
+    if (mem->memory_speed_mhz > 0 && mem->channels_populated > 0) {
+        printf("  %s├── Theoretical: %d MT/s × 8 bytes × %d channel(s) = %s%s\n",
+               C(DIM), mem->memory_speed_mhz, mem->channels_populated,
+               theo_bw_buf, C(RESET));
+
+        // Show SNC relationship for multi-channel configs
+        if (mem->channels_populated >= 4) {
+            printf("  %s│   └── SNC potential: %d ch ÷ 2 = SNC2 (%d ch/node), ÷ 4 = SNC4 (%d ch/node)%s\n",
+                   C(DIM), mem->channels_populated,
+                   mem->channels_populated / 2,
+                   mem->channels_populated / 4,
+                   C(RESET));
+        } else if (mem->channels_populated >= 2) {
+            printf("  %s│   └── SNC potential: %d ch ÷ 2 = SNC2 (%d ch/node)%s\n",
+                   C(DIM), mem->channels_populated,
+                   mem->channels_populated / 2,
+                   C(RESET));
+        }
+    } else {
+        printf("  %s├── Theoretical: %s (estimated)%s\n",
+               C(DIM), theo_bw_buf, C(RESET));
+    }
+
+    // Measured bandwidth with methodology
+    if (mem->measured_bandwidth_gbs > 0) {
+        float efficiency = (mem->theoretical_bandwidth_gbs > 0) ?
+            (mem->measured_bandwidth_gbs / mem->theoretical_bandwidth_gbs * 100.0f) : 0;
+
+        printf("  %s├── Measured: %s%s%s (%.0f%% efficiency)%s\n",
+               C(DIM),
+               C(mem->measured_bandwidth_gbs > 40 ? GREEN : YELLOW),
+               meas_bw_buf, C(RESET), efficiency, C(RESET));
+        printf("  %s│   Method: STREAM Triad (c[i] = a[i] + s*b[i])%s\n",
+               C(DIM), C(RESET));
+        printf("  %s│   Buffer: 256 MB × 3 arrays, 3 iterations%s\n",
+               C(DIM), C(RESET));
+        printf("  %s└── Formula: (256MB × 3 × 3) / time = GB/s%s\n",
+               C(DIM), C(RESET));
+    }
 
     // Show DIMM details if available
     if (mem->num_slots > 0 && mem->slots[0].locator[0]) {
@@ -567,7 +654,7 @@ void topology_print_summary(const SystemTopology *topo) {
 
     topology_print_cpu(&topo->cpu);
     topology_print_cache(&topo->cache, topo->cpu.logical_cores);
-    topology_print_numa(&topo->numa);
+    topology_print_numa(&topo->numa, topo->cpu.sockets);
     topology_print_memory(&topo->memory);
     topology_print_pcie(&topo->pcie);
     topology_print_network(&topo->network);

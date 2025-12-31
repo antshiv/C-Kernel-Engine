@@ -128,8 +128,12 @@ endif
 
 SRCS    := src/backend_native.c \
            src/ckernel_ir.c \
+           src/ckernel_ir_v2.c \
+           src/ckernel_ir_v2_builder.c \
            src/ckernel_codegen.c \
+           src/ckernel_codegen_v2.c \
            src/ckernel_kernel_specs.c \
+           src/ckernel_mem_plan.c \
            src/ckernel_alloc.c \
            src/ckernel_strict.c \
            src/ckernel_registry.c \
@@ -194,6 +198,7 @@ LIB_ATTENTION := $(BUILD_DIR)/libckernel_attention.so
 LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
 
 IR_DEMO := $(BUILD_DIR)/ck_ir_demo
+IR_V2_DEMO := $(BUILD_DIR)/ck_ir_v2_demo
 DEFAULT_CONFIG := default.config.json
 CONFIG ?= $(DEFAULT_CONFIG)
 OUT ?= $(BUILD_DIR)/generated_model.c
@@ -295,13 +300,30 @@ $(LIB): $(BUILD_STAMP) $(SRCS)
 $(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
 	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c src/ckernel_ir_demo.c
 
+$(IR_V2_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_ir_v2_demo.c src/ckernel_codegen_v2.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c include/ckernel_ir.h include/ckernel_ir_v2.h include/ckernel_codegen_v2.h include/ckernel_mem_plan.h include/ckernel_kernel_specs.h
+	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_codegen_v2.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c src/ckernel_ir_v2_demo.c
+
 ck: $(IR_DEMO)
 	@echo "Running $(IR_DEMO) with $(DEFAULT_CONFIG)..."
 	./$(IR_DEMO) $(DEFAULT_CONFIG)
 
+ck-v2: $(IR_V2_DEMO)
+	@echo "Running $(IR_V2_DEMO) with $(DEFAULT_CONFIG)..."
+	./$(IR_V2_DEMO) $(DEFAULT_CONFIG)
+
+ck_V2: ck-v2
+	@true
+
 emit: $(IR_DEMO)
 	@echo "Generating runtime from $(CONFIG) -> $(OUT)..."
 	./$(IR_DEMO) $(CONFIG) --emit $(OUT)
+
+emit-v2: $(IR_V2_DEMO)
+	@echo "Generating v2 runtime from $(CONFIG) -> $(OUT)..."
+	./$(IR_V2_DEMO) $(CONFIG) --emit $(OUT)
+
+ck-emit-v2: emit-v2
+	@true
 
 ck-emit: emit
 	@true
@@ -732,6 +754,11 @@ help:
 	@echo "  make emit CONFIG=path OUT=path  Emit stitched runtime C file from config/IR (writes OUT.kernels manifest)"
 	@echo "  make ck-emit CONFIG=path OUT=path  Alias for emit"
 	@echo "  ./$(IR_DEMO) <config> --emit out.c  Emit a stitched runtime C file from config/IR (writes out.c.kernels)"
+	@echo "  make $(IR_V2_DEMO)   Build IR v2 + codegen v2 tool into $(BUILD_DIR)"
+	@echo "  make ck-v2           Build IR v2 tool and run it with $(DEFAULT_CONFIG) (writes build/ir_v2.json)"
+	@echo "  make emit-v2 CONFIG=path OUT=path  Emit v2 runtime C file from config/IR v2"
+	@echo "  make ck-emit-v2 CONFIG=path OUT=path  Alias for emit-v2"
+	@echo "  ./$(IR_V2_DEMO) <config> --emit out.c  Emit a v2 runtime C file from config/IR v2"
 	@echo ""
 	@echo "  Quantization:"
 	@echo "  make test-quant       Run quantization kernel tests (dequant + q4/q8 gemm)"
@@ -942,7 +969,7 @@ ck-server-py:
 SHOW_CONFIG := $(BUILD_DIR)/show_config
 
 $(SHOW_CONFIG): $(BUILD_DIR) src/system_topology.c src/show_config.c include/system_topology.h
-	$(CC) -O2 -Wall -Wno-format-truncation -Iinclude -o $@ src/system_topology.c src/show_config.c
+	$(CC) -O3 -Wall -Wno-format-truncation -fopenmp -Iinclude -o $@ src/system_topology.c src/show_config.c
 
 show_config: $(SHOW_CONFIG)
 	@./$(SHOW_CONFIG)

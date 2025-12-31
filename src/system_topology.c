@@ -18,6 +18,10 @@
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Helper Functions
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -385,6 +389,136 @@ int topology_discover_numa(NUMATopology *numa) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Memory Bandwidth Measurement
+// ═══════════════════════════════════════════════════════════════════════════════
+
+#include <sys/time.h>
+#include <time.h>
+
+// Measure actual memory bandwidth using streaming operations (STREAM-like benchmark)
+// Returns bandwidth in GB/s, or -1 on error
+//
+// NUMA Considerations:
+// - Uses first-touch policy: parallel init ensures each thread touches local memory
+// - OMP_PROC_BIND=close pins threads to adjacent cores (same NUMA node)
+// - For multi-socket systems, this measures LOCAL memory bandwidth
+// - For SNC (Sub-NUMA Clustering), threads may span sub-clusters
+//
+// To measure per-NUMA-node bandwidth, use: numactl --cpunodebind=0 --membind=0 ./show_config
+//
+float topology_measure_memory_bandwidth(void) {
+    // Use 256 MB buffer - large enough to exceed L3 cache
+    const size_t SIZE = 256 * 1024 * 1024;
+    const size_t COUNT = SIZE / sizeof(double);
+    const int ITERATIONS = 3;
+
+    // Set thread affinity for consistent NUMA placement
+    // This ensures threads stay on their initial cores during the test
+    #ifdef _OPENMP
+    omp_set_dynamic(0);  // Disable dynamic thread adjustment
+    #endif
+
+    // Allocate aligned buffers (will be placed by first-touch policy)
+    double *a = NULL, *b = NULL, *c = NULL;
+    if (posix_memalign((void**)&a, 64, SIZE) != 0 ||
+        posix_memalign((void**)&b, 64, SIZE) != 0 ||
+        posix_memalign((void**)&c, 64, SIZE) != 0) {
+        if (a) free(a);
+        if (b) free(b);
+        if (c) free(c);
+        return -1.0f;
+    }
+
+    // First-touch initialization: each thread touches its portion
+    // This ensures memory pages are allocated on the NUMA node closest to each thread
+    // Critical for accurate multi-socket/SNC bandwidth measurement
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < COUNT; i++) {
+        a[i] = 1.0;
+        b[i] = 2.0;
+        c[i] = 0.0;
+    }
+
+    // Warm up pass - ensures TLB entries are populated and caches are in steady state
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < COUNT; i++) {
+        c[i] = a[i] + b[i];
+    }
+
+    // Memory fence to ensure warm-up completes
+    #pragma omp barrier
+
+    // STREAM Triad: c[i] = a[i] + scalar * b[i]
+    // This reads a and b, writes c = 3 arrays × 8 bytes = 24 bytes per element
+    // Triad is preferred over Copy because it has higher arithmetic intensity,
+    // making it less sensitive to instruction overhead
+    const double scalar = 3.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
+    for (int iter = 0; iter < ITERATIONS; iter++) {
+        #pragma omp parallel for schedule(static)
+        for (size_t i = 0; i < COUNT; i++) {
+            c[i] = a[i] + scalar * b[i];
+        }
+        // Memory barrier - prevents compiler reordering
+        __asm__ volatile("" ::: "memory");
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    // Prevent compiler from optimizing away the result
+    volatile double sum = 0;
+    for (size_t i = 0; i < COUNT; i += COUNT/10) {
+        sum += c[i];
+    }
+    (void)sum;
+
+    free(a);
+    free(b);
+    free(c);
+
+    // Calculate bandwidth
+    double elapsed_sec = (end.tv_sec - start.tv_sec) +
+                         (end.tv_nsec - start.tv_nsec) / 1e9;
+
+    // Triad: 2 reads + 1 write = 3 arrays × size
+    double total_bytes = (double)SIZE * 3.0 * ITERATIONS;
+    double bandwidth_gbs = (total_bytes / elapsed_sec) / (1024.0 * 1024.0 * 1024.0);
+
+    return (float)bandwidth_gbs;
+}
+
+// Estimate channel configuration from measured bandwidth and memory speed
+// Returns estimated number of channels (1, 2, 4, 6, 8)
+int topology_estimate_channels_from_bandwidth(float measured_bw_gbs, int memory_speed_mhz, const char *memory_type) {
+    if (measured_bw_gbs <= 0 || memory_speed_mhz <= 0) return 0;
+
+    // Theoretical bandwidth per channel: speed_mhz * 8 bytes / 1000 = GB/s
+    // DDR5 has 2 sub-channels per DIMM, but we treat each DIMM as one channel here
+    float bw_per_channel = (memory_speed_mhz * 8.0f) / 1000.0f;
+
+    // Measured bandwidth is typically 70-90% of theoretical due to:
+    // - Memory controller overhead
+    // - Refresh cycles
+    // - Bank conflicts
+    // - Command bus overhead
+    float efficiency = 0.75f;  // Conservative estimate
+
+    // Estimate channels
+    float estimated_channels = measured_bw_gbs / (bw_per_channel * efficiency);
+
+    // Round to nearest standard configuration
+    if (estimated_channels < 1.3f) return 1;
+    if (estimated_channels < 2.5f) return 2;
+    if (estimated_channels < 3.5f) return 3;  // Unusual but possible
+    if (estimated_channels < 5.0f) return 4;
+    if (estimated_channels < 7.0f) return 6;
+    return 8;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Memory Discovery
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -498,10 +632,53 @@ int topology_discover_memory(MemoryInfo *mem) {
             mem->theoretical_bandwidth_gbs =
                 (mem->memory_speed_mhz * bytes_per_transfer * mem->channels_populated) / 1000.0f;
         }
-    } else {
-        // Fallback estimation
-        strcpy(mem->channel_config, "Unknown");
-        mem->theoretical_bandwidth_gbs = 50.0f;  // Conservative estimate
+    }
+
+    // Always measure actual bandwidth (quick ~0.5s test)
+    mem->measured_bandwidth_gbs = topology_measure_memory_bandwidth();
+
+    // If dmidecode didn't give us channel info, estimate from measured bandwidth
+    if (mem->slots_populated == 0 && mem->measured_bandwidth_gbs > 0) {
+        // Try to detect memory speed from /sys or assume DDR4-3200
+        if (mem->memory_speed_mhz == 0) {
+            // Common defaults: DDR4-2666, DDR4-3200, DDR5-4800
+            // Assume DDR4-3200 as a reasonable default
+            mem->memory_speed_mhz = 3200;
+            strcpy(mem->memory_type, "DDR4");
+        }
+
+        // Estimate channels from measured bandwidth
+        mem->estimated_channels = topology_estimate_channels_from_bandwidth(
+            mem->measured_bandwidth_gbs, mem->memory_speed_mhz, mem->memory_type);
+
+        // Update channel config string
+        switch (mem->estimated_channels) {
+            case 1:
+                strcpy(mem->channel_config, "Single-channel (estimated)");
+                break;
+            case 2:
+                strcpy(mem->channel_config, "Dual-channel (estimated)");
+                break;
+            case 4:
+                strcpy(mem->channel_config, "Quad-channel (estimated)");
+                break;
+            case 6:
+                strcpy(mem->channel_config, "Hexa-channel (estimated)");
+                break;
+            case 8:
+                strcpy(mem->channel_config, "Octa-channel (estimated)");
+                break;
+            default:
+                snprintf(mem->channel_config, sizeof(mem->channel_config),
+                         "%d-channel (estimated)", mem->estimated_channels);
+        }
+
+        mem->channels_populated = mem->estimated_channels;
+        mem->num_channels = mem->estimated_channels;
+
+        // Recalculate theoretical based on estimated channels
+        mem->theoretical_bandwidth_gbs =
+            (mem->memory_speed_mhz * 8.0f * mem->estimated_channels) / 1000.0f;
     }
 
     return 0;

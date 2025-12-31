@@ -105,30 +105,25 @@ jobs:
             echo "## Nightly Test Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Extract summary from JSON
-            PASSED=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['passed'])")
-            FAILED=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['failed'])")
-            TOTAL=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['total'])")
-            DURATION=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(f\"{d['duration_sec']:.1f}\")")
-
-            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
-            echo "| Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
-            echo "| Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
-            echo "| Duration | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-
-            if [ "$FAILED" -gt 0 ]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### Failed Tests" >> $GITHUB_STEP_SUMMARY
-              python -c "
-import json
-d = json.load(open('build/nightly_report.json'))
-for r in d['results']:
-    if r['status'] in ('fail', 'timeout'):
-        print(f\"- **{r['name']}** [{r['category']}]: {r['error_msg'][:100]}\")
-" >> $GITHUB_STEP_SUMMARY
-            fi
+            # Extract summary from JSON using Python
+            python3 << 'PYEOF' >> $GITHUB_STEP_SUMMARY
+          import json
+          d = json.load(open('build/nightly_report.json'))
+          s = d['summary']
+          print("| Metric | Value |")
+          print("|--------|-------|")
+          print(f"| Passed | {s['passed']} |")
+          print(f"| Failed | {s['failed']} |")
+          print(f"| Total | {s['total']} |")
+          print(f"| Duration | {d['duration_sec']:.1f}s |")
+          if s['failed'] > 0:
+              print("")
+              print("### Failed Tests")
+              for r in d['results']:
+                  if r['status'] in ('fail', 'timeout'):
+                      msg = r['error_msg'][:100] if r['error_msg'] else 'Unknown error'
+                      print(f"- **{r['name']}** [{r['category']}]: {msg}")
+          PYEOF
           fi
 
       - name: Check for failures
