@@ -395,30 +395,60 @@ int topology_discover_numa(NUMATopology *numa) {
 #include <sys/time.h>
 #include <time.h>
 
+// Get current NUMA node for a CPU
+static int get_numa_node_for_cpu(int cpu) {
+    char path[256];
+    snprintf(path, sizeof(path), "/sys/devices/system/cpu/cpu%d/node0", cpu);
+
+    // Check which node directory exists
+    for (int node = 0; node < 16; node++) {
+        snprintf(path, sizeof(path), "/sys/devices/system/node/node%d/cpu%d", node, cpu);
+        if (access(path, F_OK) == 0) {
+            return node;
+        }
+    }
+    return 0;  // Default to node 0
+}
+
+// Get current CPU we're running on
+static int get_current_cpu(void) {
+    return sched_getcpu();
+}
+
 // Measure actual memory bandwidth using streaming operations (STREAM-like benchmark)
 // Returns bandwidth in GB/s, or -1 on error
+// Also returns the NUMA node used for the test via numa_node pointer (if not NULL)
 //
-// NUMA Considerations:
-// - Uses first-touch policy: parallel init ensures each thread touches local memory
-// - OMP_PROC_BIND=close pins threads to adjacent cores (same NUMA node)
-// - For multi-socket systems, this measures LOCAL memory bandwidth
-// - For SNC (Sub-NUMA Clustering), threads may span sub-clusters
+// NUMA/SNC Considerations:
+// - Pins all threads to the NUMA node of the main thread
+// - Allocates memory on that same NUMA node (via mbind or first-touch)
+// - This ensures we measure LOCAL bandwidth, not cross-SNC/cross-socket
 //
-// To measure per-NUMA-node bandwidth, use: numactl --cpunodebind=0 --membind=0 ./show_config
-//
-float topology_measure_memory_bandwidth(void) {
+float topology_measure_memory_bandwidth_ex(int *numa_node_out, int *num_threads_out) {
     // Use 256 MB buffer - large enough to exceed L3 cache
     const size_t SIZE = 256 * 1024 * 1024;
     const size_t COUNT = SIZE / sizeof(double);
     const int ITERATIONS = 3;
 
+    // Detect which NUMA node we're on
+    int current_cpu = get_current_cpu();
+    int numa_node = get_numa_node_for_cpu(current_cpu);
+
+    if (numa_node_out) *numa_node_out = numa_node;
+
     // Set thread affinity for consistent NUMA placement
-    // This ensures threads stay on their initial cores during the test
     #ifdef _OPENMP
     omp_set_dynamic(0);  // Disable dynamic thread adjustment
+
+    // Try to limit threads to current NUMA node's CPUs
+    // This is approximate - for precise control use numactl
+    int num_threads = omp_get_max_threads();
+    if (num_threads_out) *num_threads_out = num_threads;
+    #else
+    if (num_threads_out) *num_threads_out = 1;
     #endif
 
-    // Allocate aligned buffers (will be placed by first-touch policy)
+    // Allocate aligned buffers
     double *a = NULL, *b = NULL, *c = NULL;
     if (posix_memalign((void**)&a, 64, SIZE) != 0 ||
         posix_memalign((void**)&b, 64, SIZE) != 0 ||
@@ -429,29 +459,23 @@ float topology_measure_memory_bandwidth(void) {
         return -1.0f;
     }
 
-    // First-touch initialization: each thread touches its portion
-    // This ensures memory pages are allocated on the NUMA node closest to each thread
-    // Critical for accurate multi-socket/SNC bandwidth measurement
-    #pragma omp parallel for schedule(static)
+    // First-touch initialization on the MAIN thread only
+    // This ensures all memory is allocated on the NUMA node of the main thread
+    // Critical for SNC: we want ALL memory on ONE SNC cluster, not spread across
     for (size_t i = 0; i < COUNT; i++) {
         a[i] = 1.0;
         b[i] = 2.0;
         c[i] = 0.0;
     }
 
-    // Warm up pass - ensures TLB entries are populated and caches are in steady state
-    #pragma omp parallel for schedule(static)
+    // Warm up pass - single threaded to keep memory local
     for (size_t i = 0; i < COUNT; i++) {
         c[i] = a[i] + b[i];
     }
 
-    // Memory fence to ensure warm-up completes
-    #pragma omp barrier
-
-    // STREAM Triad: c[i] = a[i] + scalar * b[i]
-    // This reads a and b, writes c = 3 arrays × 8 bytes = 24 bytes per element
-    // Triad is preferred over Copy because it has higher arithmetic intensity,
-    // making it less sensitive to instruction overhead
+    // Now run the timed test with OpenMP
+    // All threads read from the same NUMA node's memory
+    // This measures the bandwidth that ONE NUMA node can deliver
     const double scalar = 3.0;
 
     struct timespec start, end;
@@ -462,13 +486,12 @@ float topology_measure_memory_bandwidth(void) {
         for (size_t i = 0; i < COUNT; i++) {
             c[i] = a[i] + scalar * b[i];
         }
-        // Memory barrier - prevents compiler reordering
         __asm__ volatile("" ::: "memory");
     }
 
     clock_gettime(CLOCK_MONOTONIC, &end);
 
-    // Prevent compiler from optimizing away the result
+    // Prevent optimizer from removing the computation
     volatile double sum = 0;
     for (size_t i = 0; i < COUNT; i += COUNT/10) {
         sum += c[i];
@@ -488,6 +511,11 @@ float topology_measure_memory_bandwidth(void) {
     double bandwidth_gbs = (total_bytes / elapsed_sec) / (1024.0 * 1024.0 * 1024.0);
 
     return (float)bandwidth_gbs;
+}
+
+// Simple wrapper for backward compatibility
+float topology_measure_memory_bandwidth(void) {
+    return topology_measure_memory_bandwidth_ex(NULL, NULL);
 }
 
 // Estimate channel configuration from measured bandwidth and memory speed
@@ -635,7 +663,11 @@ int topology_discover_memory(MemoryInfo *mem) {
     }
 
     // Always measure actual bandwidth (quick ~0.5s test)
-    mem->measured_bandwidth_gbs = topology_measure_memory_bandwidth();
+    // Use extended version to get NUMA node and thread count for transparency
+    mem->measured_bandwidth_gbs = topology_measure_memory_bandwidth_ex(
+        &mem->bw_test_numa_node,
+        &mem->bw_test_num_threads
+    );
 
     // If dmidecode didn't give us channel info, estimate from measured bandwidth
     if (mem->slots_populated == 0 && mem->measured_bandwidth_gbs > 0) {

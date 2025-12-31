@@ -139,6 +139,10 @@ typedef struct {
     float    measured_bandwidth_gbs;    // From actual benchmark
     int      estimated_channels;        // Inferred from measured bandwidth
 
+    // Benchmark details (for transparency)
+    int      bw_test_numa_node;         // Which NUMA node was tested
+    int      bw_test_num_threads;       // How many threads used
+
     // Memory type detected
     char     memory_type[32];
     int      memory_speed_mhz;

@@ -137,6 +137,20 @@ def extract_plan_steps(plan, kernels):
     return steps
 
 
+def extract_plan_steps_with_bind(plan, kernels):
+    steps = []
+    for step in plan.get("steps", []):
+        kernel_name = step.get("kernel")
+        if not kernel_name:
+            raise SystemExit("plan step missing kernel")
+        if kernel_name not in kernels:
+            raise SystemExit(f"unknown kernel in plan: {kernel_name}")
+        condition = step.get("when") or step.get("condition")
+        bindings = step.get("bind", {}) or {}
+        steps.append({"kernel": kernel_name, "condition": condition, "bind": bindings})
+    return steps
+
+
 def select_kernel_buffers(kernel, plan_kind):
     if plan_kind == "backward":
         return kernel.get("buffers_backward") or kernel.get("buffers") or []
@@ -316,6 +330,8 @@ def main():
 
     plan_fwd_steps = extract_plan_steps(plan, kernels)
     plan_bwd_steps = extract_plan_steps(plan_bwd, kernels)
+    plan_fwd_bind = extract_plan_steps_with_bind(plan, kernels)
+    plan_bwd_bind = extract_plan_steps_with_bind(plan_bwd, kernels)
 
     with open(OUT_H, "w", encoding="utf-8") as f:
         f.write("#ifndef CKERNEL_KERNEL_SPECS_H\n")
@@ -384,6 +400,18 @@ def main():
         f.write("    const char *condition;\n")
         f.write("} CKPlanStep;\n\n")
 
+        f.write("typedef struct {\n")
+        f.write("    const char *arg;\n")
+        f.write("    const char *buffer;\n")
+        f.write("} CKPlanBinding;\n\n")
+
+        f.write("typedef struct {\n")
+        f.write("    const char *kernel;\n")
+        f.write("    const char *condition;\n")
+        f.write("    const CKPlanBinding *bindings;\n")
+        f.write("    size_t num_bindings;\n")
+        f.write("} CKPlanStepV2;\n\n")
+
         f.write("extern const CKBufferSpec ck_decoder_buffers[];\n")
         f.write("extern const size_t ck_decoder_buffer_count;\n\n")
         f.write("extern const CKKernelSpec ck_kernel_specs[];\n")
@@ -392,6 +420,10 @@ def main():
         f.write("extern const size_t ck_decoder_forward_plan_count;\n\n")
         f.write("extern const CKPlanStep ck_decoder_backward_plan[];\n")
         f.write("extern const size_t ck_decoder_backward_plan_count;\n\n")
+        f.write("extern const CKPlanStepV2 ck_decoder_forward_plan_v2[];\n")
+        f.write("extern const size_t ck_decoder_forward_plan_v2_count;\n\n")
+        f.write("extern const CKPlanStepV2 ck_decoder_backward_plan_v2[];\n")
+        f.write("extern const size_t ck_decoder_backward_plan_v2_count;\n\n")
         f.write("#endif /* CKERNEL_KERNEL_SPECS_H */\n")
 
     with open(OUT_C, "w", encoding="utf-8") as f:
@@ -453,6 +485,42 @@ def main():
             f.write("    {\"%s\", %s},\n" % (kernel_name, cond_c))
         f.write("};\n\n")
         f.write("const size_t ck_decoder_backward_plan_count = sizeof(ck_decoder_backward_plan) / sizeof(ck_decoder_backward_plan[0]);\n")
+
+        def emit_plan_bindings(steps, prefix):
+            bindings_info = []
+            for idx, step in enumerate(steps):
+                binds = step.get("bind") or {}
+                if not binds:
+                    bindings_info.append(("NULL", 0))
+                    continue
+                arr_name = f"{prefix}_bindings_{idx}"
+                f.write(f"\nstatic const CKPlanBinding {arr_name}[] = {{\n")
+                for arg, buf in binds.items():
+                    f.write(f"    {{\"{arg}\", \"{buf}\"}},\n")
+                f.write("};\n")
+                bindings_info.append((arr_name, len(binds)))
+            return bindings_info
+
+        fwd_bindings = emit_plan_bindings(plan_fwd_bind, "ck_decoder_forward")
+        bwd_bindings = emit_plan_bindings(plan_bwd_bind, "ck_decoder_backward")
+
+        f.write("\nconst CKPlanStepV2 ck_decoder_forward_plan_v2[] = {\n")
+        for idx, step in enumerate(plan_fwd_bind):
+            cond = step.get("condition")
+            cond_c = "NULL" if not cond else f"\"{cond}\""
+            arr_name, count = fwd_bindings[idx]
+            f.write(f"    {{\"{step['kernel']}\", {cond_c}, {arr_name}, {count}}},\n")
+        f.write("};\n\n")
+        f.write("const size_t ck_decoder_forward_plan_v2_count = sizeof(ck_decoder_forward_plan_v2) / sizeof(ck_decoder_forward_plan_v2[0]);\n")
+
+        f.write("\nconst CKPlanStepV2 ck_decoder_backward_plan_v2[] = {\n")
+        for idx, step in enumerate(plan_bwd_bind):
+            cond = step.get("condition")
+            cond_c = "NULL" if not cond else f"\"{cond}\""
+            arr_name, count = bwd_bindings[idx]
+            f.write(f"    {{\"{step['kernel']}\", {cond_c}, {arr_name}, {count}}},\n")
+        f.write("};\n\n")
+        f.write("const size_t ck_decoder_backward_plan_v2_count = sizeof(ck_decoder_backward_plan_v2) / sizeof(ck_decoder_backward_plan_v2[0]);\n")
 
     return 0
 

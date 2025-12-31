@@ -83,15 +83,15 @@ const CKBufferSpec ck_decoder_buffers[] = {
 const size_t ck_decoder_buffer_count = sizeof(ck_decoder_buffers) / sizeof(ck_decoder_buffers[0]);
 
 const CKKernelSpec ck_kernel_specs[] = {
-    {"attention", { "attention_forward_causal_head_major_gqa", "attention_forward_causal_head_major_gqa_bf16", NULL, NULL, NULL }, { "attention_backward_causal_head_major_gqa", "attention_backward_causal_head_major_gqa_bf16", NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16), CK_DT_FP32, { "src/kernels/attention_kernels.c", "src/kernels/attention_decode_fused.c", "src/kernels/softmax_kernels.c", NULL, NULL, NULL, NULL, NULL }},
-    {"attn_proj", { "ck_attention_project_head_major", NULL, NULL, NULL, NULL }, { "ck_attention_project_head_major_backward", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/ckernel_orchestration.c", "src/cpu_features.c", "src/kernels/gemm_kernels.c", "src/kernels/gemm_microkernel.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL }},
-    {"mlp_down", { "gemm_blocked_serial", NULL, NULL, NULL, NULL }, { "fc2_backward_kernel", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/cpu_features.c", "src/kernels/gemm_kernels.c", "src/kernels/gemm_microkernel.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL }},
-    {"mlp_up", { "gemm_blocked_serial", NULL, NULL, NULL, NULL }, { "fc1_backward_kernel", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/cpu_features.c", "src/kernels/gemm_kernels.c", "src/kernels/gemm_microkernel.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL }},
-    {"qkv_project", { "ck_qkv_project_head_major", NULL, NULL, NULL, NULL }, { "ck_qkv_project_head_major_backward", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/ckernel_orchestration.c", "src/cpu_features.c", "src/kernels/gemm_kernels.c", "src/kernels/gemm_microkernel.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL }},
+    {"attention", { "attention_forward_causal_head_major_gqa", "attention_forward_causal_head_major_gqa_bf16", NULL, NULL, NULL }, { "attention_backward_causal_head_major_gqa", "attention_backward_causal_head_major_gqa_bf16", NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16), CK_DT_FP32, { "src/kernels/attention_kernels.c", "src/kernels/softmax_kernels.c", NULL, NULL, NULL, NULL, NULL, NULL }},
+    {"attn_proj", { "ck_attention_project_head_major", NULL, NULL, NULL, NULL }, { "ck_attention_project_head_major_backward", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/ckernel_orchestration.c", "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL, NULL }},
+    {"mlp_down", { "gemm_blocked_serial", NULL, NULL, NULL, NULL }, { "fc2_backward_kernel", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL, NULL, NULL }},
+    {"mlp_up", { "gemm_blocked_serial", NULL, NULL, NULL, NULL }, { "fc1_backward_kernel", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL, NULL, NULL }},
+    {"qkv_project", { "ck_qkv_project_head_major", NULL, NULL, NULL, NULL }, { "ck_qkv_project_head_major_backward", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/ckernel_orchestration.c", "src/kernels/gemm_kernels.c", "src/kernels/mlp_kernels.c", "src/kernels/gelu_kernels.c", NULL, NULL, NULL, NULL }},
     {"residual_add", { "ck_residual_add_token_major", NULL, NULL, NULL, NULL }, { "ck_residual_add_backward", NULL, NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32), CK_DT_FP32, { "src/ckernel_orchestration.c", NULL, NULL, NULL, NULL, NULL, NULL, NULL }},
     {"rmsnorm", { "rmsnorm_forward", "rmsnorm_forward_bf16", NULL, "rmsnorm_forward_int8", "rmsnorm_forward_int4" }, { "rmsnorm_backward", "rmsnorm_backward_bf16", NULL, "rmsnorm_backward_int8", "rmsnorm_backward_int4" }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16) | CK_DT_MASK(CK_DT_INT8) | CK_DT_MASK(CK_DT_INT4), CK_DT_FP32, { "src/kernels/rmsnorm_kernels.c", "src/kernels/rmsnorm_kernels_bf16.c", "src/kernels/rmsnorm_kernels_int8.c", "src/kernels/rmsnorm_kernels_int4.c", NULL, NULL, NULL, NULL }},
     {"rope", { "rope_forward_qk", "rope_forward_qk_bf16", NULL, NULL, NULL }, { "rope_backward_qk", "rope_backward_qk_bf16", NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16), CK_DT_FP32, { "src/kernels/rope_kernels.c", "src/kernels/rope_kernels_bf16.c", NULL, NULL, NULL, NULL, NULL, NULL }},
-    {"swiglu", { "swiglu_forward", "swiglu_forward_bf16", NULL, NULL, NULL }, { "swiglu_backward", "swiglu_backward_bf16", NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16), CK_DT_FP32, { "src/kernels/swiglu_kernels.c", "src/kernels/swiglu_kernels_bf16.c", "src/kernels/sigmoid_kernels.c", "src/kernels/gemm_fused_kernels.c", NULL, NULL, NULL, NULL }},
+    {"swiglu", { "swiglu_forward", "swiglu_forward_bf16", NULL, NULL, NULL }, { "swiglu_backward", "swiglu_backward_bf16", NULL, NULL, NULL }, CK_DT_MASK(CK_DT_FP32) | CK_DT_MASK(CK_DT_BF16), CK_DT_FP32, { "src/kernels/swiglu_kernels.c", "src/kernels/swiglu_kernels_bf16.c", "src/kernels/sigmoid_kernels.c", NULL, NULL, NULL, NULL, NULL }},
 };
 
 const size_t ck_kernel_spec_count = sizeof(ck_kernel_specs) / sizeof(ck_kernel_specs[0]);
@@ -127,3 +127,217 @@ const CKPlanStep ck_decoder_backward_plan[] = {
 };
 
 const size_t ck_decoder_backward_plan_count = sizeof(ck_decoder_backward_plan) / sizeof(ck_decoder_backward_plan[0]);
+
+static const CKPlanBinding ck_decoder_forward_bindings_0[] = {
+    {"input", "input"},
+    {"gamma", "ln1_gamma"},
+    {"out", "ln1_out"},
+    {"rstd", "ln1_rstd"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_1[] = {
+    {"input", "ln1_out"},
+    {"wq", "wq"},
+    {"bq", "bq"},
+    {"wk", "wk"},
+    {"bk", "bk"},
+    {"wv", "wv"},
+    {"bv", "bv"},
+    {"q", "q"},
+    {"k", "k"},
+    {"v", "v"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_2[] = {
+    {"q", "q"},
+    {"k", "k"},
+    {"cos_cache", "rope_cos_cache"},
+    {"sin_cache", "rope_sin_cache"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_3[] = {
+    {"q", "q"},
+    {"k", "k"},
+    {"v", "v"},
+    {"scores", "scores"},
+    {"attn_out", "attn_out"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_4[] = {
+    {"attn_out", "attn_out"},
+    {"wo", "wo"},
+    {"bo", "bo"},
+    {"proj_tmp", "proj_tmp"},
+    {"proj_scratch", "proj_scratch"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_5[] = {
+    {"a", "input"},
+    {"b", "proj_tmp"},
+    {"out", "residual1"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_6[] = {
+    {"input", "residual1"},
+    {"gamma", "ln2_gamma"},
+    {"out", "ln2_out"},
+    {"rstd", "ln2_rstd"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_7[] = {
+    {"input", "ln2_out"},
+    {"w1", "w1"},
+    {"b1", "b1"},
+    {"fc1_out", "fc1_out"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_8[] = {
+    {"fc1_out", "fc1_out"},
+    {"swiglu_out", "swiglu_out"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_9[] = {
+    {"swiglu_out", "swiglu_out"},
+    {"w2", "w2"},
+    {"b2", "b2"},
+    {"mlp_out", "mlp_out"},
+};
+
+static const CKPlanBinding ck_decoder_forward_bindings_10[] = {
+    {"a", "residual1"},
+    {"b", "mlp_out"},
+    {"out", "output"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_0[] = {
+    {"d_out", "d_output"},
+    {"d_a", "d_residual1"},
+    {"d_b", "d_mlp_out"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_1[] = {
+    {"d_out", "d_mlp_out"},
+    {"swiglu_out", "swiglu_out"},
+    {"w2", "w2"},
+    {"d_input", "d_swiglu_out"},
+    {"d_w2", "d_w2"},
+    {"d_b2", "d_b2"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_2[] = {
+    {"fc1_out", "fc1_out"},
+    {"d_out", "d_swiglu_out"},
+    {"d_input", "d_fc1_out"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_3[] = {
+    {"d_out", "d_fc1_out"},
+    {"input", "ln2_out"},
+    {"w1", "w1"},
+    {"d_input", "d_ln2_out"},
+    {"d_w1", "d_w1"},
+    {"d_b1", "d_b1"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_4[] = {
+    {"d_out", "d_ln2_out"},
+    {"input", "residual1"},
+    {"gamma", "ln2_gamma"},
+    {"rstd", "ln2_rstd"},
+    {"d_input", "d_residual1"},
+    {"d_gamma", "d_ln2_gamma"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_5[] = {
+    {"d_out", "d_residual1"},
+    {"d_a", "d_input"},
+    {"d_b", "d_proj_tmp"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_6[] = {
+    {"d_out", "d_proj_tmp"},
+    {"attn_out", "attn_out"},
+    {"wo", "wo"},
+    {"d_attn_out", "d_attn_out"},
+    {"d_wo", "d_wo"},
+    {"d_bo", "d_bo"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_7[] = {
+    {"d_out", "d_attn_out"},
+    {"q", "q"},
+    {"k", "k"},
+    {"v", "v"},
+    {"scores", "scores"},
+    {"d_q", "d_q"},
+    {"d_k", "d_k"},
+    {"d_v", "d_v"},
+    {"d_scores", "d_scores"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_8[] = {
+    {"d_q_out", "d_q"},
+    {"d_k_out", "d_k"},
+    {"d_q", "d_q"},
+    {"d_k", "d_k"},
+    {"cos_cache", "rope_cos_cache"},
+    {"sin_cache", "rope_sin_cache"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_9[] = {
+    {"d_q", "d_q"},
+    {"d_k", "d_k"},
+    {"d_v", "d_v"},
+    {"input", "ln1_out"},
+    {"wq", "wq"},
+    {"wk", "wk"},
+    {"wv", "wv"},
+    {"d_input", "d_ln1_out"},
+    {"d_wq", "d_wq"},
+    {"d_bq", "d_bq"},
+    {"d_wk", "d_wk"},
+    {"d_bk", "d_bk"},
+    {"d_wv", "d_wv"},
+    {"d_bv", "d_bv"},
+};
+
+static const CKPlanBinding ck_decoder_backward_bindings_10[] = {
+    {"d_out", "d_ln1_out"},
+    {"input", "input"},
+    {"gamma", "ln1_gamma"},
+    {"rstd", "ln1_rstd"},
+    {"d_input", "d_input"},
+    {"d_gamma", "d_ln1_gamma"},
+};
+
+const CKPlanStepV2 ck_decoder_forward_plan_v2[] = {
+    {"rmsnorm", NULL, ck_decoder_forward_bindings_0, 4},
+    {"qkv_project", NULL, ck_decoder_forward_bindings_1, 10},
+    {"rope", "rope_theta>0", ck_decoder_forward_bindings_2, 4},
+    {"attention", NULL, ck_decoder_forward_bindings_3, 5},
+    {"attn_proj", NULL, ck_decoder_forward_bindings_4, 5},
+    {"residual_add", NULL, ck_decoder_forward_bindings_5, 3},
+    {"rmsnorm", NULL, ck_decoder_forward_bindings_6, 4},
+    {"mlp_up", NULL, ck_decoder_forward_bindings_7, 4},
+    {"swiglu", NULL, ck_decoder_forward_bindings_8, 2},
+    {"mlp_down", NULL, ck_decoder_forward_bindings_9, 4},
+    {"residual_add", NULL, ck_decoder_forward_bindings_10, 3},
+};
+
+const size_t ck_decoder_forward_plan_v2_count = sizeof(ck_decoder_forward_plan_v2) / sizeof(ck_decoder_forward_plan_v2[0]);
+
+const CKPlanStepV2 ck_decoder_backward_plan_v2[] = {
+    {"residual_add", NULL, ck_decoder_backward_bindings_0, 3},
+    {"mlp_down", NULL, ck_decoder_backward_bindings_1, 6},
+    {"swiglu", NULL, ck_decoder_backward_bindings_2, 3},
+    {"mlp_up", NULL, ck_decoder_backward_bindings_3, 6},
+    {"rmsnorm", NULL, ck_decoder_backward_bindings_4, 6},
+    {"residual_add", NULL, ck_decoder_backward_bindings_5, 3},
+    {"attn_proj", NULL, ck_decoder_backward_bindings_6, 6},
+    {"attention", NULL, ck_decoder_backward_bindings_7, 9},
+    {"rope", "rope_theta>0", ck_decoder_backward_bindings_8, 6},
+    {"qkv_project", NULL, ck_decoder_backward_bindings_9, 14},
+    {"rmsnorm", NULL, ck_decoder_backward_bindings_10, 6},
+};
+
+const size_t ck_decoder_backward_plan_v2_count = sizeof(ck_decoder_backward_plan_v2) / sizeof(ck_decoder_backward_plan_v2[0]);

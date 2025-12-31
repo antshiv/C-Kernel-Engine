@@ -356,6 +356,10 @@ void topology_print_memory(const MemoryInfo *mem) {
                C(DIM), C(RESET));
         printf("  %s│   Buffer: 256 MB × 3 arrays, 3 iterations%s\n",
                C(DIM), C(RESET));
+        printf("  %s│   NUMA node: %d (memory allocated on this node)%s\n",
+               C(DIM), mem->bw_test_numa_node, C(RESET));
+        printf("  %s│   Threads: %d (OMP_NUM_THREADS)%s\n",
+               C(DIM), mem->bw_test_num_threads, C(RESET));
         printf("  %s└── Formula: (256MB × 3 × 3) / time = GB/s%s\n",
                C(DIM), C(RESET));
     }

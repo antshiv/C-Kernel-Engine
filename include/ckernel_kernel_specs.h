@@ -67,6 +67,18 @@ typedef struct {
     const char *condition;
 } CKPlanStep;
 
+typedef struct {
+    const char *arg;
+    const char *buffer;
+} CKPlanBinding;
+
+typedef struct {
+    const char *kernel;
+    const char *condition;
+    const CKPlanBinding *bindings;
+    size_t num_bindings;
+} CKPlanStepV2;
+
 extern const CKBufferSpec ck_decoder_buffers[];
 extern const size_t ck_decoder_buffer_count;
 
@@ -78,5 +90,11 @@ extern const size_t ck_decoder_forward_plan_count;
 
 extern const CKPlanStep ck_decoder_backward_plan[];
 extern const size_t ck_decoder_backward_plan_count;
+
+extern const CKPlanStepV2 ck_decoder_forward_plan_v2[];
+extern const size_t ck_decoder_forward_plan_v2_count;
+
+extern const CKPlanStepV2 ck_decoder_backward_plan_v2[];
+extern const size_t ck_decoder_backward_plan_v2_count;
 
 #endif /* CKERNEL_KERNEL_SPECS_H */
