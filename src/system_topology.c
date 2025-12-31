@@ -220,6 +220,25 @@ int topology_discover_cpu(CPUInfo *cpu) {
 // Cache Discovery
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Sort caches by level (L1 first), then by type (Data before Instruction before Unified)
+static int cache_compare(const void *a, const void *b) {
+    const CacheInfo *ca = (const CacheInfo *)a;
+    const CacheInfo *cb = (const CacheInfo *)b;
+
+    // First sort by level (L1 < L2 < L3)
+    if (ca->level != cb->level) {
+        return ca->level - cb->level;
+    }
+
+    // Within same level, sort by type: Data, Instruction, Unified
+    int type_order_a = (strcmp(ca->type, "Data") == 0) ? 0 :
+                       (strcmp(ca->type, "Instruction") == 0) ? 1 : 2;
+    int type_order_b = (strcmp(cb->type, "Data") == 0) ? 0 :
+                       (strcmp(cb->type, "Instruction") == 0) ? 1 : 2;
+
+    return type_order_a - type_order_b;
+}
+
 int topology_discover_cache(CacheTopology *cache) {
     memset(cache, 0, sizeof(*cache));
 
@@ -266,6 +285,9 @@ int topology_discover_cache(CacheTopology *cache) {
         if (cache->num_levels >= MAX_CACHE_LEVELS) break;
     }
     closedir(dir);
+
+    // Sort by level (L1 → L2 → L3) and type (Data → Instruction → Unified)
+    qsort(cache->levels, cache->num_levels, sizeof(CacheInfo), cache_compare);
 
     return 0;
 }

@@ -1,0 +1,142 @@
+name: Nightly Tests
+
+on:
+  # Run nightly at 2am UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Also run on push to main and PRs
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      test_category:
+        description: 'Test category to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - quick
+          - kernels
+          - bf16
+          - quant
+          - parity
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check CPU features
+        run: |
+          echo "=== CPU Info ==="
+          lscpu | grep -E "(Model name|CPU\(s\)|Thread|Core|Socket|Flags)"
+          echo ""
+          echo "=== AVX Support ==="
+          if grep -q avx512f /proc/cpuinfo; then
+            echo "AVX-512: YES"
+          else
+            echo "AVX-512: NO (will use scalar fallbacks)"
+          fi
+          if grep -q avx2 /proc/cpuinfo; then
+            echo "AVX2: YES"
+          else
+            echo "AVX2: NO"
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch numpy safetensors requests tqdm
+          pip list | grep -E "(torch|numpy)"
+
+      - name: Build library
+        run: |
+          make clean || true
+          make -j$(nproc)
+          make test-libs
+          echo ""
+          echo "=== Built libraries ==="
+          ls -la build/*.so 2>/dev/null || echo "No .so files in build/"
+
+      - name: Run nightly tests (quick for PRs)
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/nightly_runner.py --quick --json build/nightly_report.json
+
+      - name: Run nightly tests (full for main/scheduled)
+        if: github.event_name != 'pull_request'
+        run: |
+          CATEGORY="${{ github.event.inputs.test_category || 'all' }}"
+          if [ "$CATEGORY" = "all" ]; then
+            python scripts/nightly_runner.py --json build/nightly_report.json
+          elif [ "$CATEGORY" = "quick" ]; then
+            python scripts/nightly_runner.py --quick --json build/nightly_report.json
+          else
+            python scripts/nightly_runner.py --category "$CATEGORY" --json build/nightly_report.json
+          fi
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-report-${{ github.run_number }}
+          path: build/nightly_report.json
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f build/nightly_report.json ]; then
+            echo "## Nightly Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Extract summary from JSON
+            PASSED=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['passed'])")
+            FAILED=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['failed'])")
+            TOTAL=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['total'])")
+            DURATION=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(f\"{d['duration_sec']:.1f}\")")
+
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| Duration | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$FAILED" -gt 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Failed Tests" >> $GITHUB_STEP_SUMMARY
+              python -c "
+import json
+d = json.load(open('build/nightly_report.json'))
+for r in d['results']:
+    if r['status'] in ('fail', 'timeout'):
+        print(f\"- **{r['name']}** [{r['category']}]: {r['error_msg'][:100]}\")
+" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: Check for failures
+        run: |
+          if [ -f build/nightly_report.json ]; then
+            FAILED=$(python -c "import json; d=json.load(open('build/nightly_report.json')); print(d['summary']['failed'])")
+            if [ "$FAILED" -gt 0 ]; then
+              echo "::error::$FAILED tests failed"
+              exit 1
+            fi
+          fi

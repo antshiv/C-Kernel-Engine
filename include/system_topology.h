@@ -310,7 +310,7 @@ int  topology_generate_recommendations(const SystemTopology *topo,
 // Display functions
 void topology_print_summary(const SystemTopology *topo);
 void topology_print_cpu(const CPUInfo *cpu);
-void topology_print_cache(const CacheTopology *cache);
+void topology_print_cache(const CacheTopology *cache, int logical_cores);
 void topology_print_numa(const NUMATopology *numa);
 void topology_print_memory(const MemoryInfo *mem);
 void topology_print_pcie(const PCIeTopology *pcie);

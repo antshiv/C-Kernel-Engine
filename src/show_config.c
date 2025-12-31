@@ -166,23 +166,43 @@ void topology_print_cpu(const CPUInfo *cpu) {
     }
 }
 
-void topology_print_cache(const CacheTopology *cache) {
+void topology_print_cache(const CacheTopology *cache, int logical_cores) {
     print_section("CACHE HIERARCHY");
 
     for (int i = 0; i < cache->num_levels; i++) {
         const CacheInfo *c = &cache->levels[i];
         int is_last = (i == cache->num_levels - 1);
 
-        char shared_info[64] = "";
-        if (c->shared_by_cores > 1) {
-            snprintf(shared_info, sizeof(shared_info),
-                     " (shared by %d threads)", c->shared_by_cores);
+        // Calculate number of instances (how many of this cache exist)
+        int instances = 1;
+        if (c->shared_by_cores > 0 && logical_cores > 0) {
+            instances = logical_cores / c->shared_by_cores;
+            if (instances < 1) instances = 1;
         }
 
-        print_tree_item(0, is_last, "L%d %s: %d KB, %d-way, %d B line%s",
-                        c->level, c->type, c->size_kb,
-                        c->ways_of_associativity, c->line_size_bytes,
-                        shared_info);
+        // Calculate total size across all instances
+        int total_kb = c->size_kb * instances;
+
+        // Format size nicely (KB or MB)
+        char size_str[32];
+        if (total_kb >= 1024) {
+            snprintf(size_str, sizeof(size_str), "%d MiB", total_kb / 1024);
+        } else {
+            snprintf(size_str, sizeof(size_str), "%d KiB", total_kb);
+        }
+
+        // Format instance info like lscpu
+        char instance_str[32] = "";
+        if (instances > 1) {
+            snprintf(instance_str, sizeof(instance_str), " (%d instances)", instances);
+        } else {
+            snprintf(instance_str, sizeof(instance_str), " (%d instance)", instances);
+        }
+
+        print_tree_item(0, is_last, "L%d%c: %s%s",
+                        c->level,
+                        c->type[0] == 'D' ? 'd' : (c->type[0] == 'I' ? 'i' : ' '),
+                        size_str, instance_str);
     }
 }
 
@@ -546,7 +566,7 @@ void topology_print_summary(const SystemTopology *topo) {
     }
 
     topology_print_cpu(&topo->cpu);
-    topology_print_cache(&topo->cache);
+    topology_print_cache(&topo->cache, topo->cpu.logical_cores);
     topology_print_numa(&topo->numa);
     topology_print_memory(&topo->memory);
     topology_print_pcie(&topo->pcie);

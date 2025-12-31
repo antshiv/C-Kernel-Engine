@@ -759,6 +759,18 @@ help:
 	@echo "  make test-quick      Comprehensive quick tests (<1 min) - tiny models, basic configs"
 	@echo "  make test-full       Comprehensive full tests (5-10 min) - GQA, medium, deep, wide models"
 	@echo "  make test-stress     Comprehensive stress tests (10+ min) - convergence, overfit tests"
+	@echo ""
+	@echo "  Nightly / CI:"
+	@echo "  make nightly         Run all tests (doesn't stop on failure, shows summary)"
+	@echo "  make nightly-quick   Quick subset (~5 min)"
+	@echo "  make nightly-json    Run all + save JSON report to build/"
+	@echo "  make nightly-baseline  Save current perf metrics as baseline"
+	@echo "  make nightly-kernels   Run only kernel tests"
+	@echo "  make nightly-bf16      Run only BF16 tests"
+	@echo "  make nightly-quant     Run only quantization tests"
+	@echo "  make nightly-parity    Run only parity tests"
+	@echo "  make nightly-list      List all available tests"
+	@echo ""
 	@echo "  make bench_gemm      Compare GEMM: Native vs MKL vs PyTorch"
 	@echo "  make bench_gemm_native  Benchmark GEMM: Native vs PyTorch"
 	@echo "  make bench_gemm_mkl     Benchmark GEMM: MKL vs PyTorch (requires oneAPI MKL)"
@@ -973,6 +985,34 @@ test-coverage:
 
 test-coverage-md:
 	@$(PYTHON) scripts/test_coverage.py --markdown
+
+# Nightly test runner (runs all tests, doesn't stop on failure)
+nightly:
+	@$(PYTHON) scripts/nightly_runner.py
+
+nightly-quick:
+	@$(PYTHON) scripts/nightly_runner.py --quick
+
+nightly-json:
+	@$(PYTHON) scripts/nightly_runner.py --json $(BUILD_DIR)/nightly_report.json
+
+nightly-baseline:
+	@$(PYTHON) scripts/nightly_runner.py --save-baseline
+
+nightly-kernels:
+	@$(PYTHON) scripts/nightly_runner.py --category kernels
+
+nightly-bf16:
+	@$(PYTHON) scripts/nightly_runner.py --category bf16
+
+nightly-quant:
+	@$(PYTHON) scripts/nightly_runner.py --category quant
+
+nightly-parity:
+	@$(PYTHON) scripts/nightly_runner.py --category parity
+
+nightly-list:
+	@$(PYTHON) scripts/nightly_runner.py --list
 
 # ============================================================================
 # Status Reports (reads from meta/kernel_meta.json)

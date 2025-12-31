@@ -1,0 +1,40 @@
+name: Check Runner CPU
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  check-cpu:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04, ubuntu-24.04]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: CPU Info
+        run: |
+          echo "=== Runner: ${{ matrix.os }} ==="
+          echo ""
+          echo "=== Model ==="
+          lscpu | grep "Model name"
+          echo ""
+          echo "=== Cores ==="
+          lscpu | grep -E "^CPU\(s\):|Thread|Core|Socket"
+          echo ""
+          echo "=== Cache ==="
+          lscpu | grep -E "L1|L2|L3"
+          echo ""
+          echo "=== AVX Support ==="
+          echo -n "AVX:     "; grep -q ' avx ' /proc/cpuinfo && echo "YES" || echo "NO"
+          echo -n "AVX2:    "; grep -q ' avx2 ' /proc/cpuinfo && echo "YES" || echo "NO"
+          echo -n "AVX-512F:"; grep -q 'avx512f' /proc/cpuinfo && echo " YES" || echo " NO"
+          echo -n "AVX-512BW:"; grep -q 'avx512bw' /proc/cpuinfo && echo " YES" || echo " NO"
+          echo -n "AVX-512VL:"; grep -q 'avx512vl' /proc/cpuinfo && echo " YES" || echo " NO"
+          echo ""
+          echo "=== All AVX-512 extensions ==="
+          grep -o 'avx512[a-z_]*' /proc/cpuinfo | sort -u | tr '\n' ' ' || echo "None"
+          echo ""
+          echo ""
+          echo "=== Full flags ==="
+          cat /proc/cpuinfo | grep flags | head -1 | tr ' ' '\n' | grep -E "avx|sse|fma" | sort -u
