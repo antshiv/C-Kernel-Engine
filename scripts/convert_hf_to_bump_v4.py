@@ -66,6 +66,7 @@ def main():
         help="Output dtype: float32 (default) or q4_k/q4_k_m (weights only; norms stay fp32)",
     )
     parser.add_argument("--map-out", help="Optional JSON map of weight order/dtypes")
+    parser.add_argument("--manifest-out", help="Optional JSON manifest with file offsets/sizes")
     args = parser.parse_args()
 
     dtype = str(args.dtype).lower().strip()
@@ -148,6 +149,17 @@ def main():
             weight_names.append(buf["name"])
 
     dtype_table = build_dtype_table(weight_names, q4k)
+    manifest_entries = []
+
+    def record_entry(name: str, dtype_name: str, start: int, size: int) -> None:
+        manifest_entries.append(
+            {
+                "name": name,
+                "dtype": dtype_name,
+                "file_offset": HEADER_SIZE + start,
+                "size": size,
+            }
+        )
 
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     with open(args.output, "w+b") as f:
@@ -162,42 +174,60 @@ def main():
             "model.embed_tokens.weight",
             alt_keys=("model.tok_embeddings.weight",),
         ).detach().cpu().numpy()
+        start = w.bytes_written
         if q4k:
             write_matrix_q4_k(w, tok, vocab_size, embed_dim, aligned_embed_dim)
+            dtype_name = "q4_k"
         else:
             write_matrix_padded_f32(w, tok, vocab_size, embed_dim, aligned_embed_dim)
+            dtype_name = "fp32"
+        record_entry("token_emb", dtype_name, start, w.bytes_written - start)
 
         for layer in range(num_layers):
             prefix = f"model.layers.{layer}"
             ln1 = get_tensor(state_dict, f"{prefix}.input_layernorm.weight").detach().cpu().numpy()
             ln2 = get_tensor(state_dict, f"{prefix}.post_attention_layernorm.weight").detach().cpu().numpy()
+            start = w.bytes_written
             write_vector_f32(w, ln1, aligned_embed_dim)
+            record_entry(f"layer.{layer}.ln1_gamma", "fp32", start, w.bytes_written - start)
 
             wq = get_tensor(state_dict, f"{prefix}.self_attn.q_proj.weight").detach().cpu().numpy()
             wk = get_tensor(state_dict, f"{prefix}.self_attn.k_proj.weight").detach().cpu().numpy()
             wv = get_tensor(state_dict, f"{prefix}.self_attn.v_proj.weight").detach().cpu().numpy()
 
-            if q4k:
-                write_qkv_packed_q4_k(w, wq, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
-                write_qkv_packed_q4_k(w, wk, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
-                write_qkv_packed_q4_k(w, wv, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
-            else:
-                write_qkv_packed_f32(w, wq, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
-                write_qkv_packed_f32(w, wk, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
-                write_qkv_packed_f32(w, wv, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+            for name, mat, heads in (
+                ("wq", wq, num_heads),
+                ("wk", wk, num_kv_heads),
+                ("wv", wv, num_kv_heads),
+            ):
+                start = w.bytes_written
+                if q4k:
+                    write_qkv_packed_q4_k(w, mat, heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                    dtype_name = "q4_k"
+                else:
+                    write_qkv_packed_f32(w, mat, heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                    dtype_name = "fp32"
+                record_entry(f"layer.{layer}.{name}", dtype_name, start, w.bytes_written - start)
 
             wo = get_tensor(state_dict, f"{prefix}.self_attn.o_proj.weight").detach().cpu().numpy()
+            start = w.bytes_written
             if q4k:
                 write_matrix_q4_k(w, wo, embed_dim, embed_dim, aligned_embed_dim, aligned_embed_dim)
+                dtype_name = "q4_k"
             else:
                 write_wo_packed_f32(w, wo, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                dtype_name = "fp32"
+            record_entry(f"layer.{layer}.wo", dtype_name, start, w.bytes_written - start)
 
+            start = w.bytes_written
             write_vector_f32(w, ln2, aligned_embed_dim)
+            record_entry(f"layer.{layer}.ln2_gamma", "fp32", start, w.bytes_written - start)
 
             gate = get_tensor(state_dict, f"{prefix}.mlp.gate_proj.weight").detach().cpu().numpy()
             up = get_tensor(state_dict, f"{prefix}.mlp.up_proj.weight").detach().cpu().numpy()
             down = get_tensor(state_dict, f"{prefix}.mlp.down_proj.weight").detach().cpu().numpy()
 
+            start = w.bytes_written
             if q4k:
                 for r in range(2 * aligned_intermediate):
                     row = np.zeros(aligned_embed_dim, dtype=np.float32)
@@ -206,29 +236,42 @@ def main():
                     elif aligned_intermediate <= r < (aligned_intermediate + intermediate):
                         row[:embed_dim] = up[r - aligned_intermediate, :embed_dim].astype(np.float32)
                     write_row_q4_k(w, row)
+                dtype_name = "q4_k"
             else:
                 w1 = np.zeros((2 * aligned_intermediate, aligned_embed_dim), dtype=np.float32)
                 w1[:intermediate, :embed_dim] = gate[:intermediate, :embed_dim]
                 w1[aligned_intermediate:aligned_intermediate + intermediate, :embed_dim] = up[:intermediate, :embed_dim]
                 w.write(w1.ravel().tobytes())
+                dtype_name = "fp32"
+            record_entry(f"layer.{layer}.w1", dtype_name, start, w.bytes_written - start)
 
+            start = w.bytes_written
             if q4k:
                 write_matrix_q4_k(w, down, embed_dim, intermediate, aligned_intermediate, aligned_embed_dim)
+                dtype_name = "q4_k"
             else:
                 write_matrix_padded_f32(w, down, embed_dim, intermediate, aligned_intermediate, aligned_embed_dim)
+                dtype_name = "fp32"
+            record_entry(f"layer.{layer}.w2", dtype_name, start, w.bytes_written - start)
 
         ln_f = get_tensor(state_dict, "model.norm.weight").detach().cpu().numpy()
+        start = w.bytes_written
         write_vector_f32(w, ln_f, aligned_embed_dim)
+        record_entry("final_ln_weight", "fp32", start, w.bytes_written - start)
 
     tie = cfg.get("tie_word_embeddings", True)
     if not tie and "lm_head.weight" not in state_dict:
         raise SystemExit("tie_word_embeddings=false but lm_head.weight is missing")
     if not tie:
         lm_head = get_tensor(state_dict, "lm_head.weight").detach().cpu().numpy()
+        start = w.bytes_written
         if q4k:
             write_matrix_q4_k(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
+            dtype_name = "q4_k"
         else:
             write_matrix_padded_f32(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
+            dtype_name = "fp32"
+        record_entry("lm_head_weight", dtype_name, start, w.bytes_written - start)
 
     checksum = w.digest()
 
@@ -263,6 +306,19 @@ def main():
                         {"name": name, "dtype": int(dtype_table[i])}
                         for i, name in enumerate(weight_names)
                     ],
+                },
+                mf,
+                indent=2,
+            )
+
+    if args.manifest_out:
+        os.makedirs(os.path.dirname(args.manifest_out) or ".", exist_ok=True)
+        with open(args.manifest_out, "w", encoding="utf-8") as mf:
+            json.dump(
+                {
+                    "format": "ck-bumpwgt4-manifest-v1",
+                    "weights_path": args.output,
+                    "entries": manifest_entries,
                 },
                 mf,
                 indent=2,

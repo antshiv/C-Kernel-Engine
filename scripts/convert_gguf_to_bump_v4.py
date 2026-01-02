@@ -91,6 +91,7 @@ def main() -> None:
     ap.add_argument("--list", action="store_true", help="List all tensors and exit")
     ap.add_argument("--config-out", help="Optional config JSON output path")
     ap.add_argument("--map-out", help="Optional JSON map of weight order/dtypes")
+    ap.add_argument("--manifest-out", help="Optional JSON manifest with file offsets/sizes")
     args = ap.parse_args()
 
     if not args.output and not (args.inspect or args.list):
@@ -409,6 +410,24 @@ def main() -> None:
                 raise gguf.GGUFError("K-quant requires no padding for intermediate (aligned_intermediate != intermediate)")
 
         dtype_table_bytes = bytes(dtype_table)
+        manifest_entries = []
+
+        def dtype_name(dt: int) -> str:
+            if dt == CK_DT_Q4_K:
+                return "q4_k"
+            if dt == CK_DT_Q6_K:
+                return "q6_k"
+            return "fp32"
+
+        def record_entry(name: str, dtype_str: str, start: int, size: int) -> None:
+            manifest_entries.append(
+                {
+                    "name": name,
+                    "dtype": dtype_str,
+                    "file_offset": HEADER_SIZE + start,
+                    "size": size,
+                }
+            )
 
         os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
         with open(args.output, "w+b") as out_f:
@@ -419,19 +438,24 @@ def main() -> None:
             w.write(dtype_table_bytes)
 
             # 1) token embeddings
+            start = w.bytes_written
             if is_quantized(token_dt):
                 gguf.copy_bytes_stream(f, data_start + tok.offset, gguf.ggml_tensor_bytes(tok), w)
             else:
                 tok_mat = read_matrix_f32(f, data_start, tok)
                 write_matrix_padded_f32(w, tok_mat, vocab_size, embed_dim, aligned_embed_dim)
+            record_entry("token_emb", dtype_name(token_dt), start, w.bytes_written - start)
 
             # 2) per-layer weights
             for layer in range(num_layers):
                 info = layer_infos[layer]
 
                 ln1 = gguf.read_vector_f32(f, data_start, info["attn_norm"])
+                start = w.bytes_written
                 write_vector_f32(w, ln1, aligned_embed_dim)
+                record_entry(f"layer.{layer}.ln1_gamma", "fp32", start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["wq_dt"]):
                     gguf.copy_qk_head_packed(
                         f, data_start, info["wq"], w,
@@ -443,7 +467,9 @@ def main() -> None:
                 else:
                     wq_mat = read_matrix_f32(f, data_start, info["wq"])
                     write_qkv_packed_f32(w, wq_mat, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                record_entry(f"layer.{layer}.wq", dtype_name(info["wq_dt"]), start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["wk_dt"]):
                     gguf.copy_qk_head_packed(
                         f, data_start, info["wk"], w,
@@ -455,7 +481,9 @@ def main() -> None:
                 else:
                     wk_mat = read_matrix_f32(f, data_start, info["wk"])
                     write_qkv_packed_f32(w, wk_mat, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                record_entry(f"layer.{layer}.wk", dtype_name(info["wk_dt"]), start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["wv_dt"]):
                     gguf.copy_qk_head_packed(
                         f, data_start, info["wv"], w,
@@ -467,16 +495,22 @@ def main() -> None:
                 else:
                     wv_mat = read_matrix_f32(f, data_start, info["wv"])
                     write_qkv_packed_f32(w, wv_mat, num_kv_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                record_entry(f"layer.{layer}.wv", dtype_name(info["wv_dt"]), start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["wo_dt"]):
                     gguf.copy_bytes_stream(f, data_start + info["wo"].offset, gguf.ggml_tensor_bytes(info["wo"]), w)
                 else:
                     wo_mat = read_matrix_f32(f, data_start, info["wo"])
                     write_wo_packed_f32(w, wo_mat, num_heads, head_dim, aligned_head_dim, embed_dim, aligned_embed_dim)
+                record_entry(f"layer.{layer}.wo", dtype_name(info["wo_dt"]), start, w.bytes_written - start)
 
                 ln2 = gguf.read_vector_f32(f, data_start, info["ffn_norm"])
+                start = w.bytes_written
                 write_vector_f32(w, ln2, aligned_embed_dim)
+                record_entry(f"layer.{layer}.ln2_gamma", "fp32", start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["gate_dt"]):
                     gguf.copy_bytes_stream(f, data_start + info["gate"].offset, gguf.ggml_tensor_bytes(info["gate"]), w)
                     gguf.copy_bytes_stream(f, data_start + info["up"].offset, gguf.ggml_tensor_bytes(info["up"]), w)
@@ -487,25 +521,32 @@ def main() -> None:
                     w1[:intermediate, :embed_dim] = gate_mat[:intermediate, :embed_dim]
                     w1[aligned_intermediate:aligned_intermediate + intermediate, :embed_dim] = up_mat[:intermediate, :embed_dim]
                     w.write(w1.ravel().tobytes())
+                record_entry(f"layer.{layer}.w1", dtype_name(info["gate_dt"]), start, w.bytes_written - start)
 
+                start = w.bytes_written
                 if is_quantized(info["down_dt"]):
                     gguf.copy_bytes_stream(f, data_start + info["down"].offset, gguf.ggml_tensor_bytes(info["down"]), w)
                 else:
                     down_mat = read_matrix_f32(f, data_start, info["down"])
                     write_matrix_padded_f32(w, down_mat, embed_dim, intermediate, aligned_intermediate, aligned_embed_dim)
+                record_entry(f"layer.{layer}.w2", dtype_name(info["down_dt"]), start, w.bytes_written - start)
 
             # 3) final RMSNorm
             final_norm = gguf.read_vector_f32(f, data_start, tensors["output_norm.weight"])
+            start = w.bytes_written
             write_vector_f32(w, final_norm, aligned_embed_dim)
+            record_entry("final_ln_weight", "fp32", start, w.bytes_written - start)
 
             # 4) optional lm_head
             if output_weight is not None:
                 out_dt = weight_dtype(output_weight, "lm_head")
+                start = w.bytes_written
                 if is_quantized(out_dt):
                     gguf.copy_bytes_stream(f, data_start + output_weight.offset, gguf.ggml_tensor_bytes(output_weight), w)
                 else:
                     out_mat = read_matrix_f32(f, data_start, output_weight)
                     write_matrix_padded_f32(w, out_mat, vocab_size, embed_dim, aligned_embed_dim)
+                record_entry("lm_head_weight", dtype_name(out_dt), start, w.bytes_written - start)
 
             checksum = w.digest()
 
@@ -541,6 +582,19 @@ def main() -> None:
                         {"name": name, "dtype": int(dtype_table[i])}
                         for i, name in enumerate(weight_names)
                     ],
+                },
+                mf,
+                indent=2,
+            )
+
+    if args.manifest_out:
+        os.makedirs(os.path.dirname(args.manifest_out) or ".", exist_ok=True)
+        with open(args.manifest_out, "w", encoding="utf-8") as mf:
+            json.dump(
+                {
+                    "format": "ck-bumpwgt4-manifest-v1",
+                    "weights_path": args.output,
+                    "entries": manifest_entries,
                 },
                 mf,
                 indent=2,

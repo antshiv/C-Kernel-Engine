@@ -19,6 +19,7 @@ import build_ir_v3 as v3
 import codegen_v4
 import fusion_patterns as fp
 import parallel_planner as pp
+import quant_types as qt
 import training_config as tc
 
 # ---------------------------------------------------------------------------
@@ -86,6 +87,28 @@ KERNELS = {
     "fc2_backward": {"bf16": "fc2_backward_kernel_bf16", "f32": "fc2_backward_kernel"},
     # Loss kernels
     "cross_entropy_loss": {"bf16": "cross_entropy_loss_bf16", "f32": "cross_entropy_loss"},
+}
+
+# Quantized kernels: (weight_dtype, activation_dtype) -> kernel name
+# Used for inference with quantized weights (llama.cpp compatible)
+QUANT_KERNELS = {
+    # GEMV with quantized weights (decode mode - single token)
+    ("linear", "q4_k", "f32"): "gemv_q4_k",
+    ("linear", "q4_k", "q8_k"): "gemv_q4_k_q8_k",
+    ("linear", "q6_k", "f32"): "gemv_q6_k",
+    ("linear", "q4_0", "f32"): "gemv_q4_0",
+    # GEMM for prefill (batched, quantized weights)
+    ("linear_prefill", "q4_k", "f32"): "gemm_nt_q4_k",
+    ("linear_prefill", "q6_k", "f32"): "gemm_nt_q6_k",
+    ("linear_prefill", "q4_0", "f32"): "gemm_q4_0",
+    ("linear_prefill", "q4_k", "q8_k"): "gemm_nt_q4_k_q8_k",
+    # Dequantization (for explicit dequant ops)
+    ("dequant", "q4_k", "f32"): "dequant_q4_k_row",
+    ("dequant", "q6_k", "f32"): "dequant_q6_k_row",
+    ("dequant", "q4_0", "f32"): "dequant_q4_0_row",
+    ("dequant", "q8_0", "f32"): "dequant_q8_0_row",
+    # On-the-fly activation quantization
+    ("quantize", "f32", "q8_k"): "quantize_row_q8_k",
 }
 
 # ---------------------------------------------------------------------------
@@ -843,7 +866,20 @@ def op_enabled(op: Dict, mode: str) -> bool:
     return mode in when
 
 
-def select_kernel(op: Dict, dtype: str, mode: str, registry: Dict[str, Dict]) -> Optional[str]:
+def select_kernel(op: Dict, dtype: str, mode: str, registry: Dict[str, Dict],
+                  weight_dtype: Optional[str] = None) -> Optional[str]:
+    """Select kernel for an operation.
+
+    Args:
+        op: Operation dict with at least "op" key
+        dtype: Default/activation dtype ("f32", "bf16", etc.)
+        mode: Execution mode ("prefill", "decode", "training")
+        registry: Optional kernel registry for custom kernels
+        weight_dtype: Optional weight dtype for quantized inference ("q4_k", "q6_k", etc.)
+
+    Returns:
+        Kernel function name, or None for host-side ops
+    """
     op_name = op["op"]
     if op_name in HOST_OPS or op_name == "lm_head":
         return None
@@ -852,11 +888,26 @@ def select_kernel(op: Dict, dtype: str, mode: str, registry: Dict[str, Dict]) ->
     else:
         key = op_name
 
+    # Normalize dtype
     dtype_key = dtype
     if dtype_key == "fp32":
         dtype_key = "f32"
     elif dtype_key == "fp16":
         dtype_key = "f16"
+
+    # Check for quantized weight operations
+    w_dtype = weight_dtype or op.get("weight_dtype")
+    if w_dtype and qt.is_quantized_dtype(w_dtype):
+        w_dtype_key = w_dtype.lower()
+        # Try QUANT_KERNELS first
+        quant_key = (key, w_dtype_key, dtype_key)
+        if quant_key in QUANT_KERNELS:
+            return QUANT_KERNELS[quant_key]
+        # For prefill mode, try linear_prefill variant
+        if mode == "prefill" and key == "linear":
+            prefill_key = ("linear_prefill", w_dtype_key, dtype_key)
+            if prefill_key in QUANT_KERNELS:
+                return QUANT_KERNELS[prefill_key]
 
     if registry and key in registry:
         return key
@@ -866,7 +917,9 @@ def select_kernel(op: Dict, dtype: str, mode: str, registry: Dict[str, Dict]) ->
 
 
 def lower_graph_ir(graph: Dict, mode: str, tokens: int, registry: Dict[str, Dict],
-                   training_cfg: Optional["tc.TrainingConfig"] = None) -> Dict:
+                   training_cfg: Optional["tc.TrainingConfig"] = None,
+                   weights_manifest: Optional[Dict] = None,
+                   weight_dtype: Optional[str] = None) -> Dict:
     """Lower graph IR into a per-mode expanded program.
 
     Modes:
@@ -898,6 +951,11 @@ def lower_graph_ir(graph: Dict, mode: str, tokens: int, registry: Dict[str, Dict
 
     section = graph["sections"][0]
     num_layers = config["num_layers"]
+    manifest_entries = {}
+    if weights_manifest and isinstance(weights_manifest, dict):
+        for entry in weights_manifest.get("entries", []):
+            if "name" in entry:
+                manifest_entries[entry["name"]] = entry
 
     # Templates
     header_templates = section["buffers"]["header"]
@@ -950,15 +1008,27 @@ def lower_graph_ir(graph: Dict, mode: str, tokens: int, registry: Dict[str, Dict
         # AMX only supports 2D tile operations
 
         resolved = v3.resolve_shape_expr(shape, sym_values)
+        dtype = tmpl.get("dtype", config["dtype"])
+        if role == "weight":
+            manifest = manifest_entries.get(name)
+            if manifest and "dtype" in manifest:
+                dtype = manifest["dtype"]
+            elif weight_dtype:
+                dtype = weight_dtype
+
         out = {
             "name": name,
             "role": role,
-            "dtype": tmpl.get("dtype", config["dtype"]),
+            "dtype": dtype,
             "shape": shape,
             "resolved_shape": resolved,
         }
         if tmpl.get("tied_to"):
             out["tied_to"] = tmpl["tied_to"]
+        if role == "weight":
+            manifest = manifest_entries.get(name)
+            if manifest and "size" in manifest:
+                out["file_size"] = int(manifest["size"])
         return out
 
     def resolve_names(names: List[str], layer_id: int, bindings: Dict[str, str]) -> List[str]:
@@ -978,9 +1048,30 @@ def lower_graph_ir(graph: Dict, mode: str, tokens: int, registry: Dict[str, Dict
             if not op_enabled(op, mode):
                 continue
             op_out = dict(op)
-            op_out["kernel"] = select_kernel(op, config["dtype"], mode, registry)
+            op_weight_dtype = None
+            op_weight_names = []
+            if "weights" in op_out:
+                op_weight_names = resolve_names(op_out["weights"], layer_id, bindings)
+                for w_name in op_weight_names:
+                    entry = manifest_entries.get(w_name)
+                    w_dtype = None
+                    if entry and "dtype" in entry:
+                        w_dtype = entry["dtype"]
+                    elif weight_dtype:
+                        w_dtype = weight_dtype
+                    if w_dtype:
+                        if op_weight_dtype is None:
+                            op_weight_dtype = w_dtype
+                        elif op_weight_dtype != w_dtype:
+                            op_weight_dtype = None
+                            break
+            if op_weight_dtype:
+                op_out["weight_dtype"] = op_weight_dtype
+            op_out["kernel"] = select_kernel(op, config["dtype"], mode, registry,
+                                             weight_dtype=op_weight_dtype)
             # Don't require backward kernels to be in registry
-            if op_out["kernel"] and registry and op_out["kernel"] not in registry and not skip_registry_check:
+            if (op_out["kernel"] and registry and op_out["kernel"] not in registry and
+                    not skip_registry_check and not (op_weight_dtype and qt.is_quantized_dtype(op_weight_dtype))):
                 raise KeyError(f"Unknown kernel: {op_out['kernel']}")
             if op_out["kernel"]:
                 op_out["kernel_dtype"] = config["dtype"]
@@ -1770,7 +1861,16 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
             name_to_buffer[name] = buf
             return buf
 
-        size = v3.aligned_size(spec["resolved_shape"], spec["dtype"], v3.CACHE_LINE)
+        if "file_size" in spec:
+            size = align_up_bytes(int(spec["file_size"]), v3.CACHE_LINE)
+        elif qt.is_quantized_dtype(spec["dtype"]):
+            elements = 1
+            for dim in spec["resolved_shape"]:
+                elements *= int(dim)
+            size = align_up_bytes(qt.calculate_quantized_size(spec["dtype"], elements),
+                                  v3.CACHE_LINE)
+        else:
+            size = v3.aligned_size(spec["resolved_shape"], spec["dtype"], v3.CACHE_LINE)
         offset = allocator.alloc(name, size)
         buf = v3.Buffer(
             name=name,
@@ -2032,8 +2132,10 @@ def parse_args(argv: List[str]) -> Dict:
         "prefix": None,
         "weights_header": None,
         "weights_index": None,
+        "weights_manifest": None,
         "tokens": None,
         "dtype": None,
+        "weight_dtype": None,  # Quantized weight dtype (q4_k, q6_k, etc.)
         "modes": ["prefill", "decode"],
         "kernel_specs": None,
         "preset": None,
@@ -2070,6 +2172,8 @@ def parse_args(argv: List[str]) -> Dict:
             args["weights_header"] = arg.split("=", 1)[1]
         elif arg.startswith("--weights-index="):
             args["weights_index"] = arg.split("=", 1)[1]
+        elif arg.startswith("--weights-manifest="):
+            args["weights_manifest"] = arg.split("=", 1)[1]
         elif arg.startswith("--kernel-specs="):
             args["kernel_specs"] = arg.split("=", 1)[1]
         elif arg == "--emit-lib":
@@ -2085,6 +2189,11 @@ def parse_args(argv: List[str]) -> Dict:
             args["tokens"] = int(arg.split("=", 1)[1])
         elif arg.startswith("--dtype="):
             args["dtype"] = arg.split("=", 1)[1].lower()
+        elif arg.startswith("--weight-dtype="):
+            w_dtype = arg.split("=", 1)[1].lower()
+            if w_dtype not in ("q4_0", "q4_k", "q6_k", "q8_0", "q8_k", "f32", "bf16"):
+                raise ValueError(f"--weight-dtype must be q4_0/q4_k/q6_k/q8_0/q8_k/f32/bf16, got: {w_dtype}")
+            args["weight_dtype"] = w_dtype
         elif arg.startswith("--modes="):
             modes = arg.split("=", 1)[1]
             args["modes"] = [m.strip() for m in modes.split(",") if m.strip()]
@@ -2148,10 +2257,12 @@ def print_usage():
     print("  --preset=NAME           Use local preset (qwen2-0.5b, smollm-135)")
     print("  --weights-header=FILE   Safetensors header for weight mapping")
     print("  --weights-index=FILE    model.safetensors.index.json")
+    print("  --weights-manifest=FILE Weights manifest (from convert_*_to_bump_v4.py)")
     print("  --kernel-specs=FILE     Kernel registry JSON (optional)")
     print("  --prefix=DIR            Output directory")
     print("  --tokens=N              Tokens for prefill/backward (default: max_seq_len)")
-    print("  --dtype=fp32|bf16       Override dtype (default: config dtype)")
+    print("  --dtype=fp32|bf16       Override dtype for activations (default: config dtype)")
+    print("  --weight-dtype=TYPE     Weight dtype for quantized inference (q4_k, q6_k, etc.)")
     print("  --modes=MODE[,MODE...]  Modes to emit (default: prefill,decode)")
     print("  --emit=lib|exe          Emit shared-library C (lib) or standalone main (exe)")
     print("  --emit-lib              Shorthand for --emit=lib")
@@ -2182,8 +2293,15 @@ def print_usage():
     print("  --data-parallel=N       Data parallel size (default: 1)")
     print("  --tensor-parallel=N     Tensor parallel size (default: 1)")
     print()
+    print("Quantization Options (llama.cpp compatible):")
+    print("  --weight-dtype=q4_k     Q4_K: 4-bit K-quant (4.5 bits/weight)")
+    print("  --weight-dtype=q6_k     Q6_K: 6-bit K-quant (6.5 bits/weight)")
+    print("  --weight-dtype=q4_0     Q4_0: Simple 4-bit (4.5 bits/weight)")
+    print("  --weight-dtype=q8_0     Q8_0: Simple 8-bit (8.5 bits/weight)")
+    print()
     print("Notes:")
-    print("  v4 C codegen currently supports fp32 kernels only (use --dtype=fp32).")
+    print("  Quantized inference uses --weight-dtype for weights, --dtype for activations.")
+    print("  Block structures match llama.cpp/GGML for GGUF model compatibility.")
     print("  Training mode auto-detects system memory and computes optimal config.")
     print()
     print("Examples:")
@@ -2201,6 +2319,9 @@ def print_usage():
     print()
     print("  # Use custom config file")
     print("  python scripts/build_ir_v4.py --config=smolLM-135.json --modes=prefill,decode")
+    print()
+    print("  # Quantized inference with Q4_K weights (llama.cpp compatible)")
+    print("  python scripts/build_ir_v4.py --preset=qwen2-0.5b --weight-dtype=q4_k --dtype=f32")
     print()
     print("  # Verbose output for debugging")
     print("  python scripts/build_ir_v4.py --preset=qwen2-0.5b --fusion-verbose --parallel-verbose")
@@ -2239,10 +2360,15 @@ def main(argv: List[str]) -> int:
         config = v3.parse_config(cached_path)
         model_name = args["name"] or v3.model_id_to_name(model_id)
 
-    if args["dtype"]:
-        if args["dtype"] not in ("fp32", "bf16"):
-            raise ValueError(f"--dtype must be fp32|bf16, got: {args['dtype']}")
-        config["dtype"] = args["dtype"]
+        if args["dtype"]:
+            dtype = args["dtype"]
+            if dtype == "f32":
+                dtype = "fp32"
+            elif dtype == "f16":
+                dtype = "fp16"
+            if dtype not in ("fp32", "bf16", "fp16"):
+                raise ValueError(f"--dtype must be fp32|bf16|fp16, got: {dtype}")
+            config["dtype"] = dtype
 
     if args["tokens"]:
         tokens = args["tokens"]
@@ -2273,6 +2399,11 @@ def main(argv: List[str]) -> int:
     if args["weights_index"]:
         print(f"[WEIGHTS] Reading index: {args['weights_index']}")
         weights_meta["index"] = read_weights_index(args["weights_index"])
+    weights_manifest = None
+    if args.get("weights_manifest"):
+        print(f"[WEIGHTS] Reading manifest: {args['weights_manifest']}")
+        with open(args["weights_manifest"], "r") as f:
+            weights_manifest = json.load(f)
 
     # Graph IR
     graph = build_graph_ir_v4(config, model_name)
@@ -2291,6 +2422,60 @@ def main(argv: List[str]) -> int:
         with open(weights_path, "w") as f:
             json.dump(weights_report, f, indent=2)
         print(f"[WEIGHTS] Written: {weights_path}")
+
+    def emit_weights_manifest(layout: v3.ModelLayout, manifest: Dict, out_dir: str) -> None:
+        entries_in = {e["name"]: e for e in manifest.get("entries", [])}
+        missing = []
+        merged = []
+
+        section = layout.sections[0]
+        buffers = []
+        buffers.extend(section.header_buffers)
+        for layer in section.layers:
+            buffers.extend(layer.buffers)
+        buffers.extend(section.footer_buffers)
+
+        for buf in buffers:
+            if buf.role != "weight":
+                continue
+            if buf.tied_to:
+                continue
+            entry = entries_in.get(buf.name)
+            if not entry:
+                missing.append(buf.name)
+                continue
+            merged.append(
+                {
+                    "name": buf.name,
+                    "dtype": entry.get("dtype", buf.dtype),
+                    "file_offset": entry.get("file_offset", 0),
+                    "size": entry.get("size", 0),
+                    "runtime_offset": buf.offset,
+                }
+            )
+
+        manifest_out = {
+            "format": "ck-bumpwgt4-merged-v1",
+            "generated": datetime.utcnow().isoformat() + "Z",
+            "model": layout.name,
+            "missing": missing,
+            "entries": merged,
+        }
+
+        json_path = os.path.join(out_dir, "weights_manifest.json")
+        with open(json_path, "w") as f:
+            json.dump(manifest_out, f, indent=2)
+        print(f"[WEIGHTS] Written: {json_path}")
+
+        map_path = os.path.join(out_dir, "weights_manifest.map")
+        with open(map_path, "w") as f:
+            f.write("# ck-bumpwgt4-manifest-map v1\n")
+            f.write("# name|dtype|file_offset|size|runtime_offset\n")
+            for e in merged:
+                f.write(
+                    f"{e['name']}|{e['dtype']}|0x{e['file_offset']:016X}|0x{e['size']:016X}|0x{e['runtime_offset']:016X}\n"
+                )
+        print(f"[WEIGHTS] Written: {map_path}")
 
     # Fusion configuration
     fusion_mode = args.get("fusion", "auto")
@@ -2374,7 +2559,9 @@ def main(argv: List[str]) -> int:
         if mode == "training" and training_cfg:
             mode_tokens = training_cfg.context_length
 
-        lowered = lower_graph_ir(graph, mode, mode_tokens, registry, training_cfg)
+        lowered = lower_graph_ir(graph, mode, mode_tokens, registry, training_cfg,
+                                 weights_manifest=weights_manifest,
+                                 weight_dtype=args.get("weight_dtype"))
 
         # Apply fusion optimization pass
         fusion_config = {"enable_fusion": should_fuse(mode)}
@@ -2422,6 +2609,9 @@ def main(argv: List[str]) -> int:
         # Emit standard layout files
         v3.emit_layout_json(layout, layout_json_path)
         v3.emit_layout_map(layout, layout_map)
+
+        if weights_manifest and mode in ("prefill", "decode"):
+            emit_weights_manifest(layout, weights_manifest, output_dir)
 
         # Emit enhanced layout with parallel annotations
         if parallel_enabled:

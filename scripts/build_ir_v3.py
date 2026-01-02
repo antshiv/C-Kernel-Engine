@@ -143,6 +143,15 @@ DTYPE_BYTES = {
     "i8": 1,
 }
 
+# Quantized types: (block_size, bytes_per_block) - llama.cpp compatible
+QUANT_BLOCK_INFO = {
+    "q4_0": (32, 18),     # 4-bit, 32/block, 1 FP16 scale = 18 bytes
+    "q4_k": (256, 144),   # 4-bit K-quant, 256/block = 144 bytes
+    "q6_k": (256, 210),   # 6-bit K-quant, 256/block = 210 bytes
+    "q8_0": (32, 34),     # 8-bit, 32/block, 1 FP16 scale = 34 bytes
+    "q8_k": (256, 292),   # 8-bit K-quant, 256/block = 292 bytes
+}
+
 LLAMA_WEIGHT_MAP = {
     "model.embed_tokens.weight": "token_embed_weight",
     "model.layers.{layer}.input_layernorm.weight": "layer.{L}.ln1_gamma",
@@ -265,10 +274,23 @@ def align_up(n: int, alignment: int) -> int:
     return (n + alignment - 1) & ~(alignment - 1)
 
 def compute_size(shape: List[int], dtype: str) -> int:
-    """Compute buffer size in bytes from shape and dtype."""
+    """Compute buffer size in bytes from shape and dtype.
+
+    For quantized types (q4_k, q6_k, etc.), calculates size based on
+    block structure matching llama.cpp/GGML.
+    """
     elements = 1
     for dim in shape:
         elements *= dim
+
+    # Check for quantized types first
+    dtype_lower = dtype.lower()
+    if dtype_lower in QUANT_BLOCK_INFO:
+        block_size, block_bytes = QUANT_BLOCK_INFO[dtype_lower]
+        n_blocks = (elements + block_size - 1) // block_size
+        return n_blocks * block_bytes
+
+    # Standard types
     return elements * DTYPE_BYTES[dtype]
 
 def aligned_size(shape: List[int], dtype: str, alignment: int = CACHE_LINE) -> int:

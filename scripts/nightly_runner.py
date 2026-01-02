@@ -154,7 +154,22 @@ class TestSuite:
     test_file: Path
     timeout_sec: int = 120
     perf_pattern: Optional[str] = None  # Regex to extract perf metric
+    ci_skip: bool = False  # Skip in CI mode (tests requiring full shared library)
 
+
+# Tests that require the full libckernel_engine.so with all symbols
+# These fail in CI due to undefined symbols (GitHub Actions doesn't build the full library)
+CI_SKIP_TESTS = {
+    # Core kernels that load libckernel_engine.so
+    "gemm", "gemm_variants", "gemm_microkernel", "gemm_fused",
+    "softmax", "layernorm", "embedding", "attention",
+    "kv_cache", "kv_cache_decode", "fused_attention_decode", "fused_swiglu_decode",
+    "mlp", "cross_entropy", "orchestration", "lm_head_litmus", "vision",
+    # Training tests that need backward kernels
+    "softmax_backward", "attention_backward",
+    # Parity tests that need full library
+    "pytorch_parity", "layer_parity", "smollm_parity",
+}
 
 # Define all test suites
 TEST_SUITES = {
@@ -549,6 +564,7 @@ def save_json_report(results: list[TestResult], filepath: Path, start_time: date
 def main():
     parser = argparse.ArgumentParser(description="C-Kernel-Engine Nightly Test Runner")
     parser.add_argument("--quick", action="store_true", help="Run quick subset only")
+    parser.add_argument("--ci", action="store_true", help="CI mode: skip tests requiring full shared library")
     parser.add_argument("--category", type=str, help="Run specific category (kernels, bf16, quant, training, parity, bench)")
     parser.add_argument("--json", type=str, metavar="FILE", help="Save JSON report to file")
     parser.add_argument("--save-baseline", action="store_true", help="Save current perf as baseline")
@@ -585,6 +601,14 @@ def main():
         tests_to_run = list(TEST_SUITES.keys())
         make_targets_to_run = list(MAKE_TARGETS.keys())
         bench_targets_to_run = list(BENCH_TARGETS.keys())
+
+    # In CI mode, skip tests that require the full shared library
+    if args.ci:
+        skipped_count = len([t for t in tests_to_run if t in CI_SKIP_TESTS])
+        tests_to_run = [t for t in tests_to_run if t not in CI_SKIP_TESTS]
+        make_targets_to_run = [t for t in make_targets_to_run if t not in CI_SKIP_TESTS]
+        if skipped_count > 0:
+            print(f"  [CI MODE] Skipping {skipped_count} tests requiring full shared library")
 
     print("\n" + "=" * 70)
     print("  C-KERNEL-ENGINE NIGHTLY TEST RUNNER")

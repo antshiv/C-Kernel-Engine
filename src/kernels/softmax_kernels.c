@@ -83,9 +83,10 @@ static inline __m256 exp256_approx(__m256 x) {
 
     return _mm256_mul_ps(poly, scale);
 }
-#elif defined(__AVX__)
+#endif
 
-// AVX1 horizontal max helper
+// AVX/AVX2 horizontal max helper (works for both, uses 256-bit ops only)
+#if defined(__AVX__) || defined(__AVX2__)
 static inline float hmax256_ps(__m256 v) {
     __m128 hi = _mm256_extractf128_ps(v, 1);
     __m128 lo = _mm256_castps256_ps128(v);
@@ -95,7 +96,7 @@ static inline float hmax256_ps(__m256 v) {
     return _mm_cvtss_f32(max128);
 }
 
-// AVX1 horizontal sum helper
+// AVX/AVX2 horizontal sum helper
 static inline float hsum256_ps_softmax(__m256 v) {
     __m128 hi = _mm256_extractf128_ps(v, 1);
     __m128 lo = _mm256_castps256_ps128(v);

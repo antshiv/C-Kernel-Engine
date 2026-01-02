@@ -145,6 +145,7 @@ SRCS    := src/backend_native.c \
            src/ckernel_orchestration.c \
            src/ckernel_model_layout.c \
            src/ckernel_model_load.c \
+           src/ckernel_model_load_v4.c \
            src/cpu_features.c \
             src/kernels/gemm_kernels.c \
             src/kernels/gemm_fused_kernels.c \
@@ -188,7 +189,10 @@ SRCS    := src/backend_native.c \
 	           src/kernels/gemm_kernels_q4k_q8k_avx2.c \
 	           src/kernels/gemm_kernels_q4k_q8k_vnni.c \
 	           src/kernels/gemm_kernels_q8_0.c \
-	           src/kernels/gemm_kernels_f16.c
+	           src/kernels/gemm_kernels_f16.c \
+	           src/kernels/optimizer_kernels.c \
+	           src/kernels/optimizer_kernels_bf16.c \
+	           src/kernels/add_kernels_bf16.c
 LIB          := $(BUILD_DIR)/libckernel_engine.so
 LIB_QUANT    := $(BUILD_DIR)/libckernel_quant.so
 LIB_GELU     := $(BUILD_DIR)/libckernel_gelu.so
@@ -206,6 +210,7 @@ IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 IR_V2_DEMO := $(BUILD_DIR)/ck_ir_v2_demo
 IR_V2_SCRIPT := scripts/build_ir_v2.py
 IR_V4_SCRIPT := scripts/build_ir_v4.py
+IR_V4_Q4K_SCRIPT := scripts/build_ir_v4_q4k.py
 DEFAULT_CONFIG := default.config.json
 CONFIG ?= $(DEFAULT_CONFIG)
 OUT ?= $(BUILD_DIR)/generated_model.c
@@ -229,6 +234,17 @@ IR_V4_DTYPE ?=
 IR_V4_WEIGHTS_HEADER ?=
 IR_V4_WEIGHTS_INDEX ?=
 IR_V4_KERNEL_SPECS ?=
+IR_V4_Q4K_CHECKPOINT ?=
+IR_V4_Q4K_GGUF ?=
+IR_V4_Q4K_PRESET ?=
+IR_V4_Q4K_CONFIG ?=
+IR_V4_Q4K_PREFIX ?=
+IR_V4_Q4K_MODES ?= prefill,decode
+IR_V4_Q4K_TOKENS ?=
+IR_V4_Q4K_CONTEXT ?=
+IR_V4_Q4K_FUSION ?= off
+IR_V4_Q4K_EMIT ?= lib
+IR_V4_Q4K_VERBOSE ?=
 GGUF ?=
 GGUF_OUT ?= $(BUILD_DIR)/gguf_weights.bump
 GGUF_CONFIG_OUT ?= $(BUILD_DIR)/gguf_config.json
@@ -427,6 +443,34 @@ ir-v4:
 	    $(if $(IR_V4_KERNEL_SPECS),--kernel-specs="$(IR_V4_KERNEL_SPECS)",); \
 	else \
 	  echo "Usage: make ir-v4 IR_V4_PRESET=name | IR_V4_CONFIG=path | IR_V4_MODEL=hf_id_or_url"; \
+	  exit 1; \
+	fi
+
+ir-v4-q4k:
+	@echo "Generating IR v4 (Q4_K weights) ..."
+	@if [ -n "$(IR_V4_Q4K_CHECKPOINT)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V4_Q4K_SCRIPT) --checkpoint="$(IR_V4_Q4K_CHECKPOINT)" \
+	    $(if $(IR_V4_Q4K_PRESET),--preset="$(IR_V4_Q4K_PRESET)",) \
+	    $(if $(IR_V4_Q4K_CONFIG),--config="$(IR_V4_Q4K_CONFIG)",) \
+	    $(if $(IR_V4_Q4K_PREFIX),--prefix="$(IR_V4_Q4K_PREFIX)",) \
+	    $(if $(IR_V4_Q4K_MODES),--modes="$(IR_V4_Q4K_MODES)",) \
+	    $(if $(IR_V4_Q4K_TOKENS),--tokens="$(IR_V4_Q4K_TOKENS)",) \
+	    $(if $(IR_V4_Q4K_CONTEXT),--context="$(IR_V4_Q4K_CONTEXT)",) \
+	    $(if $(IR_V4_Q4K_FUSION),--fusion="$(IR_V4_Q4K_FUSION)",) \
+	    $(if $(IR_V4_Q4K_EMIT),--emit="$(IR_V4_Q4K_EMIT)",) \
+	    $(if $(IR_V4_Q4K_VERBOSE),--verbose,); \
+	elif [ -n "$(IR_V4_Q4K_GGUF)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V4_Q4K_SCRIPT) --gguf="$(IR_V4_Q4K_GGUF)" \
+	    $(if $(IR_V4_Q4K_CONFIG),--config="$(IR_V4_Q4K_CONFIG)",) \
+	    $(if $(IR_V4_Q4K_PREFIX),--prefix="$(IR_V4_Q4K_PREFIX)",) \
+	    $(if $(IR_V4_Q4K_MODES),--modes="$(IR_V4_Q4K_MODES)",) \
+	    $(if $(IR_V4_Q4K_TOKENS),--tokens="$(IR_V4_Q4K_TOKENS)",) \
+	    $(if $(IR_V4_Q4K_CONTEXT),--context="$(IR_V4_Q4K_CONTEXT)",) \
+	    $(if $(IR_V4_Q4K_FUSION),--fusion="$(IR_V4_Q4K_FUSION)",) \
+	    $(if $(IR_V4_Q4K_EMIT),--emit="$(IR_V4_Q4K_EMIT)",) \
+	    $(if $(IR_V4_Q4K_VERBOSE),--verbose,); \
+	else \
+	  echo "Usage: make ir-v4-q4k IR_V4_Q4K_CHECKPOINT=dir | IR_V4_Q4K_GGUF=path"; \
 	  exit 1; \
 	fi
 
@@ -914,6 +958,8 @@ help:
 	@echo "  make ir-v4 IR_V4_PRESET=qwen2-0.5b  Build IR v4 (graph/lowered/layout/codegen)"
 	@echo "  make ir-v4 IR_V4_MODEL=Qwen/Qwen2-0.5B  Build IR v4 from HF model ID (config only)"
 	@echo "  make ir-v4 IR_V4_CONFIG=path [IR_V4_PREFIX=dir] [IR_V4_TOKENS=N] [IR_V4_MODES=prefill,decode] [IR_V4_EMIT=exe|lib] [IR_V4_DTYPE=fp32|bf16]"
+	@echo "  make ir-v4-q4k IR_V4_Q4K_CHECKPOINT=dir [IR_V4_Q4K_PRESET=name]  Build v4 + Q4_K weights"
+	@echo "  make ir-v4-q4k IR_V4_Q4K_GGUF=path   Build v4 from GGUF (Q4_K/Q6_K)"
 	@echo ""
 	@echo "  Quantization:"
 	@echo "  make test-quant       Run quantization kernel tests (dequant + q4/q8 gemm)"
@@ -1293,4 +1339,4 @@ report-md:
 	@echo ""
 	@$(PYTHON) scripts/optimization_status.py --markdown
 
-.PHONY: all clean test test-bf16 test-libs test-quant help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-cli-v4 ck-chat ck-server ck-chat-py ck-server-py generate-model gguf-inspect gguf-list gguf-to-bump gguf-to-bump-v4 hf-to-bump-v4 ir-v4 opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config
+.PHONY: all clean test test-bf16 test-libs test-quant help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-cli-v4 ck-chat ck-server ck-chat-py ck-server-py generate-model gguf-inspect gguf-list gguf-to-bump gguf-to-bump-v4 hf-to-bump-v4 ir-v4 ir-v4-q4k opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config

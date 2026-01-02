@@ -35,6 +35,7 @@ typedef struct {
     char config_path[MAX_PATH];
     char cache_dir[MAX_PATH];
     char weights_path[MAX_PATH];
+    char weights_manifest[MAX_PATH];
     char output_dir[MAX_PATH];
     char model_id[512];
     char model_name[256];
@@ -258,8 +259,8 @@ static int convert_weights_v4(CKV4Config *cfg) {
 
     char cmd[MAX_CMD];
     snprintf(cmd, sizeof(cmd),
-             "python3 %s --checkpoint '%s' --output '%s' --dtype float32",
-             script, cfg->checkpoint_dir, cfg->weights_path);
+             "python3 %s --checkpoint '%s' --output '%s' --dtype float32 --manifest-out '%s'",
+             script, cfg->checkpoint_dir, cfg->weights_path, cfg->weights_manifest);
     return run_cmd(cmd, cfg->verbose);
 }
 
@@ -285,8 +286,9 @@ static int build_ir_v4(CKV4Config *cfg) {
     char cmd[MAX_CMD];
     snprintf(cmd, sizeof(cmd),
              "python3 %s --config '%s' --name '%s' --prefix '%s' "
-             "--dtype=fp32 --fusion=off --emit=lib --modes=%s",
-             script, cfg->config_path, cfg->model_name, cfg->output_dir, cfg->modes);
+             "--dtype=fp32 --fusion=off --emit=lib --modes=%s --weights-manifest '%s'",
+             script, cfg->config_path, cfg->model_name, cfg->output_dir, cfg->modes,
+             cfg->weights_manifest);
     return run_cmd(cmd, cfg->verbose);
 }
 
@@ -379,6 +381,7 @@ int main(int argc, char **argv) {
         snprintf(cfg.output_dir, sizeof(cfg.output_dir), "%s/v4", cfg.cache_dir);
     }
     snprintf(cfg.weights_path, sizeof(cfg.weights_path), "%s/weights_v4.bump", cfg.cache_dir);
+    snprintf(cfg.weights_manifest, sizeof(cfg.weights_manifest), "%s/weights_v4.manifest.json", cfg.cache_dir);
 
     if (!dir_exists(cfg.output_dir)) {
         if (mkdir(cfg.output_dir, 0755) != 0 && errno != EEXIST) {
