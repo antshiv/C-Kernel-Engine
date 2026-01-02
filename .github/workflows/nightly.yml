@@ -117,31 +117,23 @@ jobs:
           path: build/nightly_report.json
           retention-days: 30
 
-      - name: Publish report to gh-pages (main/scheduled only)
+      - name: Update nightly results in docs (main/scheduled only)
         if: (github.event_name == 'schedule' || github.event_name == 'push') && github.ref == 'refs/heads/main'
         run: |
           # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Clone gh-pages branch
-          git clone --depth 1 --branch gh-pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages-tmp || {
-            mkdir gh-pages-tmp
-            cd gh-pages-tmp
-            git init
-            git checkout -b gh-pages
-            cd ..
-          }
-
-          # Create nightly-results directory
-          mkdir -p gh-pages-tmp/nightly-results
+          # Results directory in docs site
+          RESULTS_DIR="docs/site/nightly-results"
+          mkdir -p "$RESULTS_DIR"
 
           # Copy current report
-          cp build/nightly_report.json gh-pages-tmp/nightly-results/latest.json
+          cp build/nightly_report.json "$RESULTS_DIR/latest.json"
 
           # Also save timestamped copy (keep last 30 days)
           TIMESTAMP=$(date +%Y-%m-%d)
-          cp build/nightly_report.json "gh-pages-tmp/nightly-results/report-${TIMESTAMP}.json"
+          cp build/nightly_report.json "$RESULTS_DIR/report-${TIMESTAMP}.json"
 
           # Create history index
           python3 << 'PYEOF'
@@ -149,7 +141,7 @@ jobs:
           import os
           from datetime import datetime
 
-          results_dir = "gh-pages-tmp/nightly-results"
+          results_dir = "docs/site/nightly-results"
           reports = []
 
           for f in sorted(os.listdir(results_dir)):
@@ -170,6 +162,15 @@ jobs:
           # Keep only last 30 reports
           reports = sorted(reports, key=lambda x: x["date"], reverse=True)[:30]
 
+          # Clean up old reports beyond 30 days
+          all_reports = [f for f in os.listdir(results_dir) if f.startswith("report-")]
+          keep_dates = {r["date"] for r in reports}
+          for f in all_reports:
+              date = f.replace("report-", "").replace(".json", "")
+              if date not in keep_dates:
+                  os.remove(os.path.join(results_dir, f))
+                  print(f"Removed old report: {f}")
+
           # Write index
           with open(os.path.join(results_dir, "index.json"), "w") as fp:
               json.dump({
@@ -180,11 +181,14 @@ jobs:
           print(f"Index updated with {len(reports)} reports")
           PYEOF
 
-          # Commit and push
-          cd gh-pages-tmp
-          git add nightly-results/
-          git commit -m "Update nightly test results [skip ci]" || echo "No changes to commit"
-          git push origin gh-pages || echo "Push failed (may need gh-pages branch created)"
+          # Commit and push to main (triggers docs workflow)
+          git add docs/site/nightly-results/
+          git commit -m "Update nightly test results
+
+          Passed: $(python3 -c "import json; print(json.load(open('build/nightly_report.json'))['summary']['passed'])")
+          Failed: $(python3 -c "import json; print(json.load(open('build/nightly_report.json'))['summary']['failed'])")
+          Total: $(python3 -c "import json; print(json.load(open('build/nightly_report.json'))['summary']['total'])")" || echo "No changes to commit"
+          git push origin main || echo "Push failed"
 
       - name: Summary
         if: always()
