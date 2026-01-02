@@ -51,14 +51,14 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "add__kernels__bf16_8c.html",
-"ckernel__engine_8h.html#a488697bbc4656ba8037ab3eb79314e5e",
-"ckernel__kernel__specs_8c.html#a404b43a8478863adf2e78096c1217cb9",
-"ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea6a3bb26ab9dcc8bb90714a3c77250997",
-"gemm__microkernel_8c.html#af3dd4e1707c284abe511ed15be5c4f8f",
-"structCKBufferSpec.html#a92c6aec4e6937bbec34f20ddc341b14c",
-"structCKLayerForwardParamsQ4K.html#aac721dc3d07b7f9f3a0fcbdc6101e4bb",
-"structCKSection.html#aa21574168860ae278245951028df3ff0",
-"swiglu__kernels_8c.html#a771ec9e8b054416576cf1788ea8d3747"
+"ckernel__engine_8h.html#a476c5068e2670813bcd9d5fd0ae6d0b4",
+"ckernel__kernel__specs_8c.html#a384132179c5765f7201d295d743216b0",
+"ckernel__section__layout_8h.html#abc25629d856fc301f5dcb0af8a63d03c",
+"gemm__microkernel_8c.html#a1fa2460e32327ade49189c95740bc1b5",
+"softmax__kernels__bf16_8c_source.html",
+"structCKLayerForwardParamsQ4K.html#a66da64885aa1cf87cb9e687ad7fcd34b",
+"structCKSection.html#a0651f7c9b1f55618e1ed1285fc803eab",
+"structblock__q6__K.html#a2804e4fef4f6c2eaf41230ddbed8e479"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

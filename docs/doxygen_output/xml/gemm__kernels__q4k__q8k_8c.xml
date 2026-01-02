@@ -147,8 +147,10 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k_q8k.c" line="197" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k_q8k.c" bodystart="197" bodyend="222"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
         <references refid="gemm__kernels__q4k__q8k_8c_1ac52baba628268303f41c01413c445024" compoundref="gemm__kernels__q4k__q8k_8c" startline="179" endline="195">gemm_q4_k_q8_k</references>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9656efa18c286d6551c636aa5b340761" compoundref="ckernel__orchestration_8c" startline="1506" endline="1548">ck_attention_project_head_major_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" compoundref="ckernel__orchestration_8c" startline="393" endline="426">ck_mlp_swiglu_forward_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" compoundref="ckernel__orchestration_8c" startline="1550" endline="1597">ck_mlp_swiglu_forward_q4_k_q8_k_prefill</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" compoundref="ckernel__orchestration_8c" startline="1396" endline="1439">ck_qkv_project_head_major_token_q4_k_q8_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="gemm__kernels__q4k__q8k_8c_1ac52baba628268303f41c01413c445024" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -420,8 +422,11 @@
         <references refid="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" compoundref="ckernel__quant_8h" startline="102">block_q8_K::d</references>
         <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
         <references refid="structblock__q8__K_1ac7219c4dba2b1f4192beca610a3999fc" compoundref="ckernel__quant_8h" startline="103">block_q8_K::qs</references>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9656efa18c286d6551c636aa5b340761" compoundref="ckernel__orchestration_8c" startline="1506" endline="1548">ck_attention_project_head_major_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" compoundref="ckernel__orchestration_8c" startline="393" endline="426">ck_mlp_swiglu_forward_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" compoundref="ckernel__orchestration_8c" startline="1550" endline="1597">ck_mlp_swiglu_forward_q4_k_q8_k_prefill</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a40623acc041514b7bed2c76c246091f7" compoundref="ckernel__orchestration_8c" startline="1441" endline="1504">ck_qkv_project_head_major_q4_k_q8_k</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

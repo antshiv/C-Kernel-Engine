@@ -37,6 +37,8 @@ var files_dup =
     [ "ckernel_model.h", "ckernel__model_8h.html", "ckernel__model_8h" ],
     [ "ckernel_model_layout.c", "ckernel__model__layout_8c.html", "ckernel__model__layout_8c" ],
     [ "ckernel_model_load.c", "ckernel__model__load_8c.html", "ckernel__model__load_8c" ],
+    [ "ckernel_model_load_v4.c", "ckernel__model__load__v4_8c.html", "ckernel__model__load__v4_8c" ],
+    [ "ckernel_model_load_v4.h", "ckernel__model__load__v4_8h.html", "ckernel__model__load__v4_8h" ],
     [ "ckernel_orchestration.c", "ckernel__orchestration_8c.html", "ckernel__orchestration_8c" ],
     [ "ckernel_orchestration.h", "ckernel__orchestration_8h.html", "ckernel__orchestration_8h" ],
     [ "ckernel_quant.h", "ckernel__quant_8h.html", "ckernel__quant_8h" ],

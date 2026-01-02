@@ -215,6 +215,7 @@
         <references refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</references>
         <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
         <referencedby refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" compoundref="dequant__kernels_8c" startline="345" endline="364">dequant_row</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" compoundref="embedding__kernels_8c" startline="60" endline="113">embedding_forward_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="dequant__kernels_8c_1a5f456737b8276015b96f99a03daf11ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>

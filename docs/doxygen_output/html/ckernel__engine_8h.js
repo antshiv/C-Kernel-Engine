@@ -36,6 +36,7 @@ var ckernel__engine_8h =
     [ "embedding_backward_bf16", "ckernel__engine_8h.html#a7c57b105fb88eb4165a0c649932be08d", null ],
     [ "embedding_forward", "ckernel__engine_8h.html#ad6f7e7937754e791a704562549e39f05", null ],
     [ "embedding_forward_bf16", "ckernel__engine_8h.html#a6d58689c662e670a5423eedd0291d6b5", null ],
+    [ "embedding_forward_q4_k", "ckernel__engine_8h.html#a476c5068e2670813bcd9d5fd0ae6d0b4", null ],
     [ "fc1_backward_kernel", "ckernel__engine_8h.html#a73e088d0e2388c78920e8fc99b0c3846", null ],
     [ "fc2_backward_kernel", "ckernel__engine_8h.html#a89a29fc853aae0baf9f6094fee52562a", null ],
     [ "fused_mlp_swiglu_decode", "ckernel__engine_8h.html#a3897324e415431e53b4dba88a774e804", null ],

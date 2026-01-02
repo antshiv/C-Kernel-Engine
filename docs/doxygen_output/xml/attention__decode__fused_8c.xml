@@ -105,7 +105,7 @@
         <references refid="attention__decode__fused_8c_1a481d5a4d4ee37e40f432109b3873bc05" compoundref="attention__decode__fused_8c" startline="25" endline="60">ck_dot_f32</references>
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
       </memberdef>
       <memberdef kind="function" id="attention__decode__fused_8c_1a606857bd1c4a89fc378a6787ce01d348" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>

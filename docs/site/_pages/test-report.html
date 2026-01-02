@@ -26,8 +26,8 @@
       margin: 2rem 0;
     }
     .summary-card {
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--dark-card);
+      border: 1px solid var(--grey);
       border-radius: 8px;
       padding: 1.5rem;
       text-align: center;
@@ -35,10 +35,10 @@
     .summary-card .value {
       font-size: 2rem;
       font-weight: bold;
-      color: #2d3748;
+      color: var(--text-primary);
     }
     .summary-card .label {
-      color: #718096;
+      color: var(--text-secondary);
       font-size: 0.9rem;
     }
     .summary-card.passed .value { color: #48bb78; }
@@ -52,14 +52,14 @@
     .results-table th, .results-table td {
       padding: 0.75rem;
       text-align: left;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--grey);
     }
     .results-table th {
-      background: #f7fafc;
+      background: var(--dark-lighter);
       font-weight: 600;
     }
     .results-table tr:hover {
-      background: #f7fafc;
+      background: var(--dark-card);
     }
 
     .test-pass { color: #48bb78; }
@@ -72,14 +72,14 @@
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
       font-size: 0.75rem;
-      background: #e2e8f0;
-      color: #4a5568;
+      background: var(--grey);
+      color: var(--text-secondary);
     }
 
     .history-chart {
       margin: 2rem 0;
       padding: 1rem;
-      background: #f7fafc;
+      background: var(--dark-card);
       border-radius: 8px;
     }
     .history-bar {
@@ -100,11 +100,11 @@
     }
     .history-day.all-pass { background: #48bb78; }
     .history-day.has-fail { background: #f56565; }
-    .history-day.no-data { background: #e2e8f0; }
+    .history-day.no-data { background: var(--grey); }
 
     .error-msg {
       font-size: 0.85rem;
-      color: #718096;
+      color: var(--text-muted);
       max-width: 400px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -131,7 +131,7 @@
     }
 
     .updated-time {
-      color: #718096;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
   </style>
@@ -178,7 +178,7 @@
     <h2>30-Day History</h2>
     <div class="history-chart">
       <div class="history-bar" id="history-bar"></div>
-      <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; color: #718096; font-size: 0.8rem;">
+      <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
         <span>30 days ago</span>
         <span>Today</span>
       </div>
@@ -208,7 +208,7 @@
 
   <style>
     .sub-test-summary {
-      color: #718096;
+      color: var(--text-muted);
       font-size: 0.9rem;
       margin-bottom: 1rem;
     }
@@ -222,12 +222,12 @@
       cursor: pointer;
     }
     .expandable-row:hover {
-      background: #edf2f7 !important;
+      background: var(--grey) !important;
     }
     .expand-icon {
       display: inline-block;
       transition: transform 0.2s;
-      color: #718096;
+      color: var(--text-muted);
     }
     .expanded .expand-icon {
       transform: rotate(90deg);
@@ -241,7 +241,7 @@
     }
     .sub-tests-row td {
       padding: 0;
-      background: #f7fafc;
+      background: var(--dark-lighter);
     }
     .sub-tests-container {
       padding: 0.5rem 1rem 0.5rem 3rem;
@@ -256,9 +256,9 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.4rem 0.6rem;
-      background: white;
+      background: var(--dark-card);
       border-radius: 4px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--grey);
       font-size: 0.85rem;
     }
     .sub-test-item.pass {
@@ -270,13 +270,13 @@
     .sub-test-name {
       flex: 1;
       font-weight: 500;
-      color: #2d3748;
+      color: var(--text-primary);
     }
     .sub-test-metrics {
       display: flex;
       gap: 0.75rem;
       font-size: 0.75rem;
-      color: #718096;
+      color: var(--text-muted);
     }
     .sub-test-diff {
       font-family: monospace;
@@ -289,7 +289,7 @@
 
     .kernel-count {
       font-size: 0.8rem;
-      color: #718096;
+      color: var(--text-muted);
     }
     .kernel-count .passed { color: #48bb78; }
     .kernel-count .failed { color: #f56565; }

@@ -1146,7 +1146,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2026-01-01 19:53</span>
+        <span class="folder-updated">Updated: 2026-01-02 07:36</span>
     </div>
     <pre class="tree-output">
 .
@@ -1169,6 +1169,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- site
 |   |   |-- assets
 |   |   |-- doxygen -&gt; ../doxygen_output/html
+|   |   |-- nightly-results
 |   |   |-- _pages
 |   |   |-- _partials
 |   |   |-- scripts
@@ -1196,6 +1197,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |   |-- scaling.html
 |   |   |-- simd-architecture.html
 |   |   |-- testing.html
+|   |   |-- test-report.html
 |   |   `-- test-viewer.html
 |   |-- study-materials
 |   |   |-- profiling
@@ -1255,6 +1257,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- ckernel_memory_layout.h
 |   |-- ckernel_mem_plan.h
 |   |-- ckernel_model.h
+|   |-- ckernel_model_load_v4.h
 |   |-- ckernel_orchestration.h
 |   |-- ckernel_quant.h
 |   |-- ckernel_registry.h
@@ -1301,11 +1304,19 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- Screenshot 2026-01-01 at 08-09-22 ArchitectureDecisions C-Kernel-Engine.png
 |   |-- Screenshot 2026-01-01 at 08-15-04 ArchitectureDecisions C-Kernel-Engine.png
 |   |-- Screenshot 2026-01-01 at 08-17-21 ArchitectureDecisions C-Kernel-Engine.png
-|   `-- Screenshot 2026-01-01 at 08-19-21 ArchitectureDecisions C-Kernel-Engine.png
+|   |-- Screenshot 2026-01-01 at 08-19-21 ArchitectureDecisions C-Kernel-Engine.png
+|   |-- Screenshot 2026-01-01 at 20-18-30 Update v4 and makefile and unittest and added kenrels · antshiv_C-Kernel-Engine@2bdc2fe.png
+|   |-- Screenshot 2026-01-01 at 20-18-45 Update v4 and makefile and unittest and added kenrels · antshiv_C-Kernel-Engine@2bdc2fe.png
+|   |-- Screenshot 2026-01-01 at 20-49-39 Client Details - Antsand Sales.png
+|   |-- Screenshot 2026-01-01 at 20-50-31 Invoice.png
+|   |-- Screenshot 2026-01-01 at 20-53-44 Update github issue · antshiv_C-Kernel-Engine@b7293da.png
+|   |-- Screenshot 2026-01-02 at 05-45-04 Upate ci fix · antshiv_C-Kernel-Engine@81d8a45.png
+|   `-- Screenshot 2026-01-02 at 07-08-43 TestReport C-Kernel-Engine.png
 |-- scripts
 |   |-- build_ir_v2.py
 |   |-- build_ir_v3.py
 |   |-- build_ir_v4.py
+|   |-- build_ir_v4_q4k.py
 |   |-- ck_chat.py
 |   |-- ck_download.py
 |   |-- codegen_v4.py
@@ -1324,6 +1335,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- optimization_status.py
 |   |-- parallel_planner.py
 |   |-- q4_k_quantize.py
+|   |-- quant_types.py
 |   |-- run_all_tests.sh
 |   |-- run_litmus_demo.sh
 |   |-- smollm_forward_parity.py
@@ -1405,6 +1417,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- ckernel_mem_plan.c
 |   |-- ckernel_model_layout.c
 |   |-- ckernel_model_load.c
+|   |-- ckernel_model_load_v4.c
 |   |-- ckernel_orchestration.c
 |   |-- ckernel_registry.c
 |   |-- ckernel_strict.c
@@ -1412,9 +1425,6 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |   |-- cpu_features.c
 |   |-- show_config.c
 |   `-- system_topology.c
-|-- tests
-|   `-- python
-|       `-- test_optimizer_parity.py
 |-- tools
 |   |-- cache_analysis.py
 |   |-- ck.c
@@ -1489,6 +1499,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |-- make_config.txt
 |-- Makefile
 |-- make_test.txt
+|-- q4_issues.txt
 |-- q6_issue.txt
 |-- quant_error.txt
 |-- quantize_info.txt
@@ -1505,7 +1516,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
 |-- tiny.config.json
 `-- valgrind.supp
 
-36 directories, 318 files
+35 directories, 330 files
 </pre>
 </div>
 
@@ -1757,7 +1768,7 @@ make ck-emit CONFIG=path/to/config.json OUT=build/generated_model.c</pre>
             </div>
             <div style="text-align: right;">
                 <p style="color: #606060; font-size: 0.75rem; margin: 0;">Built with zero dependencies</p>
-                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2026-01-01</p>
+                <p style="color: #606060; font-size: 0.75rem; margin: 0.5rem 0 0 0;">2026-01-02</p>
             </div>
         </div>
     </footer>

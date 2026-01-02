@@ -2133,6 +2133,51 @@ def build_weight_map_report(graph: Dict, weights_meta: Dict) -> Dict:
 # ---------------------------------------------------------------------------
 
 def parse_args(argv: List[str]) -> Dict:
+    def normalize_args(argv: List[str]) -> List[str]:
+        value_flags = {
+            "--config",
+            "--name",
+            "--prefix",
+            "--weights-header",
+            "--weights-index",
+            "--weights-manifest",
+            "--kernel-specs",
+            "--emit",
+            "--tokens",
+            "--dtype",
+            "--weight-dtype",
+            "--modes",
+            "--preset",
+            "--fusion",
+            "--parallel",
+            "--memory",
+            "--batch-size",
+            "--micro-batch-size",
+            "--context-length",
+            "--optimizer",
+            "--learning-rate",
+            "--weight-decay",
+            "--data-parallel",
+            "--tensor-parallel",
+        }
+        normalized: List[str] = []
+        i = 0
+        while i < len(argv):
+            arg = argv[i]
+            if arg in value_flags:
+                if i + 1 >= len(argv):
+                    raise ValueError(f"Expected value after {arg}")
+                value = argv[i + 1]
+                if value.startswith("--"):
+                    raise ValueError(f"Expected value after {arg}, got: {value}")
+                normalized.append(f"{arg}={value}")
+                i += 2
+                continue
+            normalized.append(arg)
+            i += 1
+        return normalized
+
+    argv = normalize_args(argv)
     args = {
         "model": None,
         "config": None,

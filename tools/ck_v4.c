@@ -250,11 +250,16 @@ static int convert_weights_v4(CKV4Config *cfg) {
         return -1;
     }
 
-    if (!cfg->force_convert && file_exists(cfg->weights_path)) {
+    bool weights_ok = file_exists(cfg->weights_path);
+    bool manifest_ok = file_exists(cfg->weights_manifest);
+    if (!cfg->force_convert && weights_ok && manifest_ok) {
         if (cfg->verbose) {
             printf("[info] weights already converted: %s\n", cfg->weights_path);
         }
         return 0;
+    }
+    if (!cfg->force_convert && weights_ok && !manifest_ok && cfg->verbose) {
+        printf("[info] weights manifest missing, re-running conversion: %s\n", cfg->weights_manifest);
     }
 
     char cmd[MAX_CMD];

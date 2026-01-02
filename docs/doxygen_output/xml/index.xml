@@ -1088,6 +1088,7 @@
     <member refid="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" kind="function"><name>embedding_backward_bf16</name></member>
     <member refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
     <member refid="ckernel__engine_8h_1a6d58689c662e670a5423eedd0291d6b5" kind="function"><name>embedding_forward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" kind="function"><name>embedding_forward_q4_k</name></member>
     <member refid="ckernel__engine_8h_1a73e088d0e2388c78920e8fc99b0c3846" kind="function"><name>fc1_backward_kernel</name></member>
     <member refid="ckernel__engine_8h_1a89a29fc853aae0baf9f6094fee52562a" kind="function"><name>fc2_backward_kernel</name></member>
     <member refid="ckernel__engine_8h_1a3897324e415431e53b4dba88a774e804" kind="function"><name>fused_mlp_swiglu_decode</name></member>
@@ -1477,11 +1478,22 @@
     <member refid="ckernel__model__load_8c_1a408dbae8dc539ddfe04ee35f35c9257d" kind="function"><name>ck_model_load_weights_flat</name></member>
     <member refid="ckernel__model__load_8c_1a691b1787a9c074fee7219cad5b2f22a4" kind="function"><name>read_floats</name></member>
   </compound>
+  <compound refid="ckernel__model__load__v4_8c" kind="file"><name>ckernel_model_load_v4.c</name>
+    <member refid="ckernel__model__load__v4_8c_1a67e84fc401bf37b246b7e4a1501ccdf6" kind="define"><name>COPY_CHUNK</name></member>
+    <member refid="ckernel__model__load__v4_8c_1aff189f41b88c0561326386ce8f84c57d" kind="define"><name>MANIFEST_LINE_MAX</name></member>
+    <member refid="ckernel__model__load__v4_8c_1a216e94b7cc4499f2199a523bb2621022" kind="function"><name>ck_load_weights_manifest_v4</name></member>
+    <member refid="ckernel__model__load__v4_8c_1a44cc26d37aa57ab8f15f876824ae2f09" kind="function"><name>parse_u64</name></member>
+    <member refid="ckernel__model__load__v4_8c_1a55469391e7680b876a48cdc0d3d24632" kind="function"><name>starts_with</name></member>
+  </compound>
+  <compound refid="ckernel__model__load__v4_8h" kind="file"><name>ckernel_model_load_v4.h</name>
+    <member refid="ckernel__model__load__v4_8h_1a216e94b7cc4499f2199a523bb2621022" kind="function"><name>ck_load_weights_manifest_v4</name></member>
+  </compound>
   <compound refid="ckernel__orchestration_8c" kind="file"><name>ckernel_orchestration.c</name>
     <member refid="ckernel__orchestration_8c_1a0020aef4ce512b3840b824a46e206dca" kind="function"><name>ck_add_inplace</name></member>
     <member refid="ckernel__orchestration_8c_1a2afc01d06448f40b94c48a51a6951dc5" kind="function"><name>ck_attention_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1add4c3ac196a25f481496bf69f32a9ac6" kind="function"><name>ck_attention_project_head_major_backward</name></member>
     <member refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" kind="function"><name>ck_attention_project_head_major_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a9656efa18c286d6551c636aa5b340761" kind="function"><name>ck_attention_project_head_major_q4_k_q8_k</name></member>
     <member refid="ckernel__orchestration_8c_1a107109f43bf909569b9ab2dd75bffb18" kind="function"><name>ck_attention_project_head_major_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a34e3e4ce864cbfd383097bcf417124ad" kind="function"><name>ck_attention_project_head_major_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a68ba045fc96143bbd080d0a410329d6c" kind="function"><name>ck_gemm_nt_quant</name></member>
@@ -1499,12 +1511,14 @@
     <member refid="ckernel__orchestration_8c_1a266b9c19eafb8e11f3e51253c8dd0b45" kind="function"><name>ck_mlp_swiglu_forward_fused_token</name></member>
     <member refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" kind="function"><name>ck_mlp_swiglu_forward_q4_k</name></member>
     <member refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" kind="function"><name>ck_mlp_swiglu_forward_q4_k_q8_k</name></member>
+    <member refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" kind="function"><name>ck_mlp_swiglu_forward_q4_k_q8_k_prefill</name></member>
     <member refid="ckernel__orchestration_8c_1a3754c7725e77065577179096b396c075" kind="function"><name>ck_mlp_swiglu_forward_quant</name></member>
     <member refid="ckernel__orchestration_8c_1ac841f4e0a273b07808cc036a715b742e" kind="function"><name>ck_mlp_swiglu_forward_ref</name></member>
     <member refid="ckernel__orchestration_8c_1a45ad329928b675ddc00ad3d5059335b3" kind="function"><name>ck_q8k_activations_enabled</name></member>
     <member refid="ckernel__orchestration_8c_1ae1c428e05f8ea7795136ae8b160b8a0a" kind="function"><name>ck_qkv_project_head_major</name></member>
     <member refid="ckernel__orchestration_8c_1aae6b6e1796c190320ef20f0476dc2e9d" kind="function"><name>ck_qkv_project_head_major_backward</name></member>
     <member refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" kind="function"><name>ck_qkv_project_head_major_q4_k</name></member>
+    <member refid="ckernel__orchestration_8c_1a40623acc041514b7bed2c76c246091f7" kind="function"><name>ck_qkv_project_head_major_q4_k_q8_k</name></member>
     <member refid="ckernel__orchestration_8c_1aa1ebc47c823d864fbbe18d975df74704" kind="function"><name>ck_qkv_project_head_major_quant</name></member>
     <member refid="ckernel__orchestration_8c_1a3678c4745f6b4d3f39e3c07cdff6db12" kind="function"><name>ck_qkv_project_head_major_ref</name></member>
     <member refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" kind="function"><name>ck_qkv_project_head_major_token_q4_k</name></member>
@@ -1648,6 +1662,7 @@
   <compound refid="embedding__kernels_8c" kind="file"><name>embedding_kernels.c</name>
     <member refid="embedding__kernels_8c_1a7fb7087da26dca964798795062f5b0a5" kind="function"><name>embedding_backward</name></member>
     <member refid="embedding__kernels_8c_1ad6f7e7937754e791a704562549e39f05" kind="function"><name>embedding_forward</name></member>
+    <member refid="embedding__kernels_8c_1a476c5068e2670813bcd9d5fd0ae6d0b4" kind="function"><name>embedding_forward_q4_k</name></member>
   </compound>
   <compound refid="embedding__kernels__bf16_8c" kind="file"><name>embedding_kernels_bf16.c</name>
     <member refid="embedding__kernels__bf16_8c_1a7c57b105fb88eb4165a0c649932be08d" kind="function"><name>embedding_backward_bf16</name></member>

@@ -11,6 +11,7 @@
     <includedby refid="ckernel__mem__plan_8c" local="yes">ckernel_mem_plan.c</includedby>
     <includedby refid="ckernel__orchestration_8c" local="yes">ckernel_orchestration.c</includedby>
     <includedby refid="dequant__kernels_8c" local="yes">dequant_kernels.c</includedby>
+    <includedby refid="embedding__kernels_8c" local="yes">embedding_kernels.c</includedby>
     <incdepgraph>
       <node id="1">
         <label>ckernel_dtype.h</label>
@@ -84,6 +85,8 @@
         <childnode refid="21" relation="include">
         </childnode>
         <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
         </childnode>
       </node>
       <node id="10">
@@ -235,6 +238,10 @@
       <node id="29">
         <label>gemm_kernels_q4k_q8k_avx2.c</label>
         <link refid="gemm__kernels__q4k__q8k__avx2_8c"/>
+      </node>
+      <node id="33">
+        <label>embedding_kernels.c</label>
+        <link refid="embedding__kernels_8c"/>
       </node>
       <node id="18">
         <label>ckernel_codegen.c</label>
@@ -507,7 +514,8 @@
         <referencedby refid="ckernel__orchestration_8c_1aa1ebc47c823d864fbbe18d975df74704" compoundref="ckernel__orchestration_8c" startline="195" endline="251">ck_qkv_project_head_major_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1351" endline="1394">ck_qkv_project_head_major_token_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" compoundref="ckernel__orchestration_8c" startline="1396" endline="1439">ck_qkv_project_head_major_token_q4_k_q8_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8c_1ad9e143397c01620ba314aa448ed922a1" compoundref="ckernel__orchestration_8c" startline="1441" endline="1492">ck_qkv_project_head_major_token_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad9e143397c01620ba314aa448ed922a1" compoundref="ckernel__orchestration_8c" startline="1599" endline="1650">ck_qkv_project_head_major_token_quant</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" compoundref="embedding__kernels_8c" startline="60" endline="113">embedding_forward_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>int</type>

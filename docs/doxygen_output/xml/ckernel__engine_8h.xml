@@ -641,7 +641,7 @@
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
         <referencedby refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" compoundref="attention__kernels_8c" startline="1071" endline="1092">attention_backward_causal_head_major</referencedby>
         <referencedby refid="ckernel__engine_8h_1a1a95c2e93bfbe603df487d0c0eb5ea2b" compoundref="attention__kernels_8c" startline="884" endline="940">attention_backward_causal_head_major_gqa_bf16</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a1a95c2e93bfbe603df487d0c0eb5ea2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -774,7 +774,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="538" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="59" bodyend="123" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="538" declcolumn="6"/>
-        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="116" endline="297">causal_softmax_head_major</references>
+        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="117" endline="298">causal_softmax_head_major</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
       </memberdef>
@@ -830,7 +830,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="550" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="127" bodyend="191" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="550" declcolumn="6"/>
-        <references refid="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" compoundref="softmax__kernels_8c" startline="302" endline="340">causal_softmax_head_major_exact</references>
+        <references refid="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" compoundref="softmax__kernels_8c" startline="303" endline="341">causal_softmax_head_major_exact</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
       </memberdef>
@@ -890,12 +890,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="562" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="195" bodyend="253" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="562" declcolumn="6"/>
-        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="116" endline="297">causal_softmax_head_major</references>
+        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="117" endline="298">causal_softmax_head_major</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="749" endline="854">ck_layer_forward_rmsnorm_swiglu</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1652" endline="1855">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="2128" endline="2236">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1af749b0ec6a9cc8a63033fa2069759722" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -1013,7 +1013,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="575" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/attention_kernels.c" bodystart="258" bodyend="317" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="575" declcolumn="6"/>
-        <references refid="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" compoundref="softmax__kernels_8c" startline="302" endline="340">causal_softmax_head_major_exact</references>
+        <references refid="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" compoundref="softmax__kernels_8c" startline="303" endline="341">causal_softmax_head_major_exact</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <references refid="attention__kernels_8c_1a730fa391639fb17027ee898e26e5db06" compoundref="attention__kernels_8c" startline="35" endline="43">score_index</references>
         <referencedby refid="ckernel__engine_8h_1af749b0ec6a9cc8a63033fa2069759722" compoundref="attention__kernels_8c" startline="319" endline="359">attention_forward_causal_head_major_gqa_bf16</referencedby>
@@ -1069,8 +1069,8 @@
         <references refid="attention__kernels_8c_1a686599872afcb86c5fc7ad5e5e5b4773">FLASH_QUERY_IMPL</references>
         <references refid="attention__kernels_8c_1a0102833b3c8a1d4114e65c0638ddbfb1" compoundref="attention__kernels_8c" startline="23" endline="31">qkv_index</references>
         <referencedby refid="ckernel__orchestration_8h_1ab7dfa86e5bb0d80f0e346f85e870cb1d" compoundref="ckernel__orchestration_8c" startline="749" endline="854">ck_layer_forward_rmsnorm_swiglu</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1652" endline="1855">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="2128" endline="2236">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a84803f8c5509c325dd6b9feec50a0493" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -1129,8 +1129,8 @@
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
         <referencedby refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" compoundref="attention__decode__fused_8c" startline="165" endline="323">ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1163,7 +1163,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="517" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="345" bodyend="455" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="517" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="517" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="346" bodyend="456" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="517" declcolumn="6"/>
         <referencedby refid="ckernel__engine_8h_1afe83b7a562f3b21fef1993782ff3792b" compoundref="softmax__kernels__bf16_8c" startline="36" endline="64">backward_causal_softmax_head_major_bf16</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1afe83b7a562f3b21fef1993782ff3792b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -1198,7 +1198,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="528" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels_bf16.c" bodystart="36" bodyend="64" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="528" declcolumn="6"/>
-        <references refid="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" compoundref="softmax__kernels_8c" startline="345" endline="455">backward_causal_softmax_head_major</references>
+        <references refid="ckernel__engine_8h_1a3d0ffc191c77d983b953984f8012589d" compoundref="softmax__kernels_8c" startline="346" endline="456">backward_causal_softmax_head_major</references>
         <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
         <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
       </memberdef>
@@ -1229,7 +1229,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="505" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="116" bodyend="297" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="505" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="505" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="117" bodyend="298" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="505" declcolumn="6"/>
         <referencedby refid="ckernel__engine_8h_1a3d8664b9e0808546484af9ec7d4ddfe1" compoundref="attention__kernels_8c" startline="59" endline="123">attention_forward_causal_head_major</referencedby>
         <referencedby refid="ckernel__engine_8h_1a3e1aa7c55e515fd996318da27c2c5ade" compoundref="attention__kernels_8c" startline="195" endline="253">attention_forward_causal_head_major_gqa</referencedby>
         <referencedby refid="ckernel__engine_8h_1a1cc637a888846ddbcf1a58ac72b4aaf6" compoundref="softmax__kernels__bf16_8c" startline="12" endline="34">causal_softmax_head_major_bf16</referencedby>
@@ -1263,7 +1263,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="523" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels_bf16.c" bodystart="12" bodyend="34" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="523" declcolumn="6"/>
         <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
-        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="116" endline="297">causal_softmax_head_major</references>
+        <references refid="ckernel__engine_8h_1a920868f80137fe3e0c9cd11acb7ba567" compoundref="softmax__kernels_8c" startline="117" endline="298">causal_softmax_head_major</references>
         <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a6ea7267298ef550524a6277b817a8ffb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -1293,7 +1293,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="512" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="302" bodyend="340" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="512" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="512" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/softmax_kernels.c" bodystart="303" bodyend="341" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="512" declcolumn="6"/>
         <referencedby refid="ckernel__engine_8h_1a57b7a6f6f08b030fd8d5fbf87fa31ac7" compoundref="attention__kernels_8c" startline="127" endline="191">attention_forward_causal_head_major_exact</referencedby>
         <referencedby refid="ckernel__engine_8h_1a04febaa686747fdfad9e915b627a0915" compoundref="attention__kernels_8c" startline="258" endline="317">attention_forward_causal_head_major_gqa_exact</referencedby>
       </memberdef>
@@ -1450,6 +1450,7 @@
         <references refid="dequant__kernels_8c_1a79c5cea176a2a885717a0c5b42f13551" compoundref="dequant__kernels_8c" startline="167" endline="197">dequant_q4_k_block</references>
         <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
         <referencedby refid="dequant__kernels_8c_1a82b903e16498e719418051cf1ea32640" compoundref="dequant__kernels_8c" startline="345" endline="364">dequant_row</referencedby>
+        <referencedby refid="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" compoundref="embedding__kernels_8c" startline="60" endline="113">embedding_forward_q4_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1addb481c891fc0db58976bf3d363235a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1531,7 +1532,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1010" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels.c" bodystart="59" bodyend="100" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1010" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1021" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels.c" bodystart="115" bodyend="156" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1021" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1584,7 +1585,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1021" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="58" bodyend="99" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1021" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1032" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="58" bodyend="99" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1032" declcolumn="6"/>
         <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
         <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
       </memberdef>
@@ -1639,7 +1640,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="984" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels.c" bodystart="5" bodyend="57" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="984" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="984" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels.c" bodystart="6" bodyend="58" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="984" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a6d58689c662e670a5423eedd0291d6b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1692,9 +1693,65 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="995" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="7" bodyend="56" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="995" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1006" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels_bf16.c" bodystart="7" bodyend="56" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1006" declcolumn="6"/>
         <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
         <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
+      </memberdef>
+      <memberdef kind="function" id="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void embedding_forward_q4_k</definition>
+        <argsstring>(const int32_t *token_ids, int token_count, int vocab_size, const void *token_embeddings, const float *pos_embeddings, float *output, int embed_dim, int aligned_embed_dim, int context_window, int add_pos)</argsstring>
+        <name>embedding_forward_q4_k</name>
+        <param>
+          <type>const int32_t *</type>
+          <declname>token_ids</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>token_count</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>vocab_size</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>token_embeddings</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>pos_embeddings</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>embed_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>aligned_embed_dim</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>context_window</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>add_pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="995" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/embedding_kernels.c" bodystart="60" bodyend="113" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="995" declcolumn="6"/>
+        <references refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65a2a27336a01bd529878399bcad9ceb10a" compoundref="ckernel__dtype_8h" startline="37">CK_DT_Q4_K</references>
+        <references refid="ckernel__dtype_8h_1afb7fc50f1a3ed20ee55989027c744c8f" compoundref="ckernel__dtype_8h" startline="115" endline="123">ck_dtype_row_bytes</references>
+        <references refid="ckernel__engine_8h_1af2d02981687e405f123c38e442a53030" compoundref="dequant__kernels_8c" startline="202" endline="210">dequant_q4_k_row</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a73e088d0e2388c78920e8fc99b0c3846" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1750,7 +1807,7 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="699" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/mlp_kernels.c" bodystart="148" bodyend="184" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="699" declcolumn="6"/>
         <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="320" endline="381">gemm_nn_avx512</references>
         <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="502" endline="560">gemm_tn_avx512</references>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a89a29fc853aae0baf9f6094fee52562a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1807,7 +1864,7 @@
         <references refid="ckernel__engine_8h_1a91c10e18555ecb27791d5405c8dc3ae4" compoundref="gemm__kernels_8c" startline="320" endline="381">gemm_nn_avx512</references>
         <references refid="ckernel__engine_8h_1afe5bf17f909def227c3e25b0c4338f93" compoundref="gemm__kernels_8c" startline="502" endline="560">gemm_tn_avx512</references>
         <referencedby refid="ckernel__orchestration_8h_1add4c3ac196a25f481496bf69f32a9ac6" compoundref="ckernel__orchestration_8c" startline="553" endline="607">ck_attention_project_head_major_backward</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1aae6b6e1796c190320ef20f0476dc2e9d" compoundref="ckernel__orchestration_8c" startline="609" endline="703">ck_qkv_project_head_major_backward</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a3897324e415431e53b4dba88a774e804" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -2936,8 +2993,8 @@
         <referencedby refid="ckernel__orchestration_8c_1a4369f2c106b80c1888b99fe709b07f6c" compoundref="ckernel__orchestration_8c" startline="253" endline="287">ck_attention_project_head_major_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a107109f43bf909569b9ab2dd75bffb18" compoundref="ckernel__orchestration_8c" startline="289" endline="345">ck_attention_project_head_major_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a68ba045fc96143bbd080d0a410329d6c" compoundref="ckernel__orchestration_8c" startline="109" endline="129">ck_gemm_nt_quant</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" compoundref="ckernel__orchestration_8c" startline="347" endline="367">ck_mlp_swiglu_forward_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="146" endline="193">ck_qkv_project_head_major_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1351" endline="1394">ck_qkv_project_head_major_token_q4_k</referencedby>
@@ -2984,8 +3041,10 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="140" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gemm_kernels_q4k_q8k.c" bodystart="197" bodyend="222" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="140" declcolumn="6"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
         <references refid="gemm__kernels__q4k__q8k_8c_1ac52baba628268303f41c01413c445024" compoundref="gemm__kernels__q4k__q8k_8c" startline="179" endline="195">gemm_q4_k_q8_k</references>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9656efa18c286d6551c636aa5b340761" compoundref="ckernel__orchestration_8c" startline="1506" endline="1548">ck_attention_project_head_major_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" compoundref="ckernel__orchestration_8c" startline="393" endline="426">ck_mlp_swiglu_forward_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" compoundref="ckernel__orchestration_8c" startline="1550" endline="1597">ck_mlp_swiglu_forward_q4_k_q8_k_prefill</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a3a2f1ed53c42b0003b637f0020c419f9" compoundref="ckernel__orchestration_8c" startline="1396" endline="1439">ck_qkv_project_head_major_token_q4_k_q8_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a7568db3d490c7a7372a5236d8b2fe207" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -3032,7 +3091,7 @@
         <references refid="gemm__kernels__q6k_8c_1a07fcd594f867f5c6afb487ab989213e1" compoundref="gemm__kernels__q6k_8c" startline="81" endline="96">gemm_q6_k</references>
         <referencedby refid="ckernel__orchestration_8c_1a107109f43bf909569b9ab2dd75bffb18" compoundref="ckernel__orchestration_8c" startline="289" endline="345">ck_attention_project_head_major_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a68ba045fc96143bbd080d0a410329d6c" compoundref="ckernel__orchestration_8c" startline="109" endline="129">ck_gemm_nt_quant</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1ac277a5257dc44a48af4ebaa8691806cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -3487,7 +3546,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1049" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels.c" bodystart="14" bodyend="47" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1049" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1060" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels.c" bodystart="14" bodyend="47" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1060" declcolumn="6"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a57139580e075be2d5a65cfffc8e84898" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -3525,7 +3584,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1056" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels_bf16.c" bodystart="8" bodyend="41" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1056" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1067" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels_bf16.c" bodystart="8" bodyend="41" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1067" declcolumn="6"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a377bab84fd3d4ba79cf92024615c240a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -3612,8 +3671,8 @@
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
         <referencedby refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" compoundref="attention__decode__fused_8c" startline="165" endline="323">ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a8d349f047d6654b3a351fb62e0b20e87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -4268,7 +4327,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1052" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels.c" bodystart="55" bodyend="88" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1052" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1063" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels.c" bodystart="55" bodyend="88" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1063" declcolumn="6"/>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1aee95c2d2b45191471be617739a41ac0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -4306,7 +4365,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1059" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels_bf16.c" bodystart="43" bodyend="81" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1059" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1070" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/vision_kernels_bf16.c" bodystart="43" bodyend="81" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1070" declcolumn="6"/>
         <references refid="bf16__utils_8h_1a314c3970fd5e2770d19b1bb49aefcf94" compoundref="bf16__utils_8h" startline="38" endline="46">bf16_to_float</references>
         <references refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" compoundref="show__config_8c" startline="39">C</references>
         <references refid="bf16__utils_8h_1a174b16a92b3a5972230d7519fc0c5aa3" compoundref="bf16__utils_8h" startline="90" endline="103">float_to_bf16</references>
@@ -4340,8 +4399,11 @@
         <references refid="structblock__q8__K_1abb47e300e16fb14224979b2538edb966" compoundref="ckernel__quant_8h" startline="102">block_q8_K::d</references>
         <references refid="ckernel__quant_8h_1afd2f43dcca46f268b2008cb200198e50" compoundref="ckernel__quant_8h" startline="69">QK_K</references>
         <references refid="structblock__q8__K_1ac7219c4dba2b1f4192beca610a3999fc" compoundref="ckernel__quant_8h" startline="103">block_q8_K::qs</references>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a9656efa18c286d6551c636aa5b340761" compoundref="ckernel__orchestration_8c" startline="1506" endline="1548">ck_attention_project_head_major_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" compoundref="ckernel__orchestration_8c" startline="393" endline="426">ck_mlp_swiglu_forward_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" compoundref="ckernel__orchestration_8c" startline="1550" endline="1597">ck_mlp_swiglu_forward_q4_k_q8_k_prefill</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1a40623acc041514b7bed2c76c246091f7" compoundref="ckernel__orchestration_8c" startline="1441" endline="1504">ck_qkv_project_head_major_q4_k_q8_k</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a434da7f0647cdada09cd6ad435560467" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -4547,7 +4609,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="386" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rmsnorm_kernels.c" bodystart="157" bodyend="339" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="386" declcolumn="6"/>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
         <referencedby refid="ckernel__engine_8h_1ab35eb653240c86b2b1a41b88233c90be" compoundref="rmsnorm__kernels__int4_8c" startline="102" endline="149">rmsnorm_backward_int4</referencedby>
         <referencedby refid="ckernel__engine_8h_1afebfbf40a74543cc5cb371c6ff5f4711" compoundref="rmsnorm__kernels__int8_8c" startline="82" endline="130">rmsnorm_backward_int8</referencedby>
       </memberdef>
@@ -4758,10 +4820,10 @@
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
         <referencedby refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" compoundref="attention__decode__fused_8c" startline="165" endline="323">ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1652" endline="1855">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="2128" endline="2236">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
         <referencedby refid="ckernel__engine_8h_1abb168afab2b3523fbdf26569ab0afa66" compoundref="rmsnorm__kernels__int4_8c" startline="71" endline="100">rmsnorm_forward_int4</referencedby>
         <referencedby refid="ckernel__engine_8h_1a49c1ca0d6c659c9d5623fa64dde4ecc3" compoundref="rmsnorm__kernels__int8_8c" startline="51" endline="80">rmsnorm_forward_int8</referencedby>
@@ -5125,7 +5187,7 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="943" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/rope_kernels.c" bodystart="391" bodyend="406" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="943" declcolumn="6"/>
         <references refid="rope__kernels_8c_1af248ca325f0a6837ed9bfd3d34552c00" compoundref="rope__kernels_8c" startline="181" endline="277">rope_backward</references>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a76d3e6e058074c51a76a252ab61eb5fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -5345,10 +5407,10 @@
         <referencedby refid="ckernel__orchestration_8h_1a745d032ebb518826e284b4a3680a8cb5" compoundref="ckernel__orchestration_8c" startline="1040" endline="1196">ck_layer_forward_rmsnorm_swiglu_decode</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1ab8d674c4a63b69a0cc0b38bbe58fa9f2" compoundref="ckernel__orchestration_8c" startline="1198" endline="1349">ck_layer_forward_rmsnorm_swiglu_decode_fused</referencedby>
         <referencedby refid="attention__decode__fused_8c_1a1e6628f9f140c9749a6dd7c2c9ce263a" compoundref="attention__decode__fused_8c" startline="165" endline="323">ck_layer_forward_rmsnorm_swiglu_decode_fused_attn_impl</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1601" endline="1870">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="1982" endline="2152">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1494" endline="1599">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
-        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="1872" endline="1980">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1abb01994013418ff7b8be71dc9bdcded5" compoundref="ckernel__orchestration_8c" startline="1857" endline="2126">ck_layer_forward_rmsnorm_swiglu_decode_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1ae07680f1a438bd1824fa4b1c3e4e826e" compoundref="ckernel__orchestration_8c" startline="2238" endline="2408">ck_layer_forward_rmsnorm_swiglu_decode_quant</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a7b9d9ef1181d1fa0f7c8b19eefb7846d" compoundref="ckernel__orchestration_8c" startline="1652" endline="1855">ck_layer_forward_rmsnorm_swiglu_q4_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a4bfddd851b4b52f7502330118a3e853d" compoundref="ckernel__orchestration_8c" startline="2128" endline="2236">ck_layer_forward_rmsnorm_swiglu_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8h_1acc9d893cdd6cf7bf0dbf35d42c5f0e99" compoundref="ckernel__orchestration_8c" startline="856" endline="961">ck_layer_forward_rmsnorm_swiglu_ref</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1aac704c77b897a1fbef2f63f7e7de9ef1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -5618,7 +5680,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1034" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels.c" bodystart="5" bodyend="59" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1034" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1045" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels.c" bodystart="5" bodyend="59" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1045" declcolumn="6"/>
         <referencedby refid="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" compoundref="loss__kernels__bf16_8c" startline="8" endline="40">softmax_cross_entropy_loss_bf16</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -5656,7 +5718,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1041" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels_bf16.c" bodystart="8" bodyend="40" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1041" declcolumn="6"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="1052" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/loss_kernels_bf16.c" bodystart="8" bodyend="40" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="1052" declcolumn="6"/>
         <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
         <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="ckernel__engine_8h_1aed0168fe0364ab17b0d9dd02b1ac3ffa" compoundref="loss__kernels_8c" startline="5" endline="59">softmax_cross_entropy_loss</references>
@@ -5695,7 +5757,7 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" line="739" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/swiglu_kernels.c" bodystart="192" bodyend="301" declfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h" declline="739" declcolumn="6"/>
         <references refid="gemm__kernels__bf16_8c_1a36f229bbda63818246ec86181b1fdd42" compoundref="gemm__kernels__bf16_8c" startline="41" endline="59">__attribute__</references>
         <references refid="ckernel__engine_8h_1aaa76ef661048368434b452a237bc3669" compoundref="sigmoid__kernels_8c" startline="11" endline="14">sigmoid_scalar</references>
-        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2154" endline="2294">ck_layer_backward_rmsnorm_swiglu</referencedby>
+        <referencedby refid="ckernel__orchestration_8h_1a1b75acba52e39a2063646dc1dff62ef4" compoundref="ckernel__orchestration_8c" startline="2410" endline="2550">ck_layer_backward_rmsnorm_swiglu</referencedby>
       </memberdef>
       <memberdef kind="function" id="ckernel__engine_8h_1a77fb89fc5fa2dcc73d9d37ccf9c50322" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -5800,6 +5862,7 @@
         <referencedby refid="ckernel__orchestration_8h_1a2e894b79792aaf694427446c1d89fab8" compoundref="ckernel__orchestration_8c" startline="705" endline="725">ck_mlp_swiglu_forward</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a9be0b5aaccd3e66b10a9ec0505ae8877" compoundref="ckernel__orchestration_8c" startline="347" endline="367">ck_mlp_swiglu_forward_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a7310a1f37d7ebf7dfde9380c5e19812b" compoundref="ckernel__orchestration_8c" startline="393" endline="426">ck_mlp_swiglu_forward_q4_k_q8_k</referencedby>
+        <referencedby refid="ckernel__orchestration_8c_1ad6aa365279862f31a7bd98385374a268" compoundref="ckernel__orchestration_8c" startline="1550" endline="1597">ck_mlp_swiglu_forward_q4_k_q8_k_prefill</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a3754c7725e77065577179096b396c075" compoundref="ckernel__orchestration_8c" startline="369" endline="391">ck_mlp_swiglu_forward_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1ac841f4e0a273b07808cc036a715b742e" compoundref="ckernel__orchestration_8c" startline="727" endline="747">ck_mlp_swiglu_forward_ref</referencedby>
       </memberdef>
@@ -6854,90 +6917,101 @@
 <codeline lineno="981"><highlight class="normal"></highlight><highlight class="comment">//<sp/>token_embeddings:<sp/>[vocab_size<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="982"><highlight class="normal"></highlight><highlight class="comment">//<sp/>pos_embeddings:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]<sp/>or<sp/>NULL<sp/>if<sp/>add_pos<sp/>==<sp/>0.</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="983"><highlight class="normal"></highlight><highlight class="comment">//<sp/>output:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="984"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kindref="member">embedding_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
-<codeline lineno="985"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
-<codeline lineno="986"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="984"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1ad6f7e7937754e791a704562549e39f05" kindref="member">embedding_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
+<codeline lineno="985"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
+<codeline lineno="986"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
 <codeline lineno="987"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*token_embeddings,</highlight></codeline>
 <codeline lineno="988"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*pos_embeddings,</highlight></codeline>
 <codeline lineno="989"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
 <codeline lineno="990"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
 <codeline lineno="991"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
-<codeline lineno="992"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
-<codeline lineno="993"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
+<codeline lineno="992"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
+<codeline lineno="993"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
 <codeline lineno="994"><highlight class="normal"></highlight></codeline>
-<codeline lineno="995"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a6d58689c662e670a5423eedd0291d6b5" kindref="member">embedding_forward_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
-<codeline lineno="996"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
-<codeline lineno="997"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
-<codeline lineno="998"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*token_embeddings,</highlight></codeline>
-<codeline lineno="999"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*pos_embeddings,</highlight></codeline>
-<codeline lineno="1000"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*output,</highlight></codeline>
-<codeline lineno="1001"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
-<codeline lineno="1002"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
-<codeline lineno="1003"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
-<codeline lineno="1004"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
+<codeline lineno="995"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a476c5068e2670813bcd9d5fd0ae6d0b4" kindref="member">embedding_forward_q4_k</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
+<codeline lineno="996"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
+<codeline lineno="997"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="998"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*token_embeddings,</highlight></codeline>
+<codeline lineno="999"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*pos_embeddings,</highlight></codeline>
+<codeline lineno="1000"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*output,</highlight></codeline>
+<codeline lineno="1001"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
+<codeline lineno="1002"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="1003"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
+<codeline lineno="1004"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
 <codeline lineno="1005"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1006"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Embedding<sp/>backward:<sp/>accumulates<sp/>into<sp/>d_token_embeddings<sp/>and<sp/>d_pos_embeddings.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1007"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_output:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1008"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_token_embeddings:<sp/>[vocab_size<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1009"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_pos_embeddings:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]<sp/>(optional)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1010"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a7fb7087da26dca964798795062f5b0a5" kindref="member">embedding_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
-<codeline lineno="1011"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
-<codeline lineno="1012"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
-<codeline lineno="1013"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_token_embeddings,</highlight></codeline>
-<codeline lineno="1014"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_pos_embeddings,</highlight></codeline>
-<codeline lineno="1015"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
-<codeline lineno="1016"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
-<codeline lineno="1017"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
-<codeline lineno="1018"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
-<codeline lineno="1019"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
-<codeline lineno="1020"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1021"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" kindref="member">embedding_backward_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
-<codeline lineno="1022"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
-<codeline lineno="1023"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*d_output,</highlight></codeline>
-<codeline lineno="1024"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_token_embeddings,</highlight></codeline>
-<codeline lineno="1025"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_pos_embeddings,</highlight></codeline>
-<codeline lineno="1026"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
-<codeline lineno="1027"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
-<codeline lineno="1028"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
-<codeline lineno="1029"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
-<codeline lineno="1030"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
+<codeline lineno="1006"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a6d58689c662e670a5423eedd0291d6b5" kindref="member">embedding_forward_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
+<codeline lineno="1007"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
+<codeline lineno="1008"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="1009"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*token_embeddings,</highlight></codeline>
+<codeline lineno="1010"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*pos_embeddings,</highlight></codeline>
+<codeline lineno="1011"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*output,</highlight></codeline>
+<codeline lineno="1012"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
+<codeline lineno="1013"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="1014"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
+<codeline lineno="1015"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
+<codeline lineno="1016"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1017"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Embedding<sp/>backward:<sp/>accumulates<sp/>into<sp/>d_token_embeddings<sp/>and<sp/>d_pos_embeddings.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1018"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_output:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1019"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_token_embeddings:<sp/>[vocab_size<sp/>x<sp/>aligned_embed_dim]</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1020"><highlight class="normal"></highlight><highlight class="comment">//<sp/>d_pos_embeddings:<sp/>[context_window<sp/>x<sp/>aligned_embed_dim]<sp/>(optional)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1021"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a7fb7087da26dca964798795062f5b0a5" kindref="member">embedding_backward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
+<codeline lineno="1022"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
+<codeline lineno="1023"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_output,</highlight></codeline>
+<codeline lineno="1024"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_token_embeddings,</highlight></codeline>
+<codeline lineno="1025"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_pos_embeddings,</highlight></codeline>
+<codeline lineno="1026"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="1027"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
+<codeline lineno="1028"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="1029"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
+<codeline lineno="1030"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
 <codeline lineno="1031"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1032"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Softmax<sp/>cross-entropy<sp/>loss<sp/>+<sp/>gradient<sp/>w.r.t<sp/>logits.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1033"><highlight class="normal"></highlight><highlight class="comment">//<sp/>logits:<sp/>[tokens<sp/>x<sp/>vocab_size],<sp/>targets:<sp/>[tokens],<sp/>d_logits:<sp/>[tokens<sp/>x<sp/>vocab_size]</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1034"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aed0168fe0364ab17b0d9dd02b1ac3ffa" kindref="member">softmax_cross_entropy_loss</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*logits,</highlight></codeline>
-<codeline lineno="1035"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*targets,</highlight></codeline>
-<codeline lineno="1036"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
-<codeline lineno="1037"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
-<codeline lineno="1038"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_logits,</highlight></codeline>
-<codeline lineno="1039"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*loss_out);</highlight></codeline>
-<codeline lineno="1040"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1041"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" kindref="member">softmax_cross_entropy_loss_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*logits,</highlight></codeline>
-<codeline lineno="1042"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*targets,</highlight></codeline>
-<codeline lineno="1043"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
-<codeline lineno="1044"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
-<codeline lineno="1045"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_logits,</highlight></codeline>
-<codeline lineno="1046"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*loss_out);</highlight></codeline>
-<codeline lineno="1047"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1048"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Vision<sp/>helpers<sp/>(patchify/unpatchify).</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1049"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a86aec042bcceb0bd8955f0daf0d986c4" kindref="member">im2patch</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*image,</highlight></codeline>
-<codeline lineno="1050"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*patches,</highlight></codeline>
-<codeline lineno="1051"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
-<codeline lineno="1052"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3ffa58aab7da5c6e77096ad19385329a" kindref="member">patch2im</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_patches,</highlight></codeline>
-<codeline lineno="1053"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_image,</highlight></codeline>
-<codeline lineno="1054"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
-<codeline lineno="1055"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1056"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a57139580e075be2d5a65cfffc8e84898" kindref="member">im2patch_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*image,</highlight></codeline>
-<codeline lineno="1057"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*patches,</highlight></codeline>
-<codeline lineno="1058"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
-<codeline lineno="1059"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aee95c2d2b45191471be617739a41ac0d" kindref="member">patch2im_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*d_patches,</highlight></codeline>
-<codeline lineno="1060"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_image,</highlight></codeline>
-<codeline lineno="1061"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
-<codeline lineno="1062"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1063"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1064"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="1065"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1032"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a7c57b105fb88eb4165a0c649932be08d" kindref="member">embedding_backward_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*token_ids,</highlight></codeline>
+<codeline lineno="1033"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>token_count,</highlight></codeline>
+<codeline lineno="1034"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*d_output,</highlight></codeline>
+<codeline lineno="1035"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_token_embeddings,</highlight></codeline>
+<codeline lineno="1036"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_pos_embeddings,</highlight></codeline>
+<codeline lineno="1037"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="1038"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embed_dim,</highlight></codeline>
+<codeline lineno="1039"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>aligned_embed_dim,</highlight></codeline>
+<codeline lineno="1040"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>context_window,</highlight></codeline>
+<codeline lineno="1041"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>add_pos);</highlight></codeline>
+<codeline lineno="1042"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1043"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Softmax<sp/>cross-entropy<sp/>loss<sp/>+<sp/>gradient<sp/>w.r.t<sp/>logits.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1044"><highlight class="normal"></highlight><highlight class="comment">//<sp/>logits:<sp/>[tokens<sp/>x<sp/>vocab_size],<sp/>targets:<sp/>[tokens],<sp/>d_logits:<sp/>[tokens<sp/>x<sp/>vocab_size]</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1045"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aed0168fe0364ab17b0d9dd02b1ac3ffa" kindref="member">softmax_cross_entropy_loss</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*logits,</highlight></codeline>
+<codeline lineno="1046"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*targets,</highlight></codeline>
+<codeline lineno="1047"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="1048"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="1049"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_logits,</highlight></codeline>
+<codeline lineno="1050"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*loss_out);</highlight></codeline>
+<codeline lineno="1051"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1052"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a5e87177162b6dd565515e53e56dcd0f5" kindref="member">softmax_cross_entropy_loss_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*logits,</highlight></codeline>
+<codeline lineno="1053"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>*targets,</highlight></codeline>
+<codeline lineno="1054"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tokens,</highlight></codeline>
+<codeline lineno="1055"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vocab_size,</highlight></codeline>
+<codeline lineno="1056"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_logits,</highlight></codeline>
+<codeline lineno="1057"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*loss_out);</highlight></codeline>
+<codeline lineno="1058"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1059"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Vision<sp/>helpers<sp/>(patchify/unpatchify).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1060"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a86aec042bcceb0bd8955f0daf0d986c4" kindref="member">im2patch</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*image,</highlight></codeline>
+<codeline lineno="1061"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*patches,</highlight></codeline>
+<codeline lineno="1062"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
+<codeline lineno="1063"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a3ffa58aab7da5c6e77096ad19385329a" kindref="member">patch2im</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_patches,</highlight></codeline>
+<codeline lineno="1064"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>*d_image,</highlight></codeline>
+<codeline lineno="1065"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
 <codeline lineno="1066"><highlight class="normal"></highlight></codeline>
-<codeline lineno="1067"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>CKERNEL_ENGINE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1067"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1a57139580e075be2d5a65cfffc8e84898" kindref="member">im2patch_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*image,</highlight></codeline>
+<codeline lineno="1068"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*patches,</highlight></codeline>
+<codeline lineno="1069"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
+<codeline lineno="1070"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="ckernel__engine_8h_1aee95c2d2b45191471be617739a41ac0d" kindref="member">patch2im_bf16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*d_patches,</highlight></codeline>
+<codeline lineno="1071"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*d_image,</highlight></codeline>
+<codeline lineno="1072"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="show__config_8c_1a3d5cffd490a70d568b820514b5a0f937" kindref="member">C</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>H,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>W,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P);</highlight></codeline>
+<codeline lineno="1073"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1074"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1075"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1076"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1077"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1078"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>CKERNEL_ENGINE_H</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_engine.h"/>
   </compounddef>

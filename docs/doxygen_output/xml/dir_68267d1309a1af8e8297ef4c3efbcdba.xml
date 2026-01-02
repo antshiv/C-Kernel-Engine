@@ -23,6 +23,7 @@
     <innerfile refid="ckernel__mem__plan_8c">ckernel_mem_plan.c</innerfile>
     <innerfile refid="ckernel__model__layout_8c">ckernel_model_layout.c</innerfile>
     <innerfile refid="ckernel__model__load_8c">ckernel_model_load.c</innerfile>
+    <innerfile refid="ckernel__model__load__v4_8c">ckernel_model_load_v4.c</innerfile>
     <innerfile refid="ckernel__orchestration_8c">ckernel_orchestration.c</innerfile>
     <innerfile refid="ckernel__registry_8c">ckernel_registry.c</innerfile>
     <innerfile refid="ckernel__strict_8c">ckernel_strict.c</innerfile>

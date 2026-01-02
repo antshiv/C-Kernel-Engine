@@ -16,6 +16,7 @@
     <innerfile refid="ckernel__mem__plan_8h">ckernel_mem_plan.h</innerfile>
     <innerfile refid="ckernel__memory__layout_8h">ckernel_memory_layout.h</innerfile>
     <innerfile refid="ckernel__model_8h">ckernel_model.h</innerfile>
+    <innerfile refid="ckernel__model__load__v4_8h">ckernel_model_load_v4.h</innerfile>
     <innerfile refid="ckernel__orchestration_8h">ckernel_orchestration.h</innerfile>
     <innerfile refid="ckernel__quant_8h">ckernel_quant.h</innerfile>
     <innerfile refid="ckernel__registry_8h">ckernel_registry.h</innerfile>
