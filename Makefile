@@ -1202,14 +1202,24 @@ ck-cli: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
 	@echo "    sudo cp $(BUILD_DIR)/ck /usr/local/bin/"
 	@echo ""
 
-# v4 CLI (codegen + compile via IR v4)
-ck-cli-v4: $(BUILD_DIR)/ck-v4
+# v4 CLI (Python wrapper for IR v4 pipeline)
+ck-cli-v4: $(LIB)
 	@echo ""
-	@echo "  C-Kernel-Engine v4 CLI built: $(BUILD_DIR)/ck-v4"
+	@echo "  $(C_ORANGE)C-Kernel-Engine v4 CLI$(C_RESET)"
+	@echo "  Pipeline: download -> convert -> IR v4 -> codegen -> compile -> run"
+	@echo ""
 	@echo "  Usage:"
-	@echo "    ./$(BUILD_DIR)/ck-v4 build Qwen/Qwen2-0.5B"
-	@echo "    ./$(BUILD_DIR)/ck-v4 build ./config.json --checkpoint ./model_dir"
-	@echo "    ./$(BUILD_DIR)/ck-v4 gen Qwen/Qwen2-0.5B --modes=prefill"
+	@echo "    python scripts/ck_run_v4.py run HuggingFaceTB/SmolLM-135M"
+	@echo "    python scripts/ck_run_v4.py run ./model.gguf --weight-dtype=q4_k"
+	@echo "    python scripts/ck_run_v4.py run Qwen/Qwen2-0.5B --generate-only"
+	@echo "    python scripts/ck_run_v4.py list"
+	@echo "    python scripts/ck_run_v4.py clean"
+	@echo ""
+	@echo "  Options:"
+	@echo "    --weight-dtype=TYPE    Weight type: float32, bf16, q4_k, q6_k"
+	@echo "    --generate-only        Generate C code without running"
+	@echo "    --force-convert        Re-convert weights"
+	@echo "    --force-compile        Re-generate and recompile"
 	@echo ""
 
 # Generate C code for a model without compiling (for inspection)
