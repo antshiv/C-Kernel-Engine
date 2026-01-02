@@ -531,6 +531,7 @@ def step_run_chat(model_dir: Path, args: argparse.Namespace):
     cmd = [
         sys.executable,
         str(SCRIPTS_DIR / "ck_chat.py"),
+        "--model-dir",
         str(model_dir),
     ]
 
