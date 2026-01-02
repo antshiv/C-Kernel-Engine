@@ -225,16 +225,18 @@ def step_convert_gguf(gguf_path: Path, output_dir: Path, force: bool = False) ->
     config_path = output_dir / "config.json"
     manifest_path = output_dir / "weights_manifest.json"
 
-    if weights_path.exists() and config_path.exists() and not force:
+    if weights_path.exists() and config_path.exists() and manifest_path.exists() and not force:
         log(f"  Using cached weights at {weights_path}", C_DIM)
         return weights_path, config_path
+    if weights_path.exists() and config_path.exists() and not manifest_path.exists() and not force:
+        log(f"  Missing manifest; re-running conversion", C_DIM)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
     cmd = [
         sys.executable,
         str(SCRIPTS_DIR / "convert_gguf_to_bump_v4.py"),
-        f"--input={gguf_path}",
+        f"--gguf={gguf_path}",
         f"--output={weights_path}",
         f"--config-out={config_path}",
         f"--manifest-out={manifest_path}",
