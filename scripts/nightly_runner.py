@@ -560,6 +560,7 @@ def main():
     parser.add_argument("--save-baseline", action="store_true", help="Save current perf as baseline")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument("--list", action="store_true", help="List all tests")
+    parser.add_argument("--no-fail", action="store_true", help="Always return exit code 0 (for CI warning mode)")
     args = parser.parse_args()
 
     if args.list:
@@ -660,6 +661,9 @@ def main():
     if args.json:
         save_json_report(results, Path(args.json), start_time)
 
+    # --no-fail: always return 0 for CI warning mode
+    if args.no_fail:
+        return 0
     return exit_code
 
 

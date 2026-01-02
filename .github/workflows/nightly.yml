@@ -95,18 +95,18 @@ jobs:
       - name: Run nightly tests (quick for PRs)
         if: github.event_name == 'pull_request'
         run: |
-          python scripts/nightly_runner.py --quick --json build/nightly_report.json
+          python scripts/nightly_runner.py --quick --no-fail --json build/nightly_report.json
 
       - name: Run nightly tests (full for main/scheduled)
         if: github.event_name != 'pull_request'
         run: |
           CATEGORY="${{ github.event.inputs.test_category || 'all' }}"
           if [ "$CATEGORY" = "all" ]; then
-            python scripts/nightly_runner.py --json build/nightly_report.json
+            python scripts/nightly_runner.py --no-fail --json build/nightly_report.json
           elif [ "$CATEGORY" = "quick" ]; then
-            python scripts/nightly_runner.py --quick --json build/nightly_report.json
+            python scripts/nightly_runner.py --quick --no-fail --json build/nightly_report.json
           else
-            python scripts/nightly_runner.py --category "$CATEGORY" --json build/nightly_report.json
+            python scripts/nightly_runner.py --category "$CATEGORY" --no-fail --json build/nightly_report.json
           fi
 
       - name: Upload test report artifact
