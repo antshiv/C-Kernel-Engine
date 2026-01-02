@@ -285,8 +285,8 @@ static int build_ir_v4(CKV4Config *cfg) {
 
     char cmd[MAX_CMD];
     snprintf(cmd, sizeof(cmd),
-             "python3 %s --config '%s' --name '%s' --prefix '%s' "
-             "--dtype=fp32 --fusion=off --emit=lib --modes=%s --weights-manifest '%s'",
+             "python3 %s --config='%s' --name='%s' --prefix='%s' "
+             "--dtype=fp32 --fusion=off --emit=lib --modes=%s --weights-manifest='%s'",
              script, cfg->config_path, cfg->model_name, cfg->output_dir, cfg->modes,
              cfg->weights_manifest);
     return run_cmd(cmd, cfg->verbose);

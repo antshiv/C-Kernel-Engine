@@ -2601,121 +2601,121 @@ def main(argv: List[str]) -> int:
                                  weights_manifest=weights_manifest,
                                  weight_dtype=args.get("weight_dtype"))
 
-        # Apply fusion optimization pass
-        fusion_config = {"enable_fusion": should_fuse(mode)}
-        optimized, fusion_stats = apply_fusion_pass(lowered, mode, fusion_config)
+        def emit_mode_outputs(enable_fusion: bool) -> None:
+            fusion_config = {"enable_fusion": enable_fusion}
+            optimized, fusion_stats = apply_fusion_pass(lowered, mode, fusion_config)
 
-        if fusion_stats.fusions_applied:
-            print(f"[FUSION] {mode}: {len(fusion_stats.fusions_applied)} fusions applied, "
-                  f"{fusion_stats.ops_removed} ops removed, "
-                  f"{fusion_stats.buffers_removed} buffers removed")
-            if fusion_verbose:
-                for f in fusion_stats.fusions_applied:
-                    print(f"  Layer {f['layer']}: {f['pattern']} ({f['ops_fused']} ops)")
+            if fusion_stats.fusions_applied:
+                print(f"[FUSION] {mode}: {len(fusion_stats.fusions_applied)} fusions applied, "
+                      f"{fusion_stats.ops_removed} ops removed, "
+                      f"{fusion_stats.buffers_removed} buffers removed")
+                if fusion_verbose:
+                    for f in fusion_stats.fusions_applied:
+                        print(f"  Layer {f['layer']}: {f['pattern']} ({f['ops_fused']} ops)")
 
-            # Emit fusion report
-            fusion_report_path = os.path.join(output_dir, f"fusion_{mode}.json")
-            emit_fusion_report(fusion_stats, mode, fusion_report_path)
-        elif should_fuse(mode):
-            print(f"[FUSION] {mode}: no fusion patterns matched")
+                fusion_report_path = os.path.join(output_dir, f"fusion_{mode}.json")
+                emit_fusion_report(fusion_stats, mode, fusion_report_path)
+            elif enable_fusion:
+                print(f"[FUSION] {mode}: no fusion patterns matched")
 
-        # Apply parallel planning pass
-        if parallel_enabled:
-            optimized, parallel_stats = pp.apply_parallel_planning(optimized, mode)
-            parallelized = parallel_stats["parallelized_ops"]
-            total = parallel_stats["total_ops"]
-            strategies = parallel_stats["strategies"]
+            # Apply parallel planning pass
+            if parallel_enabled:
+                optimized, parallel_stats = pp.apply_parallel_planning(optimized, mode)
+                parallelized = parallel_stats["parallelized_ops"]
+                total = parallel_stats["total_ops"]
+                strategies = parallel_stats["strategies"]
 
-            print(f"[PARALLEL] {mode}: {parallelized}/{total} ops parallelized")
-            if parallel_verbose and strategies:
-                for strat, count in sorted(strategies.items()):
-                    print(f"  {strat}: {count} ops")
+                print(f"[PARALLEL] {mode}: {parallelized}/{total} ops parallelized")
+                if parallel_verbose and strategies:
+                    for strat, count in sorted(strategies.items()):
+                        print(f"  {strat}: {count} ops")
 
-            # Emit parallel report
-            parallel_report_path = os.path.join(output_dir, f"parallel_{mode}.json")
-            pp.emit_parallel_report(parallel_stats, mode, parallel_report_path)
+                parallel_report_path = os.path.join(output_dir, f"parallel_{mode}.json")
+                pp.emit_parallel_report(parallel_stats, mode, parallel_report_path)
 
-        lowered_path = os.path.join(output_dir, f"lowered_{mode}.json")
-        emit_lowered_ir(optimized, lowered_path)
+            lowered_path = os.path.join(output_dir, f"lowered_{mode}.json")
+            emit_lowered_ir(optimized, lowered_path)
 
-        layout_name = f"{model_name}_{mode}"
-        layout = build_layout_from_lowered(optimized, layout_name)
+            layout_name = f"{model_name}_{mode}"
+            layout = build_layout_from_lowered(optimized, layout_name)
 
-        layout_json_path = os.path.join(output_dir, f"layout_{mode}.json")
-        layout_map = os.path.join(output_dir, f"layout_{mode}.map")
+            layout_json_path = os.path.join(output_dir, f"layout_{mode}.json")
+            layout_map = os.path.join(output_dir, f"layout_{mode}.map")
 
-        # Emit standard layout files
-        v3.emit_layout_json(layout, layout_json_path)
-        v3.emit_layout_map(layout, layout_map)
+            v3.emit_layout_json(layout, layout_json_path)
+            v3.emit_layout_map(layout, layout_map)
 
-        if weights_manifest and mode in ("prefill", "decode"):
-            emit_weights_manifest(layout, weights_manifest, output_dir)
+            if weights_manifest and mode in ("prefill", "decode"):
+                emit_weights_manifest(layout, weights_manifest, output_dir)
 
-        # Emit enhanced layout with parallel annotations
-        if parallel_enabled:
-            # Read the layout JSON we just wrote
-            with open(layout_json_path, "r") as f:
-                layout_dict = json.load(f)
+            if parallel_enabled:
+                with open(layout_json_path, "r") as f:
+                    layout_dict = json.load(f)
 
-            # Add parallel annotations to buffers
-            layout_with_parallel = pp.annotate_layout_buffers(
-                layout_dict, config, mode
-            )
+                layout_with_parallel = pp.annotate_layout_buffers(
+                    layout_dict, config, mode
+                )
 
-            # Write schedule JSON (layout + ops + parallel info)
-            schedule_path = os.path.join(output_dir, f"schedule_{mode}.json")
-            schedule = {
-                "version": 4,
-                "kind": "schedule",
-                "mode": mode,
-                "generated": datetime.utcnow().isoformat() + "Z",
-                "model": model_name,
-                "layout": layout_with_parallel,
-                "ops": [],  # Will add ops with parallel info
-            }
+                schedule_path = os.path.join(output_dir, f"schedule_{mode}.json")
+                schedule = {
+                    "version": 4,
+                    "kind": "schedule",
+                    "mode": mode,
+                    "generated": datetime.utcnow().isoformat() + "Z",
+                    "model": model_name,
+                    "layout": layout_with_parallel,
+                    "ops": [],
+                }
 
-            # Extract ops with parallel info from optimized IR
-            section = optimized["sections"][0]
-            for layer in section.get("layers", []):
-                for op in layer.get("ops", []):
-                    schedule["ops"].append({
-                        "layer": layer["id"],
-                        "op": op.get("op"),
-                        "kernel": op.get("kernel"),
-                        "parallel": op.get("parallel", {}),
-                    })
+                section = optimized["sections"][0]
+                for layer in section.get("layers", []):
+                    for op in layer.get("ops", []):
+                        schedule["ops"].append({
+                            "layer": layer["id"],
+                            "op": op.get("op"),
+                            "kernel": op.get("kernel"),
+                            "parallel": op.get("parallel", {}),
+                        })
 
-            with open(schedule_path, "w") as f:
-                json.dump(schedule, f, indent=2)
-            print(f"[SCHEDULE] Written: {schedule_path}")
+                with open(schedule_path, "w") as f:
+                    json.dump(schedule, f, indent=2)
+                print(f"[SCHEDULE] Written: {schedule_path}")
 
-        # Deterministic C code per mode
-        safe_name = layout_name.replace("-", "_").replace(".", "_")
-        safe_name_upper = safe_name.upper()
-        header_name = f"generated_{safe_name}.h"
-        extra_api = None
-        if mode == "decode":
-            extra_api = [
-                f"void {safe_name.lower()}_decode({safe_name_upper}Model *model, const int *token, int token_index);"
-            ]
-        v3.emit_c_header(layout, os.path.join(output_dir, header_name), extra_api=extra_api)
-        if mode in ("prefill", "decode"):
-            if config["dtype"] != "fp32":
-                print("[WARN] v4 codegen currently emits fp32 activations only. Use --dtype=fp32 for runnable C.")
-            codegen_v4.emit_c_source_v4(
-                layout,
-                os.path.join(output_dir, f"generated_{safe_name}.c"),
-                header_name,
-                mode,
-                emit_main=(args.get("emit") == "exe"),
-            )
-        else:
-            v3.emit_c_source(
-                layout,
-                os.path.join(output_dir, f"generated_{safe_name}.c"),
-                header_name,
-                emit_main=(args.get("emit") == "exe"),
-            )
+            safe_name = layout_name.replace("-", "_").replace(".", "_")
+            safe_name_upper = safe_name.upper()
+            header_name = f"generated_{safe_name}.h"
+            extra_api = None
+            if mode == "decode":
+                extra_api = [
+                    f"void {safe_name.lower()}_decode({safe_name_upper}Model *model, const int *token, int token_index);"
+                ]
+            v3.emit_c_header(layout, os.path.join(output_dir, header_name), extra_api=extra_api)
+            if mode in ("prefill", "decode"):
+                if config["dtype"] != "fp32":
+                    print("[WARN] v4 codegen currently emits fp32 activations only. Use --dtype=fp32 for runnable C.")
+                codegen_v4.emit_c_source_v4(
+                    layout,
+                    os.path.join(output_dir, f"generated_{safe_name}.c"),
+                    header_name,
+                    mode,
+                    emit_main=(args.get("emit") == "exe"),
+                )
+            else:
+                v3.emit_c_source(
+                    layout,
+                    os.path.join(output_dir, f"generated_{safe_name}.c"),
+                    header_name,
+                    emit_main=(args.get("emit") == "exe"),
+                )
+
+        try:
+            emit_mode_outputs(should_fuse(mode))
+        except ValueError as e:
+            if mode in ("prefill", "decode") and "needs unfused buffers" in str(e):
+                print(f"[FUSION] {mode}: codegen needs unfused buffers; regenerating with --fusion=off")
+                emit_mode_outputs(False)
+            else:
+                raise
 
     print("[DONE] IR v4 pipeline complete")
     return 0
