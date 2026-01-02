@@ -154,6 +154,48 @@ def step_download(model_id: str, cache_dir: Path, force: bool = False) -> Path:
     return model_dir
 
 
+def _strip_gguf_suffix(model_id: str) -> str:
+    lower = model_id.lower()
+    for suffix in ("-gguf", "_gguf", ".gguf"):
+        if lower.endswith(suffix):
+            return model_id[:-len(suffix)]
+    return model_id
+
+
+def ensure_tokenizer_files(model_id: str, work_dir: Path) -> None:
+    """Ensure tokenizer.json exists in work_dir (fetch from base repo if needed)."""
+    tokenizer_path = work_dir / "tokenizer.json"
+    if tokenizer_path.exists():
+        return
+
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        log_error("huggingface_hub not installed. Run: pip install huggingface_hub")
+        return
+
+    candidates = []
+    base_id = _strip_gguf_suffix(model_id)
+    if base_id != model_id:
+        candidates.append(base_id)
+    candidates.append(model_id)
+
+    for repo_id in candidates:
+        log(f"  Fetching tokenizer.json from {repo_id}", C_DIM)
+        try:
+            hf_hub_download(
+                repo_id=repo_id,
+                filename="tokenizer.json",
+                local_dir=str(work_dir),
+            )
+            if tokenizer_path.exists():
+                return
+        except Exception:
+            pass
+
+    log(f"  Warning: tokenizer.json not found for {model_id}", C_DIM)
+
+
 def step_download_gguf(repo_id: str, filename: str, cache_dir: Path, force: bool = False) -> Path:
     """Download a single GGUF file from HuggingFace Hub."""
     log_step(1, f"Downloading {filename} from {repo_id}")
@@ -494,10 +536,6 @@ def step_compile(model_c_path: Path, output_dir: Path, force: bool = False) -> P
 
     lib_path = output_dir / "libmodel.so"
 
-    if lib_path.exists() and not force:
-        log(f"  Using cached library at {lib_path}", C_DIM)
-        return lib_path
-
     # Find kernel sources
     kernel_list_path = model_c_path.with_suffix('.c.kernels')
     kernel_sources = []
@@ -508,7 +546,18 @@ def step_compile(model_c_path: Path, output_dir: Path, force: bool = False) -> P
     if not kernel_sources:
         src_dir = PROJECT_ROOT / "src" / "kernels"
         kernel_sources = [str(f) for f in src_dir.glob("*.c")]
-    kernel_sources.append(str(PROJECT_ROOT / "src" / "ckernel_model_load_v4.c"))
+    extra_sources = [
+        PROJECT_ROOT / "src" / "ckernel_model_load_v4.c",
+        PROJECT_ROOT / "src" / "ckernel_orchestration.c",
+        PROJECT_ROOT / "src" / "ckernel_strict.c",
+        PROJECT_ROOT / "src" / "cpu_features.c",
+    ]
+    existing = set(kernel_sources)
+    for src in extra_sources:
+        src_str = str(src)
+        if src_str not in existing:
+            kernel_sources.append(src_str)
+            existing.add(src_str)
 
     # Build command
     cmd = [
@@ -518,8 +567,23 @@ def step_compile(model_c_path: Path, output_dir: Path, force: bool = False) -> P
         str(model_c_path),
     ] + kernel_sources + ["-lm"]
 
+    cmd_cache_path = output_dir / "libmodel.build.cmd"
+    cmd_str = " ".join(cmd)
+
+    if lib_path.exists() and not force:
+        try:
+            lib_mtime = lib_path.stat().st_mtime
+            src_mtime = max([model_c_path.stat().st_mtime] + [Path(s).stat().st_mtime for s in kernel_sources])
+            cached_cmd = cmd_cache_path.read_text() if cmd_cache_path.exists() else ""
+            if cached_cmd == cmd_str and src_mtime <= lib_mtime:
+                log(f"  Using cached library at {lib_path}", C_DIM)
+                return lib_path
+        except Exception:
+            pass
+
     log(f"  Compiling with {len(kernel_sources)} kernel sources", C_DIM)
     run_cmd(cmd)
+    cmd_cache_path.write_text(cmd_str)
     log(f"  Created {lib_path}", C_GREEN)
     return lib_path
 
@@ -596,6 +660,7 @@ def run_pipeline(args: argparse.Namespace):
                 force=args.force_convert
             )
             manifest_path = work_dir / "weights_manifest.json"
+            ensure_tokenizer_files(model_id, work_dir)
         else:
             # Standard HF repo with safetensors
             config_path = model_dir / "config.json"
@@ -614,6 +679,7 @@ def run_pipeline(args: argparse.Namespace):
             force=args.force_convert
         )
         manifest_path = work_dir / "weights_manifest.json"
+        # Local GGUF has no repo to fetch tokenizer; user must supply it.
 
     elif input_type == 'local_dir':
         model_dir = info['path']
@@ -646,6 +712,7 @@ def run_pipeline(args: argparse.Namespace):
             force=args.force_convert
         )
         manifest_path = work_dir / "weights_manifest.json"
+        ensure_tokenizer_files(repo_id, work_dir)
 
     else:
         log_error(f"Unknown input type: {input_type}")
