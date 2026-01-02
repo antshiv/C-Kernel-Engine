@@ -67,7 +67,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip list | grep -E "(torch|numpy)"
+          pip install huggingface_hub
+          pip list | grep -E "(torch|numpy|huggingface)"
+
+      - name: Download SmolLM-135M model
+        run: |
+          # Download SmolLM-135M (~270MB) for parity tests
+          python -c "
+          from huggingface_hub import snapshot_download
+          import os
+          target = os.path.expanduser('~/.cache/huggingface/hub/SmolLM-135M')
+          print(f'Downloading SmolLM-135M to {target}...')
+          snapshot_download('HuggingFaceTB/SmolLM-135M', local_dir=target)
+          print('Done!')
+          "
+          ls -la ~/.cache/huggingface/hub/SmolLM-135M/
 
       - name: Build library
         run: |

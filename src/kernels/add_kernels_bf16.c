@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined(__AVX512F__)
+#if defined(__AVX512F__) || defined(__AVX2__) || defined(__AVX__)
 #include <immintrin.h>
 #endif
 

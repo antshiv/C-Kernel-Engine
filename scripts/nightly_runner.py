@@ -157,19 +157,9 @@ class TestSuite:
     ci_skip: bool = False  # Skip in CI mode (tests requiring full shared library)
 
 
-# Tests that require the full libckernel_engine.so with all symbols
-# These fail in CI due to undefined symbols (GitHub Actions doesn't build the full library)
-CI_SKIP_TESTS = {
-    # Core kernels that load libckernel_engine.so
-    "gemm", "gemm_variants", "gemm_microkernel", "gemm_fused",
-    "softmax", "layernorm", "embedding", "attention",
-    "kv_cache", "kv_cache_decode", "fused_attention_decode", "fused_swiglu_decode",
-    "mlp", "cross_entropy", "orchestration", "lm_head_litmus", "vision",
-    # Training tests that need backward kernels
-    "softmax_backward", "attention_backward",
-    # Parity tests that need full library
-    "pytorch_parity", "layer_parity", "smollm_parity",
-}
+# Tests to skip in CI mode (use --ci flag)
+# Currently empty - SmolLM-135M is downloaded in CI workflow
+CI_SKIP_TESTS = set()
 
 # Define all test suites
 TEST_SUITES = {
