@@ -21,7 +21,11 @@
 
   <h2>Why Deterministic Memory?</h2>
 
-  <div class="grid-2">
+  <div class="svg-diagram">
+    <img src="assets/comparison-diagram.svg" alt="Dynamic vs Deterministic Memory Comparison" style="width: 100%; max-width: 900px; margin: 0 auto; display: block;">
+  </div>
+
+  <div class="grid-2" style="margin-top: 2rem;">
     <div class="card">
       <h3>Dynamic Frameworks (PyTorch)</h3>
       <ul>
@@ -68,6 +72,10 @@
     and know exactly where it lives in memory.
   </p>
 
+  <div class="svg-diagram" style="margin: 2rem 0;">
+    <img src="assets/memory-layout-map.svg" alt="Model Memory Layout Map" style="width: 100%; max-width: 800px; margin: 0 auto; display: block;">
+  </div>
+
   <h2>What This Enables</h2>
 
   <h3>1. Zero-Overhead RDMA Monitoring</h3>
@@ -79,24 +87,8 @@
       no CPU involvement, no overhead on training.
     </p>
 
-    <div class="diagram">
-      <pre>
-┌─────────────────────────────────────────────────────────────────┐
-│                      RDMA Network (100-400 Gbps)                │
-└───────┬───────────────────┬───────────────────┬─────────────────┘
-        │                   │                   │
-   ┌────▼────┐         ┌────▼────┐         ┌────▼────┐
-   │ Node 0  │         │ Node 1  │         │ Observer│
-   │ Layers  │         │ Layers  │         │ Laptop  │
-   │  0-11   │         │ 12-23   │         │         │
-   │         │         │         │         │ RDMA    │
-   │ [memory]│         │ [memory]│         │ READ    │
-   │ weights │         │ weights │         │ only    │
-   │ grads   │         │ grads   │         │         │
-   │ acts    │         │ acts    │         │ UI/Viz  │
-   └─────────┘         └─────────┘         └─────────┘
-   (no logging)        (no logging)        (reads memory)
-      </pre>
+    <div class="svg-diagram" style="margin: 1.5rem 0;">
+      <img src="assets/rdma-observer-architecture.svg" alt="RDMA Observer Architecture" style="width: 100%; max-width: 900px; margin: 0 auto; display: block;">
     </div>
 
     <p>
