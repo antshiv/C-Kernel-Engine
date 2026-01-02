@@ -2404,6 +2404,26 @@ def main(argv: List[str]) -> int:
         print(f"[WEIGHTS] Reading manifest: {args['weights_manifest']}")
         with open(args["weights_manifest"], "r") as f:
             weights_manifest = json.load(f)
+    manifest_weight_dtype = None
+    if weights_manifest and isinstance(weights_manifest, dict):
+        dtype_set = {
+            entry.get("dtype")
+            for entry in weights_manifest.get("entries", [])
+            if entry.get("dtype")
+        }
+        non_fp = {
+            dtype for dtype in dtype_set
+            if dtype not in ("fp32", "f32", "bf16", "fp16")
+        }
+        if len(non_fp) == 1:
+            manifest_weight_dtype = next(iter(non_fp))
+        elif len(dtype_set) == 1:
+            manifest_weight_dtype = next(iter(dtype_set))
+
+    if args.get("weight_dtype"):
+        config["weight_dtype"] = args["weight_dtype"]
+    elif manifest_weight_dtype:
+        config["weight_dtype"] = manifest_weight_dtype
 
     # Graph IR
     graph = build_graph_ir_v4(config, model_name)
@@ -2663,7 +2683,7 @@ def main(argv: List[str]) -> int:
         v3.emit_c_header(layout, os.path.join(output_dir, header_name), extra_api=extra_api)
         if mode in ("prefill", "decode"):
             if config["dtype"] != "fp32":
-                print("[WARN] v4 codegen currently emits fp32 kernels only. Use --dtype=fp32 for runnable C.")
+                print("[WARN] v4 codegen currently emits fp32 activations only. Use --dtype=fp32 for runnable C.")
             codegen_v4.emit_c_source_v4(
                 layout,
                 os.path.join(output_dir, f"generated_{safe_name}.c"),

@@ -120,6 +120,7 @@ def main():
         "--name", model_name,
         "--prefix", output_dir,
         "--dtype", "fp32",
+        "--weight-dtype", "q4_k",
         "--fusion", args.fusion,
         "--emit", args.emit,
         "--modes", args.modes,

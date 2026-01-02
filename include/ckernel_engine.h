@@ -981,16 +981,27 @@ void rope_backward_inplace(float *d_x,
 // token_embeddings: [vocab_size x aligned_embed_dim]
 // pos_embeddings: [context_window x aligned_embed_dim] or NULL if add_pos == 0.
 // output: [context_window x aligned_embed_dim]
-	void embedding_forward(const int32_t *token_ids,
-	                       int token_count,
-	                       int vocab_size,
+void embedding_forward(const int32_t *token_ids,
+                       int token_count,
+                       int vocab_size,
                        const float *token_embeddings,
                        const float *pos_embeddings,
                        float *output,
                        int embed_dim,
                        int aligned_embed_dim,
-	                       int context_window,
-	                       int add_pos);
+                       int context_window,
+                       int add_pos);
+
+void embedding_forward_q4_k(const int32_t *token_ids,
+                            int token_count,
+                            int vocab_size,
+                            const void *token_embeddings,
+                            const float *pos_embeddings,
+                            float *output,
+                            int embed_dim,
+                            int aligned_embed_dim,
+                            int context_window,
+                            int add_pos);
 
 	void embedding_forward_bf16(const int32_t *token_ids,
 	                            int token_count,
