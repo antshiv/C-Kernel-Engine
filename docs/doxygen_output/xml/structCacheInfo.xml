@@ -16,8 +16,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="74" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="74" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8c_1a34a4d2fcf0318c8d64e4ff73e1f2e6e5" compoundref="system__topology_8c" startline="228" endline="244">cache_compare</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
+        <referencedby refid="system__topology_8h_1afbc559e029cc2c0fddd0a1dac9b1be20" compoundref="show__config_8c" startline="169" endline="211">topology_print_cache</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCacheInfo_1a6998f8578822bdc01a41f3a9d695e7ac" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -31,8 +32,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="77" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="77" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCacheInfo_1aefdbeadd9d601084c823c530a35e4e5c" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -46,8 +46,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="79" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="79" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
+        <referencedby refid="system__topology_8h_1afbc559e029cc2c0fddd0a1dac9b1be20" compoundref="show__config_8c" startline="169" endline="211">topology_print_cache</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCacheInfo_1af0d7fd2b3b6d58a409f2e91419970a87" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -61,8 +61,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="76" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="76" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
+        <referencedby refid="system__topology_8h_1afbc559e029cc2c0fddd0a1dac9b1be20" compoundref="show__config_8c" startline="169" endline="211">topology_print_cache</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCacheInfo_1a2d480cc7cf9fcab61720174ffad45770" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -76,8 +76,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="75" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="75" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8c_1a34a4d2fcf0318c8d64e4ff73e1f2e6e5" compoundref="system__topology_8c" startline="228" endline="244">cache_compare</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
+        <referencedby refid="system__topology_8h_1afbc559e029cc2c0fddd0a1dac9b1be20" compoundref="show__config_8c" startline="169" endline="211">topology_print_cache</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCacheInfo_1a9ad45f782f3a898bbd3848b8a5f52d83" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -91,8 +92,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="78" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="78" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="223" endline="271">topology_discover_cache</referencedby>
-        <referencedby refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" compoundref="show__config_8c" startline="169" endline="187">topology_print_cache</referencedby>
+        <referencedby refid="system__topology_8h_1a6a740276441a137e33d3b11888bfd2da" compoundref="system__topology_8c" startline="246" endline="297">topology_discover_cache</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

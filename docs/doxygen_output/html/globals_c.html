@@ -126,26 +126,41 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>C
 : <a class="el" href="show__config_8c.html#a3d5cffd490a70d568b820514b5a0f937">show_config.c</a>
 </li>
+<li>cache_compare()
+: <a class="el" href="system__topology_8c.html#a34a4d2fcf0318c8d64e4ff73e1f2e6e5">system_topology.c</a>
+</li>
 <li>CACHELINE_BYTES
 : <a class="el" href="ckernel__model__layout_8c.html#a4538b5ec4a295a2b8a52560e61575041">ckernel_model_layout.c</a>
 </li>
 <li>causal_softmax_head_major()
-: <a class="el" href="softmax__kernels_8c.html#a920868f80137fe3e0c9cd11acb7ba567">softmax_kernels.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a920868f80137fe3e0c9cd11acb7ba567">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a920868f80137fe3e0c9cd11acb7ba567">ckernel_engine.h</a>
+, <a class="el" href="softmax__kernels_8c.html#a920868f80137fe3e0c9cd11acb7ba567">softmax_kernels.c</a>
 </li>
 <li>causal_softmax_head_major_bf16()
-: <a class="el" href="softmax__kernels__bf16_8c.html#a1cc637a888846ddbcf1a58ac72b4aaf6">softmax_kernels_bf16.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a1cc637a888846ddbcf1a58ac72b4aaf6">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a1cc637a888846ddbcf1a58ac72b4aaf6">ckernel_engine.h</a>
+, <a class="el" href="softmax__kernels__bf16_8c.html#a1cc637a888846ddbcf1a58ac72b4aaf6">softmax_kernels_bf16.c</a>
 </li>
 <li>causal_softmax_head_major_exact()
-: <a class="el" href="softmax__kernels_8c.html#a6ea7267298ef550524a6277b817a8ffb">softmax_kernels.c</a>
-, <a class="el" href="ckernel__engine_8h.html#a6ea7267298ef550524a6277b817a8ffb">ckernel_engine.h</a>
+: <a class="el" href="ckernel__engine_8h.html#a6ea7267298ef550524a6277b817a8ffb">ckernel_engine.h</a>
+, <a class="el" href="softmax__kernels_8c.html#a6ea7267298ef550524a6277b817a8ffb">softmax_kernels.c</a>
 </li>
 <li>ck_add_inplace()
 : <a class="el" href="ckernel__orchestration_8c.html#a0020aef4ce512b3840b824a46e206dca">ckernel_orchestration.c</a>
 </li>
 <li>CK_ADD_PAIR
 : <a class="el" href="ckernel__strict_8c.html#ad94b76f11ab5b09db24682947452e946">ckernel_strict.c</a>
+</li>
+<li>CK_ALIGN_CACHE
+: <a class="el" href="ckernel__section__layout_8h.html#ad9ab657b96af3e55f3f6b56c799ef6a1">ckernel_section_layout.h</a>
+</li>
+<li>CK_ALIGN_HUGE_1GB
+: <a class="el" href="ckernel__section__layout_8h.html#ad9dd86845c001eee80d1f249b848c08c">ckernel_section_layout.h</a>
+</li>
+<li>CK_ALIGN_HUGE_2MB
+: <a class="el" href="ckernel__section__layout_8h.html#a99ca15bfe0225d4e7e71a7818eae2fe7">ckernel_section_layout.h</a>
+</li>
+<li>CK_ALIGN_SIMD
+: <a class="el" href="ckernel__section__layout_8h.html#a1a512f1e5caa9a5d3157053bdce18847">ckernel_section_layout.h</a>
 </li>
 <li>ck_attention_project_head_major()
 : <a class="el" href="ckernel__orchestration_8h.html#a2afc01d06448f40b94c48a51a6951dc5">ckernel_orchestration.h</a>
@@ -156,8 +171,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ckernel__orchestration_8c.html#add4c3ac196a25f481496bf69f32a9ac6">ckernel_orchestration.c</a>
 </li>
 <li>ck_attention_project_head_major_decode_token()
-: <a class="el" href="ckernel__orchestration_8h.html#ade31f5d0f381b108e331db103adc6251">ckernel_orchestration.h</a>
-, <a class="el" href="attention__decode__fused_8c.html#ade31f5d0f381b108e331db103adc6251">attention_decode_fused.c</a>
+: <a class="el" href="attention__decode__fused_8c.html#ade31f5d0f381b108e331db103adc6251">attention_decode_fused.c</a>
+, <a class="el" href="ckernel__orchestration_8h.html#ade31f5d0f381b108e331db103adc6251">ckernel_orchestration.h</a>
 </li>
 <li>ck_attention_project_head_major_decode_token_residual()
 : <a class="el" href="attention__decode__fused_8c.html#a606857bd1c4a89fc378a6787ce01d348">attention_decode_fused.c</a>
@@ -185,29 +200,133 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ckernel__ir_8h.html#a172c72d0dd9688733a74dcb3b7b307d6">ckernel_ir.h</a>
 , <a class="el" href="ckernel__ir_8c.html#a172c72d0dd9688733a74dcb3b7b307d6">ckernel_ir.c</a>
 </li>
+<li>CK_CACHE_LINE
+: <a class="el" href="ckernel__memory__layout_8h.html#a452e44b0d33892f36e77c590eba38daf">ckernel_memory_layout.h</a>
+</li>
 <li>ck_codegen_c_skeleton()
-: <a class="el" href="ckernel__codegen_8h.html#aae1b0d88edbdfac3f1c0108f88e1f02b">ckernel_codegen.h</a>
-, <a class="el" href="ckernel__codegen_8c.html#aae1b0d88edbdfac3f1c0108f88e1f02b">ckernel_codegen.c</a>
+: <a class="el" href="ckernel__codegen_8c.html#aae1b0d88edbdfac3f1c0108f88e1f02b">ckernel_codegen.c</a>
+, <a class="el" href="ckernel__codegen_8h.html#aae1b0d88edbdfac3f1c0108f88e1f02b">ckernel_codegen.h</a>
 </li>
 <li>ck_codegen_emit_runtime()
 : <a class="el" href="ckernel__codegen_8h.html#a120f32d0bd6569e3d76d63823e442b93">ckernel_codegen.h</a>
 , <a class="el" href="ckernel__codegen_8c.html#a120f32d0bd6569e3d76d63823e442b93">ckernel_codegen.c</a>
 </li>
+<li>ck_codegen_v2_dtype_name()
+: <a class="el" href="ckernel__codegen__v2__schedule_8c.html#a6a1b087f20ce9f80ca17edba0cf239e2">ckernel_codegen_v2_schedule.c</a>
+</li>
+<li>ck_codegen_v2_emit_dispatch()
+: <a class="el" href="ckernel__codegen__v2__dispatch_8c.html#a25210aab27883b33edc651935f80253d">ckernel_codegen_v2_dispatch.c</a>
+, <a class="el" href="ckernel__codegen__v2__emit_8h.html#a25210aab27883b33edc651935f80253d">ckernel_codegen_v2_emit.h</a>
+</li>
+<li>ck_codegen_v2_emit_preamble()
+: <a class="el" href="ckernel__codegen__v2__emit_8h.html#afb554665feda313ecad0c4578e1524ed">ckernel_codegen_v2_emit.h</a>
+, <a class="el" href="ckernel__codegen__v2__struct_8c.html#afb554665feda313ecad0c4578e1524ed">ckernel_codegen_v2_struct.c</a>
+</li>
+<li>ck_codegen_v2_emit_runtime()
+: <a class="el" href="ckernel__codegen__v2_8h.html#a359e5ca69869c47ed1af896696d5fa2a">ckernel_codegen_v2.h</a>
+, <a class="el" href="ckernel__codegen__v2_8c.html#a359e5ca69869c47ed1af896696d5fa2a">ckernel_codegen_v2.c</a>
+</li>
+<li>ck_codegen_v2_emit_schedule()
+: <a class="el" href="ckernel__codegen__v2__emit_8h.html#ada7359f13925bdddc33699612662f83f">ckernel_codegen_v2_emit.h</a>
+, <a class="el" href="ckernel__codegen__v2__schedule_8c.html#ada7359f13925bdddc33699612662f83f">ckernel_codegen_v2_schedule.c</a>
+</li>
+<li>ck_codegen_v2_emit_sections()
+: <a class="el" href="ckernel__codegen__v2__sections_8c.html#a53921362b48f16a09556f3a2ed1a7cad">ckernel_codegen_v2_sections.c</a>
+, <a class="el" href="ckernel__codegen__v2__emit_8h.html#a53921362b48f16a09556f3a2ed1a7cad">ckernel_codegen_v2_emit.h</a>
+</li>
+<li>ck_codegen_v2_emit_struct()
+: <a class="el" href="ckernel__codegen__v2__emit_8h.html#a169fbc00f6c34fedc08c67f379d774d9">ckernel_codegen_v2_emit.h</a>
+, <a class="el" href="ckernel__codegen__v2__struct_8c.html#a169fbc00f6c34fedc08c67f379d774d9">ckernel_codegen_v2_struct.c</a>
+</li>
+<li>ck_decoder_backward_bindings_0
+: <a class="el" href="ckernel__kernel__specs_8c.html#a552e596e112baf3828a6a7768852ab4a">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_1
+: <a class="el" href="ckernel__kernel__specs_8c.html#ab4209bfb468edc243dc880efd2a100b0">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_10
+: <a class="el" href="ckernel__kernel__specs_8c.html#a599073cb469ca4a41f225d59c46cd8f5">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_2
+: <a class="el" href="ckernel__kernel__specs_8c.html#a2535d871ccbd69b756943344c285f81d">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_3
+: <a class="el" href="ckernel__kernel__specs_8c.html#ac4515cb084f03bbf8114f50fdf5d93b1">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_4
+: <a class="el" href="ckernel__kernel__specs_8c.html#aeb00b06b95ce429f4112c7ce11205e06">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_5
+: <a class="el" href="ckernel__kernel__specs_8c.html#a7fa14f40e9875b558f212568286d093b">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_6
+: <a class="el" href="ckernel__kernel__specs_8c.html#a340947d938fa9fc1b5868dc411c33088">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_7
+: <a class="el" href="ckernel__kernel__specs_8c.html#a6d7571c2e5efb892237a0065ed5c9262">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_8
+: <a class="el" href="ckernel__kernel__specs_8c.html#aa8a0174240769286802a66c7e4baec38">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_bindings_9
+: <a class="el" href="ckernel__kernel__specs_8c.html#a140e2367a5c7ae094bcdb77b0c023bed">ckernel_kernel_specs.c</a>
+</li>
 <li>ck_decoder_backward_plan
-: <a class="el" href="ckernel__kernel__specs_8h.html#a96b6d10882bf34a6c7b9bf07b9b31fa2">ckernel_kernel_specs.h</a>
-, <a class="el" href="ckernel__kernel__specs_8c.html#a96b6d10882bf34a6c7b9bf07b9b31fa2">ckernel_kernel_specs.c</a>
+: <a class="el" href="ckernel__kernel__specs_8c.html#a96b6d10882bf34a6c7b9bf07b9b31fa2">ckernel_kernel_specs.c</a>
+, <a class="el" href="ckernel__kernel__specs_8h.html#a96b6d10882bf34a6c7b9bf07b9b31fa2">ckernel_kernel_specs.h</a>
 </li>
 <li>ck_decoder_backward_plan_count
-: <a class="el" href="ckernel__kernel__specs_8h.html#a42241607f71ab42ad23c344eacc3421f">ckernel_kernel_specs.h</a>
-, <a class="el" href="ckernel__kernel__specs_8c.html#a42241607f71ab42ad23c344eacc3421f">ckernel_kernel_specs.c</a>
+: <a class="el" href="ckernel__kernel__specs_8c.html#a42241607f71ab42ad23c344eacc3421f">ckernel_kernel_specs.c</a>
+, <a class="el" href="ckernel__kernel__specs_8h.html#a42241607f71ab42ad23c344eacc3421f">ckernel_kernel_specs.h</a>
+</li>
+<li>ck_decoder_backward_plan_v2
+: <a class="el" href="ckernel__kernel__specs_8h.html#ac454d061133c2eff4e5084be4ebacb00">ckernel_kernel_specs.h</a>
+, <a class="el" href="ckernel__kernel__specs_8c.html#ac454d061133c2eff4e5084be4ebacb00">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_backward_plan_v2_count
+: <a class="el" href="ckernel__kernel__specs_8h.html#a78253557cd8c8795464f1988cd7c23a5">ckernel_kernel_specs.h</a>
+, <a class="el" href="ckernel__kernel__specs_8c.html#a78253557cd8c8795464f1988cd7c23a5">ckernel_kernel_specs.c</a>
 </li>
 <li>ck_decoder_buffer_count
-: <a class="el" href="ckernel__kernel__specs_8c.html#ae9be980801e3c3b9e00b575e2eb132bd">ckernel_kernel_specs.c</a>
-, <a class="el" href="ckernel__kernel__specs_8h.html#ae9be980801e3c3b9e00b575e2eb132bd">ckernel_kernel_specs.h</a>
+: <a class="el" href="ckernel__kernel__specs_8h.html#ae9be980801e3c3b9e00b575e2eb132bd">ckernel_kernel_specs.h</a>
+, <a class="el" href="ckernel__kernel__specs_8c.html#ae9be980801e3c3b9e00b575e2eb132bd">ckernel_kernel_specs.c</a>
 </li>
 <li>ck_decoder_buffers
 : <a class="el" href="ckernel__kernel__specs_8h.html#ad9257c11ae490b3da865862c61a8c5cf">ckernel_kernel_specs.h</a>
 , <a class="el" href="ckernel__kernel__specs_8c.html#ad9257c11ae490b3da865862c61a8c5cf">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_0
+: <a class="el" href="ckernel__kernel__specs_8c.html#a404b43a8478863adf2e78096c1217cb9">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_1
+: <a class="el" href="ckernel__kernel__specs_8c.html#a30ca94a205e9342b0bee64441ece656b">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_10
+: <a class="el" href="ckernel__kernel__specs_8c.html#a98a362c88dfcef36d1a89b2f15c897ed">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_2
+: <a class="el" href="ckernel__kernel__specs_8c.html#aa16d7f74434cfa05e7ce4d637b52b922">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_3
+: <a class="el" href="ckernel__kernel__specs_8c.html#a61dc38fb3d0ea5eaf6ee3fea5ad9c26a">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_4
+: <a class="el" href="ckernel__kernel__specs_8c.html#a6865300e2e7c079c01244462fbd9eb5b">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_5
+: <a class="el" href="ckernel__kernel__specs_8c.html#a7a9c77e5546eacfb8d032bdf66a85a74">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_6
+: <a class="el" href="ckernel__kernel__specs_8c.html#a384132179c5765f7201d295d743216b0">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_7
+: <a class="el" href="ckernel__kernel__specs_8c.html#a0971960a12dc1651840c33a244bdb8c9">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_8
+: <a class="el" href="ckernel__kernel__specs_8c.html#a613c59431a0d71cd711fb31f2c252a90">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_bindings_9
+: <a class="el" href="ckernel__kernel__specs_8c.html#a0e71229bafba091b6e7a7b318b8bd131">ckernel_kernel_specs.c</a>
 </li>
 <li>ck_decoder_forward_plan
 : <a class="el" href="ckernel__kernel__specs_8h.html#a383b37a8b40251a4c98762a31982f5f2">ckernel_kernel_specs.h</a>
@@ -216,6 +335,14 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_decoder_forward_plan_count
 : <a class="el" href="ckernel__kernel__specs_8h.html#a7b169d0eafc6b23adf4dc42551b8a38e">ckernel_kernel_specs.h</a>
 , <a class="el" href="ckernel__kernel__specs_8c.html#a7b169d0eafc6b23adf4dc42551b8a38e">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_plan_v2
+: <a class="el" href="ckernel__kernel__specs_8h.html#a2ca67fec5e711b5cbdde5b1c602b949e">ckernel_kernel_specs.h</a>
+, <a class="el" href="ckernel__kernel__specs_8c.html#a2ca67fec5e711b5cbdde5b1c602b949e">ckernel_kernel_specs.c</a>
+</li>
+<li>ck_decoder_forward_plan_v2_count
+: <a class="el" href="ckernel__kernel__specs_8h.html#a5313b833dc861ada85f37e9ef379dee3">ckernel_kernel_specs.h</a>
+, <a class="el" href="ckernel__kernel__specs_8c.html#a5313b833dc861ada85f37e9ef379dee3">ckernel_kernel_specs.c</a>
 </li>
 <li>CK_DIM_ALIGNED_CTX
 : <a class="el" href="ckernel__kernel__specs_8h.html#a3d91eb22ec223e36c65a04283581e390a3cdb63a663d3f19f1d2d9aeb8c124a38">ckernel_kernel_specs.h</a>
@@ -322,17 +449,58 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_first_layer_buffer_name()
 : <a class="el" href="ckernel__codegen_8c.html#a46dfc6552104cefa888791e06e2bdddf">ckernel_codegen.c</a>
 </li>
+<li>CK_FOOTER
+: <a class="el" href="ckernel__section__layout_8h.html#adc318f4f8aa045cac46a382d033efea4">ckernel_section_layout.h</a>
+</li>
 <li>CK_FP16_TO_FP32
 : <a class="el" href="ckernel__quant_8h.html#a7edd411b02255eed928c775b91396c2a">ckernel_quant.h</a>
 </li>
 <li>ck_fp16_to_fp32()
 : <a class="el" href="ckernel__quant_8h.html#ac14fcad36b93665d0bc01dfca3d9e6d9">ckernel_quant.h</a>
 </li>
+<li>CK_FP32_TO_FP16
+: <a class="el" href="ckernel__quant_8h.html#aa217c07d43400999fb76ccfcdda2a47d">ckernel_quant.h</a>
+</li>
 <li>ck_fp32_to_fp16()
 : <a class="el" href="ckernel__quant_8h.html#aa18d3f14b90d1f8a16ea4c1f811f2a6e">ckernel_quant.h</a>
 </li>
-<li>CK_FP32_TO_FP16
-: <a class="el" href="ckernel__quant_8h.html#aa217c07d43400999fb76ccfcdda2a47d">ckernel_quant.h</a>
+<li>CK_FUSE_ADD_NORM
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea784a02f46d179bd5baf2ae6c9b628a7a">ckernel_memory_layout.h</a>
+</li>
+<li>CK_FUSE_ATTN_PROJ
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_EMBED_NORM
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_MLP_ACT_DOWN
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_MLP_GATE_UP
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_NONE
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_NORM_MLP
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_NORM_QKV
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_QKV_ROPE
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959">ckernel_section_layout.h</a>
+</li>
+<li>CK_FUSE_RESIDUAL_NORM
+: <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea6a3bb26ab9dcc8bb90714a3c77250997">ckernel_section_layout.h</a>
 </li>
 <li>ck_gemm_add_bias()
 : <a class="el" href="gemm__kernels_8c.html#ad7789976472e68f59b1604811f4648f2">gemm_kernels.c</a>
@@ -348,8 +516,20 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ckernel__engine_8h.html#a7ff78bf68a9657c2d6858b64df79f7ae">ckernel_engine.h</a>
 , <a class="el" href="ckernel__strict_8c.html#a7ff78bf68a9657c2d6858b64df79f7ae">ckernel_strict.c</a>
 </li>
+<li>CK_GRAD
+: <a class="el" href="ckernel__memory__layout_8h.html#a35b79f7b661f83a89e63ee704117d053">ckernel_memory_layout.h</a>
+</li>
 <li>ck_half
 : <a class="el" href="ckernel__quant_8h.html#a6519446e531e4f1f13522326934a938f">ckernel_quant.h</a>
+</li>
+<li>CK_HEADER
+: <a class="el" href="ckernel__section__layout_8h.html#a6cd4d41f081a79df7ac57cc0d39e086f">ckernel_section_layout.h</a>
+</li>
+<li>CK_HUGE_1GB
+: <a class="el" href="ckernel__memory__layout_8h.html#aba136a9c872b1032356fc97e8a863909">ckernel_memory_layout.h</a>
+</li>
+<li>CK_HUGE_2MB
+: <a class="el" href="ckernel__memory__layout_8h.html#ad8aec518dbda9e1ffdcb5388f61c3bca">ckernel_memory_layout.h</a>
 </li>
 <li>ck_huge_alloc()
 : <a class="el" href="ckernel__alloc_8h.html#a11a682ae32301dd05465e77d7dd4e37e">ckernel_alloc.h</a>
@@ -368,16 +548,236 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ckernel__ir_8c.html#af2230a5c67cf1229dd5ce94f0f7ce5fa">ckernel_ir.c</a>
 </li>
 <li>ck_ir_parse_json()
-: <a class="el" href="ckernel__ir_8c.html#ad7bf30d5d03182c1b05159f068aa94a9">ckernel_ir.c</a>
-, <a class="el" href="ckernel__ir_8h.html#ad7bf30d5d03182c1b05159f068aa94a9">ckernel_ir.h</a>
+: <a class="el" href="ckernel__ir_8h.html#ad7bf30d5d03182c1b05159f068aa94a9">ckernel_ir.h</a>
+, <a class="el" href="ckernel__ir_8c.html#ad7bf30d5d03182c1b05159f068aa94a9">ckernel_ir.c</a>
 </li>
 <li>ck_ir_serialize_json()
 : <a class="el" href="ckernel__ir_8h.html#a2de46e1fdc26cd83db161c34b4ca1b0d">ckernel_ir.h</a>
 , <a class="el" href="ckernel__ir_8c.html#a2de46e1fdc26cd83db161c34b4ca1b0d">ckernel_ir.c</a>
 </li>
+<li>ck_ir_v2_align_up_bytes()
+: <a class="el" href="ckernel__ir__v2_8c.html#aec09135b0e8e2299d411fd372a6f7620">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_align_up_elems()
+: <a class="el" href="ckernel__ir__v2_8c.html#a7b940d9248cb64bb1686d027f19118a2">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_apply_meta()
+: <a class="el" href="ckernel__ir__v2_8h.html#a6ca70d7ee0aba15ab3c49671f848e20d">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#a6ca70d7ee0aba15ab3c49671f848e20d">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_apply_weight_dtypes()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a1878230b08b02341da1bbcab15e6950f">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_build_decoder()
+: <a class="el" href="ckernel__ir__v2_8h.html#a80f105580f1785ac4dfcccf2496389e7">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#a80f105580f1785ac4dfcccf2496389e7">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_build_decoder_backward()
+: <a class="el" href="ckernel__ir__v2_8h.html#ad34447264bfb018e6d5f856c5fcff1f3">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#ad34447264bfb018e6d5f856c5fcff1f3">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_copy_buffer_spec()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a29e53bd4efe76f71f9f493bd6ca03364">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_copy_shape()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a848d051811b6e6f10ed7c7747360fd5b">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_dim_kind_from_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a16f0adffb7f070e736510d15b79fd090">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_dim_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a0caea95ebb9e2947e60502e26e31b219">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_dtype_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a1ace093db696088ef9e27acd5a262ddc">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_emit_dimensions()
+: <a class="el" href="ckernel__ir__v2_8c.html#a16f43d7b97c61478fda41d87c39c2926">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_emit_memory_plan()
+: <a class="el" href="ckernel__ir__v2_8c.html#a4dfc8fc98d47433b4edc3f782245b155">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_emit_resolved_shape()
+: <a class="el" href="ckernel__ir__v2_8c.html#a10b31a6870b5ed5d6f2cc5308cdb4595">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_emit_shape()
+: <a class="el" href="ckernel__ir__v2_8c.html#aecf440e6ef11b3adb17f35b10fbdbe36">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_find_array_end()
+: <a class="el" href="ckernel__ir__v2_8c.html#a660b9cd714f6bf6f4673a4d72773a47e">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_find_buffer_index()
+: <a class="el" href="ckernel__ir__v2_8c.html#ad0ca6b1fd812a332aa86eef694f67a8f">ckernel_ir_v2.c</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#ad0ca6b1fd812a332aa86eef694f67a8f">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_find_buffer_spec()
+: <a class="el" href="ckernel__ir__v2_8c.html#a9061702d3b2dda35df5209dffd8c921d">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_find_kernel_spec()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#af49195eecf6a337b1d16a56ed0e37922">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_find_key()
+: <a class="el" href="ckernel__ir__v2_8c.html#a8be1b56b21de19f8cde1e7bfe390ffad">ckernel_ir_v2.c</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#a8be1b56b21de19f8cde1e7bfe390ffad">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_free()
+: <a class="el" href="ckernel__ir__v2_8c.html#a681eb8d191d9589d6ff0ecb59536c671">ckernel_ir_v2.c</a>
+, <a class="el" href="ckernel__ir__v2_8h.html#a681eb8d191d9589d6ff0ecb59536c671">ckernel_ir_v2.h</a>
+</li>
+<li>ck_ir_v2_free_buffer()
+: <a class="el" href="ckernel__ir__v2_8c.html#a2d4b092eeda3d5fd6f4827738c392cf0">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_free_node()
+: <a class="el" href="ckernel__ir__v2_8c.html#a2991dcb555833cd8219bb72c0bb1365e">ckernel_ir_v2.c</a>
+</li>
+<li>CK_IR_V2_LOWER_BACKWARD
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad1399201752063abea915ebc3675aebca460d11a23f75bd0dded54cff1800f287">ckernel_ir_v2_lower.h</a>
+</li>
+<li>ck_ir_v2_lower_copy_buffers()
+: <a class="el" href="ckernel__ir__v2__lower_8c.html#afab4118c98b374b583c3820509d704a3">ckernel_ir_v2_lower.c</a>
+</li>
+<li>ck_ir_v2_lower_copy_nodes()
+: <a class="el" href="ckernel__ir__v2__lower_8c.html#a01c0217fbe22f0cf99eaea3cdf3464ce">ckernel_ir_v2_lower.c</a>
+</li>
+<li>CK_IR_V2_LOWER_DECODE
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad1399201752063abea915ebc3675aebca9237cf2564446dd0be1318925986a47d">ckernel_ir_v2_lower.h</a>
+</li>
+<li>ck_ir_v2_lower_emit_json()
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ab2afc44e824ca8ed4de7e445f9cc06d3">ckernel_ir_v2_lower.h</a>
+, <a class="el" href="ckernel__ir__v2__lower_8c.html#ab2afc44e824ca8ed4de7e445f9cc06d3">ckernel_ir_v2_lower.c</a>
+</li>
+<li>ck_ir_v2_lower_graph()
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad92c2089721962b2160c2cab45ace188">ckernel_ir_v2_lower.h</a>
+, <a class="el" href="ckernel__ir__v2__lower_8c.html#ad92c2089721962b2160c2cab45ace188">ckernel_ir_v2_lower.c</a>
+</li>
+<li>ck_ir_v2_lower_mode_from_string()
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad77a3931fd63e54350cafae5c0852b8a">ckernel_ir_v2_lower.h</a>
+, <a class="el" href="ckernel__ir__v2__lower_8c.html#ad77a3931fd63e54350cafae5c0852b8a">ckernel_ir_v2_lower.c</a>
+</li>
+<li>ck_ir_v2_lower_mode_name()
+: <a class="el" href="ckernel__ir__v2__lower_8c.html#a3e9efe6be861d2ba1c9ccdb1e9e07ce4">ckernel_ir_v2_lower.c</a>
+, <a class="el" href="ckernel__ir__v2__lower_8h.html#a3e9efe6be861d2ba1c9ccdb1e9e07ce4">ckernel_ir_v2_lower.h</a>
+</li>
+<li>ck_ir_v2_lower_node_enabled()
+: <a class="el" href="ckernel__ir__v2__lower_8c.html#a074504881ccb13df7e8465c2a7defa29">ckernel_ir_v2_lower.c</a>
+</li>
+<li>CK_IR_V2_LOWER_PREFILL
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad1399201752063abea915ebc3675aebcafc68515321c2a56b0beef8702f68e159">ckernel_ir_v2_lower.h</a>
+</li>
+<li>ck_ir_v2_lower_strdup()
+: <a class="el" href="ckernel__ir__v2__lower_8c.html#a2ff3413af1e2e189ae18042dcbf8d8e0">ckernel_ir_v2_lower.c</a>
+</li>
+<li>CK_IR_V2_MAX_BINDINGS
+: <a class="el" href="ckernel__ir__v2_8h.html#a0ee7790c95183c6bfb4e941096fab601">ckernel_ir_v2.h</a>
+</li>
+<li>CK_IR_V2_MAX_DIMS
+: <a class="el" href="ckernel__ir__v2_8h.html#a058176b4def706d5a0e1e2e37f472ede">ckernel_ir_v2.h</a>
+</li>
+<li>CK_IR_V2_MAX_INPUTS
+: <a class="el" href="ckernel__ir__v2_8h.html#aaabbb4fa50030e014cc46c48ac42c25d">ckernel_ir_v2.h</a>
+</li>
+<li>CK_IR_V2_MAX_OUTPUTS
+: <a class="el" href="ckernel__ir__v2_8h.html#a20a2600398e0320fbef06ee7ce4682ec">ckernel_ir_v2.h</a>
+</li>
+<li>ck_ir_v2_mem_arena_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a12ea47b58077890baed6a51451e3ba24">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_next_object()
+: <a class="el" href="ckernel__ir__v2_8c.html#a5b2b1869a20c7dfb93ad9ac0e8c8973e">ckernel_ir_v2.c</a>
+</li>
+<li>CK_IR_V2_NODE_FUSED
+: <a class="el" href="ckernel__ir__v2_8h.html#ac6a19aa94348b33702ba27f461574cb5a2fa704b530b5d37125fb869e8525978e">ckernel_ir_v2.h</a>
+</li>
+<li>CK_IR_V2_NODE_INFERENCE_ONLY
+: <a class="el" href="ckernel__ir__v2_8h.html#ac6a19aa94348b33702ba27f461574cb5ae176b4a1e2034abbe0a9d96a548a7cb2">ckernel_ir_v2.h</a>
+</li>
+<li>CK_IR_V2_NODE_NONE
+: <a class="el" href="ckernel__ir__v2_8h.html#ac6a19aa94348b33702ba27f461574cb5ae66b9baa0fff3ce291efd21eab738da3">ckernel_ir_v2.h</a>
+</li>
+<li>ck_ir_v2_parse_bindings()
+: <a class="el" href="ckernel__ir__v2_8c.html#a8e6c1f9f64d10f81ed51fae6cace118e">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_bool()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a39594713511ebb496afee8c67c18c60b">ckernel_ir_v2_builder.c</a>
+, <a class="el" href="ckernel__ir__v2_8c.html#a96abfe5ba6fb33fbd6d98e4a1f99268e">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_buffers()
+: <a class="el" href="ckernel__ir__v2_8c.html#a30e1e73b3c441b38f7d526dd66e9e733">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_dim_kind()
+: <a class="el" href="ckernel__ir__v2_8c.html#a67ade9fae32104a0abe77fbb3ffbc215">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_dtype()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#acf24a677d11c08305e6c3f383baeabb2">ckernel_ir_v2_builder.c</a>
+, <a class="el" href="ckernel__ir__v2_8c.html#acf24a677d11c08305e6c3f383baeabb2">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_float()
+: <a class="el" href="ckernel__ir__v2_8c.html#ae078a8bb851c1c4e447f3f46edf9bea8">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_int()
+: <a class="el" href="ckernel__ir__v2_8c.html#aa8d3d9a24512a941039e8a3db6674e79">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_json()
+: <a class="el" href="ckernel__ir__v2_8h.html#a823b147ca06c5f9073e6eaedff358bb1">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2_8c.html#a823b147ca06c5f9073e6eaedff358bb1">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_nodes()
+: <a class="el" href="ckernel__ir__v2_8c.html#aaa7bca993e64a4a003405af642a6a7f4">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_role()
+: <a class="el" href="ckernel__ir__v2_8c.html#a952d2c8b5eb8e57a7363f31c8962c669">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_scope()
+: <a class="el" href="ckernel__ir__v2_8c.html#ae1b778bac93afbe6344d8b9de0a3d4ca">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_shape()
+: <a class="el" href="ckernel__ir__v2_8c.html#a4191cd0b38a5afe0071fe5a0cbd6c276">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_parse_string()
+: <a class="el" href="ckernel__ir__v2_8c.html#a270a7ecdb4d34268f22566281eb38fc2">ckernel_ir_v2.c</a>
+, <a class="el" href="ckernel__ir__v2__builder_8c.html#a7aa30708242122818555e5bb33b47f99">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_parse_string_field()
+: <a class="el" href="ckernel__ir__v2_8c.html#ab3cd9d18103d7ca5a5755b4f4a7d7570">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_resolve_align()
+: <a class="el" href="ckernel__ir__v2_8c.html#a0149e296ef39190f04b4beda51192f04">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_resolve_dim_value()
+: <a class="el" href="ckernel__ir__v2_8c.html#a1c366d6091fe02291bd660fd57393e0e">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_role_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a3ccc1f837807a9ee24eb77bfa412cfd8">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_scope_name()
+: <a class="el" href="ckernel__ir__v2_8c.html#a1e02dc62afd3650a7c3883a31d9bea85">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_select_kernel()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a2a289dfc861e40f2cc178fd95b37b0e5">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_serialize_json()
+: <a class="el" href="ckernel__ir__v2_8h.html#a6cdd7c6d88800527b0c3633beecd077d">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2_8c.html#a6cdd7c6d88800527b0c3633beecd077d">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_serialize_json_internal()
+: <a class="el" href="ckernel__ir__v2_8c.html#a209e3eb32f2a8291f63a6503e031b78a">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_serialize_json_with_plan()
+: <a class="el" href="ckernel__ir__v2_8h.html#a3b6c997fea78e5e450c1007074ec0ae2">ckernel_ir_v2.h</a>
+, <a class="el" href="ckernel__ir__v2_8c.html#afe7922e1781cb9b7b383e0e05b06d652">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_skip_string()
+: <a class="el" href="ckernel__ir__v2_8c.html#ada85e4a8a0b5bceb985f40f6bd414873">ckernel_ir_v2.c</a>
+</li>
+<li>ck_ir_v2_skip_ws()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a494e3c508c52e2a879d635959142382b">ckernel_ir_v2_builder.c</a>
+</li>
+<li>ck_ir_v2_strdup()
+: <a class="el" href="ckernel__ir__v2__builder_8c.html#a104bb744263fc943e02e9fb5e66632bf">ckernel_ir_v2_builder.c</a>
+</li>
 <li>ck_ir_validate_supported()
-: <a class="el" href="ckernel__registry_8h.html#a099423d6ff299adc431de6513f61c7e9">ckernel_registry.h</a>
-, <a class="el" href="ckernel__registry_8c.html#a099423d6ff299adc431de6513f61c7e9">ckernel_registry.c</a>
+: <a class="el" href="ckernel__registry_8c.html#a099423d6ff299adc431de6513f61c7e9">ckernel_registry.c</a>
+, <a class="el" href="ckernel__registry_8h.html#a099423d6ff299adc431de6513f61c7e9">ckernel_registry.h</a>
 </li>
 <li>ck_kernel_spec_count
 : <a class="el" href="ckernel__kernel__specs_8h.html#ae2c418c152f247ea5d6c9be09ae02b3f">ckernel_kernel_specs.h</a>
@@ -386,6 +786,10 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_kernel_specs
 : <a class="el" href="ckernel__kernel__specs_8h.html#aa20bb688c0d74340b5300e106e14e72a">ckernel_kernel_specs.h</a>
 , <a class="el" href="ckernel__kernel__specs_8c.html#aa20bb688c0d74340b5300e106e14e72a">ckernel_kernel_specs.c</a>
+</li>
+<li>CK_LAYER
+: <a class="el" href="ckernel__memory__layout_8h.html#ab71d40d0a04a0bdda4dd754953078d00">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#abc25629d856fc301f5dcb0af8a63d03c">ckernel_section_layout.h</a>
 </li>
 <li>ck_layer_backward_rmsnorm_swiglu()
 : <a class="el" href="ckernel__orchestration_8h.html#a1b75acba52e39a2063646dc1dff62ef4">ckernel_orchestration.h</a>
@@ -431,14 +835,61 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ckernel__orchestration_8c.html#a4bfddd851b4b52f7502330118a3e853d">ckernel_orchestration.c</a>
 </li>
 <li>ck_layer_forward_rmsnorm_swiglu_ref()
-: <a class="el" href="ckernel__orchestration_8c.html#acc9d893cdd6cf7bf0dbf35d42c5f0e99">ckernel_orchestration.c</a>
-, <a class="el" href="ckernel__orchestration_8h.html#acc9d893cdd6cf7bf0dbf35d42c5f0e99">ckernel_orchestration.h</a>
+: <a class="el" href="ckernel__orchestration_8h.html#acc9d893cdd6cf7bf0dbf35d42c5f0e99">ckernel_orchestration.h</a>
+, <a class="el" href="ckernel__orchestration_8c.html#acc9d893cdd6cf7bf0dbf35d42c5f0e99">ckernel_orchestration.c</a>
+</li>
+<li>CK_LAYER_GRAD
+: <a class="el" href="ckernel__section__layout_8h.html#ac3349598b4a574599247b50fd72e0be6">ckernel_section_layout.h</a>
 </li>
 <li>CK_MAX_TOKEN_LEN
 : <a class="el" href="ck__tokenizer_8h.html#abb08eb27f9bc2409d72e7062f332feeb">ck_tokenizer.h</a>
 </li>
 <li>CK_MAX_VOCAB_SIZE
 : <a class="el" href="ck__tokenizer_8h.html#a28501527109241976fb03e6118259a32">ck_tokenizer.h</a>
+</li>
+<li>CK_MEM_ARENA_ACTIVATIONS
+: <a class="el" href="ckernel__mem__plan_8h.html#a7593aeefed160055e5352bda2cb27873ab440f0630c9e4a2b22f79b82e76699f0">ckernel_mem_plan.h</a>
+</li>
+<li>CK_MEM_ARENA_COUNT
+: <a class="el" href="ckernel__mem__plan_8h.html#a7593aeefed160055e5352bda2cb27873a8f8f213ffa426f0656a6de5c1fae8fbb">ckernel_mem_plan.h</a>
+</li>
+<li>CK_MEM_ARENA_GRADS
+: <a class="el" href="ckernel__mem__plan_8h.html#a7593aeefed160055e5352bda2cb27873a32ad00dbbce0c0eb6486d21de6a43492">ckernel_mem_plan.h</a>
+</li>
+<li>CK_MEM_ARENA_WEIGHTS
+: <a class="el" href="ckernel__mem__plan_8h.html#a7593aeefed160055e5352bda2cb27873a904b7e65d05595093e2c5ed58578a3be">ckernel_mem_plan.h</a>
+</li>
+<li>ck_mem_plan_build_inference()
+: <a class="el" href="ckernel__mem__plan_8h.html#a92e5aeb38254a89e211012c7cfa1886c">ckernel_mem_plan.h</a>
+, <a class="el" href="ckernel__mem__plan_8c.html#a92e5aeb38254a89e211012c7cfa1886c">ckernel_mem_plan.c</a>
+</li>
+<li>ck_mem_plan_build_inference_with_tokens()
+: <a class="el" href="ckernel__mem__plan_8h.html#ab2ccd14ce31d7ef0d57d5620a96a23f4">ckernel_mem_plan.h</a>
+, <a class="el" href="ckernel__mem__plan_8c.html#ab2ccd14ce31d7ef0d57d5620a96a23f4">ckernel_mem_plan.c</a>
+</li>
+<li>ck_mem_plan_build_training()
+: <a class="el" href="ckernel__mem__plan_8h.html#a14f34bf1cb156c5a07296e5328f5c0cc">ckernel_mem_plan.h</a>
+, <a class="el" href="ckernel__mem__plan_8c.html#a14f34bf1cb156c5a07296e5328f5c0cc">ckernel_mem_plan.c</a>
+</li>
+<li>ck_mem_plan_build_training_with_tokens()
+: <a class="el" href="ckernel__mem__plan_8h.html#a57db8942b533ff570008d5d04a9f7c1e">ckernel_mem_plan.h</a>
+, <a class="el" href="ckernel__mem__plan_8c.html#a57db8942b533ff570008d5d04a9f7c1e">ckernel_mem_plan.c</a>
+</li>
+<li>CK_MEM_PLAN_DEFAULT_ALIGN
+: <a class="el" href="ckernel__mem__plan_8h.html#a7b0ecac54309914511507bc80cdce744">ckernel_mem_plan.h</a>
+</li>
+<li>ck_mem_plan_free()
+: <a class="el" href="ckernel__mem__plan_8h.html#a69f7ae632754a94b1a227da5a6633fb1">ckernel_mem_plan.h</a>
+, <a class="el" href="ckernel__mem__plan_8c.html#a69f7ae632754a94b1a227da5a6633fb1">ckernel_mem_plan.c</a>
+</li>
+<li>ck_memory_allocate()
+: <a class="el" href="ckernel__memory__layout_8h.html#a27e838b35bf29a1fa749490d9e7fdd38">ckernel_memory_layout.h</a>
+</li>
+<li>ck_memory_free()
+: <a class="el" href="ckernel__memory__layout_8h.html#ad32d33988f932adf3a059635aac8c79c">ckernel_memory_layout.h</a>
+</li>
+<li>ck_memory_plan()
+: <a class="el" href="ckernel__memory__layout_8h.html#a73c5439888aa533ee2b15697fac6f8e0">ckernel_memory_layout.h</a>
 </li>
 <li>ck_min()
 : <a class="el" href="gemm__kernels_8c.html#a19bd64cbde3f643580eb69b050c8e61d">gemm_kernels.c</a>
@@ -447,8 +898,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="gemm__kernels__bf16_8c.html#aa17196850ccde558e4940c65151fb5b7">gemm_kernels_bf16.c</a>
 </li>
 <li>ck_mlp_swiglu_forward()
-: <a class="el" href="ckernel__orchestration_8h.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.h</a>
-, <a class="el" href="ckernel__orchestration_8c.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.c</a>
+: <a class="el" href="ckernel__orchestration_8c.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.c</a>
+, <a class="el" href="ckernel__orchestration_8h.html#a2e894b79792aaf694427446c1d89fab8">ckernel_orchestration.h</a>
 </li>
 <li>ck_mlp_swiglu_forward_fully_fused_token()
 : <a class="el" href="ckernel__orchestration_8h.html#a6aaebd943ca5ad278729a207b401ab45">ckernel_orchestration.h</a>
@@ -470,13 +921,22 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_mlp_swiglu_forward_ref()
 : <a class="el" href="ckernel__orchestration_8c.html#ac841f4e0a273b07808cc036a715b742e">ckernel_orchestration.c</a>
 </li>
+<li>ck_model_allocate()
+: <a class="el" href="ckernel__section__layout_8h.html#a8d52ec7a90940748c493c1e6cbb2675e">ckernel_section_layout.h</a>
+</li>
 <li>ck_model_config_from_hf_json()
 : <a class="el" href="ckernel__ir_8h.html#acd82d4aceebe2b6c8feafb9d1fc9c8db">ckernel_ir.h</a>
 , <a class="el" href="ckernel__ir_8c.html#acd82d4aceebe2b6c8feafb9d1fc9c8db">ckernel_ir.c</a>
 </li>
+<li>ck_model_free()
+: <a class="el" href="ckernel__section__layout_8h.html#a1098b7df468a5ac5164b440b6e08209f">ckernel_section_layout.h</a>
+</li>
 <li>ck_model_load_weights_flat()
-: <a class="el" href="ckernel__model_8h.html#a408dbae8dc539ddfe04ee35f35c9257d">ckernel_model.h</a>
-, <a class="el" href="ckernel__model__load_8c.html#a408dbae8dc539ddfe04ee35f35c9257d">ckernel_model_load.c</a>
+: <a class="el" href="ckernel__model__load_8c.html#a408dbae8dc539ddfe04ee35f35c9257d">ckernel_model_load.c</a>
+, <a class="el" href="ckernel__model_8h.html#a408dbae8dc539ddfe04ee35f35c9257d">ckernel_model.h</a>
+</li>
+<li>ck_model_plan()
+: <a class="el" href="ckernel__section__layout_8h.html#a82b72b659b7ce81f24b3f79b101ab6d4">ckernel_section_layout.h</a>
 </li>
 <li>ck_nearest_int()
 : <a class="el" href="gemm__kernels__q4k__q8k_8c.html#ab5a6ee098afcfc17f8e2da12535945aa">gemm_kernels_q4k_q8k.c</a>
@@ -521,8 +981,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ckernel__ir_8h.html#a37376e6b0c13d2069c36be3bbc93c933a9985a3eedd2d9f666748f30c4e0edbd8">ckernel_ir.h</a>
 </li>
 <li>ck_op_supported()
-: <a class="el" href="ckernel__registry_8h.html#a4178dea993cf3973166fd2dc9d1f2223">ckernel_registry.h</a>
-, <a class="el" href="ckernel__registry_8c.html#a4178dea993cf3973166fd2dc9d1f2223">ckernel_registry.c</a>
+: <a class="el" href="ckernel__registry_8c.html#a4178dea993cf3973166fd2dc9d1f2223">ckernel_registry.c</a>
+, <a class="el" href="ckernel__registry_8h.html#a4178dea993cf3973166fd2dc9d1f2223">ckernel_registry.h</a>
 </li>
 <li>CK_OP_SWIGLU
 : <a class="el" href="ckernel__ir_8h.html#a37376e6b0c13d2069c36be3bbc93c933a29f456078ffd9a510971d70ee47bd11f">ckernel_ir.h</a>
@@ -552,8 +1012,15 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ck__tokenizer_8c.html#a22dd876d597bf3a6f43e60d0702a7065">ck_tokenizer.c</a>
 </li>
 <li>ck_pool_strdup()
-: <a class="el" href="ck__tokenizer_8h.html#aaaef67621f30b7a785983b247ab00f94">ck_tokenizer.h</a>
-, <a class="el" href="ck__tokenizer_8c.html#aaaef67621f30b7a785983b247ab00f94">ck_tokenizer.c</a>
+: <a class="el" href="ck__tokenizer_8c.html#aaaef67621f30b7a785983b247ab00f94">ck_tokenizer.c</a>
+, <a class="el" href="ck__tokenizer_8h.html#aaaef67621f30b7a785983b247ab00f94">ck_tokenizer.h</a>
+</li>
+<li>CK_PTR
+: <a class="el" href="ckernel__memory__layout_8h.html#aed689667a597546f4ca76393d018eb06">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aed689667a597546f4ca76393d018eb06">ckernel_section_layout.h</a>
+</li>
+<li>CK_PTR_BF16
+: <a class="el" href="ckernel__section__layout_8h.html#a8c3c24884f3f89455a6578875d6ebe40">ckernel_section_layout.h</a>
 </li>
 <li>ck_q8k_activations_enabled()
 : <a class="el" href="ckernel__orchestration_8c.html#a45ad329928b675ddc00ad3d5059335b3">ckernel_orchestration.c</a>
@@ -576,8 +1043,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="ckernel__orchestration_8c.html#a3678c4745f6b4d3f39e3c07cdff6db12">ckernel_orchestration.c</a>
 </li>
 <li>ck_qkv_project_head_major_token()
-: <a class="el" href="ckernel__orchestration_8h.html#ab6c6524b0f30733a077e3783bb55a592">ckernel_orchestration.h</a>
-, <a class="el" href="attention__decode__fused_8c.html#ab6c6524b0f30733a077e3783bb55a592">attention_decode_fused.c</a>
+: <a class="el" href="attention__decode__fused_8c.html#ab6c6524b0f30733a077e3783bb55a592">attention_decode_fused.c</a>
+, <a class="el" href="ckernel__orchestration_8h.html#ab6c6524b0f30733a077e3783bb55a592">ckernel_orchestration.h</a>
 </li>
 <li>ck_qkv_project_head_major_token_q4_k()
 : <a class="el" href="ckernel__orchestration_8c.html#ad492e291abbf309f2332cdf955597083">ckernel_orchestration.c</a>
@@ -629,6 +1096,12 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>CK_SCOPE_LAYER
 : <a class="el" href="ckernel__kernel__specs_8h.html#afd2b6b5da77c49a3159c21989c7134d3a0582d293b7e340614509c5d9c966b543">ckernel_kernel_specs.h</a>
 </li>
+<li>ck_section_config_init()
+: <a class="el" href="ckernel__section__layout_8h.html#a45ba8ddf4f1d6280681d37136dbc3a5a">ckernel_section_layout.h</a>
+</li>
+<li>ck_section_plan()
+: <a class="el" href="ckernel__section__layout_8h.html#a7a3e8075d666d342c725cea328322cd2">ckernel_section_layout.h</a>
+</li>
 <li>ck_set_num_threads()
 : <a class="el" href="ckernel__engine_8h.html#a2b48c2a890de67e5830bc4239e01bd13">ckernel_engine.h</a>
 , <a class="el" href="ckernel__strict_8c.html#a2b48c2a890de67e5830bc4239e01bd13">ckernel_strict.c</a>
@@ -636,6 +1109,9 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ck_set_strict_parity()
 : <a class="el" href="ckernel__engine_8h.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_engine.h</a>
 , <a class="el" href="ckernel__strict_8c.html#a8bcb6fa03c4861c8f45d59fa424d1146">ckernel_strict.c</a>
+</li>
+<li>CK_SIMD_ALIGN
+: <a class="el" href="ckernel__memory__layout_8h.html#ae4fcfb595850676b0e59177879acef97">ckernel_memory_layout.h</a>
 </li>
 <li>ck_strict_parity
 : <a class="el" href="ckernel__strict_8c.html#a6dbb8ec1125b21473b47d31ae92427c3">ckernel_strict.c</a>
@@ -645,8 +1121,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ckernel__engine_8h.html#aef8c9a331116ff9c2d77b03152aa8004">ckernel_engine.h</a>
 </li>
 <li>ck_tokenizer_add_merge()
-: <a class="el" href="ck__tokenizer_8h.html#a10ff92cd939960842b992ee6faf904cc">ck_tokenizer.h</a>
-, <a class="el" href="ck__tokenizer_8c.html#a10ff92cd939960842b992ee6faf904cc">ck_tokenizer.c</a>
+: <a class="el" href="ck__tokenizer_8c.html#a10ff92cd939960842b992ee6faf904cc">ck_tokenizer.c</a>
+, <a class="el" href="ck__tokenizer_8h.html#a10ff92cd939960842b992ee6faf904cc">ck_tokenizer.h</a>
 </li>
 <li>ck_tokenizer_add_token()
 : <a class="el" href="ck__tokenizer_8h.html#ab7a38c00a25ae5bdc8bb91ee07c26714">ck_tokenizer.h</a>
@@ -669,8 +1145,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="ck__tokenizer_8c.html#a8305a4a576ed2473bccd0a5dff347aa1">ck_tokenizer.c</a>
 </li>
 <li>ck_tokenizer_init()
-: <a class="el" href="ck__tokenizer_8h.html#a6a224e5a246987a80e869592fd46e36e">ck_tokenizer.h</a>
-, <a class="el" href="ck__tokenizer_8c.html#a6a224e5a246987a80e869592fd46e36e">ck_tokenizer.c</a>
+: <a class="el" href="ck__tokenizer_8c.html#a6a224e5a246987a80e869592fd46e36e">ck_tokenizer.c</a>
+, <a class="el" href="ck__tokenizer_8h.html#a6a224e5a246987a80e869592fd46e36e">ck_tokenizer.h</a>
 </li>
 <li>ck_tokenizer_load()
 : <a class="el" href="ck__tokenizer_8h.html#a9d42d9476e56bcb10e04c07265b335fb">ck_tokenizer.h</a>
@@ -686,6 +1162,9 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 </li>
 <li>ck_tokenizer_vocab_size()
 : <a class="el" href="ck__tokenizer_8h.html#aed1d9d02b4dfc4cafcea97d08c44964e">ck_tokenizer.h</a>
+</li>
+<li>CK_V2_SECTION_ALIGN
+: <a class="el" href="ckernel__codegen__v2__sections_8c.html#a1810cb110e36e2fb70bd95ea62184da9">ckernel_codegen_v2_sections.c</a>
 </li>
 <li>ck_weight_dtype_expr()
 : <a class="el" href="ckernel__codegen_8c.html#a29c9407838ded750fd8379bd3b599d0a">ckernel_codegen.c</a>
@@ -718,11 +1197,27 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>ckernel_sgemm_native()
 : <a class="el" href="backend__native_8c.html#a9008610196b2d6750454c58f87a6cc78">backend_native.c</a>
 </li>
+<li>CKFusionFlags
+: <a class="el" href="ckernel__memory__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efe">ckernel_memory_layout.h</a>
+, <a class="el" href="ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efe">ckernel_section_layout.h</a>
+</li>
+<li>CKIRV2LowerMode
+: <a class="el" href="ckernel__ir__v2__lower_8h.html#ad1399201752063abea915ebc3675aebc">ckernel_ir_v2_lower.h</a>
+</li>
+<li>CKIRV2NodeFlags
+: <a class="el" href="ckernel__ir__v2_8h.html#ac6a19aa94348b33702ba27f461574cb5">ckernel_ir_v2.h</a>
+</li>
+<li>CKMemArenaKind
+: <a class="el" href="ckernel__mem__plan_8h.html#a7593aeefed160055e5352bda2cb27873">ckernel_mem_plan.h</a>
+</li>
 <li>CKOpType
 : <a class="el" href="ckernel__ir_8h.html#a37376e6b0c13d2069c36be3bbc93c933">ckernel_ir.h</a>
 </li>
 <li>clamp_int8()
 : <a class="el" href="rmsnorm__kernels__int8_8c.html#a0296ca33e8e3ca947f0b2368c526aacd">rmsnorm_kernels_int8.c</a>
+</li>
+<li>compute_align()
+: <a class="el" href="ckernel__codegen__v2__sections_8c.html#a098357b6aa338eaf0eb4015e76593802">ckernel_codegen_v2_sections.c</a>
 </li>
 <li>compute_gemm_params()
 : <a class="el" href="cpu__features_8c.html#a6465c90ac7e832c18d8e5a21df58653b">cpu_features.c</a>

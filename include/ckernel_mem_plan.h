@@ -18,14 +18,14 @@ typedef enum {
     CK_MEM_ARENA_COUNT
 } CKMemArenaKind;
 
-typedef struct {
+typedef struct CKMemSpan {
     int buffer_id;
     CKMemArenaKind arena;
     size_t offset_bytes;
     size_t size_bytes;
 } CKMemSpan;
 
-typedef struct {
+typedef struct CKMemPlan {
     CKMemSpan *spans;
     int num_spans;
     size_t total_bytes[CK_MEM_ARENA_COUNT];
@@ -39,6 +39,16 @@ int ck_mem_plan_build_inference(const CKIRV2Graph *graph,
 int ck_mem_plan_build_training(const CKIRV2Graph *graph,
                                CKMemPlan *plan,
                                size_t alignment_bytes);
+
+int ck_mem_plan_build_inference_with_tokens(const CKIRV2Graph *graph,
+                                            CKMemPlan *plan,
+                                            size_t alignment_bytes,
+                                            int tokens_override);
+
+int ck_mem_plan_build_training_with_tokens(const CKIRV2Graph *graph,
+                                           CKMemPlan *plan,
+                                           size_t alignment_bytes,
+                                           int tokens_override);
 
 void ck_mem_plan_free(CKMemPlan *plan);
 

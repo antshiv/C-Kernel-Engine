@@ -2,6 +2,7 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
   <compounddef id="dir_40856f0cdd4bcafd28810d9265a200f7" kind="dir">
     <compoundname>kernels</compoundname>
+    <innerfile refid="add__kernels__bf16_8c">add_kernels_bf16.c</innerfile>
     <innerfile refid="attention__decode__fused_8c">attention_decode_fused.c</innerfile>
     <innerfile refid="attention__kernels_8c">attention_kernels.c</innerfile>
     <innerfile refid="dequant__kernels_8c">dequant_kernels.c</innerfile>
@@ -29,6 +30,8 @@
     <innerfile refid="mlp__fused__decode_8c">mlp_fused_decode.c</innerfile>
     <innerfile refid="mlp__kernels_8c">mlp_kernels.c</innerfile>
     <innerfile refid="mlp__kernels__bf16_8c">mlp_kernels_bf16.c</innerfile>
+    <innerfile refid="optimizer__kernels_8c">optimizer_kernels.c</innerfile>
+    <innerfile refid="optimizer__kernels__bf16_8c">optimizer_kernels_bf16.c</innerfile>
     <innerfile refid="relu__kernels_8c">relu_kernels.c</innerfile>
     <innerfile refid="relu__kernels__bf16_8c">relu_kernels_bf16.c</innerfile>
     <innerfile refid="rmsnorm__kernels_8c">rmsnorm_kernels.c</innerfile>

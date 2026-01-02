@@ -104,7 +104,9 @@ for page in "$PAGES_DIR"/*.html; do
         header="${header//\{\{NAV_CONCEPTS\}\}/}"
         header="${header//\{\{NAV_TESTING\}\}/}"
         header="${header//\{\{NAV_PARITY\}\}/}"
+        header="${header//\{\{NAV_NIGHTLY\}\}/}"
         header="${header//\{\{NAV_RESEARCH\}\}/}"
+        header="${header//\{\{NAV_DECISIONS\}\}/}"
         header="${header//\{\{NAV_API\}\}/}"
         header="${header//\{\{NAV_CONTRIBUTING\}\}/}"
 

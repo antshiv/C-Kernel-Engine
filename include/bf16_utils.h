@@ -116,6 +116,23 @@ static inline uint16_t float_to_bf16(float f)
 //   __m512:  [fp32_0][fp32_1][fp32_2]...[fp32_15]  (16 × 32-bit)
 //
 // ============================================================================
+// Native AVX-512 BF16 Instructions (when available)
+// ============================================================================
+//
+// Some newer Intel Xeon processors have native BF16 support via AVX512_BF16:
+//   - Cooper Lake (3rd Gen Xeon Scalable)
+//   - Sapphire Rapids (4th Gen Xeon Scalable)
+//   - Emerald Rapids, Granite Rapids, etc.
+//
+// These provide single-instruction conversion:
+//   _mm512_cvtneps_pbh(a)  : 16× FP32 → 16× BF16 (1 instruction vs 5-6)
+//   _mm512_dpbf16_ps(...)  : BF16 dot product (for GEMM acceleration)
+//
+// For BF16→FP32, there's no single intrinsic, but the bit manipulation
+// (zero-extend + shift) is already fast (2 instructions).
+//
+// Detection: Compile with -mavx512bf16 and check __AVX512BF16__
+// ============================================================================
 
 #if defined(__AVX512F__)
 
@@ -144,6 +161,27 @@ static inline __m512 bf16x16_to_fp32(__m256i bf16_vec)
 //   2. Add rounding bias (0x7FFF + lsb)
 //   3. Truncate by right-shifting 16 bits
 //
+// With native AVX512_BF16 support, this is a single instruction!
+//
+#if defined(__AVX512BF16__)
+// ─────────────────────────────────────────────────────────────────────────────
+// NATIVE AVX-512 BF16: Single instruction FP32→BF16 conversion
+// Available on: Cooper Lake, Sapphire Rapids, Emerald Rapids, Granite Rapids
+// Compile with: -mavx512bf16 (GCC/Clang) or /arch:AVX512 (MSVC)
+// ─────────────────────────────────────────────────────────────────────────────
+static inline __m256i fp32x16_to_bf16(__m512 fp32_vec)
+{
+    // _mm512_cvtneps_pbh: Convert 16× FP32 → 16× BF16 in ONE instruction!
+    // "ne" = no exceptions, "ps" = packed single, "pbh" = packed bfloat16
+    // Returns __m256bh, cast to __m256i for storage compatibility
+    __m256bh bf16_result = _mm512_cvtneps_pbh(fp32_vec);
+    return (__m256i)bf16_result;
+}
+#else
+// ─────────────────────────────────────────────────────────────────────────────
+// SOFTWARE FALLBACK: Bit manipulation (5-6 instructions)
+// Works on all AVX-512 capable CPUs (Skylake-X, Ice Lake, etc.)
+// ─────────────────────────────────────────────────────────────────────────────
 static inline __m256i fp32x16_to_bf16(__m512 fp32_vec)
 {
     // Reinterpret float bits as integers
@@ -163,6 +201,7 @@ static inline __m256i fp32x16_to_bf16(__m512 fp32_vec)
     // Pack 16 × 32-bit down to 16 × 16-bit (truncates upper bits, which are 0)
     return _mm512_cvtepi32_epi16(shifted);
 }
+#endif /* __AVX512BF16__ */
 
 // Convenience: Load 16 BF16 values from memory and convert to FP32
 static inline __m512 bf16_loadu_cvt_fp32(const uint16_t *ptr)

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 static char *ck_ir_v2_strdup(const char *s)
 {
@@ -87,6 +88,200 @@ static const char *ck_ir_v2_select_kernel(const CKKernelSpec *spec, CKDataType d
     return spec->name;
 }
 
+static const char *ck_ir_v2_find_key(const char *json, const char *key, const char *end)
+{
+    size_t key_len = strlen(key);
+    const char *cur = json;
+    while (cur + key_len < end) {
+        if (memcmp(cur, key, key_len) == 0) {
+            return cur;
+        }
+        cur++;
+    }
+    return NULL;
+}
+
+static const char *ck_ir_v2_skip_ws(const char *cur, const char *end)
+{
+    while (cur < end && (*cur == ' ' || *cur == '\n' || *cur == '\r' || *cur == '\t')) {
+        cur++;
+    }
+    return cur;
+}
+
+static int ck_ir_v2_parse_string(const char *start, const char *end, char **out)
+{
+    if (!start || start >= end || *start != '"') {
+        return -1;
+    }
+    const char *cur = start + 1;
+    while (cur < end && *cur != '"') {
+        if (*cur == '\\' && (cur + 1) < end) {
+            cur += 2;
+            continue;
+        }
+        cur++;
+    }
+    if (cur >= end || *cur != '"') {
+        return -1;
+    }
+    size_t len = (size_t)(cur - (start + 1));
+    char *buf = (char *)malloc(len + 1);
+    if (!buf) {
+        return -1;
+    }
+    memcpy(buf, start + 1, len);
+    buf[len] = '\0';
+    *out = buf;
+    return 0;
+}
+
+static int ck_ir_v2_parse_bool(const char *json, const char *key, const char *end, int *out)
+{
+    const char *p = ck_ir_v2_find_key(json, key, end);
+    if (!p) {
+        return -1;
+    }
+    p = strchr(p, ':');
+    if (!p || p >= end) {
+        return -1;
+    }
+    p = ck_ir_v2_skip_ws(p + 1, end);
+    if (p + 4 <= end && memcmp(p, "true", 4) == 0) {
+        *out = 1;
+        return 0;
+    }
+    if (p + 5 <= end && memcmp(p, "false", 5) == 0) {
+        *out = 0;
+        return 0;
+    }
+    return -1;
+}
+
+static CKDataType ck_ir_v2_parse_dtype(const char *s)
+{
+    if (!s) return CK_DT_FP32;
+    if (strcmp(s, "fp32") == 0) return CK_DT_FP32;
+    if (strcmp(s, "bf16") == 0) return CK_DT_BF16;
+    if (strcmp(s, "fp16") == 0) return CK_DT_FP16;
+    if (strcmp(s, "q4_0") == 0) return CK_DT_Q4_0;
+    if (strcmp(s, "q4_k") == 0) return CK_DT_Q4_K;
+    if (strcmp(s, "q6_k") == 0) return CK_DT_Q6_K;
+    if (strcmp(s, "q8_0") == 0) return CK_DT_Q8_0;
+    return CK_DT_FP32;
+}
+
+static int ck_ir_v2_apply_weight_dtypes(const char *json, const char *end, CKIRV2Graph *graph)
+{
+    const char *start = ck_ir_v2_find_key(json, "\"weight_dtypes\"", end);
+    if (!start) {
+        return 0;
+    }
+    const char *open = strchr(start, '{');
+    if (!open || open >= end) {
+        return -1;
+    }
+    const char *cur = open + 1;
+    while (cur < end) {
+        cur = ck_ir_v2_skip_ws(cur, end);
+        if (cur >= end || *cur == '}') {
+            break;
+        }
+        char *key = NULL;
+        if (ck_ir_v2_parse_string(cur, end, &key) != 0) {
+            break;
+        }
+        cur = strchr(cur, ':');
+        if (!cur) {
+            free(key);
+            break;
+        }
+        cur = ck_ir_v2_skip_ws(cur + 1, end);
+        char *val = NULL;
+        if (ck_ir_v2_parse_string(cur, end, &val) != 0) {
+            free(key);
+            break;
+        }
+        int idx = ck_ir_v2_find_buffer_index(graph, key);
+        if (idx >= 0) {
+            graph->buffers[idx].dtype = ck_ir_v2_parse_dtype(val);
+        }
+        free(key);
+        free(val);
+        cur = strchr(cur, ',');
+        if (!cur) {
+            break;
+        }
+        cur++;
+    }
+    return 0;
+}
+
+int ck_ir_v2_apply_meta(const char *path, CKIRV2Graph *graph)
+{
+    if (!path || !graph) {
+        return -1;
+    }
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        perror("ck_ir_v2_apply_meta: fopen");
+        return -1;
+    }
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        return -1;
+    }
+    long len = ftell(f);
+    if (len < 0) {
+        fclose(f);
+        return -1;
+    }
+    if (fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        return -1;
+    }
+    char *buf = (char *)malloc((size_t)len + 1);
+    if (!buf) {
+        fclose(f);
+        return -1;
+    }
+    size_t nread = fread(buf, 1, (size_t)len, f);
+    fclose(f);
+    buf[nread] = '\0';
+    const char *end = buf + nread;
+
+    int val = 0;
+    if (ck_ir_v2_parse_bool(buf, "\"has_pos_emb\"", end, &val) == 0) {
+        graph->has_pos_emb = val ? 1 : 0;
+    }
+    if (ck_ir_v2_parse_bool(buf, "\"tie_word_embeddings\"", end, &val) == 0) {
+        graph->tie_word_embeddings = val ? 1 : 0;
+        if (graph->tie_word_embeddings == 0) {
+            int idx = ck_ir_v2_find_buffer_index(graph, "lm_head_weight");
+            if (idx >= 0) {
+                free(graph->buffers[idx].alias_of);
+                graph->buffers[idx].alias_of = NULL;
+            }
+        } else {
+            int idx = ck_ir_v2_find_buffer_index(graph, "lm_head_weight");
+            if (idx >= 0) {
+                free(graph->buffers[idx].alias_of);
+                graph->buffers[idx].alias_of = ck_ir_v2_strdup("token_emb");
+            }
+        }
+    }
+    if (ck_ir_v2_parse_bool(buf, "\"fused_qkv\"", end, &val) == 0) {
+        graph->fused_qkv = val ? 1 : 0;
+    }
+    if (ck_ir_v2_parse_bool(buf, "\"gated_mlp\"", end, &val) == 0) {
+        graph->gated_mlp = val ? 1 : 0;
+    }
+    (void)ck_ir_v2_apply_weight_dtypes(buf, end, graph);
+
+    free(buf);
+    return 0;
+}
+
 int ck_ir_v2_build_decoder(const CKModelConfig *cfg, CKIRV2Graph *graph)
 {
     if (!cfg || !graph) {
@@ -94,6 +289,10 @@ int ck_ir_v2_build_decoder(const CKModelConfig *cfg, CKIRV2Graph *graph)
     }
     memset(graph, 0, sizeof(*graph));
     graph->config = *cfg;
+    graph->has_pos_emb = 1;
+    graph->tie_word_embeddings = -1;
+    graph->fused_qkv = -1;
+    graph->gated_mlp = -1;
 
     graph->num_buffers = (int)ck_decoder_buffer_count;
     graph->buffers = (CKIRV2Buffer *)calloc((size_t)graph->num_buffers, sizeof(CKIRV2Buffer));
@@ -104,6 +303,10 @@ int ck_ir_v2_build_decoder(const CKModelConfig *cfg, CKIRV2Graph *graph)
         if (ck_ir_v2_copy_buffer_spec(&ck_decoder_buffers[i], &graph->buffers[i]) != 0) {
             ck_ir_v2_free(graph);
             return -1;
+        }
+        if (graph->buffers[i].name && strcmp(graph->buffers[i].name, "pos_emb") == 0) {
+            free(graph->buffers[i].condition);
+            graph->buffers[i].condition = ck_ir_v2_strdup("has_pos_emb");
         }
     }
 
@@ -126,6 +329,7 @@ int ck_ir_v2_build_decoder(const CKModelConfig *cfg, CKIRV2Graph *graph)
             node->layer = (uint16_t)layer;
             node->op = ck_ir_v2_strdup(step->kernel);
             node->kernel = ck_ir_v2_strdup(impl ? impl : step->kernel);
+            node->kernel_dtype = dtype;
             node->condition = ck_ir_v2_strdup(step->condition);
             node->flags = 0;
             node->n_bindings = 0;
@@ -198,6 +402,7 @@ int ck_ir_v2_build_decoder_backward(const CKIRV2Graph *forward, CKIRV2Graph *bac
             node->layer = (uint16_t)layer;
             node->op = ck_ir_v2_strdup(step->kernel);
             node->kernel = ck_ir_v2_strdup(impl ? impl : step->kernel);
+            node->kernel_dtype = dtype;
             node->condition = ck_ir_v2_strdup(step->condition);
             node->flags = 0;
             node->n_bindings = 0;

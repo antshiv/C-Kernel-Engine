@@ -153,8 +153,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" line="83" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" bodystart="83" bodyend="116"/>
         <references refid="layernorm__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="layernorm__kernels__bf16_8c" startline="12" endline="15">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="layernorm__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="layernorm__kernels__bf16_8c" startline="17" endline="20">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1a8d349f047d6654b3a351fb62e0b20e87" compoundref="layernorm__kernels_8c" startline="652" endline="719">layernorm_backward_kernel</references>
       </memberdef>
@@ -211,8 +211,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" line="22" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" bodystart="22" bodyend="51"/>
         <references refid="layernorm__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="layernorm__kernels__bf16_8c" startline="12" endline="15">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="layernorm__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="layernorm__kernels__bf16_8c" startline="17" endline="20">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1ace47573bf5278260d2652f4fb069bb9e" compoundref="layernorm__kernels_8c" startline="258" endline="282">layernorm_forward_rolled_slice</references>
       </memberdef>
@@ -265,8 +265,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" line="53" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/layernorm_kernels_bf16.c" bodystart="53" bodyend="81"/>
         <references refid="layernorm__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="layernorm__kernels__bf16_8c" startline="12" endline="15">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="layernorm__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="layernorm__kernels__bf16_8c" startline="17" endline="20">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1afd2e784d7b2b3ac7eb93e6f87c091fae" compoundref="layernorm__kernels_8c" startline="582" endline="605">layernorm_forward_unrolled_slice</references>
       </memberdef>

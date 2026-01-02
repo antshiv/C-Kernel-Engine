@@ -765,6 +765,58 @@ void sigmoid_backward_bf16(const uint16_t *input,
 	                          int tokens,
 	                          int dim);
 
+// =============================================================================
+// Element-wise addition kernels (for residual connections)
+// =============================================================================
+
+// Forward: y = a + b
+void add_forward_bf16(const uint16_t *a,
+                      const uint16_t *b,
+                      uint16_t *y,
+                      size_t n);
+
+// Forward with scale: y = a + alpha * b
+void add_scaled_forward_bf16(const uint16_t *a,
+                             const uint16_t *b,
+                             uint16_t *y,
+                             float alpha,
+                             size_t n);
+
+// In-place: a += b
+void add_inplace_bf16(uint16_t *a,
+                      const uint16_t *b,
+                      size_t n);
+
+// In-place scaled: a += alpha * b
+void add_scaled_inplace_bf16(uint16_t *a,
+                             const uint16_t *b,
+                             float alpha,
+                             size_t n);
+
+// Backward: d_a = d_y, d_b = d_y (gradient passthrough)
+void add_backward_bf16(const uint16_t *d_y,
+                       uint16_t *d_a,
+                       uint16_t *d_b,
+                       size_t n);
+
+// 2D version for [tokens, dim] shaped tensors
+void add_forward_2d_bf16(const uint16_t *a,
+                         const uint16_t *b,
+                         uint16_t *y,
+                         int tokens,
+                         int dim,
+                         int aligned_dim);
+
+// FP32 versions
+void add_forward_f32(const float *a,
+                     const float *b,
+                     float *y,
+                     size_t n);
+
+void add_inplace_f32(float *a,
+                     const float *b,
+                     size_t n);
+
 // Attention backward (GQA-aware): computes d_q, d_k, d_v.
 void attention_backward_causal_head_major_gqa(
     const float *d_output,

@@ -16,6 +16,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="59" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="59" bodyend="-1"/>
+        <referencedby refid="ckernel__ir__v2__builder_8c_1a2a289dfc861e40f2cc178fd95b37b0e5" compoundref="ckernel__ir__v2__builder_8c" startline="70" endline="89">ck_ir_v2_select_kernel</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKKernelSpec_1a851ca16066a7dfa2499bee69cfef2360" prot="public" static="no" mutable="no">
         <type><ref refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kindref="member">CKDataType</ref></type>
@@ -29,6 +30,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="61" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="61" bodyend="-1"/>
+        <referencedby refid="ckernel__ir__v2_8h_1a80f105580f1785ac4dfcccf2496389e7" compoundref="ckernel__ir__v2__builder_8c" startline="285" endline="354">ck_ir_v2_build_decoder</referencedby>
+        <referencedby refid="ckernel__ir__v2_8h_1ad34447264bfb018e6d5f856c5fcff1f3" compoundref="ckernel__ir__v2__builder_8c" startline="356" endline="427">ck_ir_v2_build_decoder_backward</referencedby>
+        <referencedby refid="ckernel__ir__v2__builder_8c_1a2a289dfc861e40f2cc178fd95b37b0e5" compoundref="ckernel__ir__v2__builder_8c" startline="70" endline="89">ck_ir_v2_select_kernel</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKKernelSpec_1a19f87171754de66c10e0d6a0968489e2" prot="public" static="no" mutable="no">
         <type><ref refid="ckernel__dtype_8h_1a981f2c37e92f77d9f0acd68b26fefefd" kindref="member">CKDataTypeMask</ref></type>
@@ -55,6 +59,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="58" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="58" bodyend="-1"/>
+        <referencedby refid="ckernel__ir__v2__builder_8c_1a2a289dfc861e40f2cc178fd95b37b0e5" compoundref="ckernel__ir__v2__builder_8c" startline="70" endline="89">ck_ir_v2_select_kernel</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKKernelSpec_1ab6e588e0f3701c3c63904c231325185d" prot="public" static="no" mutable="no">
         <type>const char *</type>
@@ -68,6 +73,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" line="57" column="16" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/ckernel_kernel_specs.h" bodystart="57" bodyend="-1"/>
+        <referencedby refid="ckernel__ir__v2__builder_8c_1a2a289dfc861e40f2cc178fd95b37b0e5" compoundref="ckernel__ir__v2__builder_8c" startline="70" endline="89">ck_ir_v2_select_kernel</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCKKernelSpec_1a702e1368abaa202d24597a58f2f5c751" prot="public" static="no" mutable="no">
         <type>const char *</type>

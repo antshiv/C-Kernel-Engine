@@ -130,8 +130,13 @@ SRCS    := src/backend_native.c \
            src/ckernel_ir.c \
            src/ckernel_ir_v2.c \
            src/ckernel_ir_v2_builder.c \
+           src/ckernel_ir_v2_lower.c \
            src/ckernel_codegen.c \
            src/ckernel_codegen_v2.c \
+           src/ckernel_codegen_v2_struct.c \
+           src/ckernel_codegen_v2_dispatch.c \
+           src/ckernel_codegen_v2_schedule.c \
+           src/ckernel_codegen_v2_sections.c \
            src/ckernel_kernel_specs.c \
            src/ckernel_mem_plan.c \
            src/ckernel_alloc.c \
@@ -199,13 +204,44 @@ LIB_ROPE     := $(BUILD_DIR)/libckernel_rope.so
 
 IR_DEMO := $(BUILD_DIR)/ck_ir_demo
 IR_V2_DEMO := $(BUILD_DIR)/ck_ir_v2_demo
+IR_V2_SCRIPT := scripts/build_ir_v2.py
+IR_V4_SCRIPT := scripts/build_ir_v4.py
 DEFAULT_CONFIG := default.config.json
 CONFIG ?= $(DEFAULT_CONFIG)
 OUT ?= $(BUILD_DIR)/generated_model.c
+IR ?=
+IR_V2_OUT ?= $(BUILD_DIR)/ir_v2.json
+IR_V2_WEIGHTS ?=
+IR_V2_META ?= $(BUILD_DIR)/weights_meta.json
+IR_V2_HF ?=
+IR_V2_REV ?= main
+IR_V2_CTX ?=
+IR_V2_KERNEL_DTYPE ?=
+IR_V2_ACT_DTYPE ?=
+IR_V4_MODEL ?=
+IR_V4_CONFIG ?=
+IR_V4_PRESET ?=
+IR_V4_PREFIX ?=
+IR_V4_TOKENS ?=
+IR_V4_MODES ?= prefill,decode
+IR_V4_EMIT ?= exe
+IR_V4_DTYPE ?=
+IR_V4_WEIGHTS_HEADER ?=
+IR_V4_WEIGHTS_INDEX ?=
+IR_V4_KERNEL_SPECS ?=
 GGUF ?=
 GGUF_OUT ?= $(BUILD_DIR)/gguf_weights.bump
 GGUF_CONFIG_OUT ?= $(BUILD_DIR)/gguf_config.json
 GGUF_CONTEXT ?=
+GGUF_V4_OUT ?= $(BUILD_DIR)/gguf_weights_v4.bump
+GGUF_V4_CONFIG_OUT ?= $(BUILD_DIR)/gguf_config_v4.json
+GGUF_V4_CONTEXT ?=
+HF_V4_CHECKPOINT ?=
+HF_V4_OUT ?= $(BUILD_DIR)/weights_v4.bump
+HF_V4_CONFIG ?=
+HF_V4_DTYPE ?=
+HF_V4_CONTEXT ?=
+HF_V4_MAP_OUT ?=
 TINY_CONFIG ?= tiny.config.json
 SMALL_CONFIG ?= small10mb.config.json
 TINY_TRAIN_LR ?= 1e-3
@@ -256,7 +292,8 @@ PY_TESTS := unittest/test_layernorm.py \
             unittest/test_embedding.py \
             unittest/test_cross_entropy.py \
             unittest/test_orchestration_layer.py \
-            unittest/test_lm_head_litmus.py
+            unittest/test_lm_head_litmus.py \
+            unittest/test_optimizer.py
 
 PY_TESTS_BF16 := unittest/bf16/test_sigmoid_bf16.py \
                 unittest/bf16/test_rmsnorm_bf16.py \
@@ -285,6 +322,14 @@ TEST_ENV += CK_GELU_TOL=$(CK_GELU_TOL)
 endif
 export CK_GELU_TOL
 
+# MKL compatibility: Force SSE code paths on CPUs without AVX-512
+# MKL may incorrectly detect AVX-512 support based on processor family
+ifdef USE_MKL
+ifeq (,$(findstring avx512f,$(CPU_FLAGS)))
+TEST_ENV += MKL_DEBUG_CPU_TYPE=5
+endif
+endif
+
 all: $(BUILD_DIR) $(LIB)
 
 $(BUILD_DIR):
@@ -300,8 +345,8 @@ $(LIB): $(BUILD_STAMP) $(SRCS)
 $(IR_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_demo.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c include/ckernel_ir.h include/ckernel_codegen.h include/ckernel_registry.h include/ckernel_kernel_specs.h
 	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_codegen.c src/ckernel_kernel_specs.c src/ckernel_registry.c src/ckernel_ir_demo.c
 
-$(IR_V2_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_ir_v2_demo.c src/ckernel_codegen_v2.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c include/ckernel_ir.h include/ckernel_ir_v2.h include/ckernel_codegen_v2.h include/ckernel_mem_plan.h include/ckernel_kernel_specs.h
-	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_codegen_v2.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c src/ckernel_ir_v2_demo.c
+$(IR_V2_DEMO): $(BUILD_DIR) src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_ir_v2_lower.c src/ckernel_ir_v2_demo.c src/ckernel_codegen_v2.c src/ckernel_codegen_v2_struct.c src/ckernel_codegen_v2_dispatch.c src/ckernel_codegen_v2_schedule.c src/ckernel_codegen_v2_sections.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c include/ckernel_ir.h include/ckernel_ir_v2.h include/ckernel_ir_v2_lower.h include/ckernel_codegen_v2.h include/ckernel_mem_plan.h include/ckernel_kernel_specs.h
+	$(CC) -O2 -Wall -Iinclude -o $@ src/ckernel_ir.c src/ckernel_ir_v2.c src/ckernel_ir_v2_builder.c src/ckernel_ir_v2_lower.c src/ckernel_codegen_v2.c src/ckernel_codegen_v2_struct.c src/ckernel_codegen_v2_dispatch.c src/ckernel_codegen_v2_schedule.c src/ckernel_codegen_v2_sections.c src/ckernel_mem_plan.c src/ckernel_kernel_specs.c src/ckernel_ir_v2_demo.c
 
 ck: $(IR_DEMO)
 	@echo "Running $(IR_DEMO) with $(DEFAULT_CONFIG)..."
@@ -314,13 +359,89 @@ ck-v2: $(IR_V2_DEMO)
 ck_V2: ck-v2
 	@true
 
+ir-v2-meta: $(IR_V2_DEMO)
+	@echo "Generating IR v2 from $(CONFIG) + $(IR_V2_META)..."
+	./$(IR_V2_DEMO) $(CONFIG) --meta $(IR_V2_META)
+
+ir-v2:
+	@echo "Generating IR v2 from $(CONFIG) -> $(IR_V2_OUT)..."
+	@if [ -n "$(IR_V2_HF)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V2_SCRIPT) --hf $(IR_V2_HF) --revision $(IR_V2_REV) --out $(IR_V2_OUT) \
+	    $(if $(IR_V2_WEIGHTS),--weights $(IR_V2_WEIGHTS),) \
+	    $(if $(IR_V2_META),--meta-out $(IR_V2_META),) \
+	    $(if $(IR_V2_CTX),--ctx $(IR_V2_CTX),) \
+	    $(if $(IR_V2_KERNEL_DTYPE),--kernel-dtype $(IR_V2_KERNEL_DTYPE),) \
+	    $(if $(IR_V2_ACT_DTYPE),--activation-dtype $(IR_V2_ACT_DTYPE),); \
+	else \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V2_SCRIPT) --config $(CONFIG) --out $(IR_V2_OUT) \
+	    $(if $(IR_V2_WEIGHTS),--weights $(IR_V2_WEIGHTS),) \
+	    $(if $(IR_V2_META),--meta-out $(IR_V2_META),) \
+	    $(if $(IR_V2_CTX),--ctx $(IR_V2_CTX),) \
+	    $(if $(IR_V2_KERNEL_DTYPE),--kernel-dtype $(IR_V2_KERNEL_DTYPE),) \
+	    $(if $(IR_V2_ACT_DTYPE),--activation-dtype $(IR_V2_ACT_DTYPE),); \
+	fi
+
+fetch-v2:
+	@echo "Fetching config/weights meta -> $(IR_V2_META)..."
+	@if [ -n "$(IR_V2_HF)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V2_SCRIPT) --hf $(IR_V2_HF) --revision $(IR_V2_REV) --meta-out $(IR_V2_META) --meta-only \
+	    $(if $(IR_V2_WEIGHTS),--weights $(IR_V2_WEIGHTS),) \
+	    --cache-dir $(BUILD_DIR); \
+	else \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V2_SCRIPT) --config $(CONFIG) --meta-out $(IR_V2_META) --meta-only \
+	    $(if $(IR_V2_WEIGHTS),--weights $(IR_V2_WEIGHTS),) \
+	    --cache-dir $(BUILD_DIR); \
+	fi
+
+ir-v4:
+	@echo "Generating IR v4 into $(IR_V4_PREFIX)..."
+	@if [ -n "$(IR_V4_PRESET)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V4_SCRIPT) --preset="$(IR_V4_PRESET)" \
+	    $(if $(IR_V4_PREFIX),--prefix="$(IR_V4_PREFIX)",) \
+	    $(if $(IR_V4_TOKENS),--tokens="$(IR_V4_TOKENS)",) \
+	    $(if $(IR_V4_MODES),--modes="$(IR_V4_MODES)",) \
+	    $(if $(IR_V4_EMIT),--emit="$(IR_V4_EMIT)",) \
+	    $(if $(IR_V4_DTYPE),--dtype="$(IR_V4_DTYPE)",) \
+	    $(if $(IR_V4_WEIGHTS_HEADER),--weights-header="$(IR_V4_WEIGHTS_HEADER)",) \
+	    $(if $(IR_V4_WEIGHTS_INDEX),--weights-index="$(IR_V4_WEIGHTS_INDEX)",) \
+	    $(if $(IR_V4_KERNEL_SPECS),--kernel-specs="$(IR_V4_KERNEL_SPECS)",); \
+	elif [ -n "$(IR_V4_CONFIG)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V4_SCRIPT) --config="$(IR_V4_CONFIG)" \
+	    $(if $(IR_V4_PREFIX),--prefix="$(IR_V4_PREFIX)",) \
+	    $(if $(IR_V4_TOKENS),--tokens="$(IR_V4_TOKENS)",) \
+	    $(if $(IR_V4_MODES),--modes="$(IR_V4_MODES)",) \
+	    $(if $(IR_V4_EMIT),--emit="$(IR_V4_EMIT)",) \
+	    $(if $(IR_V4_DTYPE),--dtype="$(IR_V4_DTYPE)",) \
+	    $(if $(IR_V4_WEIGHTS_HEADER),--weights-header="$(IR_V4_WEIGHTS_HEADER)",) \
+	    $(if $(IR_V4_WEIGHTS_INDEX),--weights-index="$(IR_V4_WEIGHTS_INDEX)",) \
+	    $(if $(IR_V4_KERNEL_SPECS),--kernel-specs="$(IR_V4_KERNEL_SPECS)",); \
+	elif [ -n "$(IR_V4_MODEL)" ]; then \
+	  $(PYTHON) $(PYTHONFLAGS) $(IR_V4_SCRIPT) "$(IR_V4_MODEL)" \
+	    $(if $(IR_V4_PREFIX),--prefix="$(IR_V4_PREFIX)",) \
+	    $(if $(IR_V4_TOKENS),--tokens="$(IR_V4_TOKENS)",) \
+	    $(if $(IR_V4_MODES),--modes="$(IR_V4_MODES)",) \
+	    $(if $(IR_V4_EMIT),--emit="$(IR_V4_EMIT)",) \
+	    $(if $(IR_V4_DTYPE),--dtype="$(IR_V4_DTYPE)",) \
+	    $(if $(IR_V4_WEIGHTS_HEADER),--weights-header="$(IR_V4_WEIGHTS_HEADER)",) \
+	    $(if $(IR_V4_WEIGHTS_INDEX),--weights-index="$(IR_V4_WEIGHTS_INDEX)",) \
+	    $(if $(IR_V4_KERNEL_SPECS),--kernel-specs="$(IR_V4_KERNEL_SPECS)",); \
+	else \
+	  echo "Usage: make ir-v4 IR_V4_PRESET=name | IR_V4_CONFIG=path | IR_V4_MODEL=hf_id_or_url"; \
+	  exit 1; \
+	fi
+
 emit: $(IR_DEMO)
 	@echo "Generating runtime from $(CONFIG) -> $(OUT)..."
 	./$(IR_DEMO) $(CONFIG) --emit $(OUT)
 
 emit-v2: $(IR_V2_DEMO)
-	@echo "Generating v2 runtime from $(CONFIG) -> $(OUT)..."
-	./$(IR_V2_DEMO) $(CONFIG) --emit $(OUT)
+	@if [ -n "$(IR)" ]; then \
+	  echo "Generating v2 runtime from $(IR) -> $(OUT)..."; \
+	  ./$(IR_V2_DEMO) --ir $(IR) --emit $(OUT); \
+	else \
+	  echo "Generating v2 runtime from $(CONFIG) -> $(OUT)..."; \
+	  ./$(IR_V2_DEMO) $(CONFIG) --emit $(OUT); \
+	fi
 
 ck-emit-v2: emit-v2
 	@true
@@ -434,6 +555,30 @@ gguf-to-bump:
 	  --output "$(GGUF_OUT)" \
 	  $(if $(GGUF_CONFIG_OUT),--config-out "$(GGUF_CONFIG_OUT)") \
 	  $(if $(GGUF_CONTEXT),--context "$(GGUF_CONTEXT)")
+
+gguf-to-bump-v4:
+	@if [ -z "$(GGUF)" ]; then \
+	  echo "Usage: make gguf-to-bump-v4 GGUF=/path/to/model.gguf [GGUF_V4_OUT=$(GGUF_V4_OUT)] [GGUF_V4_CONFIG_OUT=$(GGUF_V4_CONFIG_OUT)] [GGUF_V4_CONTEXT=<n>]"; \
+	  exit 2; \
+	fi
+	@$(PYTHON) $(PYTHONFLAGS) scripts/convert_gguf_to_bump_v4.py \
+	  --gguf "$(GGUF)" \
+	  --output "$(GGUF_V4_OUT)" \
+	  $(if $(GGUF_V4_CONFIG_OUT),--config-out "$(GGUF_V4_CONFIG_OUT)") \
+	  $(if $(GGUF_V4_CONTEXT),--context "$(GGUF_V4_CONTEXT)")
+
+hf-to-bump-v4:
+	@if [ -z "$(HF_V4_CHECKPOINT)" ]; then \
+	  echo "Usage: make hf-to-bump-v4 HF_V4_CHECKPOINT=/path/to/hf_model [HF_V4_OUT=$(HF_V4_OUT)] [HF_V4_DTYPE=q4_k] [HF_V4_CONTEXT=<n>]"; \
+	  exit 2; \
+	fi
+	@$(PYTHON) $(PYTHONFLAGS) scripts/convert_hf_to_bump_v4.py \
+	  --checkpoint "$(HF_V4_CHECKPOINT)" \
+	  --output "$(HF_V4_OUT)" \
+	  $(if $(HF_V4_CONFIG),--config "$(HF_V4_CONFIG)") \
+	  $(if $(HF_V4_DTYPE),--dtype "$(HF_V4_DTYPE)") \
+	  $(if $(HF_V4_CONTEXT),--context "$(HF_V4_CONTEXT)") \
+	  $(if $(HF_V4_MAP_OUT),--map-out "$(HF_V4_MAP_OUT)")
 
 test: $(LIB) test-libs
 	@set -e; \
@@ -743,6 +888,7 @@ help:
 	@echo ""
 	@echo "  CLI (main entry point):"
 	@echo "  make ck-cli          Build CLI tool with all dependencies"
+	@echo "  make ck-cli-v4       Build v4 CLI (IR v4 codegen + compile)"
 	@echo "  make generate-model MODEL=<name>  Generate C code for model (inspect before compile)"
 	@echo "  ./build/ck run <model> [--generate-only] [--force-convert] [--verbose]"
 	@echo ""
@@ -756,15 +902,26 @@ help:
 	@echo "  ./$(IR_DEMO) <config> --emit out.c  Emit a stitched runtime C file from config/IR (writes out.c.kernels)"
 	@echo "  make $(IR_V2_DEMO)   Build IR v2 + codegen v2 tool into $(BUILD_DIR)"
 	@echo "  make ck-v2           Build IR v2 tool and run it with $(DEFAULT_CONFIG) (writes build/ir_v2.json)"
+	@echo "  make ir-v2 CONFIG=path [IR_V2_WEIGHTS=path] [IR_V2_CTX=N]  Build IR v2 JSON via Python"
+	@echo "  make ir-v2 IR_V2_HF=repo_or_url [IR_V2_REV=main]  Build IR v2 JSON via Python (auto config/weights)"
+	@echo "  make fetch-v2 CONFIG=path [IR_V2_WEIGHTS=path]  Download config/weights headers and write weights meta JSON"
+	@echo "  make fetch-v2 IR_V2_HF=repo_or_url [IR_V2_REV=main]  Download headers and write weights meta JSON"
+	@echo "  make ir-v2-meta CONFIG=path IR_V2_META=path  Build IR v2 JSON from config + weights meta (C-only)"
 	@echo "  make emit-v2 CONFIG=path OUT=path  Emit v2 runtime C file from config/IR v2"
+	@echo "  make emit-v2 IR=path OUT=path  Emit v2 runtime C file from IR v2 JSON"
 	@echo "  make ck-emit-v2 CONFIG=path OUT=path  Alias for emit-v2"
 	@echo "  ./$(IR_V2_DEMO) <config> --emit out.c  Emit a v2 runtime C file from config/IR v2"
+	@echo "  make ir-v4 IR_V4_PRESET=qwen2-0.5b  Build IR v4 (graph/lowered/layout/codegen)"
+	@echo "  make ir-v4 IR_V4_MODEL=Qwen/Qwen2-0.5B  Build IR v4 from HF model ID (config only)"
+	@echo "  make ir-v4 IR_V4_CONFIG=path [IR_V4_PREFIX=dir] [IR_V4_TOKENS=N] [IR_V4_MODES=prefill,decode] [IR_V4_EMIT=exe|lib] [IR_V4_DTYPE=fp32|bf16]"
 	@echo ""
 	@echo "  Quantization:"
 	@echo "  make test-quant       Run quantization kernel tests (dequant + q4/q8 gemm)"
 	@echo "  make gguf-inspect GGUF=path   Inspect GGUF tensor dtypes (what is quantized?)"
 	@echo "  make gguf-list GGUF=path      List all GGUF tensors (name/type/shape)"
 	@echo "  make gguf-to-bump GGUF=path   Convert GGUF -> bump weights (GGUF_OUT/ GGUF_CONFIG_OUT / GGUF_CONTEXT)"
+	@echo "  make gguf-to-bump-v4 GGUF=path   Convert GGUF -> bump weights (v4 layout)"
+	@echo "  make hf-to-bump-v4 HF_V4_CHECKPOINT=path  Convert HF weights dir -> bump v4"
 	@echo ""
 	@echo "  Tests:"
 	@echo "  make test-libs       Build per-kernel shared libs in $(BUILD_DIR) ($(LIB_GELU), $(LIB_RMSNORM), $(LIB_LN), $(LIB_SOFT), $(LIB_SWIGLU), $(LIB_SIGMOID))"
@@ -823,11 +980,13 @@ help:
 	@echo ""
 	@echo "Main CLI (ollama-style orchestrator):"
 	@echo "  make ck-cli           Build the 'ck' orchestrator CLI"
+	@echo "  make ck-cli-v4        Build the 'ck-v4' IR v4 builder CLI"
 	@echo "    ./build/ck run HuggingFaceTB/SmolLM-135M"
 	@echo "    ./build/ck run HuggingFaceTB/SmolLM-135M --threads <n> --inference-only --q8k-activations"
 	@echo "    ./build/ck run https://huggingface.co/Qwen/Qwen2-0.5B --server"
 	@echo "    ./build/ck list     List cached models"
 	@echo "    ./build/ck remove <model>  Remove cached model"
+	@echo "    ./build/ck-v4 build Qwen/Qwen2-0.5B"
 	@echo ""
 	@echo "Interactive Tools (llama.cpp style):"
 	@echo "  make ck-chat          Build interactive CLI (C-based)"
@@ -908,11 +1067,16 @@ CK_TOKENIZER := src/ck_tokenizer.c
 CK_MAIN := tools/ck_main.c
 CK_SERVER := tools/ck_server.c
 CK_CLI := tools/ck.c
+CK_CLI_V4 := tools/ck_v4.c
 
 # Main orchestrator (ck run, ck list, etc.)
 # Suppress format-truncation warnings - paths are validated at runtime
 $(BUILD_DIR)/ck: $(BUILD_DIR) $(CK_CLI)
 	$(CC) -O2 -Wall -Wno-format-truncation -Wno-stringop-truncation -o $@ $(CK_CLI) -ldl -lm
+
+# v4 CLI (builder/orchestrator)
+$(BUILD_DIR)/ck-v4: $(BUILD_DIR) $(CK_CLI_V4)
+	$(CC) -O2 -Wall -Wno-format-truncation -Wno-stringop-truncation -o $@ $(CK_CLI_V4) -lm
 
 # Build CLI with all dependencies (library + IR tool)
 ck-cli: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
@@ -930,6 +1094,16 @@ ck-cli: $(LIB) $(IR_DEMO) $(BUILD_DIR)/ck
 	@echo ""
 	@echo "  To install system-wide:"
 	@echo "    sudo cp $(BUILD_DIR)/ck /usr/local/bin/"
+	@echo ""
+
+# v4 CLI (codegen + compile via IR v4)
+ck-cli-v4: $(BUILD_DIR)/ck-v4
+	@echo ""
+	@echo "  C-Kernel-Engine v4 CLI built: $(BUILD_DIR)/ck-v4"
+	@echo "  Usage:"
+	@echo "    ./$(BUILD_DIR)/ck-v4 build Qwen/Qwen2-0.5B"
+	@echo "    ./$(BUILD_DIR)/ck-v4 build ./config.json --checkpoint ./model_dir"
+	@echo "    ./$(BUILD_DIR)/ck-v4 gen Qwen/Qwen2-0.5B --modes=prefill"
 	@echo ""
 
 # Generate C code for a model without compiling (for inspection)
@@ -1119,4 +1293,4 @@ report-md:
 	@echo ""
 	@$(PYTHON) scripts/optimization_status.py --markdown
 
-.PHONY: all clean test test-bf16 test-libs test-quant help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-chat ck-server ck-chat-py ck-server-py generate-model gguf-inspect gguf-list gguf-to-bump opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config
+.PHONY: all clean test test-bf16 test-libs test-quant help litmus litmus-test test-quick test-full test-stress profile-memory profile-heap profile-cpu profile-cache flamegraph ck-cli ck-cli-v4 ck-chat ck-server ck-chat-py ck-server-py generate-model gguf-inspect gguf-list gguf-to-bump gguf-to-bump-v4 hf-to-bump-v4 ir-v4 opt-status opt-pending opt-inference opt-training opt-kernels opt-targets opt-md kernel-coverage kernel-coverage-md test-coverage test-coverage-md meta-check meta-sync meta-init report report-md show_config show-config

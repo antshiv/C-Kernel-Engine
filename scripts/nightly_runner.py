@@ -41,6 +41,96 @@ BF16_DIR = UNITTEST_DIR / "bf16"
 BASELINE_FILE = ROOT / ".test_baseline.json"
 
 
+def parse_sub_tests(stdout: str) -> list:
+    """
+    Parse test output to extract individual sub-test results.
+
+    Looks for patterns like:
+      test_name  max_diff=1.23e-05  tol=1e-05  [PASS]
+      kernel_name  max_diff=0.00e+00  tol=1e-06  [PASS]
+
+    And performance lines like:
+      kernel_name  123.4            45.6             2.71x
+    """
+    sub_tests = []
+
+    # Pattern for accuracy results: name  max_diff=X  tol=Y  [PASS/FAIL]
+    # Handles ANSI color codes like [92mPASS[0m
+    accuracy_pattern = re.compile(
+        r'^\s*(\S+(?:\s+\([^)]+\))?)\s+'  # test name (may include parentheses)
+        r'max_diff=(\d+\.?\d*e?[+-]?\d*)\s+'  # max_diff value
+        r'tol=(\d+\.?\d*e?[+-]?\d*)\s+'  # tolerance value
+        r'\[(?:\x1b\[\d+m)?(PASS|FAIL)(?:\x1b\[\d+m)?\]',  # status with optional ANSI
+        re.MULTILINE
+    )
+
+    # Pattern for performance results: name  pytorch_time  c_time  speedup
+    perf_pattern = re.compile(
+        r'^\s*(\S+(?:\s+\([^)]+\))?)\s+'  # test name
+        r'(\d+\.?\d*)\s+'  # pytorch time (us)
+        r'(\d+\.?\d*)\s+'  # c kernel time (us)
+        r'(?:\x1b\[\d+m)?(\d+\.?\d*)x',  # speedup with optional ANSI
+        re.MULTILINE
+    )
+
+    # Extract accuracy results
+    accuracy_results = {}
+    for match in accuracy_pattern.finditer(stdout):
+        name = match.group(1).strip()
+        max_diff = float(match.group(2))
+        tolerance = float(match.group(3))
+        status = match.group(4).lower()
+        accuracy_results[name] = {
+            'max_diff': max_diff,
+            'tolerance': tolerance,
+            'status': status
+        }
+
+    # Extract performance results
+    perf_results = {}
+    for match in perf_pattern.finditer(stdout):
+        name = match.group(1).strip()
+        pytorch_time = float(match.group(2))
+        c_time = float(match.group(3))
+        speedup = float(match.group(4))
+        perf_results[name] = {
+            'pytorch_time_us': pytorch_time,
+            'c_time_us': c_time,
+            'speedup': speedup
+        }
+
+    # Merge accuracy and performance results
+    all_names = set(accuracy_results.keys()) | set(perf_results.keys())
+    for name in all_names:
+        acc = accuracy_results.get(name, {})
+        perf = perf_results.get(name, {})
+
+        sub_test = SubTestResult(
+            name=name,
+            status=acc.get('status', 'pass'),
+            max_diff=acc.get('max_diff'),
+            tolerance=acc.get('tolerance'),
+            c_time_us=perf.get('c_time_us'),
+            pytorch_time_us=perf.get('pytorch_time_us'),
+            speedup=perf.get('speedup')
+        )
+        sub_tests.append(sub_test)
+
+    return sub_tests
+
+
+@dataclass
+class SubTestResult:
+    """Individual test within a test file (e.g., per-kernel result)."""
+    name: str
+    status: str  # "pass", "fail"
+    max_diff: Optional[float] = None
+    tolerance: Optional[float] = None
+    c_time_us: Optional[float] = None
+    pytorch_time_us: Optional[float] = None
+    speedup: Optional[float] = None
+
+
 @dataclass
 class TestResult:
     name: str
@@ -54,6 +144,7 @@ class TestResult:
     perf_unit: str = ""
     baseline_perf: Optional[float] = None
     perf_delta_pct: Optional[float] = None
+    sub_tests: list = field(default_factory=list)  # List of SubTestResult
 
 
 @dataclass
@@ -88,6 +179,7 @@ TEST_SUITES = {
     "fused_swiglu_decode": TestSuite("Fused SwiGLU Decode", "kernels", UNITTEST_DIR / "test_fused_swiglu_decode.py"),
     "mlp": TestSuite("MLP", "kernels", UNITTEST_DIR / "test_mlp.py"),
     "cross_entropy": TestSuite("Cross Entropy", "kernels", UNITTEST_DIR / "test_cross_entropy.py"),
+    "optimizer": TestSuite("Optimizer (AdamW/SGD)", "training", UNITTEST_DIR / "test_optimizer.py"),
     "lm_head_litmus": TestSuite("LM Head Litmus", "kernels", UNITTEST_DIR / "test_lm_head_litmus.py"),
     "vision": TestSuite("Vision", "kernels", UNITTEST_DIR / "test_vision.py"),
     "orchestration": TestSuite("Orchestration", "kernels", UNITTEST_DIR / "test_orchestration_layer.py"),
@@ -192,6 +284,9 @@ def run_python_test(suite: TestSuite, verbose: bool = False) -> TestResult:
             if match:
                 perf_metric = float(match.group(1))
 
+        # Parse sub-test results from output
+        sub_tests = parse_sub_tests(result.stdout)
+
         if result.returncode == 0:
             return TestResult(
                 name=suite.name,
@@ -202,6 +297,7 @@ def run_python_test(suite: TestSuite, verbose: bool = False) -> TestResult:
                 stderr=result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr,
                 perf_metric=perf_metric,
                 perf_unit=suite.perf_pattern and "unit" or "",
+                sub_tests=sub_tests,
             )
         else:
             # Extract error message from output
@@ -219,6 +315,7 @@ def run_python_test(suite: TestSuite, verbose: bool = False) -> TestResult:
                 stdout=result.stdout[-5000:] if len(result.stdout) > 5000 else result.stdout,
                 stderr=result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr,
                 error_msg=error_msg,
+                sub_tests=sub_tests,
             )
 
     except subprocess.TimeoutExpired:
@@ -408,6 +505,28 @@ def print_summary(results: list[TestResult], start_time: datetime):
 
 def save_json_report(results: list[TestResult], filepath: Path, start_time: datetime):
     """Save results as JSON report."""
+    # Count total sub-tests
+    total_sub_tests = sum(len(r.sub_tests) for r in results)
+    passed_sub_tests = sum(
+        sum(1 for st in r.sub_tests if st.status == "pass")
+        for r in results
+    )
+    failed_sub_tests = sum(
+        sum(1 for st in r.sub_tests if st.status == "fail")
+        for r in results
+    )
+
+    # Convert results to dicts, handling sub_tests properly
+    results_dicts = []
+    for r in results:
+        d = asdict(r)
+        # Convert SubTestResult objects to dicts
+        d['sub_tests'] = [asdict(st) for st in r.sub_tests]
+        # Don't include full stdout/stderr in JSON (too large)
+        d['stdout'] = ""
+        d['stderr'] = ""
+        results_dicts.append(d)
+
     report = {
         "timestamp": start_time.isoformat(),
         "duration_sec": sum(r.duration_sec for r in results),
@@ -417,8 +536,11 @@ def save_json_report(results: list[TestResult], filepath: Path, start_time: date
             "failed": sum(1 for r in results if r.status == "fail"),
             "skipped": sum(1 for r in results if r.status == "skip"),
             "timeout": sum(1 for r in results if r.status == "timeout"),
+            "sub_tests_total": total_sub_tests,
+            "sub_tests_passed": passed_sub_tests,
+            "sub_tests_failed": failed_sub_tests,
         },
-        "results": [asdict(r) for r in results],
+        "results": results_dicts,
     }
     filepath.write_text(json.dumps(report, indent=2))
     print(f"\nJSON report saved to: {filepath}")

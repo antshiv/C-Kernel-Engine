@@ -1,4 +1,5 @@
 #include "ckernel_ir_v2.h"
+#include "ckernel_mem_plan.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -91,6 +92,8 @@ static const char *ck_ir_v2_dtype_name(CKDataType dtype)
         return "bf16";
     case CK_DT_FP16:
         return "fp16";
+    case CK_DT_Q4_0:
+        return "q4_0";
     case CK_DT_Q4_K:
         return "q4_k";
     case CK_DT_Q6_K:
@@ -99,6 +102,137 @@ static const char *ck_ir_v2_dtype_name(CKDataType dtype)
         return "q8_0";
     default:
         return "unknown";
+    }
+}
+
+static const char *ck_ir_v2_dim_name(CKDimKind dim)
+{
+    switch (dim) {
+    case CK_DIM_TOKENS:
+        return "tokens";
+    case CK_DIM_EMBED:
+        return "embed";
+    case CK_DIM_ALIGNED_EMBED:
+        return "aligned_embed";
+    case CK_DIM_HEAD_DIM:
+        return "head_dim";
+    case CK_DIM_ALIGNED_HEAD:
+        return "aligned_head";
+    case CK_DIM_NUM_HEADS:
+        return "num_heads";
+    case CK_DIM_NUM_KV_HEADS:
+        return "num_kv_heads";
+    case CK_DIM_ALIGNED_CTX:
+        return "aligned_ctx";
+    case CK_DIM_INTERMEDIATE:
+        return "intermediate";
+    case CK_DIM_ALIGNED_INTERMEDIATE:
+        return "aligned_intermediate";
+    case CK_DIM_VOCAB:
+        return "vocab";
+    default:
+        return "unknown";
+    }
+}
+
+static CKDimKind ck_ir_v2_dim_kind_from_name(const char *name)
+{
+    if (!name) {
+        return CK_DIM_END;
+    }
+    if (strcmp(name, "tokens") == 0) return CK_DIM_TOKENS;
+    if (strcmp(name, "embed") == 0) return CK_DIM_EMBED;
+    if (strcmp(name, "aligned_embed") == 0) return CK_DIM_ALIGNED_EMBED;
+    if (strcmp(name, "head_dim") == 0) return CK_DIM_HEAD_DIM;
+    if (strcmp(name, "aligned_head") == 0) return CK_DIM_ALIGNED_HEAD;
+    if (strcmp(name, "num_heads") == 0) return CK_DIM_NUM_HEADS;
+    if (strcmp(name, "num_kv_heads") == 0) return CK_DIM_NUM_KV_HEADS;
+    if (strcmp(name, "aligned_ctx") == 0) return CK_DIM_ALIGNED_CTX;
+    if (strcmp(name, "intermediate") == 0) return CK_DIM_INTERMEDIATE;
+    if (strcmp(name, "aligned_intermediate") == 0) return CK_DIM_ALIGNED_INTERMEDIATE;
+    if (strcmp(name, "vocab") == 0) return CK_DIM_VOCAB;
+    return CK_DIM_END;
+}
+
+typedef struct {
+    size_t aligned_embed;
+    size_t aligned_head;
+    size_t aligned_intermediate;
+    size_t aligned_context;
+} CKIRV2AlignInfo;
+
+static size_t ck_ir_v2_align_up_bytes(size_t n, size_t align)
+{
+    if (align == 0) {
+        return n;
+    }
+    return (n + align - 1) & ~(align - 1);
+}
+
+static size_t ck_ir_v2_align_up_elems(size_t elems, size_t elem_bytes, size_t align_bytes)
+{
+    size_t bytes = elems * elem_bytes;
+    bytes = ck_ir_v2_align_up_bytes(bytes, align_bytes);
+    return bytes / elem_bytes;
+}
+
+static void ck_ir_v2_resolve_align(const CKModelConfig *cfg,
+                                   size_t alignment_bytes,
+                                   CKIRV2AlignInfo *align)
+{
+    if (!align) {
+        return;
+    }
+    memset(align, 0, sizeof(*align));
+    if (!cfg) {
+        return;
+    }
+    if (alignment_bytes == 0) {
+        alignment_bytes = CK_MEM_PLAN_DEFAULT_ALIGN;
+    }
+    size_t elem_bytes = sizeof(float);
+    size_t head_dim = (cfg->num_heads > 0) ? (size_t)(cfg->hidden_size / cfg->num_heads) : 0;
+    align->aligned_embed = ck_ir_v2_align_up_elems((size_t)cfg->hidden_size, elem_bytes, alignment_bytes);
+    align->aligned_head = ck_ir_v2_align_up_elems(head_dim, elem_bytes, alignment_bytes);
+    align->aligned_intermediate = ck_ir_v2_align_up_elems((size_t)cfg->intermediate_size,
+                                                          elem_bytes, alignment_bytes);
+    align->aligned_context = ck_ir_v2_align_up_elems((size_t)cfg->context_window, elem_bytes, alignment_bytes);
+}
+
+static size_t ck_ir_v2_resolve_dim_value(const CKModelConfig *cfg,
+                                         const CKIRV2AlignInfo *align,
+                                         CKDimKind dim,
+                                         int tokens_override)
+{
+    switch (dim) {
+    case CK_DIM_TOKENS:
+        if (tokens_override >= 0) {
+            return (size_t)tokens_override;
+        }
+        return cfg ? (size_t)cfg->context_window : 0;
+    case CK_DIM_EMBED:
+        return cfg ? (size_t)cfg->hidden_size : 0;
+    case CK_DIM_ALIGNED_EMBED:
+        return align ? align->aligned_embed : 0;
+    case CK_DIM_HEAD_DIM:
+        return (cfg && cfg->num_heads > 0) ? (size_t)(cfg->hidden_size / cfg->num_heads) : 0;
+    case CK_DIM_ALIGNED_HEAD:
+        return align ? align->aligned_head : 0;
+    case CK_DIM_NUM_HEADS:
+        return cfg ? (size_t)cfg->num_heads : 0;
+    case CK_DIM_NUM_KV_HEADS:
+        return cfg ? (size_t)cfg->num_kv_heads : 0;
+    case CK_DIM_ALIGNED_CTX:
+        return align ? align->aligned_context : 0;
+    case CK_DIM_INTERMEDIATE:
+        return cfg ? (size_t)cfg->intermediate_size : 0;
+    case CK_DIM_ALIGNED_INTERMEDIATE:
+        return align ? align->aligned_intermediate : 0;
+    case CK_DIM_VOCAB:
+        return cfg ? (size_t)cfg->vocab_size : 0;
+    case CK_DIM_END:
+    default:
+        return 0;
     }
 }
 
@@ -113,15 +247,127 @@ static int ck_ir_v2_emit_shape(FILE *out, const CKDimToken *shape)
         if (!first) {
             fprintf(out, ", ");
         }
-        fprintf(out, "{\"dim\":%d,\"mult\":%d,\"div\":%d}",
-                (int)shape[i].dim, shape[i].mult, shape[i].div);
+        fprintf(out, "{\"dim\":\"%s\",\"dim_id\":%d,\"mult\":%d,\"div\":%d}",
+                ck_ir_v2_dim_name(shape[i].dim),
+                (int)shape[i].dim,
+                shape[i].mult,
+                shape[i].div);
         first = 0;
     }
     fprintf(out, "]");
     return 0;
 }
 
-int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
+static void ck_ir_v2_emit_resolved_shape(FILE *out,
+                                         const CKModelConfig *cfg,
+                                         const CKIRV2AlignInfo *align,
+                                         const CKDimToken *shape,
+                                         int tokens_override)
+{
+    fprintf(out, "[");
+    int first = 1;
+    for (int i = 0; i < CK_IR_V2_MAX_DIMS; ++i) {
+        if (shape[i].dim == CK_DIM_END) {
+            break;
+        }
+        size_t dim = ck_ir_v2_resolve_dim_value(cfg, align, shape[i].dim, tokens_override);
+        size_t mult = (size_t)(shape[i].mult > 0 ? shape[i].mult : 1);
+        size_t div = (size_t)(shape[i].div > 0 ? shape[i].div : 1);
+        size_t resolved = (div == 0) ? 0 : (dim * mult / div);
+        if (!first) {
+            fprintf(out, ", ");
+        }
+        fprintf(out, "%zu", resolved);
+        first = 0;
+    }
+    fprintf(out, "]");
+}
+
+static void ck_ir_v2_emit_dimensions(FILE *out,
+                                     const CKModelConfig *cfg,
+                                     const CKIRV2AlignInfo *align,
+                                     int tokens_override)
+{
+    fprintf(out, "  \"dimensions\": [\n");
+    CKDimKind dims[] = {
+        CK_DIM_TOKENS,
+        CK_DIM_EMBED,
+        CK_DIM_ALIGNED_EMBED,
+        CK_DIM_HEAD_DIM,
+        CK_DIM_ALIGNED_HEAD,
+        CK_DIM_NUM_HEADS,
+        CK_DIM_NUM_KV_HEADS,
+        CK_DIM_ALIGNED_CTX,
+        CK_DIM_INTERMEDIATE,
+        CK_DIM_ALIGNED_INTERMEDIATE,
+        CK_DIM_VOCAB
+    };
+    size_t dim_count = sizeof(dims) / sizeof(dims[0]);
+    for (size_t i = 0; i < dim_count; ++i) {
+        CKDimKind dim = dims[i];
+        size_t value = ck_ir_v2_resolve_dim_value(cfg, align, dim, tokens_override);
+        fprintf(out,
+                "    {\"id\": %d, \"name\": \"%s\", \"value\": %zu}%s\n",
+                (int)dim,
+                ck_ir_v2_dim_name(dim),
+                value,
+                (i + 1 == dim_count) ? "" : ",");
+    }
+    fprintf(out, "  ],\n");
+}
+
+static const char *ck_ir_v2_mem_arena_name(CKMemArenaKind arena)
+{
+    switch (arena) {
+    case CK_MEM_ARENA_WEIGHTS:
+        return "weights";
+    case CK_MEM_ARENA_ACTIVATIONS:
+        return "activations";
+    case CK_MEM_ARENA_GRADS:
+        return "grads";
+    default:
+        return "unknown";
+    }
+}
+
+static void ck_ir_v2_emit_memory_plan(FILE *out,
+                                      const CKIRV2Graph *graph,
+                                      const CKMemPlan *plan)
+{
+    if (!plan) {
+        return;
+    }
+    fprintf(out, "  \"memory_plan\": {\n");
+    fprintf(out, "    \"alignment_bytes\": %zu,\n", plan->alignment_bytes);
+    fprintf(out, "    \"total_bytes\": {\n");
+    fprintf(out, "      \"weights\": %zu,\n", plan->total_bytes[CK_MEM_ARENA_WEIGHTS]);
+    fprintf(out, "      \"activations\": %zu,\n", plan->total_bytes[CK_MEM_ARENA_ACTIVATIONS]);
+    fprintf(out, "      \"grads\": %zu\n", plan->total_bytes[CK_MEM_ARENA_GRADS]);
+    fprintf(out, "    },\n");
+    fprintf(out, "    \"buffers\": [\n");
+    for (int i = 0; i < graph->num_buffers; ++i) {
+        const CKMemSpan *span = &plan->spans[i];
+        const char *name = graph->buffers[i].name ? graph->buffers[i].name : "";
+        int enabled = span->size_bytes > 0;
+        fprintf(out,
+                "      {\"name\": \"%s\", \"arena\": \"%s\", \"offset_bytes\": %zu, \"size_bytes\": %zu, \"enabled\": %s}%s\n",
+                name,
+                ck_ir_v2_mem_arena_name(span->arena),
+                span->offset_bytes,
+                span->size_bytes,
+                enabled ? "true" : "false",
+                (i + 1 == graph->num_buffers) ? "" : ",");
+    }
+    fprintf(out, "    ]\n");
+    fprintf(out, "  },\n");
+}
+
+static int ck_ir_v2_serialize_json_internal(const CKIRV2Graph *graph,
+                                            const CKMemPlan *plan,
+                                            const char *mode,
+                                            int tokens_override,
+                                            int base_context_window,
+                                            const char *path)
 {
     if (!graph || !path) {
         return -1;
@@ -133,8 +379,18 @@ int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
         return -1;
     }
 
+    CKIRV2AlignInfo align = {0};
+    ck_ir_v2_resolve_align(&graph->config, CK_MEM_PLAN_DEFAULT_ALIGN, &align);
+
     fprintf(out, "{\n");
     fprintf(out, "  \"version\": 2,\n");
+    fprintf(out, "  \"notes\": [\n");
+    fprintf(out, "    \"shape.dim uses symbolic names; see dimensions for resolved values\",\n");
+    fprintf(out,
+            "    \"resolved_shape applies mult/div using alignment_bytes=%d and elem_bytes=4\",\n",
+            CK_MEM_PLAN_DEFAULT_ALIGN);
+    fprintf(out, "    \"kernel is the selected impl; kernel_dtype records dtype selection\"\n");
+    fprintf(out, "  ],\n");
     fprintf(out, "  \"config\": {\n");
     fprintf(out, "    \"num_layers\": %d,\n", graph->config.num_layers);
     fprintf(out, "    \"hidden_size\": %d,\n", graph->config.hidden_size);
@@ -147,6 +403,43 @@ int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
     fprintf(out, "    \"rope_theta\": %.9g\n", graph->config.rope_theta);
     fprintf(out, "  },\n");
 
+    ck_ir_v2_emit_dimensions(out, &graph->config, &align, tokens_override);
+
+    fprintf(out, "  \"meta\": {\n");
+    fprintf(out, "    \"has_pos_emb\": %s,\n", graph->has_pos_emb ? "true" : "false");
+    if (graph->tie_word_embeddings < 0) {
+        fprintf(out, "    \"tie_word_embeddings\": null,\n");
+    } else {
+        fprintf(out, "    \"tie_word_embeddings\": %s,\n", graph->tie_word_embeddings ? "true" : "false");
+    }
+    if (graph->fused_qkv < 0) {
+        fprintf(out, "    \"fused_qkv\": null,\n");
+    } else {
+        fprintf(out, "    \"fused_qkv\": %s,\n", graph->fused_qkv ? "true" : "false");
+    }
+    if (graph->gated_mlp < 0) {
+        fprintf(out, "    \"gated_mlp\": null\n");
+    } else {
+        fprintf(out, "    \"gated_mlp\": %s\n", graph->gated_mlp ? "true" : "false");
+    }
+    fprintf(out, "  },\n");
+
+    if (plan) {
+        int training = (mode && strcmp(mode, "backward") == 0);
+        int tokens = (tokens_override >= 0) ? tokens_override : graph->config.context_window;
+        fprintf(out, "  \"lowering\": {\n");
+        fprintf(out, "    \"mode\": \"%s\",\n", mode ? mode : "unknown");
+        fprintf(out, "    \"training\": %s,\n", training ? "true" : "false");
+        fprintf(out, "    \"tokens\": %d", tokens);
+        if (base_context_window >= 0) {
+            fprintf(out, ",\n    \"base_context_window\": %d\n", base_context_window);
+        } else {
+            fprintf(out, "\n");
+        }
+        fprintf(out, "  },\n");
+        ck_ir_v2_emit_memory_plan(out, graph, plan);
+    }
+
     fprintf(out, "  \"buffers\": [\n");
     for (int i = 0; i < graph->num_buffers; ++i) {
         const CKIRV2Buffer *buf = &graph->buffers[i];
@@ -158,6 +451,10 @@ int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
         fprintf(out, "      \"optional\": %d,\n", buf->optional ? 1 : 0);
         fprintf(out, "      \"shape\": ");
         ck_ir_v2_emit_shape(out, buf->shape);
+        fprintf(out, ",\n");
+        fprintf(out, "      \"resolved_shape\": ");
+        ck_ir_v2_emit_resolved_shape(out, &graph->config, &align, buf->shape,
+                                     tokens_override);
         fprintf(out, ",\n");
         if (buf->alias_of) {
             fprintf(out, "      \"alias_of\": \"%s\",\n", buf->alias_of);
@@ -180,6 +477,8 @@ int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
         fprintf(out, "      \"layer\": %d,\n", (int)node->layer);
         fprintf(out, "      \"op\": \"%s\",\n", node->op ? node->op : "");
         fprintf(out, "      \"kernel\": \"%s\",\n", node->kernel ? node->kernel : "");
+        fprintf(out, "      \"kernel_variant\": \"%s\",\n", node->kernel ? node->kernel : "");
+        fprintf(out, "      \"kernel_dtype\": \"%s\",\n", ck_ir_v2_dtype_name(node->kernel_dtype));
         fprintf(out, "      \"flags\": %u,\n", (unsigned)node->flags);
         if (node->condition) {
             fprintf(out, "      \"condition\": \"%s\",\n", node->condition);
@@ -207,6 +506,24 @@ int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
 
     fclose(out);
     return 0;
+}
+
+int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path)
+{
+    return ck_ir_v2_serialize_json_internal(graph, NULL, NULL, -1, -1, path);
+}
+
+int ck_ir_v2_serialize_json_with_plan(const CKIRV2Graph *graph,
+                                      const CKMemPlan *plan,
+                                      const char *mode,
+                                      int tokens_override,
+                                      int base_context_window,
+                                      const char *path)
+{
+    return ck_ir_v2_serialize_json_internal(graph, plan, mode,
+                                            tokens_override,
+                                            base_context_window,
+                                            path);
 }
 
 static int ck_ir_v2_parse_string(const char *start,
@@ -353,6 +670,34 @@ static int ck_ir_v2_parse_int(const char *json,
     return 0;
 }
 
+static int ck_ir_v2_parse_bool(const char *json,
+                               const char *key,
+                               const char *end,
+                               int *out_val)
+{
+    const char *p = ck_ir_v2_find_key(json, key, end);
+    if (!p) {
+        return -1;
+    }
+    const char *colon = strchr(p, ':');
+    if (!colon || colon >= end) {
+        return -1;
+    }
+    const char *cur = colon + 1;
+    while (cur < end && (*cur == ' ' || *cur == '\t' || *cur == '\n' || *cur == '\r')) {
+        cur++;
+    }
+    if (cur + 4 <= end && memcmp(cur, "true", 4) == 0) {
+        *out_val = 1;
+        return 0;
+    }
+    if (cur + 5 <= end && memcmp(cur, "false", 5) == 0) {
+        *out_val = 0;
+        return 0;
+    }
+    return -1;
+}
+
 static int ck_ir_v2_parse_float(const char *json,
                                 const char *key,
                                 const char *end,
@@ -430,10 +775,81 @@ static CKDataType ck_ir_v2_parse_dtype(const char *s)
     if (strcmp(s, "fp32") == 0) return CK_DT_FP32;
     if (strcmp(s, "bf16") == 0) return CK_DT_BF16;
     if (strcmp(s, "fp16") == 0) return CK_DT_FP16;
+    if (strcmp(s, "q4_0") == 0) return CK_DT_Q4_0;
     if (strcmp(s, "q4_k") == 0) return CK_DT_Q4_K;
     if (strcmp(s, "q6_k") == 0) return CK_DT_Q6_K;
     if (strcmp(s, "q8_0") == 0) return CK_DT_Q8_0;
     return CK_DT_FP32;
+}
+
+static CKDimKind ck_ir_v2_parse_dim_kind(const char *obj_start,
+                                         const char *obj_end)
+{
+    char *dim_str = NULL;
+    CKDimKind kind = CK_DIM_END;
+    if (ck_ir_v2_parse_string_field(obj_start, "\"dim\"", obj_end, &dim_str) == 0 &&
+        dim_str) {
+        kind = ck_ir_v2_dim_kind_from_name(dim_str);
+    }
+    if (dim_str) {
+        free(dim_str);
+    }
+    if (kind != CK_DIM_END) {
+        return kind;
+    }
+    int dim_id = -1;
+    if (ck_ir_v2_parse_int(obj_start, "\"dim_id\"", obj_end, &dim_id) == 0) {
+        return (CKDimKind)dim_id;
+    }
+    if (ck_ir_v2_parse_int(obj_start, "\"dim\"", obj_end, &dim_id) == 0) {
+        return (CKDimKind)dim_id;
+    }
+    return CK_DIM_END;
+}
+
+static int ck_ir_v2_parse_shape(const char *obj_start,
+                                const char *obj_end,
+                                CKDimToken *shape_out)
+{
+    if (!shape_out) {
+        return -1;
+    }
+    for (int i = 0; i < CK_IR_V2_MAX_DIMS; ++i) {
+        shape_out[i].dim = CK_DIM_END;
+        shape_out[i].mult = 0;
+        shape_out[i].div = 0;
+    }
+
+    const char *start = ck_ir_v2_find_key(obj_start, "\"shape\"", obj_end);
+    if (!start) {
+        return -1;
+    }
+    const char *open = strchr(start, '[');
+    const char *close = ck_ir_v2_find_array_end(open, obj_end);
+    if (!open || !close) {
+        return -1;
+    }
+
+    const char *cur = open;
+    const char *sstart = NULL;
+    const char *send = NULL;
+    int idx = 0;
+    while (idx < CK_IR_V2_MAX_DIMS &&
+           (cur = ck_ir_v2_next_object(cur, close, &sstart, &send)) != NULL) {
+        CKDimKind dim = ck_ir_v2_parse_dim_kind(sstart, send);
+        if (dim == CK_DIM_END) {
+            continue;
+        }
+        int mult = 1;
+        int div = 1;
+        ck_ir_v2_parse_int(sstart, "\"mult\"", send, &mult);
+        ck_ir_v2_parse_int(sstart, "\"div\"", send, &div);
+        shape_out[idx].dim = dim;
+        shape_out[idx].mult = mult;
+        shape_out[idx].div = div;
+        idx++;
+    }
+    return (idx > 0) ? 0 : -1;
 }
 
 static const CKBufferSpec *ck_ir_v2_find_buffer_spec(const char *name)
@@ -521,14 +937,16 @@ static int ck_ir_v2_parse_buffers(const char *json,
         buf.alias_of = alias;
         buf.condition = cond;
 
-        const CKBufferSpec *spec = ck_ir_v2_find_buffer_spec(name);
-        if (spec) {
-            memcpy(buf.shape, spec->shape, sizeof(buf.shape));
-        } else {
-            for (int i = 0; i < CK_IR_V2_MAX_DIMS; ++i) {
-                buf.shape[i].dim = CK_DIM_END;
-                buf.shape[i].mult = 0;
-                buf.shape[i].div = 0;
+        if (ck_ir_v2_parse_shape(obj_start, obj_end, buf.shape) != 0) {
+            const CKBufferSpec *spec = ck_ir_v2_find_buffer_spec(name);
+            if (spec) {
+                memcpy(buf.shape, spec->shape, sizeof(buf.shape));
+            } else {
+                for (int i = 0; i < CK_IR_V2_MAX_DIMS; ++i) {
+                    buf.shape[i].dim = CK_DIM_END;
+                    buf.shape[i].mult = 0;
+                    buf.shape[i].div = 0;
+                }
             }
         }
 
@@ -621,24 +1039,41 @@ static int ck_ir_v2_parse_nodes(const char *json,
         CKIRV2Node node = {0};
         char *op = NULL;
         char *kernel = NULL;
+        char *kernel_variant = NULL;
+        char *kernel_dtype = NULL;
         char *cond = NULL;
         int layer = 0;
         int flags = 0;
 
         ck_ir_v2_parse_string_field(obj_start, "\"op\"", obj_end, &op);
         ck_ir_v2_parse_string_field(obj_start, "\"kernel\"", obj_end, &kernel);
+        ck_ir_v2_parse_string_field(obj_start, "\"kernel_variant\"", obj_end, &kernel_variant);
+        ck_ir_v2_parse_string_field(obj_start, "\"kernel_dtype\"", obj_end, &kernel_dtype);
         ck_ir_v2_parse_string_field(obj_start, "\"condition\"", obj_end, &cond);
         ck_ir_v2_parse_int(obj_start, "\"layer\"", obj_end, &layer);
         ck_ir_v2_parse_int(obj_start, "\"flags\"", obj_end, &flags);
 
+        if (!kernel && kernel_variant) {
+            kernel = kernel_variant;
+            kernel_variant = NULL;
+        }
+
         node.op = op;
         node.kernel = kernel;
+        node.kernel_dtype = ck_ir_v2_parse_dtype(kernel_dtype);
         node.condition = cond;
         node.layer = (uint16_t)layer;
         node.flags = (uint8_t)flags;
         node.n_bindings = 0;
         node.n_inputs = 0;
         node.n_outputs = 0;
+
+        if (kernel_variant) {
+            free(kernel_variant);
+        }
+        if (kernel_dtype) {
+            free(kernel_dtype);
+        }
 
         if (ck_ir_v2_parse_bindings(obj_start, obj_end, graph, &node) != 0) {
             free(node.op);
@@ -697,6 +1132,11 @@ int ck_ir_v2_parse_json(const char *path, CKIRV2Graph *graph)
     CKIRV2Graph tmp = {0};
     const char *end = buf + nread;
 
+    tmp.has_pos_emb = 1;
+    tmp.tie_word_embeddings = -1;
+    tmp.fused_qkv = -1;
+    tmp.gated_mlp = -1;
+
     if (ck_ir_v2_parse_int(buf, "\"num_layers\"", end, &tmp.config.num_layers) != 0 ||
         ck_ir_v2_parse_int(buf, "\"hidden_size\"", end, &tmp.config.hidden_size) != 0 ||
         ck_ir_v2_parse_int(buf, "\"intermediate_size\"", end, &tmp.config.intermediate_size) != 0 ||
@@ -710,6 +1150,18 @@ int ck_ir_v2_parse_json(const char *path, CKIRV2Graph *graph)
     ck_ir_v2_parse_int(buf, "\"context_window\"", end, &tmp.config.context_window);
     ck_ir_v2_parse_float(buf, "\"rms_norm_eps\"", end, &tmp.config.rms_norm_eps);
     ck_ir_v2_parse_float(buf, "\"rope_theta\"", end, &tmp.config.rope_theta);
+    const char *meta_key = ck_ir_v2_find_key(buf, "\"meta\"", end);
+    if (meta_key) {
+        const char *brace = strchr(meta_key, '{');
+        const char *obj_start = NULL;
+        const char *obj_end = NULL;
+        if (brace && ck_ir_v2_next_object(brace, end, &obj_start, &obj_end)) {
+            ck_ir_v2_parse_bool(obj_start, "\"has_pos_emb\"", obj_end, &tmp.has_pos_emb);
+            ck_ir_v2_parse_bool(obj_start, "\"tie_word_embeddings\"", obj_end, &tmp.tie_word_embeddings);
+            ck_ir_v2_parse_bool(obj_start, "\"fused_qkv\"", obj_end, &tmp.fused_qkv);
+            ck_ir_v2_parse_bool(obj_start, "\"gated_mlp\"", obj_end, &tmp.gated_mlp);
+        }
+    }
 
     if (ck_ir_v2_parse_buffers(buf, end, &tmp) != 0 ||
         ck_ir_v2_parse_nodes(buf, end, &tmp) != 0) {

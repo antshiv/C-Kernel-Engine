@@ -15,9 +15,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="190" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="190" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="195" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="195" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a6aeca68cb500898ceebc5a70b984ed10" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -30,9 +30,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="195" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="195" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="200" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="200" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a84e07456601797298baa97779bbee579" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -45,7 +45,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="201" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="201" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="206" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="206" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1aa20cea6954f397c45963b6b2af648424" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -58,9 +58,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="200" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="200" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="205" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="205" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a4d1f0f6d6f8e5ba00f06945274ac913b" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -73,9 +73,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="194" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="194" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="199" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="199" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1ac8dc723c11bc1dec2ae9e5f1cdd23a6f" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -88,8 +88,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="203" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="203" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="208" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="208" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1aa5b7cc8f6a3d7e752041f23e84231e5b" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -102,8 +102,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="204" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="204" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="209" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="209" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a260f76fbda4cab4180579f1bf506bf76" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -116,9 +116,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="189" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="189" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="194" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="194" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a5c06474416d85a879cf5ae151eaff925" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -131,8 +131,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="191" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="191" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="196" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="196" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1ab9e58b0578b858e7b6b56e12bd14d22c" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -145,7 +145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="209" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="209" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="214" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="214" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a156a7eee11ff7323838f53326e25d730" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -158,7 +158,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="208" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="208" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="213" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="213" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a96c5c432b9800d9475c5b71b03d956d4" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -171,7 +171,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="207" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="207" bodyend="-1"/>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="212" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="212" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a9d513cd66a61a93b6b09cd3ab6cfe923" prot="public" static="no" mutable="no">
         <type>uint64_t</type>
@@ -184,9 +184,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="193" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="193" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="198" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="198" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a3a7b2f85e17f8e861ea160f94ade4a46" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -199,9 +199,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="198" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="198" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
-        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="347" endline="415">topology_print_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="203" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="203" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
+        <referencedby refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" compoundref="show__config_8c" startline="458" endline="526">topology_print_network</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structNetworkInterface_1a943270da345cf36912ed3ec3a957e15c" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -214,15 +214,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="199" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="199" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="601" endline="699">topology_discover_network</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="204" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="204" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1a8d1095a0656548a8adae0cf8ad6a59cd" compoundref="system__topology_8c" startline="832" endline="930">topology_discover_network</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="188" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="188" bodyend="210"/>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="193" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="193" bodyend="215"/>
     <listofallmembers>
       <member refid="structNetworkInterface_1a63e2fdf290d8a23dc2f92cf28e87e870" prot="public" virt="non-virtual"><scope>NetworkInterface</scope><name>driver</name></member>
       <member refid="structNetworkInterface_1a6aeca68cb500898ceebc5a70b984ed10" prot="public" virt="non-virtual"><scope>NetworkInterface</scope><name>has_link</name></member>

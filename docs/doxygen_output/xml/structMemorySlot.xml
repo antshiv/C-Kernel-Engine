@@ -16,7 +16,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="119" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="119" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a6173783f7bdc94d89af5a150e3fdc7b3" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -30,8 +30,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="113" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="113" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
-        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="230" endline="282">topology_print_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="292" endline="393">topology_print_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a8db087de44e502b76946628000b9ce14" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -45,8 +45,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="114" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="114" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
-        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="230" endline="282">topology_print_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="292" endline="393">topology_print_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a9ac221e5878a5d6ce26d7c711fced364" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -60,7 +60,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="118" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="118" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a5c71e7350e86f396ab2912410be1a162" prot="public" static="no" mutable="no">
         <type>uint64_t</type>
@@ -74,8 +74,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="115" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="115" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
-        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="230" endline="282">topology_print_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="292" endline="393">topology_print_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a2ea9f80423c6a3be54933babf9d1db0f" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -89,7 +89,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="112" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="112" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1afed85487a039a8b26e3e1b92453c6f59" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -103,8 +103,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="116" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="116" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
-        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="230" endline="282">topology_print_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="292" endline="393">topology_print_memory</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structMemorySlot_1a2356cb4cf76513cf5ef48c8c2732b5aa" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -118,8 +118,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="117" column="14" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="117" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="369" endline="486">topology_discover_memory</referencedby>
-        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="230" endline="282">topology_print_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a349f2755a1cb7361bbbe5c729985136d" compoundref="system__topology_8c" startline="553" endline="717">topology_discover_memory</referencedby>
+        <referencedby refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" compoundref="show__config_8c" startline="292" endline="393">topology_print_memory</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

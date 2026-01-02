@@ -125,8 +125,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" line="37" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" bodystart="37" bodyend="64"/>
         <references refid="gelu__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="gelu__kernels__bf16_8c" startline="11" endline="14">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="gelu__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="gelu__kernels__bf16_8c" startline="16" endline="19">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1ac4d3711dee095194f24437af73ad1763" compoundref="gelu__kernels_8c" startline="433" endline="452">gelu_backward_scalar</references>
       </memberdef>
@@ -159,8 +159,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" line="66" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" bodystart="66" bodyend="91"/>
         <references refid="gelu__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="gelu__kernels__bf16_8c" startline="11" endline="14">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="gelu__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="gelu__kernels__bf16_8c" startline="16" endline="19">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1aeaf518a5239f4588f8c28b05b96d5478" compoundref="gelu__kernels_8c" startline="457" endline="579">gelu_backward_fast</references>
       </memberdef>
@@ -185,8 +185,8 @@
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" line="21" column="6" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/src/kernels/gelu_kernels_bf16.c" bodystart="21" bodyend="35"/>
         <references refid="gelu__kernels__bf16_8c_1aa7946eb3033d476c9c89e3dd89f23bb4" compoundref="gelu__kernels__bf16_8c" startline="11" endline="14">alloc_float_buffer</references>
-        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="211" endline="227">bf16_tensor_to_float</references>
-        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="232" endline="248">float_tensor_to_bf16</references>
+        <references refid="bf16__utils_8h_1a94c0b1e3b43eb46dcce37900ed5c1333" compoundref="bf16__utils_8h" startline="250" endline="266">bf16_tensor_to_float</references>
+        <references refid="bf16__utils_8h_1a027b5c4dd4c6ce7f656e922fc694e52a" compoundref="bf16__utils_8h" startline="271" endline="287">float_tensor_to_bf16</references>
         <references refid="gelu__kernels__bf16_8c_1ab9b5d2e5ae35502dbd6249d4aa0187d2" compoundref="gelu__kernels__bf16_8c" startline="16" endline="19">free_float_buffer</references>
         <references refid="ckernel__engine_8h_1a315f43ac44656b5d77360d9879c5f122" compoundref="gelu__kernels_8c" startline="417" endline="428">gelu_exact_inplace</references>
       </memberdef>

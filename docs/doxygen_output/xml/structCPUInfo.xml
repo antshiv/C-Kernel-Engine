@@ -16,7 +16,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="47" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="47" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a56944d65b1cfd32ed417f22613fd3625" prot="public" static="no" mutable="no">
@@ -31,7 +31,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="44" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="44" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a943858d53173dca145611d8cb192f0ca" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -45,7 +45,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="37" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="37" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1ac41947b54c3a9b315338aee3113b5714" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -59,7 +59,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="58" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="58" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a7983ac279a57f5d5992248d720452dfe" prot="public" static="no" mutable="no">
@@ -74,7 +74,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="61" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="61" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a660af436345a21868c7c6f0160cd7513" prot="public" static="no" mutable="no">
@@ -89,7 +89,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="60" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="60" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1ad5a579994982f5cee575bb9674abd238" prot="public" static="no" mutable="no">
@@ -104,7 +104,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="59" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="59" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a6981442ec8c03e3486d68e5011cbe02c" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -120,7 +120,7 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="26" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="26" bodyend="-1"/>
         <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
         <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1ac02376e5e445112e00ec31ff39f0bd17" prot="public" static="no" mutable="no">
@@ -150,10 +150,10 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="27" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="27" bodyend="-1"/>
         <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
         <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
-        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="473" endline="536">topology_print_distributed_potential</referencedby>
+        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="584" endline="647">topology_print_distributed_potential</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1ade0ca8a679c8ba6761283507550f2b84" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -180,7 +180,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="57" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="57" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a17a91fbcd0b73af602d2504a754a1e62" prot="public" static="no" mutable="no">
@@ -195,7 +195,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="55" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="55" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a72c59fe4c03be35b475dd733bd17860c" prot="public" static="no" mutable="no">
@@ -212,9 +212,9 @@
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" line="28" column="9" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/cpu_features.h" bodystart="28" bodyend="-1"/>
         <referencedby refid="cpu__features_8c_1a6465c90ac7e832c18d8e5a21df58653b" compoundref="cpu__features_8c" startline="268" endline="338">compute_gemm_params</referencedby>
         <referencedby refid="cpu__features_8h_1a538a4414821926cda2c9e989764c00fd" compoundref="cpu__features_8c" startline="382" endline="402">print_cpu_info</referencedby>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
-        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="473" endline="536">topology_print_distributed_potential</referencedby>
+        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="584" endline="647">topology_print_distributed_potential</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aabf53af233c0f5d4692beb98fa2c2434" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -241,7 +241,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="56" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="56" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a675b39fcccd4eac9995984acbe5d3d15" prot="public" static="no" mutable="no">
@@ -271,7 +271,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="51" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="51" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a2d0f8aabf38b410e7242db59a3ea63ae" prot="public" static="no" mutable="no">
@@ -286,7 +286,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="62" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="62" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aec1d73dace532ccaa255243ad9222d44" prot="public" static="no" mutable="no">
@@ -361,8 +361,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="42" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="42" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" compoundref="show__config_8c" startline="649" endline="674">topology_print_summary</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a34e7cc2aa5fd5ec5cf99828837563a61" prot="public" static="no" mutable="no">
         <type>float</type>
@@ -376,7 +377,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="48" column="11" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="48" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a934706fb3c631457a24c2616c293b20e" prot="public" static="no" mutable="no">
@@ -391,7 +392,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="38" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="38" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a1bb3083068d81b050ad1b9aedf28e0d1" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -405,7 +406,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="35" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="35" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aa4bcdef1bf48fa3860742a28a7d57d6d" prot="public" static="no" mutable="no">
@@ -437,7 +438,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="66" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="66" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aa67080f78191b764515728bdabf55924" prot="public" static="no" mutable="no">
@@ -452,7 +453,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="65" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="65" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a703824b64f9035d0adf5641c9d20527e" prot="public" static="no" mutable="no">
@@ -467,9 +468,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="41" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="41" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
-        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="473" endline="536">topology_print_distributed_potential</referencedby>
+        <referencedby refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" compoundref="show__config_8c" startline="584" endline="647">topology_print_distributed_potential</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aef5b41cc946c52f34e354c69a66bcde3" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -483,8 +484,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="43" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="43" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" compoundref="show__config_8c" startline="649" endline="674">topology_print_summary</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a1f7fa60b1c2d20e0eb7bc2f780461ebb" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -498,7 +500,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="39" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="39" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1aaf14c11cad59d839d69e7fa7e367dd05" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -512,7 +514,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="45" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="45" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
         <referencedby refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" compoundref="show__config_8c" startline="103" endline="167">topology_print_cpu</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structCPUInfo_1a49e6a0b2a711e5acbb16ab29ed9da21f" prot="public" static="no" mutable="no">
@@ -527,7 +529,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="36" column="10" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="36" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="108" endline="217">topology_discover_cpu</referencedby>
+        <referencedby refid="system__topology_8h_1a4367943c7d4c62e0865d1171252a6b84" compoundref="system__topology_8c" startline="112" endline="221">topology_discover_cpu</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>

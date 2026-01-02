@@ -15,9 +15,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="282" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="282" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
-        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="434" endline="471">topology_print_recommendations</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="287" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="287" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
+        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="545" endline="582">topology_print_recommendations</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structRecommendation_1aa8cbf25679d19f8407ac276b25c1b1bf" prot="public" static="no" mutable="no">
         <type><ref refid="system__topology_8h_1abc3893de9bbd40dc5a7191b3dedcf446" kindref="member">RecommendationCategory</ref></type>
@@ -30,8 +30,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="279" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="279" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="284" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="284" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structRecommendation_1ac691a32118bd2279bf9536d183329119" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -44,9 +44,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="281" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="281" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
-        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="434" endline="471">topology_print_recommendations</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="286" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="286" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
+        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="545" endline="582">topology_print_recommendations</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structRecommendation_1a2dea715a398d739605559094647c11eb" prot="public" static="no" mutable="no">
         <type><ref refid="system__topology_8h_1aabe7a1b1ca3c4e61061d2fbc43762a69" kindref="member">RecommendationPriority</ref></type>
@@ -59,9 +59,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="278" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="278" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
-        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="434" endline="471">topology_print_recommendations</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="283" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="283" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
+        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="545" endline="582">topology_print_recommendations</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structRecommendation_1ab10fd7bc5c1c6eee44e39a537f53cc51" prot="public" static="no" mutable="no">
         <type>char</type>
@@ -74,16 +74,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="280" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="280" bodyend="-1"/>
-        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="779" endline="879">topology_generate_recommendations</referencedby>
-        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="434" endline="471">topology_print_recommendations</referencedby>
+        <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="285" column="28" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="285" bodyend="-1"/>
+        <referencedby refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" compoundref="system__topology_8c" startline="1010" endline="1110">topology_generate_recommendations</referencedby>
+        <referencedby refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" compoundref="show__config_8c" startline="545" endline="582">topology_print_recommendations</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="277" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="277" bodyend="283"/>
+    <location file="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" line="282" column="1" bodyfile="/home/antshiv/Workspace/C-Kernel-Engine/include/system_topology.h" bodystart="282" bodyend="288"/>
     <listofallmembers>
       <member refid="structRecommendation_1ad4009263d6f5d6e3feeab261f071beaf" prot="public" virt="non-virtual"><scope>Recommendation</scope><name>action</name></member>
       <member refid="structRecommendation_1aa8cbf25679d19f8407ac276b25c1b1bf" prot="public" virt="non-virtual"><scope>Recommendation</scope><name>category</name></member>

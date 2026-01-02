@@ -3,7 +3,9 @@ var ckernel__kernel__specs_8h =
     [ "CKBufferSpec", "structCKBufferSpec.html", "structCKBufferSpec" ],
     [ "CKDimToken", "structCKDimToken.html", "structCKDimToken" ],
     [ "CKKernelSpec", "structCKKernelSpec.html", "structCKKernelSpec" ],
+    [ "CKPlanBinding", "structCKPlanBinding.html", "structCKPlanBinding" ],
     [ "CKPlanStep", "structCKPlanStep.html", "structCKPlanStep" ],
+    [ "CKPlanStepV2", "structCKPlanStepV2.html", "structCKPlanStepV2" ],
     [ "CKERNEL_MAX_KERNEL_SOURCES", "ckernel__kernel__specs_8h.html#a072f487d7dacdd66b7e3c7893cf1a146", null ],
     [ "CKBufferRole", "ckernel__kernel__specs_8h.html#a1c2c408a04c891ae526f5d909d0c8401", [
       [ "CK_ROLE_INPUT", "ckernel__kernel__specs_8h.html#a1c2c408a04c891ae526f5d909d0c8401af78578048797064d7f8b235c8393e39f", null ],
@@ -33,10 +35,14 @@ var ckernel__kernel__specs_8h =
     ] ],
     [ "ck_decoder_backward_plan", "ckernel__kernel__specs_8h.html#a96b6d10882bf34a6c7b9bf07b9b31fa2", null ],
     [ "ck_decoder_backward_plan_count", "ckernel__kernel__specs_8h.html#a42241607f71ab42ad23c344eacc3421f", null ],
+    [ "ck_decoder_backward_plan_v2", "ckernel__kernel__specs_8h.html#ac454d061133c2eff4e5084be4ebacb00", null ],
+    [ "ck_decoder_backward_plan_v2_count", "ckernel__kernel__specs_8h.html#a78253557cd8c8795464f1988cd7c23a5", null ],
     [ "ck_decoder_buffer_count", "ckernel__kernel__specs_8h.html#ae9be980801e3c3b9e00b575e2eb132bd", null ],
     [ "ck_decoder_buffers", "ckernel__kernel__specs_8h.html#ad9257c11ae490b3da865862c61a8c5cf", null ],
     [ "ck_decoder_forward_plan", "ckernel__kernel__specs_8h.html#a383b37a8b40251a4c98762a31982f5f2", null ],
     [ "ck_decoder_forward_plan_count", "ckernel__kernel__specs_8h.html#a7b169d0eafc6b23adf4dc42551b8a38e", null ],
+    [ "ck_decoder_forward_plan_v2", "ckernel__kernel__specs_8h.html#a2ca67fec5e711b5cbdde5b1c602b949e", null ],
+    [ "ck_decoder_forward_plan_v2_count", "ckernel__kernel__specs_8h.html#a5313b833dc861ada85f37e9ef379dee3", null ],
     [ "ck_kernel_spec_count", "ckernel__kernel__specs_8h.html#ae2c418c152f247ea5d6c9be09ae02b3f", null ],
     [ "ck_kernel_specs", "ckernel__kernel__specs_8h.html#aa20bb688c0d74340b5300e106e14e72a", null ]
 ];

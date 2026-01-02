@@ -1,5 +1,12 @@
 var searchData=
 [
-  ['vision_5fkernels_2ec_1057',['vision_kernels.c',['../vision__kernels_8c.html',1,'']]],
-  ['vision_5fkernels_5fbf16_2ec_1058',['vision_kernels_bf16.c',['../vision__kernels__bf16_8c.html',1,'']]]
+  ['show_5fconfig_2ec_1506',['show_config.c',['../show__config_8c.html',1,'']]],
+  ['sigmoid_5fkernels_2ec_1507',['sigmoid_kernels.c',['../sigmoid__kernels_8c.html',1,'']]],
+  ['sigmoid_5fkernels_5fbf16_2ec_1508',['sigmoid_kernels_bf16.c',['../sigmoid__kernels__bf16_8c.html',1,'']]],
+  ['softmax_5fkernels_2ec_1509',['softmax_kernels.c',['../softmax__kernels_8c.html',1,'']]],
+  ['softmax_5fkernels_5fbf16_2ec_1510',['softmax_kernels_bf16.c',['../softmax__kernels__bf16_8c.html',1,'']]],
+  ['swiglu_5fkernels_2ec_1511',['swiglu_kernels.c',['../swiglu__kernels_8c.html',1,'']]],
+  ['swiglu_5fkernels_5fbf16_2ec_1512',['swiglu_kernels_bf16.c',['../swiglu__kernels__bf16_8c.html',1,'']]],
+  ['system_5ftopology_2ec_1513',['system_topology.c',['../system__topology_8c.html',1,'']]],
+  ['system_5ftopology_2eh_1514',['system_topology.h',['../system__topology_8h.html',1,'']]]
 ];

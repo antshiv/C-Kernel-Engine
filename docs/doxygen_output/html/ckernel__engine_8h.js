@@ -1,6 +1,14 @@
 var ckernel__engine_8h =
 [
     [ "CKMathBackend", "structCKMathBackend.html", "structCKMathBackend" ],
+    [ "add_backward_bf16", "ckernel__engine_8h.html#af14d547ba76e5cb7b26c812751f9a749", null ],
+    [ "add_forward_2d_bf16", "ckernel__engine_8h.html#a9855ffa2b0a5cc3070238b9ad6b3d6f2", null ],
+    [ "add_forward_bf16", "ckernel__engine_8h.html#a96a426e195f548c8cad7a3d8ccc691d6", null ],
+    [ "add_forward_f32", "ckernel__engine_8h.html#a4c166feaf5808ab05b916adb1b09e323", null ],
+    [ "add_inplace_bf16", "ckernel__engine_8h.html#a33b5300506aebe863f2781fe7d58ae95", null ],
+    [ "add_inplace_f32", "ckernel__engine_8h.html#a51008eb010aff17a631159e631ecbcb3", null ],
+    [ "add_scaled_forward_bf16", "ckernel__engine_8h.html#a29182cacb5925fc3bfcef5c8db425c3f", null ],
+    [ "add_scaled_inplace_bf16", "ckernel__engine_8h.html#afd826861943ffdc6583156dfa789cdb7", null ],
     [ "attention_backward_causal_head_major", "ckernel__engine_8h.html#ad611fd5e8dba3e906482d6e68f919788", null ],
     [ "attention_backward_causal_head_major_gqa", "ckernel__engine_8h.html#adbd2b55fbc53b6e288c98813b61cd6e3", null ],
     [ "attention_backward_causal_head_major_gqa_bf16", "ckernel__engine_8h.html#a1a95c2e93bfbe603df487d0c0eb5ea2b", null ],

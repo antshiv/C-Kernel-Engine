@@ -50,12 +50,15 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html",
-"ckernel__engine_8h.html#ac7e379fa8eb4c8b963e70daf7e761277",
-"cpu__features_8h.html#a87e02c44ce8117ceb227f928980a175a",
-"globals_k.html",
-"structCKLayerBackwardParams.html#a9ecf421cb2e1e6ade5e1da91a64ab9f7",
-"structMemoryInfo.html"
+"add__kernels__bf16_8c.html",
+"ckernel__engine_8h.html#a488697bbc4656ba8037ab3eb79314e5e",
+"ckernel__kernel__specs_8c.html#a404b43a8478863adf2e78096c1217cb9",
+"ckernel__section__layout_8h.html#aff5ee31d19be80e3bc7d00f0506f8efea6a3bb26ab9dcc8bb90714a3c77250997",
+"gemm__microkernel_8c.html#af3dd4e1707c284abe511ed15be5c4f8f",
+"structCKBufferSpec.html#a92c6aec4e6937bbec34f20ddc341b14c",
+"structCKLayerForwardParamsQ4K.html#aac721dc3d07b7f9f3a0fcbdc6101e4bb",
+"structCKSection.html#aa21574168860ae278245951028df3ff0",
+"swiglu__kernels_8c.html#a771ec9e8b054416576cf1788ea8d3747"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

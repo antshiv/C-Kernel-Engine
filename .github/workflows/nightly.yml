@@ -27,6 +27,11 @@ on:
           - quant
           - parity
 
+# Need write access to push to gh-pages
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -90,13 +95,82 @@ jobs:
             python scripts/nightly_runner.py --category "$CATEGORY" --json build/nightly_report.json
           fi
 
-      - name: Upload test report
+      - name: Upload test report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: nightly-report-${{ github.run_number }}
           path: build/nightly_report.json
           retention-days: 30
+
+      - name: Publish report to gh-pages (main/scheduled only)
+        if: (github.event_name == 'schedule' || github.event_name == 'push') && github.ref == 'refs/heads/main'
+        run: |
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clone gh-pages branch
+          git clone --depth 1 --branch gh-pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages-tmp || {
+            mkdir gh-pages-tmp
+            cd gh-pages-tmp
+            git init
+            git checkout -b gh-pages
+            cd ..
+          }
+
+          # Create nightly-results directory
+          mkdir -p gh-pages-tmp/nightly-results
+
+          # Copy current report
+          cp build/nightly_report.json gh-pages-tmp/nightly-results/latest.json
+
+          # Also save timestamped copy (keep last 30 days)
+          TIMESTAMP=$(date +%Y-%m-%d)
+          cp build/nightly_report.json "gh-pages-tmp/nightly-results/report-${TIMESTAMP}.json"
+
+          # Create history index
+          python3 << 'PYEOF'
+          import json
+          import os
+          from datetime import datetime
+
+          results_dir = "gh-pages-tmp/nightly-results"
+          reports = []
+
+          for f in sorted(os.listdir(results_dir)):
+              if f.startswith("report-") and f.endswith(".json"):
+                  path = os.path.join(results_dir, f)
+                  try:
+                      with open(path) as fp:
+                          data = json.load(fp)
+                      reports.append({
+                          "date": f.replace("report-", "").replace(".json", ""),
+                          "file": f,
+                          "summary": data.get("summary", {}),
+                          "duration_sec": data.get("duration_sec", 0)
+                      })
+                  except:
+                      pass
+
+          # Keep only last 30 reports
+          reports = sorted(reports, key=lambda x: x["date"], reverse=True)[:30]
+
+          # Write index
+          with open(os.path.join(results_dir, "index.json"), "w") as fp:
+              json.dump({
+                  "updated": datetime.utcnow().isoformat() + "Z",
+                  "reports": reports
+              }, fp, indent=2)
+
+          print(f"Index updated with {len(reports)} reports")
+          PYEOF
+
+          # Commit and push
+          cd gh-pages-tmp
+          git add nightly-results/
+          git commit -m "Update nightly test results [skip ci]" || echo "No changes to commit"
+          git push origin gh-pages || echo "Push failed (may need gh-pages branch created)"
 
       - name: Summary
         if: always()

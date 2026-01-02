@@ -7,6 +7,8 @@
     <includedby refid="ckernel__kernel__specs_8h" local="yes">ckernel_kernel_specs.h</includedby>
     <includedby refid="ckernel__orchestration_8h" local="yes">ckernel_orchestration.h</includedby>
     <includedby refid="ckernel__quant_8h" local="yes">ckernel_quant.h</includedby>
+    <includedby refid="ckernel__codegen__v2__sections_8c" local="yes">ckernel_codegen_v2_sections.c</includedby>
+    <includedby refid="ckernel__mem__plan_8c" local="yes">ckernel_mem_plan.c</includedby>
     <includedby refid="ckernel__orchestration_8c" local="yes">ckernel_orchestration.c</includedby>
     <includedby refid="dequant__kernels_8c" local="yes">dequant_kernels.c</includedby>
     <incdepgraph>
@@ -26,14 +28,68 @@
       </node>
     </incdepgraph>
     <invincdepgraph>
-      <node id="8">
-        <label>ckernel_quant.h</label>
-        <link refid="ckernel__quant_8h"/>
+      <node id="17">
+        <label>ckernel_ir_v2_builder.c</label>
+        <link refid="ckernel__ir__v2__builder_8c"/>
+      </node>
+      <node id="7">
+        <label>ckernel_ir_v2_lower.h</label>
+        <link refid="ckernel__ir__v2__lower_8h"/>
         <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+      </node>
+      <node id="13">
+        <label>ckernel_codegen_v2_sections.c</label>
+        <link refid="ckernel__codegen__v2__sections_8c"/>
+      </node>
+      <node id="23">
+        <label>ckernel_quant.h</label>
+        <link refid="ckernel__quant_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ckernel_dtype.h</label>
+        <link refid="ckernel__dtype_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>ckernel_codegen_v2_emit.h</label>
+        <link refid="ckernel__codegen__v2__emit_8h"/>
+        <childnode refid="5" relation="include">
         </childnode>
         <childnode refid="11" relation="include">
         </childnode>
@@ -43,45 +99,59 @@
         </childnode>
         <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
       </node>
-      <node id="1">
-        <label>ckernel_dtype.h</label>
-        <link refid="ckernel__dtype_8h"/>
-        <childnode refid="2" relation="include">
+      <node id="14">
+        <label>ckernel_codegen_v2_struct.c</label>
+        <link refid="ckernel__codegen__v2__struct_8c"/>
+      </node>
+      <node id="16">
+        <label>ckernel_mem_plan.c</label>
+        <link refid="ckernel__mem__plan_8c"/>
+      </node>
+      <node id="8">
+        <label>ckernel_ir_v2_lower.c</label>
+        <link refid="ckernel__ir__v2__lower_8c"/>
+      </node>
+      <node id="11">
+        <label>ckernel_codegen_v2_dispatch.c</label>
+        <link refid="ckernel__codegen__v2__dispatch_8c"/>
+      </node>
+      <node id="3">
+        <label>ckernel_ir_v2.h</label>
+        <link refid="ckernel__ir__v2_8h"/>
+        <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
-        </childnode>
-        <childnode refid="8" relation="include">
-        </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
         <childnode refid="9" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
       </node>
-      <node id="7">
+      <node id="22">
         <label>attention_decode_fused.c</label>
         <link refid="attention__decode__fused_8c"/>
       </node>
-      <node id="15">
+      <node id="30">
         <label>gemm_kernels_q4k_q8k_vnni.c</label>
         <link refid="gemm__kernels__q4k__q8k__vnni_8c"/>
       </node>
-      <node id="6">
+      <node id="21">
         <label>ckernel_orchestration.c</label>
         <link refid="ckernel__orchestration_8c"/>
       </node>
-      <node id="5">
+      <node id="20">
         <label>ckernel_orchestration.h</label>
         <link refid="ckernel__orchestration_8h"/>
-        <childnode refid="6" relation="include">
+        <childnode refid="21" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="22" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -89,48 +159,90 @@
         <link refid="ckernel__kernel__specs_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
         </childnode>
       </node>
-      <node id="17">
+      <node id="4">
+        <label>ckernel_codegen_v2.h</label>
+        <link refid="ckernel__codegen__v2_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
         <label>gemm_kernels_q8_0.c</label>
         <link refid="gemm__kernels__q8__0_8c"/>
       </node>
-      <node id="9">
+      <node id="24">
         <label>dequant_kernels.c</label>
         <link refid="dequant__kernels_8c"/>
       </node>
-      <node id="11">
+      <node id="5">
+        <label>ckernel_codegen_v2.c</label>
+        <link refid="ckernel__codegen__v2_8c"/>
+      </node>
+      <node id="26">
         <label>gemm_kernels_q4_0.c</label>
         <link refid="gemm__kernels__q4__0_8c"/>
       </node>
+      <node id="9">
+        <label>ckernel_mem_plan.h</label>
+        <link refid="ckernel__mem__plan_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
       <node id="12">
+        <label>ckernel_codegen_v2_schedule.c</label>
+        <link refid="ckernel__codegen__v2__schedule_8c"/>
+      </node>
+      <node id="27">
         <label>gemm_kernels_q4k.c</label>
         <link refid="gemm__kernels__q4k_8c"/>
       </node>
-      <node id="4">
+      <node id="19">
         <label>ckernel_kernel_specs.c</label>
         <link refid="ckernel__kernel__specs_8c"/>
       </node>
-      <node id="10">
+      <node id="25">
         <label>gemm_kernels_f16.c</label>
         <link refid="gemm__kernels__f16_8c"/>
       </node>
-      <node id="16">
+      <node id="31">
         <label>gemm_kernels_q6k.c</label>
         <link refid="gemm__kernels__q6k_8c"/>
       </node>
-      <node id="13">
+      <node id="28">
         <label>gemm_kernels_q4k_q8k.c</label>
         <link refid="gemm__kernels__q4k__q8k_8c"/>
       </node>
-      <node id="14">
+      <node id="15">
+        <label>ckernel_ir_v2.c</label>
+        <link refid="ckernel__ir__v2_8c"/>
+      </node>
+      <node id="29">
         <label>gemm_kernels_q4k_q8k_avx2.c</label>
         <link refid="gemm__kernels__q4k__q8k__avx2_8c"/>
       </node>
-      <node id="3">
+      <node id="18">
         <label>ckernel_codegen.c</label>
         <link refid="ckernel__codegen_8c"/>
+      </node>
+      <node id="6">
+        <label>ckernel_ir_v2_demo.c</label>
+        <link refid="ckernel__ir__v2__demo_8c"/>
       </node>
     </invincdepgraph>
       <sectiondef kind="define">
@@ -389,6 +501,8 @@
         <references refid="ckernel__dtype_8h_1a2549fbebde03f39835ab71024c88210c" compoundref="ckernel__dtype_8h" startline="79" endline="91">ck_dtype_block_size</references>
         <references refid="ckernel__dtype_8h_1ad28ce24863b3fe3ef1d1dfbdac821971" compoundref="ckernel__dtype_8h" startline="60" endline="74">ck_dtype_bytes</references>
         <references refid="ckernel__dtype_8h_1aa20c6f5e693f137425226d2f7085546e" compoundref="ckernel__dtype_8h" startline="51" endline="54">ck_dtype_is_quantized</references>
+        <referencedby refid="ckernel__codegen__v2__sections_8c_1a26bdf2b8cd441142de5a6cdd668fc6e4" compoundref="ckernel__codegen__v2__sections_8c" startline="100" endline="106">buffer_bytes</referencedby>
+        <referencedby refid="ckernel__mem__plan_8c_1a2ac35f81413e92025c1492d78f45a703" compoundref="ckernel__mem__plan_8c" startline="146" endline="214">build_plan</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1a476de61245e906fadb26c1af7c0dafb3" compoundref="ckernel__orchestration_8c" startline="146" endline="193">ck_qkv_project_head_major_q4_k</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1aa1ebc47c823d864fbbe18d975df74704" compoundref="ckernel__orchestration_8c" startline="195" endline="251">ck_qkv_project_head_major_quant</referencedby>
         <referencedby refid="ckernel__orchestration_8c_1ad492e291abbf309f2332cdf955597083" compoundref="ckernel__orchestration_8c" startline="1351" endline="1394">ck_qkv_project_head_major_token_q4_k</referencedby>

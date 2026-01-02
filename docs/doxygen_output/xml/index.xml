@@ -67,6 +67,41 @@
     <member refid="structCKDimToken_1a64516b544f8812fc3b3c24ddb472bcb7" kind="variable"><name>div</name></member>
     <member refid="structCKDimToken_1a984c6bca0fce2bd1893a21834837fc7f" kind="variable"><name>mult</name></member>
   </compound>
+  <compound refid="structCKFooterGradOffsets" kind="struct"><name>CKFooterGradOffsets</name>
+    <member refid="structCKFooterGradOffsets_1a39e8fc85fe6bcd5c1a1fbd7ced054879" kind="variable"><name>d_bridge_b</name></member>
+    <member refid="structCKFooterGradOffsets_1ae6e42eddc33324875a7458f7d804a694" kind="variable"><name>d_bridge_output</name></member>
+    <member refid="structCKFooterGradOffsets_1ae30e8699e5a492c5ecfd6bd6644e775b" kind="variable"><name>d_bridge_w</name></member>
+    <member refid="structCKFooterGradOffsets_1ada3b948a5b678ac0f01d74bf7ab3a8c8" kind="variable"><name>d_final_ln_beta</name></member>
+    <member refid="structCKFooterGradOffsets_1a9275fe493cec58474de57a572d4867f4" kind="variable"><name>d_final_ln_gamma</name></member>
+    <member refid="structCKFooterGradOffsets_1ae2a60b057eaa172d1132474349ad5d40" kind="variable"><name>d_final_ln_output</name></member>
+    <member refid="structCKFooterGradOffsets_1a6b4894e65e79da4ec83a9b2b535ef519" kind="variable"><name>d_lm_head_b</name></member>
+    <member refid="structCKFooterGradOffsets_1ab1ee7c4f660361ce5072f1c9183fa74f" kind="variable"><name>d_lm_head_w</name></member>
+    <member refid="structCKFooterGradOffsets_1ac3f2b08b2785cf1fa039bb3c0e6e2197" kind="variable"><name>d_logits</name></member>
+    <member refid="structCKFooterGradOffsets_1a1033308e389797d86251b87a79781bae" kind="variable"><name>grad_end</name></member>
+    <member refid="structCKFooterGradOffsets_1ae9169fef93e53c932b9f4728d8cb6e30" kind="variable"><name>grad_start</name></member>
+  </compound>
+  <compound refid="structCKFooterOffsets" kind="struct"><name>CKFooterOffsets</name>
+    <member refid="structCKFooterOffsets_1a6e968314ca3082225d5fdbeda2c64343" kind="variable"><name>bridge_b</name></member>
+    <member refid="structCKFooterOffsets_1a44484b840457f80b8fa286f5167d1687" kind="variable"><name>bridge_output</name></member>
+    <member refid="structCKFooterOffsets_1a5a3df48e55198eeebcfba9453881de01" kind="variable"><name>bridge_w</name></member>
+    <member refid="structCKFooterOffsets_1a8866b0a08fa2195bbb577d5e4a4e12dd" kind="variable"><name>final_ln_beta</name></member>
+    <member refid="structCKFooterOffsets_1ab47cf73ae4b7e7de8cf801fa9ce1dc5c" kind="variable"><name>final_ln_gamma</name></member>
+    <member refid="structCKFooterOffsets_1ab297d1de6261098375f31e149519d4d4" kind="variable"><name>final_ln_output</name></member>
+    <member refid="structCKFooterOffsets_1a17d1b0599249931fab10aa62ce6b8b20" kind="variable"><name>footer_end</name></member>
+    <member refid="structCKFooterOffsets_1ae734eedf274912ce617fb86c5c14cbf4" kind="variable"><name>footer_start</name></member>
+    <member refid="structCKFooterOffsets_1a97bbf97af4ac45e5c16437af7842957b" kind="variable"><name>lm_head_b</name></member>
+    <member refid="structCKFooterOffsets_1ad4256e4d307e8deb6aadc34113d81e90" kind="variable"><name>lm_head_w</name></member>
+    <member refid="structCKFooterOffsets_1a638f017bdaec7d988d89bf2692a48d6b" kind="variable"><name>logits</name></member>
+  </compound>
+  <compound refid="structCKHeaderOffsets" kind="struct"><name>CKHeaderOffsets</name>
+    <member refid="structCKHeaderOffsets_1a1c5c78d482920812a8353fe8b31a9038" kind="variable"><name>embed_output</name></member>
+    <member refid="structCKHeaderOffsets_1a09edd285803f7fecfbfe1a80ec241b23" kind="variable"><name>embed_weight</name></member>
+    <member refid="structCKHeaderOffsets_1acb634ce1abbf44e2ee2791e8a1d1817e" kind="variable"><name>header_end</name></member>
+    <member refid="structCKHeaderOffsets_1af6277b6a25c2312f49d22592e268dab0" kind="variable"><name>header_output</name></member>
+    <member refid="structCKHeaderOffsets_1a8bd89231afd3b0a519c8491e955504df" kind="variable"><name>header_start</name></member>
+    <member refid="structCKHeaderOffsets_1a2a082e03809f5e60dc469836ec86e553" kind="variable"><name>pos_embed_output</name></member>
+    <member refid="structCKHeaderOffsets_1a5869de8e522fdd1b310d75bd8eb849bb" kind="variable"><name>pos_embed_weight</name></member>
+  </compound>
   <compound refid="structCKInputRef" kind="struct"><name>CKInputRef</name>
     <member refid="structCKInputRef_1ae1ae7d92ed1362d599e30bf5aff958e3" kind="variable"><name>out_index</name></member>
     <member refid="structCKInputRef_1a952a97cab88682ffb36027b353492e6f" kind="variable"><name>producer</name></member>
@@ -82,6 +117,51 @@
     <member refid="structCKIRNode_1abf6244a44982d225b1f19abfa2906e8c" kind="variable"><name>n_inputs</name></member>
     <member refid="structCKIRNode_1ac80c87853b9a0b35958d643481e95fc7" kind="variable"><name>n_outputs</name></member>
     <member refid="structCKIRNode_1a52b9fe87f82269da8533cefeff20057d" kind="variable"><name>op</name></member>
+  </compound>
+  <compound refid="structCKIRV2AlignInfo" kind="struct"><name>CKIRV2AlignInfo</name>
+    <member refid="structCKIRV2AlignInfo_1a36347dd290b81d162a77e4ef7932b5e3" kind="variable"><name>aligned_context</name></member>
+    <member refid="structCKIRV2AlignInfo_1a6ec5ecb27163f75752b2dbe4ab264e6b" kind="variable"><name>aligned_embed</name></member>
+    <member refid="structCKIRV2AlignInfo_1a5e02f511b879e0597ad76e6e910567d1" kind="variable"><name>aligned_head</name></member>
+    <member refid="structCKIRV2AlignInfo_1a766dbe15499bdb43d4891b415eedc9e1" kind="variable"><name>aligned_intermediate</name></member>
+  </compound>
+  <compound refid="structCKIRV2Binding" kind="struct"><name>CKIRV2Binding</name>
+    <member refid="structCKIRV2Binding_1a0e50855a2852b3018c3b87ae5e53db19" kind="variable"><name>arg</name></member>
+    <member refid="structCKIRV2Binding_1acbaa32705fa3caa147f63c8beecd6fe5" kind="variable"><name>buffer</name></member>
+  </compound>
+  <compound refid="structCKIRV2Buffer" kind="struct"><name>CKIRV2Buffer</name>
+    <member refid="structCKIRV2Buffer_1a92f6356a2149550923b521d604bc9486" kind="variable"><name>alias_of</name></member>
+    <member refid="structCKIRV2Buffer_1a50f6cc398851b0c231520444e855113b" kind="variable"><name>condition</name></member>
+    <member refid="structCKIRV2Buffer_1acb1dc8a19c8fad476e89ab40bd6d31bf" kind="variable"><name>dtype</name></member>
+    <member refid="structCKIRV2Buffer_1a2f431336505aa19000ed2535be85bc71" kind="variable"><name>name</name></member>
+    <member refid="structCKIRV2Buffer_1a3b28242247696e6624bb2b9773c1e1a1" kind="variable"><name>optional</name></member>
+    <member refid="structCKIRV2Buffer_1a3c077f1f0bdfd4b832a17aea56c823d1" kind="variable"><name>role</name></member>
+    <member refid="structCKIRV2Buffer_1a65ba8945f7e4e11abf1cc3aad4eccb60" kind="variable"><name>scope</name></member>
+    <member refid="structCKIRV2Buffer_1a22f159608ef2fbcdfdd84704ae3f5da4" kind="variable"><name>shape</name></member>
+  </compound>
+  <compound refid="structCKIRV2Graph" kind="struct"><name>CKIRV2Graph</name>
+    <member refid="structCKIRV2Graph_1ad2d61568dda8232b3252da14a53ffc03" kind="variable"><name>buffers</name></member>
+    <member refid="structCKIRV2Graph_1a49f1785b410e7bcae526d0b1dec440f3" kind="variable"><name>config</name></member>
+    <member refid="structCKIRV2Graph_1adfc2e02d30a154499cfa803b1095dc6a" kind="variable"><name>fused_qkv</name></member>
+    <member refid="structCKIRV2Graph_1a6e330ed95df881c765d7fbb5f5c62d35" kind="variable"><name>gated_mlp</name></member>
+    <member refid="structCKIRV2Graph_1a520e755b859ef64a2f7299c9472e9911" kind="variable"><name>has_pos_emb</name></member>
+    <member refid="structCKIRV2Graph_1a82745ad41882ae6c770f18a7759b23f6" kind="variable"><name>nodes</name></member>
+    <member refid="structCKIRV2Graph_1aeb72a3027aef579daf9a4ac090ac71ba" kind="variable"><name>num_buffers</name></member>
+    <member refid="structCKIRV2Graph_1ae0b967575703465657a56a64d12164ed" kind="variable"><name>num_nodes</name></member>
+    <member refid="structCKIRV2Graph_1a5296e6ba849fa74670cf9290065ac2c9" kind="variable"><name>tie_word_embeddings</name></member>
+  </compound>
+  <compound refid="structCKIRV2Node" kind="struct"><name>CKIRV2Node</name>
+    <member refid="structCKIRV2Node_1a8c7183052806860180f236095880ec04" kind="variable"><name>bindings</name></member>
+    <member refid="structCKIRV2Node_1a719657d39bb8a3107906b072969e77f9" kind="variable"><name>condition</name></member>
+    <member refid="structCKIRV2Node_1a8888fb53fa56aeaa19e4e0af16c30667" kind="variable"><name>flags</name></member>
+    <member refid="structCKIRV2Node_1a4d8d72b29b1770b0b87624ac821fcf68" kind="variable"><name>inputs</name></member>
+    <member refid="structCKIRV2Node_1ae7e891c0c72b3a0c726e416696299de9" kind="variable"><name>kernel</name></member>
+    <member refid="structCKIRV2Node_1abd1f5cc6077e8a035d8a2f0d69d30a48" kind="variable"><name>kernel_dtype</name></member>
+    <member refid="structCKIRV2Node_1a830105276be359268bb949e27e406ae7" kind="variable"><name>layer</name></member>
+    <member refid="structCKIRV2Node_1a47c09e1e5f659536f5ae6f0abb4b061a" kind="variable"><name>n_bindings</name></member>
+    <member refid="structCKIRV2Node_1aef9c006f01df1247d1858ab622791f0a" kind="variable"><name>n_inputs</name></member>
+    <member refid="structCKIRV2Node_1ad351fdec7e39e8af9d29b729f8c0196b" kind="variable"><name>n_outputs</name></member>
+    <member refid="structCKIRV2Node_1a4b5b83070cfaad5ecc383e411decd713" kind="variable"><name>op</name></member>
+    <member refid="structCKIRV2Node_1ab853f000478eff6cb0e5f76d2b50efa1" kind="variable"><name>outputs</name></member>
   </compound>
   <compound refid="structCKKernelId" kind="struct"><name>CKKernelId</name>
     <member refid="structCKKernelId_1ab2cebeabdb83297de77f4926e9994ac9" kind="variable"><name>layer</name></member>
@@ -266,6 +346,64 @@
     <member refid="structCKLayerForwardParamsQ4K_1a35349f8d709bd6b19b8bdc1b46cbf10f" kind="variable"><name>wv</name></member>
     <member refid="structCKLayerForwardParamsQ4K_1a1ed95932b94db2f9a45cdb1cc987f6da" kind="variable"><name>wv_dtype</name></member>
   </compound>
+  <compound refid="structCKLayerGradOffsets" kind="struct"><name>CKLayerGradOffsets</name>
+    <member refid="structCKLayerGradOffsets_1a5383122bbd9bca1d26dc23bca84d3ef3" kind="variable"><name>d_attn_out</name></member>
+    <member refid="structCKLayerGradOffsets_1a53ad485527d5607bbca6766b0f4727bb" kind="variable"><name>d_attn_output</name></member>
+    <member refid="structCKLayerGradOffsets_1a2d059e5b3e882d461ee74d459b54aeae" kind="variable"><name>d_attn_probs</name></member>
+    <member refid="structCKLayerGradOffsets_1adb3cdd15a030bb3684a4f06ad3e71c60" kind="variable"><name>d_attn_scores</name></member>
+    <member refid="structCKLayerGradOffsets_1aacb4c327c1d7816d8c2bc927e22fb1df" kind="variable"><name>d_bk</name></member>
+    <member refid="structCKLayerGradOffsets_1ae3e95857036311e4cad538f1ce2497f9" kind="variable"><name>d_bo</name></member>
+    <member refid="structCKLayerGradOffsets_1af845115639ccdc758c87a394f5b60b5d" kind="variable"><name>d_bq</name></member>
+    <member refid="structCKLayerGradOffsets_1ade2c721a3da200abf42f0de5c620acf3" kind="variable"><name>d_bv</name></member>
+    <member refid="structCKLayerGradOffsets_1af0ff713ac09310725fe0e8025f446280" kind="variable"><name>d_k</name></member>
+    <member refid="structCKLayerGradOffsets_1a09f74e154441a54bddb99ab67a961235" kind="variable"><name>d_ln1_beta</name></member>
+    <member refid="structCKLayerGradOffsets_1ab9c4e6448de597832b17d239f2508a25" kind="variable"><name>d_ln1_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1a5cbb9e13cf5e308e488a5cd8500ce91a" kind="variable"><name>d_ln1_output</name></member>
+    <member refid="structCKLayerGradOffsets_1a7e9c08251f4d98a050352f2a69c32955" kind="variable"><name>d_ln2_beta</name></member>
+    <member refid="structCKLayerGradOffsets_1aa506989780e0caad23abec7e635b8b08" kind="variable"><name>d_ln2_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1aea96deb7ae068b65e7f674dd283d5a4f" kind="variable"><name>d_ln2_output</name></member>
+    <member refid="structCKLayerGradOffsets_1aa093a6afe597f5b90196549170cb4aab" kind="variable"><name>d_mlp_act_out</name></member>
+    <member refid="structCKLayerGradOffsets_1ab0fdf34b696663ecd2a6adc66dc35e88" kind="variable"><name>d_mlp_down_b</name></member>
+    <member refid="structCKLayerGradOffsets_1a00bd2969b569fa381be440e4e6f9cb4a" kind="variable"><name>d_mlp_down_out</name></member>
+    <member refid="structCKLayerGradOffsets_1ab65305acd1000ed560e8fbfa77e6a5c4" kind="variable"><name>d_mlp_down_w</name></member>
+    <member refid="structCKLayerGradOffsets_1a020b61adaa42a2b67579be3ce01f4d4c" kind="variable"><name>d_mlp_gate_b</name></member>
+    <member refid="structCKLayerGradOffsets_1a4553a11d7014525464f13377747e5fac" kind="variable"><name>d_mlp_gate_out</name></member>
+    <member refid="structCKLayerGradOffsets_1a338e5dc53f5ef93dfa563d999e27826a" kind="variable"><name>d_mlp_gate_w</name></member>
+    <member refid="structCKLayerGradOffsets_1aa70642f467ced05a1ce8e4795c9ec152" kind="variable"><name>d_mlp_up_b</name></member>
+    <member refid="structCKLayerGradOffsets_1a906b3cb61f4cea1d5c6c3c0c01eb3c99" kind="variable"><name>d_mlp_up_out</name></member>
+    <member refid="structCKLayerGradOffsets_1a9ebf98163fe350922fa9f97a9f9f7598" kind="variable"><name>d_mlp_up_w</name></member>
+    <member refid="structCKLayerGradOffsets_1ace7e61f43563a3d22ea91a363aeb5609" kind="variable"><name>d_output</name></member>
+    <member refid="structCKLayerGradOffsets_1ab39bad6aa2d7b4cdd624e1a3d4b18ca9" kind="variable"><name>d_proj_out</name></member>
+    <member refid="structCKLayerGradOffsets_1a77782eb0da25172587b5cc4ddbcfd686" kind="variable"><name>d_proj_output</name></member>
+    <member refid="structCKLayerGradOffsets_1a76ec7c95e5bba41e4cba46fa5a85970b" kind="variable"><name>d_q</name></member>
+    <member refid="structCKLayerGradOffsets_1a8f5b64f6f0b8ce9fcd1264b8638b7082" kind="variable"><name>d_residual1</name></member>
+    <member refid="structCKLayerGradOffsets_1a40ee9ccba2e0a9b235f9350742fa7c96" kind="variable"><name>d_residual2</name></member>
+    <member refid="structCKLayerGradOffsets_1a9c059da100ac4441f57b4dd356a2ff9b" kind="variable"><name>d_v</name></member>
+    <member refid="structCKLayerGradOffsets_1ada5e0bec439bedbacce85db5a7ecebde" kind="variable"><name>d_wk</name></member>
+    <member refid="structCKLayerGradOffsets_1a41e3a9e065d55e7ab91951843cd835d1" kind="variable"><name>d_wo</name></member>
+    <member refid="structCKLayerGradOffsets_1a0b6545d5f66c48d0896d5e328e5da974" kind="variable"><name>d_wq</name></member>
+    <member refid="structCKLayerGradOffsets_1a6bdf61f08e2759773e75ee4466ae314d" kind="variable"><name>d_wv</name></member>
+    <member refid="structCKLayerGradOffsets_1ad3dcd4463deb7947578383f61a5800d9" kind="variable"><name>grad_end</name></member>
+    <member refid="structCKLayerGradOffsets_1a6272144a177f1aa0fd8a3ff88a84c88b" kind="variable"><name>grad_start</name></member>
+    <member refid="structCKLayerGradOffsets_1a74e5a33425000ab5ca9b5e36edfa96b3" kind="variable"><name>m_ln1_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1a7a5042460e9f41237cf3ae49199f540d" kind="variable"><name>m_ln2_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1a82753a3f1720cb7fdad8ef3576354a72" kind="variable"><name>m_mlp_down</name></member>
+    <member refid="structCKLayerGradOffsets_1aadc8ed73084b7ef326d481c2b6240b98" kind="variable"><name>m_mlp_gate</name></member>
+    <member refid="structCKLayerGradOffsets_1afef9636288a7b686f3b8ec2569352838" kind="variable"><name>m_mlp_up</name></member>
+    <member refid="structCKLayerGradOffsets_1a22e21f41e2a46966632669d02fc0721d" kind="variable"><name>m_wk</name></member>
+    <member refid="structCKLayerGradOffsets_1a298c68b6ec8832481837dd00c3a6fbdf" kind="variable"><name>m_wo</name></member>
+    <member refid="structCKLayerGradOffsets_1a0a648a4351c960b008fd79a147bdfff2" kind="variable"><name>m_wq</name></member>
+    <member refid="structCKLayerGradOffsets_1af63821f25445571fda408336d3afb2bf" kind="variable"><name>m_wv</name></member>
+    <member refid="structCKLayerGradOffsets_1a3c31cc6b97f3bc6b80d0d143a1394257" kind="variable"><name>v_ln1_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1a4d4316073d5fb0d152b0c2d670dada62" kind="variable"><name>v_ln2_gamma</name></member>
+    <member refid="structCKLayerGradOffsets_1a453ff4582204f15f40e416e58e75fa20" kind="variable"><name>v_mlp_down</name></member>
+    <member refid="structCKLayerGradOffsets_1ade63c68f660125900a8617279239e1b2" kind="variable"><name>v_mlp_gate</name></member>
+    <member refid="structCKLayerGradOffsets_1af3bc21f8303fd7a535361612ca1388f4" kind="variable"><name>v_mlp_up</name></member>
+    <member refid="structCKLayerGradOffsets_1a0f042df968961329893d5a375b2ceb3d" kind="variable"><name>v_wk</name></member>
+    <member refid="structCKLayerGradOffsets_1acba8a7fbb8f97544b52044869c46789c" kind="variable"><name>v_wo</name></member>
+    <member refid="structCKLayerGradOffsets_1a961c5f51bc787cfd934f468f70536674" kind="variable"><name>v_wq</name></member>
+    <member refid="structCKLayerGradOffsets_1af0e2b103e7a3b9f799947d8447e091c0" kind="variable"><name>v_wv</name></member>
+  </compound>
   <compound refid="structCKLayerLayout" kind="struct"><name>CKLayerLayout</name>
     <member refid="structCKLayerLayout_1aaece9ea1e0a761b00bdce132c24aa6a0" kind="variable"><name>attn_proj_bias_offset</name></member>
     <member refid="structCKLayerLayout_1ace90b671a13ec6e8cb08fac170a25038" kind="variable"><name>attn_proj_weight_offset</name></member>
@@ -278,19 +416,139 @@
     <member refid="structCKLayerLayout_1a284fb7cde23a33d443234aeb3d34f1aa" kind="variable"><name>qkv_bias_offset</name></member>
     <member refid="structCKLayerLayout_1aa04c864979d24512fe185bd224f2e851" kind="variable"><name>qkv_weight_offset</name></member>
   </compound>
+  <compound refid="structCKLayerOffsets" kind="struct"><name>CKLayerOffsets</name>
+    <member refid="structCKLayerOffsets_1a6f26daba0ff5fda605b9a751ac2ba2ee" kind="variable"><name>attn_out</name></member>
+    <member refid="structCKLayerOffsets_1af31ef2ca40d94908315c2313a00f7280" kind="variable"><name>attn_output</name></member>
+    <member refid="structCKLayerOffsets_1a66f717f2874057bf925c4e97a57079a7" kind="variable"><name>attn_probs</name></member>
+    <member refid="structCKLayerOffsets_1a6f8340c9cf6ae1cba00764e4e14dda26" kind="variable"><name>attn_scores</name></member>
+    <member refid="structCKLayerOffsets_1a5c8f69d516fc4fb0b25cb6dc839ef298" kind="variable"><name>bk</name></member>
+    <member refid="structCKLayerOffsets_1acbef001bd55a355dc8b99710a795aae1" kind="variable"><name>bo</name></member>
+    <member refid="structCKLayerOffsets_1a13f7bd9b925dd8d55fb6cfa885e8b7d7" kind="variable"><name>bq</name></member>
+    <member refid="structCKLayerOffsets_1aed3dcb5b839829cb5f8f9dd2e7128bb8" kind="variable"><name>bv</name></member>
+    <member refid="structCKLayerOffsets_1a207b51ce0a5d8afb92fbb3f810ca4574" kind="variable"><name>input</name></member>
+    <member refid="structCKLayerOffsets_1a4394bd2a46480cc9ad149128ba576354" kind="variable"><name>k</name></member>
+    <member refid="structCKLayerOffsets_1a83b9fd6e0ebf4a7a69f2c9a01389a18a" kind="variable"><name>k_cache</name></member>
+    <member refid="structCKLayerOffsets_1a64c73d47605788fdbb876ddd52456db6" kind="variable"><name>k_rope</name></member>
+    <member refid="structCKLayerOffsets_1a968c7ab2fdc25c0e8bf2b98d12b79687" kind="variable"><name>layer_end</name></member>
+    <member refid="structCKLayerOffsets_1ace63bf4c6c97434a4fa90d2f765cf96f" kind="variable"><name>layer_start</name></member>
+    <member refid="structCKLayerOffsets_1af0086d39bd3384211d2c8c9815ffbe0e" kind="variable"><name>ln1_beta</name></member>
+    <member refid="structCKLayerOffsets_1add4d6c9bc9613cc07927b17102f37e10" kind="variable"><name>ln1_gamma</name></member>
+    <member refid="structCKLayerOffsets_1a92a708efcc92dd583046bb1ee5345490" kind="variable"><name>ln1_output</name></member>
+    <member refid="structCKLayerOffsets_1a9607911e3c407aeddf4bb009ad3101f2" kind="variable"><name>ln2_beta</name></member>
+    <member refid="structCKLayerOffsets_1a4bb907fd60ba2d980d91b4af199671ce" kind="variable"><name>ln2_gamma</name></member>
+    <member refid="structCKLayerOffsets_1a0f018f2bb9ee6f55108ef52d8170d97e" kind="variable"><name>ln2_output</name></member>
+    <member refid="structCKLayerOffsets_1af6000f2aff58810114cbd110c77402e5" kind="variable"><name>mlp_act_out</name></member>
+    <member refid="structCKLayerOffsets_1a4f2f21241cc69041cc62d5ae1c9f8c14" kind="variable"><name>mlp_down_b</name></member>
+    <member refid="structCKLayerOffsets_1a10218069303bec4b99fa47a715b31918" kind="variable"><name>mlp_down_out</name></member>
+    <member refid="structCKLayerOffsets_1ac7127f697830c21ef69125b971440854" kind="variable"><name>mlp_down_w</name></member>
+    <member refid="structCKLayerOffsets_1a52f48fdcdf2b539423f0313b5cab029e" kind="variable"><name>mlp_gate_b</name></member>
+    <member refid="structCKLayerOffsets_1acae9991119923d264ecb138ebecbf8d7" kind="variable"><name>mlp_gate_out</name></member>
+    <member refid="structCKLayerOffsets_1a78fb56ffbb566fc773fe57f780fcc8e1" kind="variable"><name>mlp_gate_w</name></member>
+    <member refid="structCKLayerOffsets_1a78a51878c488cab9e9a4f9d9cd5bcfc1" kind="variable"><name>mlp_up_b</name></member>
+    <member refid="structCKLayerOffsets_1acdefc34ebe3606234e42b059b810f0c7" kind="variable"><name>mlp_up_out</name></member>
+    <member refid="structCKLayerOffsets_1a739a0a65834a09b12385f0926eaca8c0" kind="variable"><name>mlp_up_w</name></member>
+    <member refid="structCKLayerOffsets_1a253ebe103830f66006e992c1942359c6" kind="variable"><name>output</name></member>
+    <member refid="structCKLayerOffsets_1ad4bc2b7cea35add011aa22e48f10f99c" kind="variable"><name>proj_out</name></member>
+    <member refid="structCKLayerOffsets_1a4b9708d80f644d75e1fcbb65b08263fd" kind="variable"><name>proj_output</name></member>
+    <member refid="structCKLayerOffsets_1a599bdd7039ffc353f5302c9c6fa287b4" kind="variable"><name>q</name></member>
+    <member refid="structCKLayerOffsets_1ab14ce44efa1d300b3dd913e03dfb7aca" kind="variable"><name>q_rope</name></member>
+    <member refid="structCKLayerOffsets_1a7f509afe9bdecb527e6e89c457420d74" kind="variable"><name>residual1</name></member>
+    <member refid="structCKLayerOffsets_1a6fd8badc08ea9608d7f9700c5ef28201" kind="variable"><name>residual2</name></member>
+    <member refid="structCKLayerOffsets_1a21dedb037033c59edb5c355268bbbad5" kind="variable"><name>v</name></member>
+    <member refid="structCKLayerOffsets_1ae06fcbd942baee6eb8503aae98d1ce9a" kind="variable"><name>v_cache</name></member>
+    <member refid="structCKLayerOffsets_1aa048d99178bf06e2687283cc506dc579" kind="variable"><name>wk</name></member>
+    <member refid="structCKLayerOffsets_1a5a50122740389c57c4c993f2aa470e4c" kind="variable"><name>wo</name></member>
+    <member refid="structCKLayerOffsets_1aa18340ca5083c6eccacbb26dab4e6149" kind="variable"><name>wq</name></member>
+    <member refid="structCKLayerOffsets_1ae669bb44d0a9022b6748f450b56f78b2" kind="variable"><name>wv</name></member>
+  </compound>
+  <compound refid="structCKLayerOptimizerOffsets" kind="struct"><name>CKLayerOptimizerOffsets</name>
+    <member refid="structCKLayerOptimizerOffsets_1a3cf63cde129a1b236bdad073b670c502" kind="variable"><name>m_bk</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1aa562f5efd6173858cf43d57551e53a34" kind="variable"><name>m_bo</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a081f58fcc2e8245a0383d42e7d521177" kind="variable"><name>m_bq</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a1ff16b8b06509ebee3c34fbe6602a12f" kind="variable"><name>m_bv</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a33e61c51c31c2fa53bbf9f4a42a6acb4" kind="variable"><name>m_ln1_beta</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a73ec859a236f31063e3826240cbb0750" kind="variable"><name>m_ln1_gamma</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a821ddf375173a7d11f8694c177a63d93" kind="variable"><name>m_ln2_beta</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a81a1fb827541ffdfe7096eb1bbc9595e" kind="variable"><name>m_ln2_gamma</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a34a29c9146fdacaa56a6118fa684fa86" kind="variable"><name>m_mlp_down_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a83172b4b805ba80fb3e5807329912d25" kind="variable"><name>m_mlp_down_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a3f6bc539802d8836399a9bc58b64880f" kind="variable"><name>m_mlp_gate_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a921f17f301a5fefcd8eec05f43374b24" kind="variable"><name>m_mlp_gate_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a9dec06808a0e417685225e98d95ff37a" kind="variable"><name>m_mlp_up_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1addd369afe39373aa6c3faf98cf3e7756" kind="variable"><name>m_mlp_up_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a3da554e97d8733982191a5496233af31" kind="variable"><name>m_wk</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a14824d8d69c159d9f82752211c99df8f" kind="variable"><name>m_wo</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1ae52782e743a205ddc4638286e0828993" kind="variable"><name>m_wq</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1acc3a91921a8d0090974ece0cffbd375c" kind="variable"><name>m_wv</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1ac4940fcc8708472a83f4622f033ebbb6" kind="variable"><name>opt_end</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a768c2644e129903d370b4010d37c74eb" kind="variable"><name>opt_start</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a1bea81a97d9e230388a11aa88fcfaab8" kind="variable"><name>v_bk</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a64ed5b2a6e204efd8d40429fd9700744" kind="variable"><name>v_bo</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1aa94d07c14ed486b3784ca75ec9b1de27" kind="variable"><name>v_bq</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a64bfd01161993db0f226081e46a6ad8a" kind="variable"><name>v_bv</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1acd7cb9443cff2872dc2fa0c6b6b159a6" kind="variable"><name>v_ln1_beta</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1abb647ae7c60c93c7ee61deeabc9d8562" kind="variable"><name>v_ln1_gamma</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a205ea40a57d44759dce23b92ce8a853f" kind="variable"><name>v_ln2_beta</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a73720d2a8d08e4e37e10a3ed7d51b336" kind="variable"><name>v_ln2_gamma</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a7cd21b2bb571c27da41ab7cd5c452b7f" kind="variable"><name>v_mlp_down_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a8204947d283c11186d8b38a0a6971e5a" kind="variable"><name>v_mlp_down_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a2b7d74bd97a70cc3ef67619b1090f5f1" kind="variable"><name>v_mlp_gate_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1aaed37ef9a87c641294a6598ba1166f7f" kind="variable"><name>v_mlp_gate_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a7bafeba33b123654fbd253bbdded7bd6" kind="variable"><name>v_mlp_up_b</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1abeb389a924018bda89771dc56a70c2c0" kind="variable"><name>v_mlp_up_w</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a335d764b0992ead6630474f6b1c0f171" kind="variable"><name>v_wk</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a66f90d80c3b0b3274f57b16b824c4050" kind="variable"><name>v_wo</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1a142f3597b192e27b22152d7e5e1cca73" kind="variable"><name>v_wq</name></member>
+    <member refid="structCKLayerOptimizerOffsets_1af930f5e076e326272b26fb52cc4162d4" kind="variable"><name>v_wv</name></member>
+  </compound>
   <compound refid="structCKMathBackend" kind="struct"><name>CKMathBackend</name>
     <member refid="structCKMathBackend_1a7e59ba4baa9c776241287338a219d9c4" kind="variable"><name>sgemm</name></member>
+  </compound>
+  <compound refid="structCKMemPlan" kind="struct"><name>CKMemPlan</name>
+    <member refid="structCKMemPlan_1a8e5e24bcf347c4fe2d45e76be8c2351e" kind="variable"><name>alignment_bytes</name></member>
+    <member refid="structCKMemPlan_1a7c1dd8cbe777a1f0a40af32a417fdc37" kind="variable"><name>num_spans</name></member>
+    <member refid="structCKMemPlan_1a2eafa236d6d9a88944d798cdbd43737d" kind="variable"><name>spans</name></member>
+    <member refid="structCKMemPlan_1aa2e911b6ed9b128563d25bc6cec958d8" kind="variable"><name>total_bytes</name></member>
   </compound>
   <compound refid="structCKMemPool" kind="struct"><name>CKMemPool</name>
     <member refid="structCKMemPool_1a4fa13f6e99896ec541cba40c99e70f9c" kind="variable"><name>current</name></member>
     <member refid="structCKMemPool_1ac7919cceb17dccce7584f443a2f9eb4e" kind="variable"><name>head</name></member>
     <member refid="structCKMemPool_1ac7e607885b7d68b849240ab7cd91ddac" kind="variable"><name>total_allocated</name></member>
   </compound>
+  <compound refid="structCKMemSpan" kind="struct"><name>CKMemSpan</name>
+    <member refid="structCKMemSpan_1a818835e50806e8d1fd141cf97b4ea806" kind="variable"><name>arena</name></member>
+    <member refid="structCKMemSpan_1a0d967f0eca56cf7113b4552d67b208e5" kind="variable"><name>buffer_id</name></member>
+    <member refid="structCKMemSpan_1af281883bfadbea82697819bbf12aa759" kind="variable"><name>offset_bytes</name></member>
+    <member refid="structCKMemSpan_1a1a8d564452e900aa6e0978ac20b63c5e" kind="variable"><name>size_bytes</name></member>
+  </compound>
   <compound refid="structCKMergeRule" kind="struct"><name>CKMergeRule</name>
     <member refid="structCKMergeRule_1a2f4fb999c8ad7581926948836ad96949" kind="variable"><name>left</name></member>
     <member refid="structCKMergeRule_1adacd50b760f95bfe3bd04d8618fb4c19" kind="variable"><name>merged</name></member>
     <member refid="structCKMergeRule_1af89e288682de3079e22683c57b629d4c" kind="variable"><name>priority</name></member>
     <member refid="structCKMergeRule_1ad429814a773c9faa0526991078347e4f" kind="variable"><name>right</name></member>
+  </compound>
+  <compound refid="structCKModel" kind="struct"><name>CKModel</name>
+    <member refid="structCKModel_1aca3677590515480ee313d29adad814fb" kind="variable"><name>activation_bytes</name></member>
+    <member refid="structCKModel_1a159f37ead73ec53796773938896ad8c8" kind="variable"><name>base</name></member>
+    <member refid="structCKModel_1a139ab3cacb7c652d47bf8fcb0f2d4826" kind="variable"><name>batch_size</name></member>
+    <member refid="structCKModel_1a1bc7df42afc06c33d2be8474cf75942b" kind="variable"><name>causal_mask</name></member>
+    <member refid="structCKModel_1a9b0ad93300ab3b15395daf0d8e720f4d" kind="variable"><name>current_pos</name></member>
+    <member refid="structCKModel_1aeb95a6d38bdc2c75a2c482e92b4e5e80" kind="variable"><name>current_seq_len</name></member>
+    <member refid="structCKModel_1a2f32be944ddd75f746ac27532bff6851" kind="variable"><name>fusion_flags</name></member>
+    <member refid="structCKModel_1a5e10579eb6d5d28cabce344d328b3c7a" kind="variable"><name>grad_bytes</name></member>
+    <member refid="structCKModel_1a9122ea9b37528516af41eb29c237838f" kind="variable"><name>hugepage_size</name></member>
+    <member refid="structCKModel_1a30077b979aff326f5c4bd20da8b6d807" kind="variable"><name>kv_cache_enabled</name></member>
+    <member refid="structCKModel_1a2a35dbca7a62e3ebe14b6c502c68f2aa" kind="variable"><name>num_numa_nodes</name></member>
+    <member refid="structCKModel_1a1743953a890cd83255850e11bbe651a4" kind="variable"><name>num_sections</name></member>
+    <member refid="structCKModel_1a4f3d9a363a8fc7d37556b33e6b20cd69" kind="variable"><name>opt_bytes</name></member>
+    <member refid="structCKModel_1aae295251889deebf6fbf7c9e79503406" kind="variable"><name>rope_cos</name></member>
+    <member refid="structCKModel_1a1dadf82f8c8432157affc51f20060036" kind="variable"><name>rope_sin</name></member>
+    <member refid="structCKModel_1ab7a4ebc13bcb370c4dbb36f3357af03a" kind="variable"><name>sections</name></member>
+    <member refid="structCKModel_1a23c5fb291d06cc7cbe7aa8bc2a07b06b" kind="variable"><name>shared_scratch</name></member>
+    <member refid="structCKModel_1afdaa49dc294acb37ed54a2708b6bc8e0" kind="variable"><name>shared_scratch_bytes</name></member>
+    <member refid="structCKModel_1a04a3c244c47624526756feab33715e83" kind="variable"><name>total_bytes</name></member>
+    <member refid="structCKModel_1a84832de4929055025d6634e18ceae38a" kind="variable"><name>training_enabled</name></member>
+    <member refid="structCKModel_1ad6fd0c1ac4e7a733759b86b3ff1ae0fa" kind="variable"><name>weight_bytes</name></member>
   </compound>
   <compound refid="structCKModelConfig" kind="struct"><name>CKModelConfig</name>
     <member refid="structCKModelConfig_1a18a327829d25405e92ba46a79009b89f" kind="variable"><name>context_window</name></member>
@@ -303,15 +561,76 @@
     <member refid="structCKModelConfig_1ae7ab37061b5249887af28ef7eb481377" kind="variable"><name>rope_theta</name></member>
     <member refid="structCKModelConfig_1ad2b6c5944307859fe26f4d915d089027" kind="variable"><name>vocab_size</name></member>
   </compound>
+  <compound refid="structCKPlanBinding" kind="struct"><name>CKPlanBinding</name>
+    <member refid="structCKPlanBinding_1adf2dd85574e578a94cd1fc656d077505" kind="variable"><name>arg</name></member>
+    <member refid="structCKPlanBinding_1a86cd6b157f1489dc20f7558c5a69c94f" kind="variable"><name>buffer</name></member>
+  </compound>
   <compound refid="structCKPlanStep" kind="struct"><name>CKPlanStep</name>
     <member refid="structCKPlanStep_1a870b313bb3754be086178d1478aa8b9e" kind="variable"><name>condition</name></member>
     <member refid="structCKPlanStep_1a07deae3fde9109078baca99987e58ad1" kind="variable"><name>kernel</name></member>
+  </compound>
+  <compound refid="structCKPlanStepV2" kind="struct"><name>CKPlanStepV2</name>
+    <member refid="structCKPlanStepV2_1acaaa916701cbcf1e9a5d35ff79e7c5bf" kind="variable"><name>bindings</name></member>
+    <member refid="structCKPlanStepV2_1a22d5d759ab81944a97689a1a80456664" kind="variable"><name>condition</name></member>
+    <member refid="structCKPlanStepV2_1a1762220af86b81c437f4290195e928b1" kind="variable"><name>kernel</name></member>
+    <member refid="structCKPlanStepV2_1a99fd1a750634dd8160937d173e7acf31" kind="variable"><name>num_bindings</name></member>
   </compound>
   <compound refid="structCKPoolBlock" kind="struct"><name>CKPoolBlock</name>
     <member refid="structCKPoolBlock_1ae3840902acd7df911c6273760f3c63d5" kind="variable"><name>capacity</name></member>
     <member refid="structCKPoolBlock_1a28b34d622ad98214bd709675b430f459" kind="variable"><name>data</name></member>
     <member refid="structCKPoolBlock_1a39f197d57191d7ab700d17ad918d03c5" kind="variable"><name>next</name></member>
     <member refid="structCKPoolBlock_1ad15144404362a0676f0c46a5b5a8d0ba" kind="variable"><name>used</name></member>
+  </compound>
+  <compound refid="structCKSection" kind="struct"><name>CKSection</name>
+    <member refid="structCKSection_1a3a361b1dadf1ae460375452d6b090d84" kind="variable"><name>bridge_output</name></member>
+    <member refid="structCKSection_1a970402cf9743b507254e92ecdb06b224" kind="variable"><name>bridge_proj_b</name></member>
+    <member refid="structCKSection_1aeefc8b6cfe54401ea7adf601307f85ca" kind="variable"><name>bridge_proj_w</name></member>
+    <member refid="structCKSection_1a74a02e21d1d89af4a3f64c236b5595d7" kind="variable"><name>causal_mask</name></member>
+    <member refid="structCKSection_1ac6da7ff6bd601c3b82ea4a5cebced72c" kind="variable"><name>config</name></member>
+    <member refid="structCKSection_1a66b301cef7e5239b28cc6b37437d3ed7" kind="variable"><name>embed_output</name></member>
+    <member refid="structCKSection_1aaccfd552f51b90a5aa47a76b0e4be4aa" kind="variable"><name>final_ln_beta</name></member>
+    <member refid="structCKSection_1a0dd3ee6e1e4f7b5e36cb36a95a87dcd3" kind="variable"><name>final_ln_gamma</name></member>
+    <member refid="structCKSection_1aac276147ba6022404e73010f3ecd203b" kind="variable"><name>final_ln_output</name></member>
+    <member refid="structCKSection_1aa030a13ebf6b121d19344e0249786fb8" kind="variable"><name>footer</name></member>
+    <member refid="structCKSection_1aeb788d634d43d321c22d52573318692f" kind="variable"><name>footer_grads</name></member>
+    <member refid="structCKSection_1a35e472c769329becfef44c2bd7bcd8c8" kind="variable"><name>grads</name></member>
+    <member refid="structCKSection_1adafbb43b1edb42a0adb1b97311b601a4" kind="variable"><name>header</name></member>
+    <member refid="structCKSection_1acd76a9f347cf9d4551e7c7cd33ca8f30" kind="variable"><name>layer_grads</name></member>
+    <member refid="structCKSection_1a77177dc1f5d94b91942e9dd199556661" kind="variable"><name>layer_opt</name></member>
+    <member refid="structCKSection_1a0651f7c9b1f55618e1ed1285fc803eab" kind="variable"><name>layers</name></member>
+    <member refid="structCKSection_1a6bf4783cf0480cfc58c2f5f94a493e52" kind="variable"><name>lm_head</name></member>
+    <member refid="structCKSection_1ade03ada595b6909fbb58a548d29a2b65" kind="variable"><name>logits</name></member>
+    <member refid="structCKSection_1a0c37521cc2163ed38a4d65ff9ce2f381" kind="variable"><name>name</name></member>
+    <member refid="structCKSection_1ad5514ab0802d55a8c9890b563467f25b" kind="variable"><name>num_layers</name></member>
+    <member refid="structCKSection_1a09e2a195e9cfb48f0256523565e73fe7" kind="variable"><name>pos_embed</name></member>
+    <member refid="structCKSection_1a54f5ffde9d9968d1f3b928dc54bbd439" kind="variable"><name>rope_cos</name></member>
+    <member refid="structCKSection_1a117cf20f51a6d9d22c18fad061fde15f" kind="variable"><name>rope_sin</name></member>
+    <member refid="structCKSection_1aa21574168860ae278245951028df3ff0" kind="variable"><name>section_activation_bytes</name></member>
+    <member refid="structCKSection_1ae6657035787375ea5e3ea2c5b28f7161" kind="variable"><name>section_end</name></member>
+    <member refid="structCKSection_1aeea1efa805610505363a8dbe6d734282" kind="variable"><name>section_grad_bytes</name></member>
+    <member refid="structCKSection_1aaf13683953b54b12a83a90251eb6a881" kind="variable"><name>section_id</name></member>
+    <member refid="structCKSection_1abd9ca87b9ad74cd97d0096872749fbc8" kind="variable"><name>section_opt_bytes</name></member>
+    <member refid="structCKSection_1add9ec57d8f21293d2bf65a94a128fc9f" kind="variable"><name>section_start</name></member>
+    <member refid="structCKSection_1a50088bc199e240759c6402920180e469" kind="variable"><name>section_weight_bytes</name></member>
+    <member refid="structCKSection_1ada852daa4974ccedece03be2d141d1b2" kind="variable"><name>token_embed</name></member>
+  </compound>
+  <compound refid="structCKSectionConfig" kind="struct"><name>CKSectionConfig</name>
+    <member refid="structCKSectionConfig_1adb98840ee192100731d7c970794be581" kind="variable"><name>aligned_embed</name></member>
+    <member refid="structCKSectionConfig_1ac248115abce1c49956194ac4c4ad4be4" kind="variable"><name>aligned_head</name></member>
+    <member refid="structCKSectionConfig_1a00a231463e2b815a98384b93f5173853" kind="variable"><name>aligned_intermediate</name></member>
+    <member refid="structCKSectionConfig_1acc666f5160d9139f4e59567c7eb0ad83" kind="variable"><name>embed_dim</name></member>
+    <member refid="structCKSectionConfig_1a3348e1ea8c54d4e25647daa3685da89a" kind="variable"><name>gated_mlp</name></member>
+    <member refid="structCKSectionConfig_1a42f1619a5ca0b7dbee3506ab18f994e5" kind="variable"><name>has_bias</name></member>
+    <member refid="structCKSectionConfig_1a5309473074acf80aeb6e9ac8ec68bbc8" kind="variable"><name>has_pos_embed</name></member>
+    <member refid="structCKSectionConfig_1a4022d24bbcdac19db5fa032e6f02480f" kind="variable"><name>has_rope</name></member>
+    <member refid="structCKSectionConfig_1a70a85143350acb4f082fd2664728e7e9" kind="variable"><name>head_dim</name></member>
+    <member refid="structCKSectionConfig_1a754d226bbafb22421965678394c0920c" kind="variable"><name>intermediate_dim</name></member>
+    <member refid="structCKSectionConfig_1a817bec49fb3f194acfc02ae60597121c" kind="variable"><name>max_seq_len</name></member>
+    <member refid="structCKSectionConfig_1a96ef28b42bf7654f3eeb5167950f31e9" kind="variable"><name>norm_type</name></member>
+    <member refid="structCKSectionConfig_1a5699e7a171a5d55594e936b8f9adf5d4" kind="variable"><name>num_heads</name></member>
+    <member refid="structCKSectionConfig_1a39652ec04ab2531ba520a9c0738eafa4" kind="variable"><name>num_kv_heads</name></member>
+    <member refid="structCKSectionConfig_1aeb21ad93633c6b7fba562f4882706e22" kind="variable"><name>num_layers</name></member>
+    <member refid="structCKSectionConfig_1a2dc3bafd010bc86e6879784f37c2cf26" kind="variable"><name>vocab_size</name></member>
   </compound>
   <compound refid="structCKTokenizer" kind="struct"><name>CKTokenizer</name>
     <member refid="structCKTokenizer_1af13d7f81c356bfb82e80d6742352a376" kind="variable"><name>add_bos</name></member>
@@ -329,6 +648,12 @@
     <member refid="structCKTokenizer_1a52c39349a30ea0dfb6ab48fa975e6fed" kind="variable"><name>vocab_hash</name></member>
     <member refid="structCKTokenizer_1a8271e0624b9f4efe137f25938204bbcb" kind="variable"><name>vocab_hash_size</name></member>
     <member refid="structCKTokenizer_1ada5e95a402ab1abb0295df8e1ecccc04" kind="variable"><name>vocab_size</name></member>
+  </compound>
+  <compound refid="structCKV2AlignInfo" kind="struct"><name>CKV2AlignInfo</name>
+    <member refid="structCKV2AlignInfo_1adf80701e61a4816d8743217c210fb42c" kind="variable"><name>aligned_context</name></member>
+    <member refid="structCKV2AlignInfo_1a3548263bddf41e853e3f3a1afbe4a3f6" kind="variable"><name>aligned_embed</name></member>
+    <member refid="structCKV2AlignInfo_1ad4601ea46693e742ee5a3816e90b6b8a" kind="variable"><name>aligned_head</name></member>
+    <member refid="structCKV2AlignInfo_1a36b54a2a33fbec0fffd1d6df180f0181" kind="variable"><name>aligned_intermediate</name></member>
   </compound>
   <compound refid="structCKVocabEntry" kind="struct"><name>CKVocabEntry</name>
     <member refid="structCKVocabEntry_1ada9b8b0a4490ac11fa8c1571dbd540e9" kind="variable"><name>id</name></member>
@@ -387,9 +712,12 @@
   </compound>
   <compound refid="structMemoryInfo" kind="struct"><name>MemoryInfo</name>
     <member refid="structMemoryInfo_1a72adfc47f767bf59141275a7e542f5e2" kind="variable"><name>available_mb</name></member>
+    <member refid="structMemoryInfo_1ac9d849331a689ebbfa4c6e65da74f990" kind="variable"><name>bw_test_num_threads</name></member>
+    <member refid="structMemoryInfo_1af134427563f2d7794d5cb40fe77aac7f" kind="variable"><name>bw_test_numa_node</name></member>
     <member refid="structMemoryInfo_1acc92d92ac02ffaf28749375c652956e2" kind="variable"><name>cached_mb</name></member>
     <member refid="structMemoryInfo_1ac20112f20e405d5fafdd560b3535f000" kind="variable"><name>channel_config</name></member>
     <member refid="structMemoryInfo_1a4a595e517746ef202bb268465dd605b4" kind="variable"><name>channels_populated</name></member>
+    <member refid="structMemoryInfo_1a58d128299366a3bbd1bef1b86180d2c9" kind="variable"><name>estimated_channels</name></member>
     <member refid="structMemoryInfo_1a3f07269515a43e096aa98be0daa48f46" kind="variable"><name>measured_bandwidth_gbs</name></member>
     <member refid="structMemoryInfo_1a8cf60ff7368ef5b531d0722edf78b2e2" kind="variable"><name>memory_speed_mhz</name></member>
     <member refid="structMemoryInfo_1a8ac82d5b5a76eb7a19634cff450bb897" kind="variable"><name>memory_type</name></member>
@@ -512,6 +840,16 @@
     <member refid="structTransformerModel_1a5e14c6be5365203ff62022d605db1672" kind="variable"><name>token_emb_offset</name></member>
     <member refid="structTransformerModel_1a9fb01acf28cf0c0f53a8b4c416cedd59" kind="variable"><name>total_bytes</name></member>
     <member refid="structTransformerModel_1aa1da3a055e1f53a6aa8aa54d380e04d1" kind="variable"><name>total_floats</name></member>
+  </compound>
+  <compound refid="add__kernels__bf16_8c" kind="file"><name>add_kernels_bf16.c</name>
+    <member refid="add__kernels__bf16_8c_1af14d547ba76e5cb7b26c812751f9a749" kind="function"><name>add_backward_bf16</name></member>
+    <member refid="add__kernels__bf16_8c_1a9855ffa2b0a5cc3070238b9ad6b3d6f2" kind="function"><name>add_forward_2d_bf16</name></member>
+    <member refid="add__kernels__bf16_8c_1a96a426e195f548c8cad7a3d8ccc691d6" kind="function"><name>add_forward_bf16</name></member>
+    <member refid="add__kernels__bf16_8c_1a4c166feaf5808ab05b916adb1b09e323" kind="function"><name>add_forward_f32</name></member>
+    <member refid="add__kernels__bf16_8c_1a33b5300506aebe863f2781fe7d58ae95" kind="function"><name>add_inplace_bf16</name></member>
+    <member refid="add__kernels__bf16_8c_1a51008eb010aff17a631159e631ecbcb3" kind="function"><name>add_inplace_f32</name></member>
+    <member refid="add__kernels__bf16_8c_1a29182cacb5925fc3bfcef5c8db425c3f" kind="function"><name>add_scaled_forward_bf16</name></member>
+    <member refid="add__kernels__bf16_8c_1afd826861943ffdc6583156dfa789cdb7" kind="function"><name>add_scaled_inplace_bf16</name></member>
   </compound>
   <compound refid="attention__decode__fused_8c" kind="file"><name>attention_decode_fused.c</name>
     <member refid="attention__decode__fused_8c_1ade31f5d0f381b108e331db103adc6251" kind="function"><name>ck_attention_project_head_major_decode_token</name></member>
@@ -647,6 +985,52 @@
     <member refid="ckernel__codegen_8h_1aae1b0d88edbdfac3f1c0108f88e1f02b" kind="function"><name>ck_codegen_c_skeleton</name></member>
     <member refid="ckernel__codegen_8h_1a120f32d0bd6569e3d76d63823e442b93" kind="function"><name>ck_codegen_emit_runtime</name></member>
   </compound>
+  <compound refid="ckernel__codegen__v2_8c" kind="file"><name>ckernel_codegen_v2.c</name>
+    <member refid="ckernel__codegen__v2_8c_1a359e5ca69869c47ed1af896696d5fa2a" kind="function"><name>ck_codegen_v2_emit_runtime</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2_8h" kind="file"><name>ckernel_codegen_v2.h</name>
+    <member refid="ckernel__codegen__v2_8h_1a359e5ca69869c47ed1af896696d5fa2a" kind="function"><name>ck_codegen_v2_emit_runtime</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2__dispatch_8c" kind="file"><name>ckernel_codegen_v2_dispatch.c</name>
+    <member refid="ckernel__codegen__v2__dispatch_8c_1a25210aab27883b33edc651935f80253d" kind="function"><name>ck_codegen_v2_emit_dispatch</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2__emit_8h" kind="file"><name>ckernel_codegen_v2_emit.h</name>
+    <member refid="ckernel__codegen__v2__emit_8h_1a25210aab27883b33edc651935f80253d" kind="function"><name>ck_codegen_v2_emit_dispatch</name></member>
+    <member refid="ckernel__codegen__v2__emit_8h_1afb554665feda313ecad0c4578e1524ed" kind="function"><name>ck_codegen_v2_emit_preamble</name></member>
+    <member refid="ckernel__codegen__v2__emit_8h_1ada7359f13925bdddc33699612662f83f" kind="function"><name>ck_codegen_v2_emit_schedule</name></member>
+    <member refid="ckernel__codegen__v2__emit_8h_1a53921362b48f16a09556f3a2ed1a7cad" kind="function"><name>ck_codegen_v2_emit_sections</name></member>
+    <member refid="ckernel__codegen__v2__emit_8h_1a169fbc00f6c34fedc08c67f379d774d9" kind="function"><name>ck_codegen_v2_emit_struct</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2__schedule_8c" kind="file"><name>ckernel_codegen_v2_schedule.c</name>
+    <member refid="ckernel__codegen__v2__schedule_8c_1a6a1b087f20ce9f80ca17edba0cf239e2" kind="function"><name>ck_codegen_v2_dtype_name</name></member>
+    <member refid="ckernel__codegen__v2__schedule_8c_1ada7359f13925bdddc33699612662f83f" kind="function"><name>ck_codegen_v2_emit_schedule</name></member>
+    <member refid="ckernel__codegen__v2__schedule_8c_1af862b6509a6666e42721844344572070" kind="function"><name>emit_schedule_block</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2__sections_8c" kind="file"><name>ckernel_codegen_v2_sections.c</name>
+    <member refid="ckernel__codegen__v2__sections_8c_1a1810cb110e36e2fb70bd95ea62184da9" kind="define"><name>CK_V2_SECTION_ALIGN</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a19108c1ddea653d46840daefcf542bb5" kind="function"><name>align_up_bytes</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a1a43f9f3bcd4506c4f8c237af70f0a04" kind="function"><name>align_up_elems</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a26bdf2b8cd441142de5a6cdd668fc6e4" kind="function"><name>buffer_bytes</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a53921362b48f16a09556f3a2ed1a7cad" kind="function"><name>ck_codegen_v2_emit_sections</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a098357b6aa338eaf0eb4015e76593802" kind="function"><name>compute_align</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a79c985e78b810357a0500b2fbc05ff8c" kind="function"><name>emit_body_fields</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a5c49554f4bb548792ba71593098ee340" kind="function"><name>emit_body_values</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a0abd05b9a89960e11f08169de3987eb5" kind="function"><name>emit_footer_fields</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1adff53af0cef8e05edeb43e22bdfb6691" kind="function"><name>emit_footer_values</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1ab51079158edecdc8c0c304fb2e53aeeb" kind="function"><name>emit_header_fields</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a784a41eb11e59d580c4aa60579365431" kind="function"><name>emit_header_values</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1adb5cfa3336516600c654709069bfe507" kind="function"><name>emit_span_field</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a810199936793c03ec03db96d49632279" kind="function"><name>emit_span_value</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a58509f625e7fe7618d779aa877148934" kind="function"><name>is_activation_role</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a7d95b276b7779935bb1b601366de9da3" kind="function"><name>is_footer_global</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a6251351b29a765643c4d864d7be295e7" kind="function"><name>plan_size</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a21a270a5a12b9a2b3f0e203fcc7b260c" kind="function"><name>resolve_dim</name></member>
+    <member refid="ckernel__codegen__v2__sections_8c_1a9731c1e82ffd7389363dde7cb8ec1762" kind="function"><name>resolve_shape_elems</name></member>
+  </compound>
+  <compound refid="ckernel__codegen__v2__struct_8c" kind="file"><name>ckernel_codegen_v2_struct.c</name>
+    <member refid="ckernel__codegen__v2__struct_8c_1afb554665feda313ecad0c4578e1524ed" kind="function"><name>ck_codegen_v2_emit_preamble</name></member>
+    <member refid="ckernel__codegen__v2__struct_8c_1a169fbc00f6c34fedc08c67f379d774d9" kind="function"><name>ck_codegen_v2_emit_struct</name></member>
+  </compound>
   <compound refid="ckernel__dtype_8h" kind="file"><name>ckernel_dtype.h</name>
     <member refid="ckernel__dtype_8h_1a15aeea2b64a849105b76d7b10244c4fb" kind="define"><name>CK_DT_MASK</name></member>
     <member refid="ckernel__dtype_8h_1a9d2373b6c685cf9421a6fb638964aa65" kind="enum"><name>CKDataType</name></member>
@@ -669,6 +1053,14 @@
     <member refid="ckernel__dtype_8h_1a0e5614fcb460431bcfe32523119798b6" kind="function"><name>ck_dtype_supported</name></member>
   </compound>
   <compound refid="ckernel__engine_8h" kind="file"><name>ckernel_engine.h</name>
+    <member refid="ckernel__engine_8h_1af14d547ba76e5cb7b26c812751f9a749" kind="function"><name>add_backward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a9855ffa2b0a5cc3070238b9ad6b3d6f2" kind="function"><name>add_forward_2d_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a96a426e195f548c8cad7a3d8ccc691d6" kind="function"><name>add_forward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a4c166feaf5808ab05b916adb1b09e323" kind="function"><name>add_forward_f32</name></member>
+    <member refid="ckernel__engine_8h_1a33b5300506aebe863f2781fe7d58ae95" kind="function"><name>add_inplace_bf16</name></member>
+    <member refid="ckernel__engine_8h_1a51008eb010aff17a631159e631ecbcb3" kind="function"><name>add_inplace_f32</name></member>
+    <member refid="ckernel__engine_8h_1a29182cacb5925fc3bfcef5c8db425c3f" kind="function"><name>add_scaled_forward_bf16</name></member>
+    <member refid="ckernel__engine_8h_1afd826861943ffdc6583156dfa789cdb7" kind="function"><name>add_scaled_inplace_bf16</name></member>
     <member refid="ckernel__engine_8h_1ad611fd5e8dba3e906482d6e68f919788" kind="function"><name>attention_backward_causal_head_major</name></member>
     <member refid="ckernel__engine_8h_1adbd2b55fbc53b6e288c98813b61cd6e3" kind="function"><name>attention_backward_causal_head_major_gqa</name></member>
     <member refid="ckernel__engine_8h_1a1a95c2e93bfbe603df487d0c0eb5ea2b" kind="function"><name>attention_backward_causal_head_major_gqa_bf16</name></member>
@@ -838,13 +1230,139 @@
   <compound refid="ckernel__ir__demo_8c" kind="file"><name>ckernel_ir_demo.c</name>
     <member refid="ckernel__ir__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" kind="function"><name>main</name></member>
   </compound>
+  <compound refid="ckernel__ir__v2_8c" kind="file"><name>ckernel_ir_v2.c</name>
+    <member refid="ckernel__ir__v2_8c_1aec09135b0e8e2299d411fd372a6f7620" kind="function"><name>ck_ir_v2_align_up_bytes</name></member>
+    <member refid="ckernel__ir__v2_8c_1a7b940d9248cb64bb1686d027f19118a2" kind="function"><name>ck_ir_v2_align_up_elems</name></member>
+    <member refid="ckernel__ir__v2_8c_1a16f0adffb7f070e736510d15b79fd090" kind="function"><name>ck_ir_v2_dim_kind_from_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a0caea95ebb9e2947e60502e26e31b219" kind="function"><name>ck_ir_v2_dim_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a1ace093db696088ef9e27acd5a262ddc" kind="function"><name>ck_ir_v2_dtype_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a16f43d7b97c61478fda41d87c39c2926" kind="function"><name>ck_ir_v2_emit_dimensions</name></member>
+    <member refid="ckernel__ir__v2_8c_1a4dfc8fc98d47433b4edc3f782245b155" kind="function"><name>ck_ir_v2_emit_memory_plan</name></member>
+    <member refid="ckernel__ir__v2_8c_1a10b31a6870b5ed5d6f2cc5308cdb4595" kind="function"><name>ck_ir_v2_emit_resolved_shape</name></member>
+    <member refid="ckernel__ir__v2_8c_1aecf440e6ef11b3adb17f35b10fbdbe36" kind="function"><name>ck_ir_v2_emit_shape</name></member>
+    <member refid="ckernel__ir__v2_8c_1a660b9cd714f6bf6f4673a4d72773a47e" kind="function"><name>ck_ir_v2_find_array_end</name></member>
+    <member refid="ckernel__ir__v2_8c_1ad0ca6b1fd812a332aa86eef694f67a8f" kind="function"><name>ck_ir_v2_find_buffer_index</name></member>
+    <member refid="ckernel__ir__v2_8c_1a9061702d3b2dda35df5209dffd8c921d" kind="function"><name>ck_ir_v2_find_buffer_spec</name></member>
+    <member refid="ckernel__ir__v2_8c_1a8be1b56b21de19f8cde1e7bfe390ffad" kind="function"><name>ck_ir_v2_find_key</name></member>
+    <member refid="ckernel__ir__v2_8c_1a681eb8d191d9589d6ff0ecb59536c671" kind="function"><name>ck_ir_v2_free</name></member>
+    <member refid="ckernel__ir__v2_8c_1a2d4b092eeda3d5fd6f4827738c392cf0" kind="function"><name>ck_ir_v2_free_buffer</name></member>
+    <member refid="ckernel__ir__v2_8c_1a2991dcb555833cd8219bb72c0bb1365e" kind="function"><name>ck_ir_v2_free_node</name></member>
+    <member refid="ckernel__ir__v2_8c_1a12ea47b58077890baed6a51451e3ba24" kind="function"><name>ck_ir_v2_mem_arena_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a5b2b1869a20c7dfb93ad9ac0e8c8973e" kind="function"><name>ck_ir_v2_next_object</name></member>
+    <member refid="ckernel__ir__v2_8c_1a8e6c1f9f64d10f81ed51fae6cace118e" kind="function"><name>ck_ir_v2_parse_bindings</name></member>
+    <member refid="ckernel__ir__v2_8c_1a96abfe5ba6fb33fbd6d98e4a1f99268e" kind="function"><name>ck_ir_v2_parse_bool</name></member>
+    <member refid="ckernel__ir__v2_8c_1a30e1e73b3c441b38f7d526dd66e9e733" kind="function"><name>ck_ir_v2_parse_buffers</name></member>
+    <member refid="ckernel__ir__v2_8c_1a67ade9fae32104a0abe77fbb3ffbc215" kind="function"><name>ck_ir_v2_parse_dim_kind</name></member>
+    <member refid="ckernel__ir__v2_8c_1acf24a677d11c08305e6c3f383baeabb2" kind="function"><name>ck_ir_v2_parse_dtype</name></member>
+    <member refid="ckernel__ir__v2_8c_1ae078a8bb851c1c4e447f3f46edf9bea8" kind="function"><name>ck_ir_v2_parse_float</name></member>
+    <member refid="ckernel__ir__v2_8c_1aa8d3d9a24512a941039e8a3db6674e79" kind="function"><name>ck_ir_v2_parse_int</name></member>
+    <member refid="ckernel__ir__v2_8c_1a823b147ca06c5f9073e6eaedff358bb1" kind="function"><name>ck_ir_v2_parse_json</name></member>
+    <member refid="ckernel__ir__v2_8c_1aaa7bca993e64a4a003405af642a6a7f4" kind="function"><name>ck_ir_v2_parse_nodes</name></member>
+    <member refid="ckernel__ir__v2_8c_1a952d2c8b5eb8e57a7363f31c8962c669" kind="function"><name>ck_ir_v2_parse_role</name></member>
+    <member refid="ckernel__ir__v2_8c_1ae1b778bac93afbe6344d8b9de0a3d4ca" kind="function"><name>ck_ir_v2_parse_scope</name></member>
+    <member refid="ckernel__ir__v2_8c_1a4191cd0b38a5afe0071fe5a0cbd6c276" kind="function"><name>ck_ir_v2_parse_shape</name></member>
+    <member refid="ckernel__ir__v2_8c_1a270a7ecdb4d34268f22566281eb38fc2" kind="function"><name>ck_ir_v2_parse_string</name></member>
+    <member refid="ckernel__ir__v2_8c_1ab3cd9d18103d7ca5a5755b4f4a7d7570" kind="function"><name>ck_ir_v2_parse_string_field</name></member>
+    <member refid="ckernel__ir__v2_8c_1a0149e296ef39190f04b4beda51192f04" kind="function"><name>ck_ir_v2_resolve_align</name></member>
+    <member refid="ckernel__ir__v2_8c_1a1c366d6091fe02291bd660fd57393e0e" kind="function"><name>ck_ir_v2_resolve_dim_value</name></member>
+    <member refid="ckernel__ir__v2_8c_1a3ccc1f837807a9ee24eb77bfa412cfd8" kind="function"><name>ck_ir_v2_role_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a1e02dc62afd3650a7c3883a31d9bea85" kind="function"><name>ck_ir_v2_scope_name</name></member>
+    <member refid="ckernel__ir__v2_8c_1a6cdd7c6d88800527b0c3633beecd077d" kind="function"><name>ck_ir_v2_serialize_json</name></member>
+    <member refid="ckernel__ir__v2_8c_1a209e3eb32f2a8291f63a6503e031b78a" kind="function"><name>ck_ir_v2_serialize_json_internal</name></member>
+    <member refid="ckernel__ir__v2_8c_1afe7922e1781cb9b7b383e0e05b06d652" kind="function"><name>ck_ir_v2_serialize_json_with_plan</name></member>
+    <member refid="ckernel__ir__v2_8c_1ada85e4a8a0b5bceb985f40f6bd414873" kind="function"><name>ck_ir_v2_skip_string</name></member>
+  </compound>
+  <compound refid="ckernel__ir__v2_8h" kind="file"><name>ckernel_ir_v2.h</name>
+    <member refid="ckernel__ir__v2_8h_1a0ee7790c95183c6bfb4e941096fab601" kind="define"><name>CK_IR_V2_MAX_BINDINGS</name></member>
+    <member refid="ckernel__ir__v2_8h_1a058176b4def706d5a0e1e2e37f472ede" kind="define"><name>CK_IR_V2_MAX_DIMS</name></member>
+    <member refid="ckernel__ir__v2_8h_1aaabbb4fa50030e014cc46c48ac42c25d" kind="define"><name>CK_IR_V2_MAX_INPUTS</name></member>
+    <member refid="ckernel__ir__v2_8h_1a20a2600398e0320fbef06ee7ce4682ec" kind="define"><name>CK_IR_V2_MAX_OUTPUTS</name></member>
+    <member refid="ckernel__ir__v2_8h_1ac6a19aa94348b33702ba27f461574cb5" kind="enum"><name>CKIRV2NodeFlags</name></member>
+    <member refid="ckernel__ir__v2_8h_1ac6a19aa94348b33702ba27f461574cb5ae66b9baa0fff3ce291efd21eab738da3" kind="enumvalue"><name>CK_IR_V2_NODE_NONE</name></member>
+    <member refid="ckernel__ir__v2_8h_1ac6a19aa94348b33702ba27f461574cb5a2fa704b530b5d37125fb869e8525978e" kind="enumvalue"><name>CK_IR_V2_NODE_FUSED</name></member>
+    <member refid="ckernel__ir__v2_8h_1ac6a19aa94348b33702ba27f461574cb5ae176b4a1e2034abbe0a9d96a548a7cb2" kind="enumvalue"><name>CK_IR_V2_NODE_INFERENCE_ONLY</name></member>
+    <member refid="ckernel__ir__v2_8h_1a6ca70d7ee0aba15ab3c49671f848e20d" kind="function"><name>ck_ir_v2_apply_meta</name></member>
+    <member refid="ckernel__ir__v2_8h_1a80f105580f1785ac4dfcccf2496389e7" kind="function"><name>ck_ir_v2_build_decoder</name></member>
+    <member refid="ckernel__ir__v2_8h_1ad34447264bfb018e6d5f856c5fcff1f3" kind="function"><name>ck_ir_v2_build_decoder_backward</name></member>
+    <member refid="ckernel__ir__v2_8h_1a681eb8d191d9589d6ff0ecb59536c671" kind="function"><name>ck_ir_v2_free</name></member>
+    <member refid="ckernel__ir__v2_8h_1a823b147ca06c5f9073e6eaedff358bb1" kind="function"><name>ck_ir_v2_parse_json</name></member>
+    <member refid="ckernel__ir__v2_8h_1a6cdd7c6d88800527b0c3633beecd077d" kind="function"><name>ck_ir_v2_serialize_json</name></member>
+    <member refid="ckernel__ir__v2_8h_1a3b6c997fea78e5e450c1007074ec0ae2" kind="function"><name>ck_ir_v2_serialize_json_with_plan</name></member>
+  </compound>
+  <compound refid="ckernel__ir__v2__builder_8c" kind="file"><name>ckernel_ir_v2_builder.c</name>
+    <member refid="ckernel__ir__v2__builder_8c_1a6ca70d7ee0aba15ab3c49671f848e20d" kind="function"><name>ck_ir_v2_apply_meta</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a1878230b08b02341da1bbcab15e6950f" kind="function"><name>ck_ir_v2_apply_weight_dtypes</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a80f105580f1785ac4dfcccf2496389e7" kind="function"><name>ck_ir_v2_build_decoder</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1ad34447264bfb018e6d5f856c5fcff1f3" kind="function"><name>ck_ir_v2_build_decoder_backward</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a29e53bd4efe76f71f9f493bd6ca03364" kind="function"><name>ck_ir_v2_copy_buffer_spec</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a848d051811b6e6f10ed7c7747360fd5b" kind="function"><name>ck_ir_v2_copy_shape</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1ad0ca6b1fd812a332aa86eef694f67a8f" kind="function"><name>ck_ir_v2_find_buffer_index</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1af49195eecf6a337b1d16a56ed0e37922" kind="function"><name>ck_ir_v2_find_kernel_spec</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a8be1b56b21de19f8cde1e7bfe390ffad" kind="function"><name>ck_ir_v2_find_key</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a39594713511ebb496afee8c67c18c60b" kind="function"><name>ck_ir_v2_parse_bool</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1acf24a677d11c08305e6c3f383baeabb2" kind="function"><name>ck_ir_v2_parse_dtype</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a7aa30708242122818555e5bb33b47f99" kind="function"><name>ck_ir_v2_parse_string</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a2a289dfc861e40f2cc178fd95b37b0e5" kind="function"><name>ck_ir_v2_select_kernel</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a494e3c508c52e2a879d635959142382b" kind="function"><name>ck_ir_v2_skip_ws</name></member>
+    <member refid="ckernel__ir__v2__builder_8c_1a104bb744263fc943e02e9fb5e66632bf" kind="function"><name>ck_ir_v2_strdup</name></member>
+  </compound>
+  <compound refid="ckernel__ir__v2__demo_8c" kind="file"><name>ckernel_ir_v2_demo.c</name>
+    <member refid="ckernel__ir__v2__demo_8c_1a3c04138a5bfe5d72780bb7e82a18e627" kind="function"><name>main</name></member>
+    <member refid="ckernel__ir__v2__demo_8c_1a603ee328bed115ceb77c94f97d9d3818" kind="function"><name>print_usage</name></member>
+  </compound>
+  <compound refid="ckernel__ir__v2__lower_8c" kind="file"><name>ckernel_ir_v2_lower.c</name>
+    <member refid="ckernel__ir__v2__lower_8c_1afab4118c98b374b583c3820509d704a3" kind="function"><name>ck_ir_v2_lower_copy_buffers</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1a01c0217fbe22f0cf99eaea3cdf3464ce" kind="function"><name>ck_ir_v2_lower_copy_nodes</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1ab2afc44e824ca8ed4de7e445f9cc06d3" kind="function"><name>ck_ir_v2_lower_emit_json</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1ad92c2089721962b2160c2cab45ace188" kind="function"><name>ck_ir_v2_lower_graph</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1ad77a3931fd63e54350cafae5c0852b8a" kind="function"><name>ck_ir_v2_lower_mode_from_string</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1a3e9efe6be861d2ba1c9ccdb1e9e07ce4" kind="function"><name>ck_ir_v2_lower_mode_name</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1a074504881ccb13df7e8465c2a7defa29" kind="function"><name>ck_ir_v2_lower_node_enabled</name></member>
+    <member refid="ckernel__ir__v2__lower_8c_1a2ff3413af1e2e189ae18042dcbf8d8e0" kind="function"><name>ck_ir_v2_lower_strdup</name></member>
+  </compound>
+  <compound refid="ckernel__ir__v2__lower_8h" kind="file"><name>ckernel_ir_v2_lower.h</name>
+    <member refid="ckernel__ir__v2__lower_8h_1ad1399201752063abea915ebc3675aebc" kind="enum"><name>CKIRV2LowerMode</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ad1399201752063abea915ebc3675aebcafc68515321c2a56b0beef8702f68e159" kind="enumvalue"><name>CK_IR_V2_LOWER_PREFILL</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ad1399201752063abea915ebc3675aebca9237cf2564446dd0be1318925986a47d" kind="enumvalue"><name>CK_IR_V2_LOWER_DECODE</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ad1399201752063abea915ebc3675aebca460d11a23f75bd0dded54cff1800f287" kind="enumvalue"><name>CK_IR_V2_LOWER_BACKWARD</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ab2afc44e824ca8ed4de7e445f9cc06d3" kind="function"><name>ck_ir_v2_lower_emit_json</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ad92c2089721962b2160c2cab45ace188" kind="function"><name>ck_ir_v2_lower_graph</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1ad77a3931fd63e54350cafae5c0852b8a" kind="function"><name>ck_ir_v2_lower_mode_from_string</name></member>
+    <member refid="ckernel__ir__v2__lower_8h_1a3e9efe6be861d2ba1c9ccdb1e9e07ce4" kind="function"><name>ck_ir_v2_lower_mode_name</name></member>
+  </compound>
   <compound refid="ckernel__kernel__specs_8c" kind="file"><name>ckernel_kernel_specs.c</name>
+    <member refid="ckernel__kernel__specs_8c_1a552e596e112baf3828a6a7768852ab4a" kind="variable"><name>ck_decoder_backward_bindings_0</name></member>
+    <member refid="ckernel__kernel__specs_8c_1ab4209bfb468edc243dc880efd2a100b0" kind="variable"><name>ck_decoder_backward_bindings_1</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a599073cb469ca4a41f225d59c46cd8f5" kind="variable"><name>ck_decoder_backward_bindings_10</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a2535d871ccbd69b756943344c285f81d" kind="variable"><name>ck_decoder_backward_bindings_2</name></member>
+    <member refid="ckernel__kernel__specs_8c_1ac4515cb084f03bbf8114f50fdf5d93b1" kind="variable"><name>ck_decoder_backward_bindings_3</name></member>
+    <member refid="ckernel__kernel__specs_8c_1aeb00b06b95ce429f4112c7ce11205e06" kind="variable"><name>ck_decoder_backward_bindings_4</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a7fa14f40e9875b558f212568286d093b" kind="variable"><name>ck_decoder_backward_bindings_5</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a340947d938fa9fc1b5868dc411c33088" kind="variable"><name>ck_decoder_backward_bindings_6</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a6d7571c2e5efb892237a0065ed5c9262" kind="variable"><name>ck_decoder_backward_bindings_7</name></member>
+    <member refid="ckernel__kernel__specs_8c_1aa8a0174240769286802a66c7e4baec38" kind="variable"><name>ck_decoder_backward_bindings_8</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a140e2367a5c7ae094bcdb77b0c023bed" kind="variable"><name>ck_decoder_backward_bindings_9</name></member>
     <member refid="ckernel__kernel__specs_8c_1a96b6d10882bf34a6c7b9bf07b9b31fa2" kind="variable"><name>ck_decoder_backward_plan</name></member>
     <member refid="ckernel__kernel__specs_8c_1a42241607f71ab42ad23c344eacc3421f" kind="variable"><name>ck_decoder_backward_plan_count</name></member>
+    <member refid="ckernel__kernel__specs_8c_1ac454d061133c2eff4e5084be4ebacb00" kind="variable"><name>ck_decoder_backward_plan_v2</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a78253557cd8c8795464f1988cd7c23a5" kind="variable"><name>ck_decoder_backward_plan_v2_count</name></member>
     <member refid="ckernel__kernel__specs_8c_1ae9be980801e3c3b9e00b575e2eb132bd" kind="variable"><name>ck_decoder_buffer_count</name></member>
     <member refid="ckernel__kernel__specs_8c_1ad9257c11ae490b3da865862c61a8c5cf" kind="variable"><name>ck_decoder_buffers</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a404b43a8478863adf2e78096c1217cb9" kind="variable"><name>ck_decoder_forward_bindings_0</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a30ca94a205e9342b0bee64441ece656b" kind="variable"><name>ck_decoder_forward_bindings_1</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a98a362c88dfcef36d1a89b2f15c897ed" kind="variable"><name>ck_decoder_forward_bindings_10</name></member>
+    <member refid="ckernel__kernel__specs_8c_1aa16d7f74434cfa05e7ce4d637b52b922" kind="variable"><name>ck_decoder_forward_bindings_2</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a61dc38fb3d0ea5eaf6ee3fea5ad9c26a" kind="variable"><name>ck_decoder_forward_bindings_3</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a6865300e2e7c079c01244462fbd9eb5b" kind="variable"><name>ck_decoder_forward_bindings_4</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a7a9c77e5546eacfb8d032bdf66a85a74" kind="variable"><name>ck_decoder_forward_bindings_5</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a384132179c5765f7201d295d743216b0" kind="variable"><name>ck_decoder_forward_bindings_6</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a0971960a12dc1651840c33a244bdb8c9" kind="variable"><name>ck_decoder_forward_bindings_7</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a613c59431a0d71cd711fb31f2c252a90" kind="variable"><name>ck_decoder_forward_bindings_8</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a0e71229bafba091b6e7a7b318b8bd131" kind="variable"><name>ck_decoder_forward_bindings_9</name></member>
     <member refid="ckernel__kernel__specs_8c_1a383b37a8b40251a4c98762a31982f5f2" kind="variable"><name>ck_decoder_forward_plan</name></member>
     <member refid="ckernel__kernel__specs_8c_1a7b169d0eafc6b23adf4dc42551b8a38e" kind="variable"><name>ck_decoder_forward_plan_count</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a2ca67fec5e711b5cbdde5b1c602b949e" kind="variable"><name>ck_decoder_forward_plan_v2</name></member>
+    <member refid="ckernel__kernel__specs_8c_1a5313b833dc861ada85f37e9ef379dee3" kind="variable"><name>ck_decoder_forward_plan_v2_count</name></member>
     <member refid="ckernel__kernel__specs_8c_1ae2c418c152f247ea5d6c9be09ae02b3f" kind="variable"><name>ck_kernel_spec_count</name></member>
     <member refid="ckernel__kernel__specs_8c_1aa20bb688c0d74340b5300e106e14e72a" kind="variable"><name>ck_kernel_specs</name></member>
   </compound>
@@ -875,12 +1393,75 @@
     <member refid="ckernel__kernel__specs_8h_1a3d91eb22ec223e36c65a04283581e390a5b77bd8d985c0ad98814cdc0fe4c486d" kind="enumvalue"><name>CK_DIM_END</name></member>
     <member refid="ckernel__kernel__specs_8h_1a96b6d10882bf34a6c7b9bf07b9b31fa2" kind="variable"><name>ck_decoder_backward_plan</name></member>
     <member refid="ckernel__kernel__specs_8h_1a42241607f71ab42ad23c344eacc3421f" kind="variable"><name>ck_decoder_backward_plan_count</name></member>
+    <member refid="ckernel__kernel__specs_8h_1ac454d061133c2eff4e5084be4ebacb00" kind="variable"><name>ck_decoder_backward_plan_v2</name></member>
+    <member refid="ckernel__kernel__specs_8h_1a78253557cd8c8795464f1988cd7c23a5" kind="variable"><name>ck_decoder_backward_plan_v2_count</name></member>
     <member refid="ckernel__kernel__specs_8h_1ae9be980801e3c3b9e00b575e2eb132bd" kind="variable"><name>ck_decoder_buffer_count</name></member>
     <member refid="ckernel__kernel__specs_8h_1ad9257c11ae490b3da865862c61a8c5cf" kind="variable"><name>ck_decoder_buffers</name></member>
     <member refid="ckernel__kernel__specs_8h_1a383b37a8b40251a4c98762a31982f5f2" kind="variable"><name>ck_decoder_forward_plan</name></member>
     <member refid="ckernel__kernel__specs_8h_1a7b169d0eafc6b23adf4dc42551b8a38e" kind="variable"><name>ck_decoder_forward_plan_count</name></member>
+    <member refid="ckernel__kernel__specs_8h_1a2ca67fec5e711b5cbdde5b1c602b949e" kind="variable"><name>ck_decoder_forward_plan_v2</name></member>
+    <member refid="ckernel__kernel__specs_8h_1a5313b833dc861ada85f37e9ef379dee3" kind="variable"><name>ck_decoder_forward_plan_v2_count</name></member>
     <member refid="ckernel__kernel__specs_8h_1ae2c418c152f247ea5d6c9be09ae02b3f" kind="variable"><name>ck_kernel_spec_count</name></member>
     <member refid="ckernel__kernel__specs_8h_1aa20bb688c0d74340b5300e106e14e72a" kind="variable"><name>ck_kernel_specs</name></member>
+  </compound>
+  <compound refid="ckernel__mem__plan_8c" kind="file"><name>ckernel_mem_plan.c</name>
+    <member refid="ckernel__mem__plan_8c_1a19108c1ddea653d46840daefcf542bb5" kind="function"><name>align_up_bytes</name></member>
+    <member refid="ckernel__mem__plan_8c_1a1a43f9f3bcd4506c4f8c237af70f0a04" kind="function"><name>align_up_elems</name></member>
+    <member refid="ckernel__mem__plan_8c_1a648ff92cf8d5c0cc9cd28c3b4567a6a6" kind="function"><name>arena_for_role</name></member>
+    <member refid="ckernel__mem__plan_8c_1abb79ec65608b1997ebc6ee5983c24504" kind="function"><name>buffer_enabled</name></member>
+    <member refid="ckernel__mem__plan_8c_1a2ac35f81413e92025c1492d78f45a703" kind="function"><name>build_plan</name></member>
+    <member refid="ckernel__mem__plan_8c_1a92e5aeb38254a89e211012c7cfa1886c" kind="function"><name>ck_mem_plan_build_inference</name></member>
+    <member refid="ckernel__mem__plan_8c_1ab2ccd14ce31d7ef0d57d5620a96a23f4" kind="function"><name>ck_mem_plan_build_inference_with_tokens</name></member>
+    <member refid="ckernel__mem__plan_8c_1a14f34bf1cb156c5a07296e5328f5c0cc" kind="function"><name>ck_mem_plan_build_training</name></member>
+    <member refid="ckernel__mem__plan_8c_1a57db8942b533ff570008d5d04a9f7c1e" kind="function"><name>ck_mem_plan_build_training_with_tokens</name></member>
+    <member refid="ckernel__mem__plan_8c_1a69f7ae632754a94b1a227da5a6633fb1" kind="function"><name>ck_mem_plan_free</name></member>
+    <member refid="ckernel__mem__plan_8c_1a615c5d3cfa93ae333a302f9c14b4927c" kind="function"><name>find_buffer_by_name</name></member>
+    <member refid="ckernel__mem__plan_8c_1a0d9ae71bc7bcfb4654c4c2c5bdaf8e4e" kind="function"><name>resolve_dim</name></member>
+    <member refid="ckernel__mem__plan_8c_1a1a08695b8f684d75f5a5e8ac277da6f9" kind="function"><name>resolve_shape_elems</name></member>
+  </compound>
+  <compound refid="ckernel__mem__plan_8h" kind="file"><name>ckernel_mem_plan.h</name>
+    <member refid="ckernel__mem__plan_8h_1a7b0ecac54309914511507bc80cdce744" kind="define"><name>CK_MEM_PLAN_DEFAULT_ALIGN</name></member>
+    <member refid="ckernel__mem__plan_8h_1a7593aeefed160055e5352bda2cb27873" kind="enum"><name>CKMemArenaKind</name></member>
+    <member refid="ckernel__mem__plan_8h_1a7593aeefed160055e5352bda2cb27873a904b7e65d05595093e2c5ed58578a3be" kind="enumvalue"><name>CK_MEM_ARENA_WEIGHTS</name></member>
+    <member refid="ckernel__mem__plan_8h_1a7593aeefed160055e5352bda2cb27873ab440f0630c9e4a2b22f79b82e76699f0" kind="enumvalue"><name>CK_MEM_ARENA_ACTIVATIONS</name></member>
+    <member refid="ckernel__mem__plan_8h_1a7593aeefed160055e5352bda2cb27873a32ad00dbbce0c0eb6486d21de6a43492" kind="enumvalue"><name>CK_MEM_ARENA_GRADS</name></member>
+    <member refid="ckernel__mem__plan_8h_1a7593aeefed160055e5352bda2cb27873a8f8f213ffa426f0656a6de5c1fae8fbb" kind="enumvalue"><name>CK_MEM_ARENA_COUNT</name></member>
+    <member refid="ckernel__mem__plan_8h_1a92e5aeb38254a89e211012c7cfa1886c" kind="function"><name>ck_mem_plan_build_inference</name></member>
+    <member refid="ckernel__mem__plan_8h_1ab2ccd14ce31d7ef0d57d5620a96a23f4" kind="function"><name>ck_mem_plan_build_inference_with_tokens</name></member>
+    <member refid="ckernel__mem__plan_8h_1a14f34bf1cb156c5a07296e5328f5c0cc" kind="function"><name>ck_mem_plan_build_training</name></member>
+    <member refid="ckernel__mem__plan_8h_1a57db8942b533ff570008d5d04a9f7c1e" kind="function"><name>ck_mem_plan_build_training_with_tokens</name></member>
+    <member refid="ckernel__mem__plan_8h_1a69f7ae632754a94b1a227da5a6633fb1" kind="function"><name>ck_mem_plan_free</name></member>
+  </compound>
+  <compound refid="ckernel__memory__layout_8h" kind="file"><name>ckernel_memory_layout.h</name>
+    <member refid="ckernel__memory__layout_8h_1a452e44b0d33892f36e77c590eba38daf" kind="define"><name>CK_CACHE_LINE</name></member>
+    <member refid="ckernel__memory__layout_8h_1a35b79f7b661f83a89e63ee704117d053" kind="define"><name>CK_GRAD</name></member>
+    <member refid="ckernel__memory__layout_8h_1aba136a9c872b1032356fc97e8a863909" kind="define"><name>CK_HUGE_1GB</name></member>
+    <member refid="ckernel__memory__layout_8h_1ad8aec518dbda9e1ffdcb5388f61c3bca" kind="define"><name>CK_HUGE_2MB</name></member>
+    <member refid="ckernel__memory__layout_8h_1ab71d40d0a04a0bdda4dd754953078d00" kind="define"><name>CK_LAYER</name></member>
+    <member refid="ckernel__memory__layout_8h_1aed689667a597546f4ca76393d018eb06" kind="define"><name>CK_PTR</name></member>
+    <member refid="ckernel__memory__layout_8h_1ae4fcfb595850676b0e59177879acef97" kind="define"><name>CK_SIMD_ALIGN</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efe" kind="enum"><name>CKFusionFlags</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db" kind="enumvalue"><name>CK_FUSE_NONE</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21" kind="enumvalue"><name>CK_FUSE_EMBED_NORM</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9" kind="enumvalue"><name>CK_FUSE_NORM_QKV</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959" kind="enumvalue"><name>CK_FUSE_QKV_ROPE</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce" kind="enumvalue"><name>CK_FUSE_ATTN_PROJ</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca" kind="enumvalue"><name>CK_FUSE_NORM_MLP</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02" kind="enumvalue"><name>CK_FUSE_MLP_GATE_UP</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2" kind="enumvalue"><name>CK_FUSE_MLP_ACT_DOWN</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea784a02f46d179bd5baf2ae6c9b628a7a" kind="enumvalue"><name>CK_FUSE_ADD_NORM</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db" kind="enumvalue"><name>CK_FUSE_NONE</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21" kind="enumvalue"><name>CK_FUSE_EMBED_NORM</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9" kind="enumvalue"><name>CK_FUSE_NORM_QKV</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959" kind="enumvalue"><name>CK_FUSE_QKV_ROPE</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce" kind="enumvalue"><name>CK_FUSE_ATTN_PROJ</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca" kind="enumvalue"><name>CK_FUSE_NORM_MLP</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02" kind="enumvalue"><name>CK_FUSE_MLP_GATE_UP</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2" kind="enumvalue"><name>CK_FUSE_MLP_ACT_DOWN</name></member>
+    <member refid="ckernel__memory__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea6a3bb26ab9dcc8bb90714a3c77250997" kind="enumvalue"><name>CK_FUSE_RESIDUAL_NORM</name></member>
+    <member refid="ckernel__memory__layout_8h_1a27e838b35bf29a1fa749490d9e7fdd38" kind="function"><name>ck_memory_allocate</name></member>
+    <member refid="ckernel__memory__layout_8h_1ad32d33988f932adf3a059635aac8c79c" kind="function"><name>ck_memory_free</name></member>
+    <member refid="ckernel__memory__layout_8h_1a73c5439888aa533ee2b15697fac6f8e0" kind="function"><name>ck_memory_plan</name></member>
   </compound>
   <compound refid="ckernel__model_8h" kind="file"><name>ckernel_model.h</name>
     <member refid="ckernel__model_8h_1a408dbae8dc539ddfe04ee35f35c9257d" kind="function"><name>ck_model_load_weights_flat</name></member>
@@ -984,6 +1565,42 @@
   <compound refid="ckernel__registry_8h" kind="file"><name>ckernel_registry.h</name>
     <member refid="ckernel__registry_8h_1a099423d6ff299adc431de6513f61c7e9" kind="function"><name>ck_ir_validate_supported</name></member>
     <member refid="ckernel__registry_8h_1a4178dea993cf3973166fd2dc9d1f2223" kind="function"><name>ck_op_supported</name></member>
+  </compound>
+  <compound refid="ckernel__section__layout_8h" kind="file"><name>ckernel_section_layout.h</name>
+    <member refid="ckernel__section__layout_8h_1ad9ab657b96af3e55f3f6b56c799ef6a1" kind="define"><name>CK_ALIGN_CACHE</name></member>
+    <member refid="ckernel__section__layout_8h_1ad9dd86845c001eee80d1f249b848c08c" kind="define"><name>CK_ALIGN_HUGE_1GB</name></member>
+    <member refid="ckernel__section__layout_8h_1a99ca15bfe0225d4e7e71a7818eae2fe7" kind="define"><name>CK_ALIGN_HUGE_2MB</name></member>
+    <member refid="ckernel__section__layout_8h_1a1a512f1e5caa9a5d3157053bdce18847" kind="define"><name>CK_ALIGN_SIMD</name></member>
+    <member refid="ckernel__section__layout_8h_1adc318f4f8aa045cac46a382d033efea4" kind="define"><name>CK_FOOTER</name></member>
+    <member refid="ckernel__section__layout_8h_1a6cd4d41f081a79df7ac57cc0d39e086f" kind="define"><name>CK_HEADER</name></member>
+    <member refid="ckernel__section__layout_8h_1abc25629d856fc301f5dcb0af8a63d03c" kind="define"><name>CK_LAYER</name></member>
+    <member refid="ckernel__section__layout_8h_1ac3349598b4a574599247b50fd72e0be6" kind="define"><name>CK_LAYER_GRAD</name></member>
+    <member refid="ckernel__section__layout_8h_1aed689667a597546f4ca76393d018eb06" kind="define"><name>CK_PTR</name></member>
+    <member refid="ckernel__section__layout_8h_1a8c3c24884f3f89455a6578875d6ebe40" kind="define"><name>CK_PTR_BF16</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efe" kind="enum"><name>CKFusionFlags</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db" kind="enumvalue"><name>CK_FUSE_NONE</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21" kind="enumvalue"><name>CK_FUSE_EMBED_NORM</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9" kind="enumvalue"><name>CK_FUSE_NORM_QKV</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959" kind="enumvalue"><name>CK_FUSE_QKV_ROPE</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce" kind="enumvalue"><name>CK_FUSE_ATTN_PROJ</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca" kind="enumvalue"><name>CK_FUSE_NORM_MLP</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02" kind="enumvalue"><name>CK_FUSE_MLP_GATE_UP</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2" kind="enumvalue"><name>CK_FUSE_MLP_ACT_DOWN</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea784a02f46d179bd5baf2ae6c9b628a7a" kind="enumvalue"><name>CK_FUSE_ADD_NORM</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac701cd87ffd41b651fdb39fd4d9231db" kind="enumvalue"><name>CK_FUSE_NONE</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea45bba7ecc02555c097f51c9469157a21" kind="enumvalue"><name>CK_FUSE_EMBED_NORM</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea34b104e34a7aa0d0937ad1d8d064f0a9" kind="enumvalue"><name>CK_FUSE_NORM_QKV</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeabdee28d29574a516859ce8a97cdbe959" kind="enumvalue"><name>CK_FUSE_QKV_ROPE</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea43848ac20412b3e616a81b53bacb02ce" kind="enumvalue"><name>CK_FUSE_ATTN_PROJ</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeac49b63f12bae2e1fb3db203ec6a60fca" kind="enumvalue"><name>CK_FUSE_NORM_MLP</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efeaa4b32bb297017e550a88ca82c0346b02" kind="enumvalue"><name>CK_FUSE_MLP_GATE_UP</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea97e883e02f60415d64767579e4b65eb2" kind="enumvalue"><name>CK_FUSE_MLP_ACT_DOWN</name></member>
+    <member refid="ckernel__section__layout_8h_1aff5ee31d19be80e3bc7d00f0506f8efea6a3bb26ab9dcc8bb90714a3c77250997" kind="enumvalue"><name>CK_FUSE_RESIDUAL_NORM</name></member>
+    <member refid="ckernel__section__layout_8h_1a8d52ec7a90940748c493c1e6cbb2675e" kind="function"><name>ck_model_allocate</name></member>
+    <member refid="ckernel__section__layout_8h_1a1098b7df468a5ac5164b440b6e08209f" kind="function"><name>ck_model_free</name></member>
+    <member refid="ckernel__section__layout_8h_1a82b72b659b7ce81f24b3f79b101ab6d4" kind="function"><name>ck_model_plan</name></member>
+    <member refid="ckernel__section__layout_8h_1a45ba8ddf4f1d6280681d37136dbc3a5a" kind="function"><name>ck_section_config_init</name></member>
+    <member refid="ckernel__section__layout_8h_1a7a3e8075d666d342c725cea328322cd2" kind="function"><name>ck_section_plan</name></member>
   </compound>
   <compound refid="ckernel__strict_8c" kind="file"><name>ckernel_strict.c</name>
     <member refid="ckernel__strict_8c_1ad94b76f11ab5b09db24682947452e946" kind="define"><name>CK_ADD_PAIR</name></member>
@@ -1225,6 +1842,26 @@
     <member refid="mlp__kernels__bf16_8c_1a488697bbc4656ba8037ab3eb79314e5e" kind="function"><name>mlp_token_parallel_bf16</name></member>
     <member refid="mlp__kernels__bf16_8c_1ad863c8765e72bbaf7d00c2ec7a577fd4" kind="function"><name>mlp_token_parallel_bf16_fp32act</name></member>
   </compound>
+  <compound refid="optimizer__kernels_8c" kind="file"><name>optimizer_kernels.c</name>
+    <member refid="optimizer__kernels_8c_1ac1a9ed01c15286fc6e3be73f96371d76" kind="function"><name>adamw_update_f32</name></member>
+    <member refid="optimizer__kernels_8c_1ac43e9094fbc4956d450b5f6deb5ae899" kind="function"><name>gradient_accumulate_f32</name></member>
+    <member refid="optimizer__kernels_8c_1a4e854ffc919637e40ea0d320ecb5ed0b" kind="function"><name>gradient_clip_norm_f32</name></member>
+    <member refid="optimizer__kernels_8c_1ab615ca5560d68ed2f098960cd81acfc2" kind="function"><name>gradient_scale_f32</name></member>
+    <member refid="optimizer__kernels_8c_1a1c1d97635474696da41a9f318ac7600b" kind="function"><name>sgd_momentum_update_f32</name></member>
+    <member refid="optimizer__kernels_8c_1adecdd5f34f2c7634e7e665ab3d96da37" kind="function"><name>zero_gradients_f32</name></member>
+  </compound>
+  <compound refid="optimizer__kernels__bf16_8c" kind="file"><name>optimizer_kernels_bf16.c</name>
+    <member refid="optimizer__kernels__bf16_8c_1a04594793ece43bcbd8669ff6d0e0029b" kind="function"><name>adamw_update_bf16</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1ac1a9ed01c15286fc6e3be73f96371d76" kind="function"><name>adamw_update_f32</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a5d7c00758ea2a984dc6610c2df452b78" kind="function"><name>gradient_accumulate_bf16</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1ac43e9094fbc4956d450b5f6deb5ae899" kind="function"><name>gradient_accumulate_f32</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a3b775fa9d57eebd6e004caa317f1b9e3" kind="function"><name>gradient_clip_norm_bf16</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a6a19ebe41c76f7394ecdc70784f0d449" kind="function"><name>gradient_scale_bf16</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1ab615ca5560d68ed2f098960cd81acfc2" kind="function"><name>gradient_scale_f32</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a83c7cc71f8975e4b7c83ac26229e203f" kind="function"><name>sgd_momentum_update_bf16</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a1c1d97635474696da41a9f318ac7600b" kind="function"><name>sgd_momentum_update_f32</name></member>
+    <member refid="optimizer__kernels__bf16_8c_1a0461e04c92bea2dfd26c2f8cff17c871" kind="function"><name>zero_gradients_bf16</name></member>
+  </compound>
   <compound refid="relu__kernels_8c" kind="file"><name>relu_kernels.c</name>
     <member refid="relu__kernels_8c_1a434da7f0647cdada09cd6ad435560467" kind="function"><name>relu_backward</name></member>
     <member refid="relu__kernels_8c_1a856216dca72f3534c079f429d1d58d48" kind="function"><name>relu_forward</name></member>
@@ -1306,12 +1943,12 @@
     <member refid="show__config_8c_1a50fd172a7f98da1b9a2882645fc7ecb3" kind="function"><name>print_tree_item</name></member>
     <member refid="show__config_8c_1aa89d156e8491ad3112f448c5918b21e2" kind="function"><name>print_warning</name></member>
     <member refid="show__config_8c_1ab03a6d20880e7f93998b361c0036ea44" kind="function"><name>topology_print_affinity</name></member>
-    <member refid="show__config_8c_1a8ee00e3f2fafaa6dd117d874b3f56020" kind="function"><name>topology_print_cache</name></member>
+    <member refid="show__config_8c_1afbc559e029cc2c0fddd0a1dac9b1be20" kind="function"><name>topology_print_cache</name></member>
     <member refid="show__config_8c_1a621b3bfcacc31268f4aad1bd39ecb3a2" kind="function"><name>topology_print_cpu</name></member>
     <member refid="show__config_8c_1a4d42196463c5ba39847e24ebe52bfbad" kind="function"><name>topology_print_distributed_potential</name></member>
     <member refid="show__config_8c_1a274dcedf2b6259112dff57aa23f55d15" kind="function"><name>topology_print_memory</name></member>
     <member refid="show__config_8c_1a440e3e819b2e718bf7ea8513f33b1f30" kind="function"><name>topology_print_network</name></member>
-    <member refid="show__config_8c_1a46871b4f109241ccef66725b222830b7" kind="function"><name>topology_print_numa</name></member>
+    <member refid="show__config_8c_1a581eb0fabf70e820ff545c69554999b0" kind="function"><name>topology_print_numa</name></member>
     <member refid="show__config_8c_1a49b1de1d6444775ae1462fc35c1c990e" kind="function"><name>topology_print_pcie</name></member>
     <member refid="show__config_8c_1adaa69e0d4a8c8c3b9e50adcd45db083b" kind="function"><name>topology_print_recommendations</name></member>
     <member refid="show__config_8c_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" kind="function"><name>topology_print_summary</name></member>
@@ -1347,7 +1984,10 @@
   </compound>
   <compound refid="system__topology_8c" kind="file"><name>system_topology.c</name>
     <member refid="system__topology_8c_1a369266c24eacffb87046522897a570d5" kind="define"><name>_GNU_SOURCE</name></member>
+    <member refid="system__topology_8c_1a34a4d2fcf0318c8d64e4ff73e1f2e6e5" kind="function"><name>cache_compare</name></member>
     <member refid="system__topology_8c_1a817c234eb71a734950fee25dceb5b02b" kind="function"><name>count_set_bits</name></member>
+    <member refid="system__topology_8c_1a5c4ea4dba04078e4897ec47d6f4bc425" kind="function"><name>get_current_cpu</name></member>
+    <member refid="system__topology_8c_1a6636cf43268c0d06f3ded702846014ec" kind="function"><name>get_numa_node_for_cpu</name></member>
     <member refid="system__topology_8c_1af800908eb32ad8a0e9f7886de612b66f" kind="function"><name>has_cpu_flag</name></member>
     <member refid="system__topology_8c_1adfd7a4ea82a4bee21021195cf398e284" kind="function"><name>pcie_bandwidth_gbs</name></member>
     <member refid="system__topology_8c_1ac3c7b781cd07570159767e034c90938a" kind="function"><name>read_file_int</name></member>
@@ -1362,9 +2002,12 @@
     <member refid="system__topology_8c_1a8d1095a0656548a8adae0cf8ad6a59cd" kind="function"><name>topology_discover_network</name></member>
     <member refid="system__topology_8c_1afd3ae767003bf9070768199caa3f7ee1" kind="function"><name>topology_discover_numa</name></member>
     <member refid="system__topology_8c_1a3e80c10682d58f63c4fa70b98e6a7dfb" kind="function"><name>topology_discover_pcie</name></member>
+    <member refid="system__topology_8c_1a089e974347ad9291cc98080f85392a57" kind="function"><name>topology_estimate_channels_from_bandwidth</name></member>
     <member refid="system__topology_8c_1ae541edad293faa847014c35c8e6411a5" kind="function"><name>topology_estimate_memory_bandwidth</name></member>
     <member refid="system__topology_8c_1ab165ff3667f6ee7cca36f51b5a6bad20" kind="function"><name>topology_estimate_network_training_time</name></member>
     <member refid="system__topology_8c_1ac739fbe17c86f1c7e9da9c6ad2a8b176" kind="function"><name>topology_generate_recommendations</name></member>
+    <member refid="system__topology_8c_1a685baee571576af254de8ea2cd9eaed8" kind="function"><name>topology_measure_memory_bandwidth</name></member>
+    <member refid="system__topology_8c_1a7e083b9d0fb7a63db6e505f64a3237ce" kind="function"><name>topology_measure_memory_bandwidth_ex</name></member>
     <member refid="system__topology_8c_1a6d93f41b7303c9e4c21b16e0ce3e858f" kind="function"><name>trim_string</name></member>
   </compound>
   <compound refid="system__topology_8h" kind="file"><name>system_topology.h</name>
@@ -1399,12 +2042,12 @@
     <member refid="system__topology_8h_1ab165ff3667f6ee7cca36f51b5a6bad20" kind="function"><name>topology_estimate_network_training_time</name></member>
     <member refid="system__topology_8h_1ac739fbe17c86f1c7e9da9c6ad2a8b176" kind="function"><name>topology_generate_recommendations</name></member>
     <member refid="system__topology_8h_1ab03a6d20880e7f93998b361c0036ea44" kind="function"><name>topology_print_affinity</name></member>
-    <member refid="system__topology_8h_1a8ee00e3f2fafaa6dd117d874b3f56020" kind="function"><name>topology_print_cache</name></member>
+    <member refid="system__topology_8h_1afbc559e029cc2c0fddd0a1dac9b1be20" kind="function"><name>topology_print_cache</name></member>
     <member refid="system__topology_8h_1a621b3bfcacc31268f4aad1bd39ecb3a2" kind="function"><name>topology_print_cpu</name></member>
     <member refid="system__topology_8h_1a4d42196463c5ba39847e24ebe52bfbad" kind="function"><name>topology_print_distributed_potential</name></member>
     <member refid="system__topology_8h_1a274dcedf2b6259112dff57aa23f55d15" kind="function"><name>topology_print_memory</name></member>
     <member refid="system__topology_8h_1a440e3e819b2e718bf7ea8513f33b1f30" kind="function"><name>topology_print_network</name></member>
-    <member refid="system__topology_8h_1a46871b4f109241ccef66725b222830b7" kind="function"><name>topology_print_numa</name></member>
+    <member refid="system__topology_8h_1a581eb0fabf70e820ff545c69554999b0" kind="function"><name>topology_print_numa</name></member>
     <member refid="system__topology_8h_1a49b1de1d6444775ae1462fc35c1c990e" kind="function"><name>topology_print_pcie</name></member>
     <member refid="system__topology_8h_1adaa69e0d4a8c8c3b9e50adcd45db083b" kind="function"><name>topology_print_recommendations</name></member>
     <member refid="system__topology_8h_1ae2a6ad58442a4e6de7cdfa4aeea1ec02" kind="function"><name>topology_print_summary</name></member>

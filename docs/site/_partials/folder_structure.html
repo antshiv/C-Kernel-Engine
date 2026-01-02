@@ -1,7 +1,7 @@
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2025-12-30 12:58</span>
+        <span class="folder-updated">Updated: 2026-01-01 19:53</span>
     </div>
     <pre class="tree-output">
 .
@@ -13,6 +13,14 @@
 |   |-- compare_gemm.py
 |   `-- perf_gemm_micro.c
 |-- docs
+|   |-- adr
+|   |   |-- 0001-ir-v4-pipeline.md
+|   |   |-- 0002-templates-as-canonical.md
+|   |   |-- 0003-mode-specific-lowering.md
+|   |   |-- 0004-deterministic-layout-canaries.md
+|   |   |-- 0005-kernel-selection-in-lowering.md
+|   |   |-- 0006-weight-mapping-via-template.md
+|   |   `-- README.md
 |   |-- site
 |   |   |-- assets
 |   |   |-- doxygen -&gt; ../doxygen_output/html
@@ -25,11 +33,14 @@
 |   |   |-- codegen.html
 |   |   |-- concepts.html
 |   |   |-- contributing.html
+|   |   |-- decisions-dynamic.html
+|   |   |-- decisions.html
 |   |   |-- developer-guide.html
 |   |   |-- gemm-optimization.html
 |   |   |-- gguf-bump.html
 |   |   |-- gguf-conversion.html
 |   |   |-- index.html
+|   |   |-- ir-v2.html
 |   |   |-- kernels.html
 |   |   |-- memory-safety.html
 |   |   |-- profiling.html
@@ -56,6 +67,8 @@
 |   |-- 01-llm-kernel-shapes.md
 |   |-- 02-kernel-parallelism-and-backends.md
 |   |-- 03-ir-and-codegen-design.md
+|   |-- 04-ir-v2-format.md
+|   |-- 05-ir-v4-design.md
 |   |-- architecture_diagram.md
 |   |-- bf16_format.svg
 |   |-- bf16_rounding.svg
@@ -65,26 +78,42 @@
 |   |-- doxygen_header.html
 |   |-- gemm-in-transformers.md
 |   |-- index.html
+|   |-- ir-v2-format.html
+|   |-- ir_v2_pipeline.svg
 |   |-- kernel-catalog.md
 |   |-- kernel-design-pattern.md
+|   |-- memory_layout_demo.md
 |   |-- QUANTIZATION_GUIDE.md
 |   |-- qwen_layer_dataflow.md
 |   |-- qwen_layer_dataflow.svg
-|   `-- threading-strategy.md
+|   |-- threading-strategy.md
+|   `-- v4-design.md
 |-- errata
 |   `-- smolm.md
+|-- examples
+|   |-- generated_multimodal_layout.c
+|   |-- generated_qwen_0.5b.c
+|   |-- generated_qwen_0.5b.h
+|   |-- generated_qwen_0.5b.map
+|   `-- generated_with_kernels_example.c
 |-- include
 |   |-- bf16_utils.h
 |   |-- ckernel_alloc.h
 |   |-- ckernel_codegen.h
+|   |-- ckernel_codegen_v2.h
 |   |-- ckernel_dtype.h
 |   |-- ckernel_engine.h
 |   |-- ckernel_ir.h
+|   |-- ckernel_ir_v2.h
+|   |-- ckernel_ir_v2_lower.h
 |   |-- ckernel_kernel_specs.h
+|   |-- ckernel_memory_layout.h
+|   |-- ckernel_mem_plan.h
 |   |-- ckernel_model.h
 |   |-- ckernel_orchestration.h
 |   |-- ckernel_quant.h
 |   |-- ckernel_registry.h
+|   |-- ckernel_section_layout.h
 |   |-- ck_tokenizer.h
 |   |-- cpu_features.h
 |   `-- system_topology.h
@@ -123,19 +152,32 @@
 |-- Screenshots
 |   |-- Screenshot 2025-12-23 at 06-30-56 .png
 |   |-- Screenshot 2025-12-23 at 06-35-13 .png
-|   `-- Screenshot 2025-12-25 at 12-37-13 Shopping Cart.png
+|   |-- Screenshot 2025-12-25 at 12-37-13 Shopping Cart.png
+|   |-- Screenshot 2026-01-01 at 08-09-22 ArchitectureDecisions C-Kernel-Engine.png
+|   |-- Screenshot 2026-01-01 at 08-15-04 ArchitectureDecisions C-Kernel-Engine.png
+|   |-- Screenshot 2026-01-01 at 08-17-21 ArchitectureDecisions C-Kernel-Engine.png
+|   `-- Screenshot 2026-01-01 at 08-19-21 ArchitectureDecisions C-Kernel-Engine.png
 |-- scripts
+|   |-- build_ir_v2.py
+|   |-- build_ir_v3.py
+|   |-- build_ir_v4.py
 |   |-- ck_chat.py
 |   |-- ck_download.py
+|   |-- codegen_v4.py
 |   |-- compare_bump_payload.py
 |   |-- compare_bump_to_hf.py
 |   |-- convert_gguf_to_bump.py
+|   |-- convert_gguf_to_bump_v4.py
 |   |-- convert_hf_to_bump.py
+|   |-- convert_hf_to_bump_v4.py
+|   |-- fusion_patterns.py
 |   |-- gen_kernel_specs.py
 |   |-- gen_random_bump.py
 |   |-- gen_random_tokens.py
 |   |-- kernel_coverage.py
+|   |-- nightly_runner.py
 |   |-- optimization_status.py
+|   |-- parallel_planner.py
 |   |-- q4_k_quantize.py
 |   |-- run_all_tests.sh
 |   |-- run_litmus_demo.sh
@@ -149,9 +191,11 @@
 |   |-- test_training_fix.sh
 |   |-- test_training.py
 |   |-- tiny_train_parity.py
+|   |-- training_config.py
 |   `-- version_check.py
 |-- src
 |   |-- kernels
+|   |   |-- add_kernels_bf16.c
 |   |   |-- attention_decode_fused.c
 |   |   |-- attention_kernels.c
 |   |   |-- dequant_kernels.c
@@ -179,6 +223,8 @@
 |   |   |-- mlp_fused_decode.c
 |   |   |-- mlp_kernels_bf16.c
 |   |   |-- mlp_kernels.c
+|   |   |-- optimizer_kernels_bf16.c
+|   |   |-- optimizer_kernels.c
 |   |   |-- relu_kernels_bf16.c
 |   |   |-- relu_kernels.c
 |   |   |-- rmsnorm_kernels_bf16.c
@@ -198,9 +244,20 @@
 |   |-- backend_native.c
 |   |-- ckernel_alloc.c
 |   |-- ckernel_codegen.c
+|   |-- ckernel_codegen_v2.c
+|   |-- ckernel_codegen_v2_dispatch.c
+|   |-- ckernel_codegen_v2_emit.h
+|   |-- ckernel_codegen_v2_schedule.c
+|   |-- ckernel_codegen_v2_sections.c
+|   |-- ckernel_codegen_v2_struct.c
 |   |-- ckernel_ir.c
 |   |-- ckernel_ir_demo.c
+|   |-- ckernel_ir_v2_builder.c
+|   |-- ckernel_ir_v2.c
+|   |-- ckernel_ir_v2_demo.c
+|   |-- ckernel_ir_v2_lower.c
 |   |-- ckernel_kernel_specs.c
+|   |-- ckernel_mem_plan.c
 |   |-- ckernel_model_layout.c
 |   |-- ckernel_model_load.c
 |   |-- ckernel_orchestration.c
@@ -211,10 +268,13 @@
 |   |-- show_config.c
 |   `-- system_topology.c
 |-- tests
+|   `-- python
+|       `-- test_optimizer_parity.py
 |-- tools
 |   |-- cache_analysis.py
 |   |-- ck.c
 |   |-- ck_server.c
+|   |-- ck_v4.c
 |   `-- debug_cpu_flags.c
 |-- unittest
 |   |-- bf16
@@ -229,12 +289,16 @@
 |   |   |-- test_rope_bf16.py
 |   |   |-- test_sigmoid_bf16.py
 |   |   `-- test_swiglu_bf16.py
+|   |-- fixtures
+|   |   `-- mini_v4.config.json
 |   |-- bf16_utils.py
 |   |-- compare_outputs.py
 |   |-- generate_reference_data.py
 |   |-- lib_loader.py
+|   |-- test_add.py
 |   |-- test_attention_backward.py
 |   |-- test_attention.py
+|   |-- test_codegen_v4_single_layer.py
 |   |-- test_cross_entropy.py
 |   |-- test_embedding.py
 |   |-- test_fused_attention_decode.py
@@ -249,6 +313,7 @@
 |   |-- test_layernorm.py
 |   |-- test_lm_head_litmus.py
 |   |-- test_mlp.py
+|   |-- test_optimizer.py
 |   |-- test_orchestration_layer.py
 |   |-- test_pytorch_parity.py
 |   |-- test_q4k_kernels.py
@@ -279,11 +344,14 @@
 |-- make_config.txt
 |-- Makefile
 |-- make_test.txt
+|-- q6_issue.txt
+|-- quant_error.txt
 |-- quantize_info.txt
 |-- qwen2_0.5.json
 |-- qwen2.5-3b-instruct-q4_k_m.gguf
 |-- qwen_model.c
 |-- README.md
+|-- requirements.txt
 |-- show_config.txt
 |-- small10mb.config.json
 |-- smolLM-135.json
@@ -292,7 +360,7 @@
 |-- tiny.config.json
 `-- valgrind.supp
 
-32 directories, 254 files
+36 directories, 318 files
 </pre>
 </div>
 

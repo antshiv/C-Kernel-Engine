@@ -850,13 +850,21 @@ static int emit_kernel_manifest(const CKIRGraph *forward, const char *runtime_pa
 
     emit_unique_source(f, "src/ckernel_alloc.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/ckernel_strict.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/cpu_features.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/embedding_kernels.c", seen, &seen_count, seen_cap);
-    /* Quantized inference support (Q4_K_M / Q4_K). */
+    /* Quantized inference support (Q4_K_M / Q4_K / Q6_K). */
     emit_unique_source(f, "src/kernels/dequant_kernels.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/gemm_kernels_q4k.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/gemm_kernels_q4k_q8k.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/gemm_kernels_q6k.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/rope_kernels.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/loss_kernels.c", seen, &seen_count, seen_cap);
     emit_unique_source(f, "src/kernels/kv_cache_kernels.c", seen, &seen_count, seen_cap);
+    /* Fused kernels used by orchestration layer. */
+    emit_unique_source(f, "src/kernels/gemm_fused_kernels.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/mlp_fused_decode.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/gemm_microkernel.c", seen, &seen_count, seen_cap);
+    emit_unique_source(f, "src/kernels/attention_decode_fused.c", seen, &seen_count, seen_cap);
     if (emit_plan_sources(f,
                           ck_decoder_forward_plan,
                           ck_decoder_forward_plan_count,
@@ -1241,7 +1249,7 @@ static void emit_library_api(FILE *out, const CKIRGraph *forward)
             "    if (weights_path) {\n"
             "        int dtype_rc = load_weight_dtypes(weights_path, &g_model);\n"
             "        if (dtype_rc < 0) {\n"
-            "            fprintf(stderr, \"Failed to read weight dtype table from %s\\n\", weights_path);\n"
+            "            fprintf(stderr, \"Failed to read weight dtype table from %%s\\n\", weights_path);\n"
             "            return -6;\n"
             "        }\n"
             "    }\n"

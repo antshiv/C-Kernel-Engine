@@ -1,7 +1,10 @@
 var system__topology_8c =
 [
     [ "_GNU_SOURCE", "system__topology_8c.html#a369266c24eacffb87046522897a570d5", null ],
+    [ "cache_compare", "system__topology_8c.html#a34a4d2fcf0318c8d64e4ff73e1f2e6e5", null ],
     [ "count_set_bits", "system__topology_8c.html#a817c234eb71a734950fee25dceb5b02b", null ],
+    [ "get_current_cpu", "system__topology_8c.html#a5c4ea4dba04078e4897ec47d6f4bc425", null ],
+    [ "get_numa_node_for_cpu", "system__topology_8c.html#a6636cf43268c0d06f3ded702846014ec", null ],
     [ "has_cpu_flag", "system__topology_8c.html#af800908eb32ad8a0e9f7886de612b66f", null ],
     [ "pcie_bandwidth_gbs", "system__topology_8c.html#adfd7a4ea82a4bee21021195cf398e284", null ],
     [ "read_file_int", "system__topology_8c.html#ac3c7b781cd07570159767e034c90938a", null ],
@@ -16,8 +19,11 @@ var system__topology_8c =
     [ "topology_discover_network", "system__topology_8c.html#a8d1095a0656548a8adae0cf8ad6a59cd", null ],
     [ "topology_discover_numa", "system__topology_8c.html#afd3ae767003bf9070768199caa3f7ee1", null ],
     [ "topology_discover_pcie", "system__topology_8c.html#a3e80c10682d58f63c4fa70b98e6a7dfb", null ],
+    [ "topology_estimate_channels_from_bandwidth", "system__topology_8c.html#a089e974347ad9291cc98080f85392a57", null ],
     [ "topology_estimate_memory_bandwidth", "system__topology_8c.html#ae541edad293faa847014c35c8e6411a5", null ],
     [ "topology_estimate_network_training_time", "system__topology_8c.html#ab165ff3667f6ee7cca36f51b5a6bad20", null ],
     [ "topology_generate_recommendations", "system__topology_8c.html#ac739fbe17c86f1c7e9da9c6ad2a8b176", null ],
+    [ "topology_measure_memory_bandwidth", "system__topology_8c.html#a685baee571576af254de8ea2cd9eaed8", null ],
+    [ "topology_measure_memory_bandwidth_ex", "system__topology_8c.html#a7e083b9d0fb7a63db6e505f64a3237ce", null ],
     [ "trim_string", "system__topology_8c.html#a6d93f41b7303c9e4c21b16e0ce3e858f", null ]
 ];

@@ -40,6 +40,7 @@ typedef struct {
 typedef struct {
     char *op;
     char *kernel;
+    CKDataType kernel_dtype;
     char *condition;
     uint16_t layer;
     uint8_t flags;
@@ -53,15 +54,28 @@ typedef struct {
 
 typedef struct {
     CKModelConfig config;
+    int has_pos_emb;
+    int tie_word_embeddings;
+    int fused_qkv;
+    int gated_mlp;
     int num_buffers;
     CKIRV2Buffer *buffers;
     int num_nodes;
     CKIRV2Node *nodes;
 } CKIRV2Graph;
 
+struct CKMemPlan;
+
 int ck_ir_v2_build_decoder(const CKModelConfig *cfg, CKIRV2Graph *graph);
 int ck_ir_v2_build_decoder_backward(const CKIRV2Graph *forward, CKIRV2Graph *backward);
+int ck_ir_v2_apply_meta(const char *path, CKIRV2Graph *graph);
 int ck_ir_v2_serialize_json(const CKIRV2Graph *graph, const char *path);
+int ck_ir_v2_serialize_json_with_plan(const CKIRV2Graph *graph,
+                                      const struct CKMemPlan *plan,
+                                      const char *mode,
+                                      int tokens_override,
+                                      int base_context_window,
+                                      const char *path);
 int ck_ir_v2_parse_json(const char *path, CKIRV2Graph *graph);
 void ck_ir_v2_free(CKIRV2Graph *graph);
 

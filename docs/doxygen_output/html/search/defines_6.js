@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['huge_5fpage_5fsize_1868',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
+  ['huge_5fpage_5fsize_2710',['HUGE_PAGE_SIZE',['../ckernel__alloc_8c.html#af40ff2d14fdebba00915237c11b490c8',1,'ckernel_alloc.c']]]
 ];
