@@ -78,7 +78,7 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
                 for i in range(32):
                     low = (qs[i // 2] >> ((i & 1) * 4)) & 0x0F
                     high = (qh[i // 8] >> (i & 7)) & 0x01
-                    val = (high << 4) | low
+                    val = int((high << 4) | low)
                     row[b * 32 + i] = (val - 16) * scale
                 offset += 22
     elif info.ggml_type == gguf.GGML_TYPE_Q5_1:
@@ -99,7 +99,7 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
                 for i in range(32):
                     low = (qs[i // 2] >> ((i & 1) * 4)) & 0x0F
                     high = (qh[i // 8] >> (i & 7)) & 0x01
-                    val = (high << 4) | low
+                    val = int((high << 4) | low)
                     row[b * 32 + i] = val * scale + bias
                 offset += 24
     elif info.ggml_type == gguf.GGML_TYPE_Q8_0:

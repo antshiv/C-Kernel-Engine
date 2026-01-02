@@ -56,6 +56,37 @@ def emit_c_source_v4(layout: v3.ModelLayout,
     embed_use_q4_k = token_emb_dtype.startswith("q4_k")
     lm_head_use_q4_k = lm_head_dtype.startswith("q4_k")
 
+    layer_dtype_map = {}
+    if section.layers:
+        for buf in section.layers[0].buffers:
+            if buf.name.startswith("layer.0."):
+                parts = buf.name.split(".", 2)
+                if len(parts) == 3:
+                    layer_dtype_map[parts[2]] = str(buf.dtype).lower()
+
+    def layer_weight_dtype(name: str) -> str:
+        return layer_dtype_map.get(name, "")
+
+    def dtype_const(dtype: str) -> str:
+        if dtype.startswith("q4_k"):
+            return "CK_DT_Q4_K"
+        if dtype.startswith("q6_k"):
+            return "CK_DT_Q6_K"
+        return "CK_DT_FP32"
+
+    wq_dtype = layer_weight_dtype("wq")
+    wk_dtype = layer_weight_dtype("wk")
+    wv_dtype = layer_weight_dtype("wv")
+    wo_dtype = layer_weight_dtype("wo")
+    w1_dtype = layer_weight_dtype("w1")
+    w2_dtype = layer_weight_dtype("w2")
+
+    weight_dtypes = [wq_dtype, wk_dtype, wv_dtype, wo_dtype, w1_dtype, w2_dtype]
+    has_quant = any(d.startswith(("q4_k", "q6_k")) for d in weight_dtypes if d)
+    all_q4_k = all(d.startswith("q4_k") for d in weight_dtypes if d)
+    use_fast_q4 = use_q4_k and all_q4_k
+    use_quant_path = has_quant and not use_fast_q4
+
     layer_names = _layer_buffer_names(section)
 
     required_prefill = [
@@ -319,7 +350,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("    int aligned_context_window")
         add(") {")
         add(f"    const {safe_name}LayerOffsets *L = &{safe_name}_LAYERS[layer_id];")
-        if use_q4_k:
+        if has_quant:
             add("    CKLayerForwardParamsQ4K p = {0};")
         else:
             add("    CKLayerForwardParams p = {0};")
@@ -353,7 +384,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add("    p.rope_cos = NULL;")
             add("    p.rope_sin = NULL;")
         add()
-        if use_q4_k:
+        if has_quant:
             add(f"    p.wq = (const void *){safe_name}_PTR(model, L->wq);")
             add("    p.bq = NULL;")
             add(f"    p.wk = (const void *){safe_name}_PTR(model, L->wk);")
@@ -380,13 +411,13 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add(f"    p.w2 = {safe_name}_PTR(model, L->w2);")
             add("    p.b2 = NULL;")
         add()
-        if use_q4_k:
-            add("    p.wq_dtype = CK_DT_Q4_K;")
-            add("    p.wk_dtype = CK_DT_Q4_K;")
-            add("    p.wv_dtype = CK_DT_Q4_K;")
-            add("    p.wo_dtype = CK_DT_Q4_K;")
-            add("    p.w1_dtype = CK_DT_Q4_K;")
-            add("    p.w2_dtype = CK_DT_Q4_K;")
+        if has_quant:
+            add(f"    p.wq_dtype = {dtype_const(wq_dtype)};")
+            add(f"    p.wk_dtype = {dtype_const(wk_dtype)};")
+            add(f"    p.wv_dtype = {dtype_const(wv_dtype)};")
+            add(f"    p.wo_dtype = {dtype_const(wo_dtype)};")
+            add(f"    p.w1_dtype = {dtype_const(w1_dtype)};")
+            add(f"    p.w2_dtype = {dtype_const(w2_dtype)};")
             add()
         add(f"    p.ln1_out = {safe_name}_PTR(model, L->ln1_out);")
         add("    p.ln1_rstd = NULL;")
@@ -411,8 +442,11 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(f"    p.mlp_out = {safe_name}_PTR(model, L->mlp_out);")
         add(f"    p.output = {safe_name}_PTR(model, L->output);")
         add()
-        if use_q4_k:
-            add("    ck_layer_forward_rmsnorm_swiglu_q4_k(&p);")
+        if has_quant:
+            if use_fast_q4:
+                add("    ck_layer_forward_rmsnorm_swiglu_q4_k(&p);")
+            else:
+                add("    ck_layer_forward_rmsnorm_swiglu_quant(&p);")
         else:
             add("    ck_layer_forward_rmsnorm_swiglu(&p);")
         add()
@@ -531,7 +565,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(" * LAYER FORWARD (DECODE, SINGLE TOKEN)")
         add(" * ============================================================================ */")
         add()
-        if use_q4_k:
+        if has_quant:
             add(f"static void {safe_name_lower}_layer_forward_decode_token(")
             add(f"    {safe_name}Model *model,")
             add("    int layer_id,")
@@ -586,12 +620,12 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add(f"    p.w2 = (const void *){safe_name}_PTR(model, L->w2);")
             add("    p.b2 = NULL;")
             add()
-            add("    p.wq_dtype = CK_DT_Q4_K;")
-            add("    p.wk_dtype = CK_DT_Q4_K;")
-            add("    p.wv_dtype = CK_DT_Q4_K;")
-            add("    p.wo_dtype = CK_DT_Q4_K;")
-            add("    p.w1_dtype = CK_DT_Q4_K;")
-            add("    p.w2_dtype = CK_DT_Q4_K;")
+            add(f"    p.wq_dtype = {dtype_const(wq_dtype)};")
+            add(f"    p.wk_dtype = {dtype_const(wk_dtype)};")
+            add(f"    p.wv_dtype = {dtype_const(wv_dtype)};")
+            add(f"    p.wo_dtype = {dtype_const(wo_dtype)};")
+            add(f"    p.w1_dtype = {dtype_const(w1_dtype)};")
+            add(f"    p.w2_dtype = {dtype_const(w2_dtype)};")
             add()
             add(f"    p.ln1_out = {safe_name}_PTR(model, L->ln1_out);")
             add("    p.ln1_rstd = NULL;")
@@ -613,7 +647,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add(f"    p.mlp_out = {safe_name}_PTR(model, L->mlp_out);")
             add(f"    p.output = {safe_name}_PTR(model, L->output);")
             add()
-            add("    ck_layer_forward_rmsnorm_swiglu_decode_q4_k(&p, token_index, aligned_context_window);")
+            if use_fast_q4:
+                add("    ck_layer_forward_rmsnorm_swiglu_decode_q4_k(&p, token_index, aligned_context_window);")
+            else:
+                add("    ck_layer_forward_rmsnorm_swiglu_decode_quant(&p, token_index, aligned_context_window);")
             add("}")
             add()
         else:

@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 import shutil
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -266,6 +267,7 @@ def step_build_ir(config_path: Path, output_dir: Path, manifest_path: Path = Non
         f"--config={config_path}",
         f"--prefix={output_dir}",
         "--emit=lib",
+        "--dtype=fp32",
     ]
 
     if manifest_path and manifest_path.exists():
@@ -285,23 +287,203 @@ def step_build_ir(config_path: Path, output_dir: Path, manifest_path: Path = Non
 
 
 def step_codegen(layout_path: Path, output_dir: Path, force: bool = False) -> Path:
-    """Generate C code from layout."""
+    """Generate v4 wrapper C code that exposes the ck_model_* API."""
     log_step(4, "Generating C code")
 
     model_c_path = output_dir / "model.c"
-
     if model_c_path.exists() and not force:
         log(f"  Using cached C code at {model_c_path}", C_DIM)
         return model_c_path
 
-    cmd = [
-        sys.executable,
-        str(SCRIPTS_DIR / "codegen_v4.py"),
-        str(layout_path),
-        f"--output={model_c_path}",
-    ]
+    decode_headers = sorted(output_dir.glob("generated_*_decode.h"))
+    decode_sources = sorted(output_dir.glob("generated_*_decode.c"))
+    if not decode_headers or not decode_sources:
+        log_error("Missing generated decode C/H files. Run build_ir_v4.py first.")
+        sys.exit(1)
 
-    run_cmd(cmd)
+    decode_header = decode_headers[0].name
+    decode_source = decode_sources[0].name
+    prefix = decode_header.replace("generated_", "").replace(".h", "")
+    safe_name = re.sub(r"[^A-Za-z0-9]", "_", prefix).upper()
+
+    wrapper = f"""\
+// AUTO-GENERATED v4 wrapper: {prefix}
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "{decode_header}"
+#include "ckernel_model_load_v4.h"
+
+#include "{decode_source}"
+
+static {safe_name}Model g_model;
+static int g_initialized = 0;
+static int g_active_tokens = 0;
+static int g_kv_cache_enabled = 0;
+static int g_kv_cache_capacity = {safe_name}_MAX_SEQ_LEN;
+static int g_kv_cache_tokens = 0;
+
+static int32_t *g_tokens = NULL;
+static int g_tokens_cap = 0;
+
+static float *g_logits = NULL;
+static size_t g_logits_cap = 0;
+
+static int ensure_tokens_capacity(int n) {{
+    if (n <= g_tokens_cap) return 0;
+    int32_t *buf = (int32_t *)realloc(g_tokens, (size_t)n * sizeof(int32_t));
+    if (!buf) return -1;
+    g_tokens = buf;
+    g_tokens_cap = n;
+    return 0;
+}}
+
+static int ensure_logits_capacity(int n) {{
+    size_t needed = (size_t)n * (size_t){safe_name}_VOCAB_SIZE;
+    if (needed <= g_logits_cap) return 0;
+    float *buf = (float *)realloc(g_logits, needed * sizeof(float));
+    if (!buf) return -1;
+    g_logits = buf;
+    g_logits_cap = needed;
+    return 0;
+}}
+
+static const char *manifest_path_from_weights(const char *weights_path,
+                                             char *out,
+                                             size_t out_len) {{
+    if (!weights_path || !out || out_len == 0) return NULL;
+    const char *slash = strrchr(weights_path, '/');
+    size_t dir_len = slash ? (size_t)(slash - weights_path + 1) : 0;
+    const char *fname = "weights_manifest.map";
+    size_t need = dir_len + strlen(fname) + 1;
+    if (need > out_len) return NULL;
+    if (dir_len) {{
+        memcpy(out, weights_path, dir_len);
+    }}
+    strcpy(out + dir_len, fname);
+    return out;
+}}
+
+int ck_model_init(const char *weights_path) {{
+    if (g_initialized) return 0;
+    if ({prefix}_model_allocate(&g_model) != 0) return -1;
+    char manifest[4096];
+    const char *manifest_path = manifest_path_from_weights(weights_path, manifest, sizeof(manifest));
+    if (!manifest_path) return -2;
+    if (ck_load_weights_manifest_v4(g_model.base, weights_path, manifest_path) != 0) return -3;
+    {prefix}_precompute_rope(&g_model);
+    g_initialized = 1;
+    return 0;
+}}
+
+void ck_model_free(void) {{
+    if (!g_initialized) return;
+    {prefix}_model_free(&g_model);
+    free(g_tokens);
+    g_tokens = NULL;
+    g_tokens_cap = 0;
+    free(g_logits);
+    g_logits = NULL;
+    g_logits_cap = 0;
+    g_initialized = 0;
+    g_active_tokens = 0;
+    g_kv_cache_tokens = 0;
+}}
+
+int ck_model_embed_tokens(const int32_t *tokens, int num_tokens) {{
+    if (!g_initialized || !tokens) return -1;
+    int cap = {safe_name}_MAX_SEQ_LEN;
+    if (g_kv_cache_enabled && g_kv_cache_capacity > 0 && g_kv_cache_capacity < cap) {{
+        cap = g_kv_cache_capacity;
+    }}
+    if (num_tokens > cap) num_tokens = cap;
+    if (num_tokens < 1) num_tokens = 1;
+    if (ensure_tokens_capacity(num_tokens) != 0) return -2;
+    memcpy(g_tokens, tokens, (size_t)num_tokens * sizeof(int32_t));
+    g_active_tokens = num_tokens;
+    if (g_kv_cache_enabled) {{
+        g_kv_cache_tokens = 0;
+    }}
+    return 0;
+}}
+
+int ck_model_forward(float *logits_out) {{
+    if (!g_initialized) return -1;
+    if (!g_tokens || g_active_tokens <= 0) return -2;
+    if (ensure_logits_capacity(g_active_tokens) != 0) return -3;
+    float *model_logits = {safe_name}_PTR(&g_model, {safe_name}_FOOTER.logits);
+    for (int i = 0; i < g_active_tokens; ++i) {{
+        {prefix}_decode(&g_model, (const int *)&g_tokens[i], i);
+        memcpy(g_logits + (size_t)i * {safe_name}_VOCAB_SIZE,
+               model_logits,
+               (size_t){safe_name}_VOCAB_SIZE * sizeof(float));
+    }}
+    if (g_kv_cache_enabled) {{
+        g_kv_cache_tokens = g_active_tokens;
+    }}
+    if (logits_out) {{
+        memcpy(logits_out, g_logits,
+               (size_t)g_active_tokens * (size_t){safe_name}_VOCAB_SIZE * sizeof(float));
+    }}
+    return 0;
+}}
+
+int ck_model_kv_cache_enable(int capacity) {{
+    if (!g_initialized) return -1;
+    g_kv_cache_enabled = 1;
+    int cap = capacity;
+    if (cap <= 0 || cap > {safe_name}_MAX_SEQ_LEN) cap = {safe_name}_MAX_SEQ_LEN;
+    g_kv_cache_capacity = cap;
+    g_kv_cache_tokens = 0;
+    g_active_tokens = 0;
+    return 0;
+}}
+
+void ck_model_kv_cache_reset(void) {{
+    g_kv_cache_tokens = 0;
+    g_active_tokens = 0;
+}}
+
+int ck_model_decode(int32_t token, float *logits_out) {{
+    if (!g_initialized) return -1;
+    int token_index = g_kv_cache_tokens;
+    if (token_index < 0 || token_index >= g_kv_cache_capacity) return -2;
+    if (ensure_logits_capacity(token_index + 1) != 0) return -3;
+    {prefix}_decode(&g_model, (const int *)&token, token_index);
+    float *model_logits = {safe_name}_PTR(&g_model, {safe_name}_FOOTER.logits);
+    memcpy(g_logits + (size_t)token_index * {safe_name}_VOCAB_SIZE,
+           model_logits,
+           (size_t){safe_name}_VOCAB_SIZE * sizeof(float));
+    g_kv_cache_tokens = token_index + 1;
+    g_active_tokens = g_kv_cache_tokens;
+    if (logits_out) {{
+        memcpy(logits_out,
+               g_logits + (size_t)token_index * {safe_name}_VOCAB_SIZE,
+               (size_t){safe_name}_VOCAB_SIZE * sizeof(float));
+    }}
+    return 0;
+}}
+
+float *ck_model_get_logits(void) {{
+    return g_logits;
+}}
+
+int ck_model_get_vocab_size(void) {{
+    return {safe_name}_VOCAB_SIZE;
+}}
+
+int ck_model_get_context_window(void) {{
+    return {safe_name}_MAX_SEQ_LEN;
+}}
+
+int ck_model_get_active_tokens(void) {{
+    return g_active_tokens;
+}}
+"""
+
+    model_c_path.write_text(wrapper)
     log(f"  Created {model_c_path}", C_GREEN)
     return model_c_path
 
@@ -326,6 +508,7 @@ def step_compile(model_c_path: Path, output_dir: Path, force: bool = False) -> P
     if not kernel_sources:
         src_dir = PROJECT_ROOT / "src" / "kernels"
         kernel_sources = [str(f) for f in src_dir.glob("*.c")]
+    kernel_sources.append(str(PROJECT_ROOT / "src" / "ckernel_model_load_v4.c"))
 
     # Build command
     cmd = [
