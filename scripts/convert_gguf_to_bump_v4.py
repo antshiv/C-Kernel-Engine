@@ -61,6 +61,21 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
         u16 = np.frombuffer(raw, dtype=np.uint16)
         u32 = u16.astype(np.uint32) << 16
         mat = u32.view(np.float32)
+    elif info.ggml_type == gguf.GGML_TYPE_Q8_0:
+        if cols % 32 != 0:
+            raise gguf.GGUFError(
+                f"{info.name}: Q8_0 requires cols % 32 == 0 (got cols={cols})"
+            )
+        blocks_per_row = cols // 32
+        mat = np.empty((rows, cols), dtype=np.float32)
+        offset = 0
+        for r in range(rows):
+            row = mat[r]
+            for b in range(blocks_per_row):
+                scale = np.frombuffer(raw[offset:offset + 2], dtype=np.float16)[0].astype(np.float32)
+                qs = np.frombuffer(raw[offset + 2:offset + 34], dtype=np.int8).astype(np.float32)
+                row[b * 32:(b + 1) * 32] = qs * scale
+                offset += 34
     else:
         raise gguf.GGUFError(
             f"{info.name}: unsupported matrix type {gguf.ggml_type_name(info.ggml_type)}"
@@ -71,10 +86,10 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
 def weight_dtype(info: gguf.TensorInfo, label: str) -> int:
     if info.ggml_type in (gguf.GGML_TYPE_Q4_K, gguf.GGML_TYPE_Q6_K):
         return gguf.ck_dtype_from_ggml_type(info.ggml_type)
-    if info.ggml_type in (gguf.GGML_TYPE_F32, gguf.GGML_TYPE_F16, gguf.GGML_TYPE_BF16):
+    if info.ggml_type in (gguf.GGML_TYPE_F32, gguf.GGML_TYPE_F16, gguf.GGML_TYPE_BF16, gguf.GGML_TYPE_Q8_0):
         return CK_DT_FP32
     raise gguf.GGUFError(
-        f"{info.name}: expected Q4_K/Q6_K/F32/F16/BF16 for {label}, got {gguf.ggml_type_name(info.ggml_type)}"
+        f"{info.name}: expected Q4_K/Q6_K/Q8_0/F32/F16/BF16 for {label}, got {gguf.ggml_type_name(info.ggml_type)}"
     )
 
 

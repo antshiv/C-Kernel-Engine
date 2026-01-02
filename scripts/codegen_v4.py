@@ -43,6 +43,19 @@ def emit_c_source_v4(layout: v3.ModelLayout,
     weight_dtype = str(config.get("weight_dtype", "")).lower()
     use_q4_k = weight_dtype.startswith("q4_k")
 
+    def buffer_dtype(buffers, name: str) -> str:
+        for buf in buffers:
+            if buf.name == name:
+                return str(buf.dtype).lower()
+        return ""
+
+    token_emb_dtype = buffer_dtype(section.header_buffers, "token_emb")
+    lm_head_dtype = buffer_dtype(section.footer_buffers, "lm_head_weight")
+    if not lm_head_dtype and config.get("tie_word_embeddings", True):
+        lm_head_dtype = token_emb_dtype
+    embed_use_q4_k = token_emb_dtype.startswith("q4_k")
+    lm_head_use_q4_k = lm_head_dtype.startswith("q4_k")
+
     layer_names = _layer_buffer_names(section)
 
     required_prefill = [
@@ -436,7 +449,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(f"    const int aligned_context_window = {safe_name_lower}_align_elems({safe_name}_MAX_SEQ_LEN, elem_bytes, 64);")
         add()
         add(f"    float *embed_out = {safe_name}_PTR(model, {safe_name}_HEADER.embedded_input);")
-        if use_q4_k:
+        if embed_use_q4_k:
             add(f"    const void *embed_weight = (const void *){safe_name}_PTR(model, {safe_name}_HEADER.token_emb);")
             add("    embedding_forward_q4_k((const int32_t *)tokens,")
             add("                          num_tokens,")
@@ -485,7 +498,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(f"                   {config.get('rms_norm_eps', 1e-6)}f);")
         add()
         add(f"    float *logits = {safe_name}_PTR(model, {safe_name}_FOOTER.logits);")
-        if use_q4_k:
+        if lm_head_use_q4_k:
             add(f"    const void *lm_head = (const void *){safe_name}_PTR(model, {safe_name}_FOOTER.lm_head_weight);")
             add("    const size_t q8_bytes = ck_dtype_row_bytes(CK_DT_Q8_K, (size_t)aligned_embed_dim);")
             add("    for (int t = 0; t < num_tokens; ++t) {")
@@ -767,7 +780,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("    }")
         add()
         add(f"    float *embed_out = {safe_name}_PTR(model, {safe_name}_HEADER.embedded_input);")
-        if use_q4_k:
+        if embed_use_q4_k:
             add(f"    const void *embed_weight = (const void *){safe_name}_PTR(model, {safe_name}_HEADER.token_emb);")
             add("    embedding_forward_q4_k((const int32_t *)token,")
             add("                          1,")
@@ -816,7 +829,7 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(f"                   {config.get('rms_norm_eps', 1e-6)}f);")
         add()
         add(f"    float *logits = {safe_name}_PTR(model, {safe_name}_FOOTER.logits);")
-        if use_q4_k:
+        if lm_head_use_q4_k:
             add(f"    const void *lm_head = (const void *){safe_name}_PTR(model, {safe_name}_FOOTER.lm_head_weight);")
             add("    const size_t q8_bytes = ck_dtype_row_bytes(CK_DT_Q8_K, (size_t)aligned_embed_dim);")
             add("    uint8_t q8_buf[q8_bytes];")
