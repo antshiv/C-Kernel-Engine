@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRv2Format | C-Kernel-Engine</title>
+    <title>DeterministicMemory | C-Kernel-Engine</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>
         :root {
@@ -880,494 +880,359 @@
     </header>
     <main>
 
-<h1>IR v2 Format Specification</h1>
+<div class="container">
+  <h1>Deterministic Memory Layout</h1>
+  <p class="lead">
+    Why static memory offsets matter, and what they enable for monitoring, debugging, and mechanistic interpretability.
+  </p>
 
-<p>IR v2 is a self-documenting JSON format that captures model architecture, buffer definitions, and computation graphs in a portable, machine-readable format.</p>
+  <div class="card card-accent">
+    <h3 style="margin-top: 0;">The Core Insight</h3>
+    <p>
+      C-Kernel-Engine generates C code with <strong>compile-time known memory offsets</strong>.
+      Every tensor, every weight, every activation has a fixed address that never changes between runs.
+    </p>
+    <p>
+      This isn't just an implementation detail&mdash;it's a fundamental architectural choice that unlocks
+      capabilities impossible in dynamic frameworks like PyTorch or JAX.
+    </p>
+  </div>
 
-<div class="card card-accent">
-    <h3 style="margin-top: 0;">Key Features</h3>
-    <ul>
-        <li><strong>Portable</strong> - Same IR works for different batch sizes</li>
-        <li><strong>Self-documenting</strong> - Contains notes explaining the format</li>
-        <li><strong>Extensible</strong> - Supports encoder, decoder, and encoder-decoder architectures</li>
-    </ul>
-</div>
+  <h2>Why Deterministic Memory?</h2>
 
-<h2>Pipeline Overview</h2>
-
-<div class="img-container" style="background: #fafafa; padding: 1rem; border-radius: 8px;">
-    <svg width="1200" height="500" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
-            </marker>
-            <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#388e3c"/>
-            </marker>
-        </defs>
-
-        <!-- Background -->
-        <rect width="1200" height="500" fill="#fafafa"/>
-
-        <!-- Title -->
-        <text x="600" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">
-            IR v2 Pipeline: From HuggingFace to C Runtime
-        </text>
-
-        <!-- Step 1: Input Files -->
-        <rect x="50" y="70" width="200" height="120" fill="#e3f2fd" stroke="#1976d2" rx="8" stroke-width="2"/>
-        <text x="150" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#1976d2">config.json</text>
-        <text x="150" y="118" text-anchor="middle" font-size="10" fill="#666">(HuggingFace)</text>
-        <text x="60" y="140" font-size="9" font-family="monospace" fill="#333">hidden_size: 896</text>
-        <text x="60" y="155" font-size="9" font-family="monospace" fill="#333">vocab_size: 151936</text>
-        <text x="60" y="170" font-size="9" font-family="monospace" fill="#333">num_layers: 24</text>
-
-        <rect x="280" y="70" width="200" height="120" fill="#fff3e0" stroke="#f57c00" rx="8" stroke-width="2"/>
-        <text x="380" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">global_buffers.json</text>
-        <text x="380" y="118" text-anchor="middle" font-size="10" fill="#666">(kernel_maps/)</text>
-        <text x="290" y="140" font-size="9" font-family="monospace" fill="#333">token_emb: [vocab, embed]</text>
-        <text x="290" y="155" font-size="9" font-family="monospace" fill="#333">logits: [tokens, vocab]</text>
-
-        <rect x="510" y="70" width="200" height="120" fill="#fff3e0" stroke="#f57c00" rx="8" stroke-width="2"/>
-        <text x="610" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">decoder_layer_plan.json</text>
-        <text x="610" y="118" text-anchor="middle" font-size="10" fill="#666">(kernel_maps/)</text>
-        <text x="520" y="140" font-size="9" font-family="monospace" fill="#333">rmsnorm → qkv_project</text>
-        <text x="520" y="155" font-size="9" font-family="monospace" fill="#333">→ rope → attention</text>
-        <text x="520" y="170" font-size="9" font-family="monospace" fill="#333">→ mlp → residual</text>
-
-        <!-- Arrows down -->
-        <line x1="150" y1="190" x2="150" y2="230" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-        <line x1="380" y1="190" x2="380" y2="230" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-        <line x1="610" y1="190" x2="610" y2="230" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-
-        <!-- Step 2: Compiler -->
-        <rect x="100" y="240" width="560" height="80" fill="#f3e5f5" stroke="#7b1fa2" rx="8" stroke-width="2"/>
-        <text x="380" y="275" text-anchor="middle" font-size="16" font-weight="bold" fill="#7b1fa2">scripts/build_ir_v2.py</text>
-        <text x="380" y="300" text-anchor="middle" font-size="11" fill="#666">Parse config → Build dimensions → Load buffers → Plan nodes</text>
-
-        <!-- Arrow down -->
-        <line x1="380" y1="320" x2="380" y2="360" stroke="#388e3c" stroke-width="3" marker-end="url(#arrow-green)"/>
-
-        <!-- Step 3: IR Output -->
-        <rect x="100" y="370" width="300" height="110" fill="#e8f5e9" stroke="#388e3c" rx="8" stroke-width="2"/>
-        <text x="250" y="400" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">ir_v2.json</text>
-        <text x="110" y="425" font-size="10" font-family="monospace" fill="#333">dimensions: [{id:10, name:"vocab"}]</text>
-        <text x="110" y="445" font-size="10" font-family="monospace" fill="#333">buffers: [{name:"token_emb",...}]</text>
-        <text x="110" y="465" font-size="10" font-family="monospace" fill="#333">nodes: [{kernel:"rmsnorm",...}]</text>
-
-        <!-- Arrow right -->
-        <line x1="400" y1="425" x2="450" y2="425" stroke="#388e3c" stroke-width="3" marker-end="url(#arrow-green)"/>
-
-        <!-- Step 4: Code Gen -->
-        <rect x="460" y="370" width="300" height="110" fill="#e8f5e9" stroke="#388e3c" rx="8" stroke-width="2"/>
-        <text x="610" y="400" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">generated_v2.c</text>
-        <text x="470" y="425" font-size="10" font-family="monospace" fill="#333">CKV2BufferLayout buffers[] = {</text>
-        <text x="480" y="445" font-size="10" font-family="monospace" fill="#333">{0, 272269312, 0}, // token_emb</text>
-        <text x="480" y="465" font-size="10" font-family="monospace" fill="#333">...</text>
-
-        <!-- Legend -->
-        <rect x="780" y="70" width="180" height="130" fill="white" stroke="#ddd" rx="5"/>
-        <text x="795" y="95" font-size="12" font-weight="bold" fill="#333">Legend</text>
-        <rect x="795" y="105" width="16" height="12" fill="#e3f2fd" stroke="#1976d2"/>
-        <text x="820" y="115" font-size="10" fill="#333">External input</text>
-        <rect x="795" y="125" width="16" height="12" fill="#fff3e0" stroke="#f57c00"/>
-        <text x="820" y="135" font-size="10" fill="#333">Config (you write)</text>
-        <rect x="795" y="145" width="16" height="12" fill="#f3e5f5" stroke="#7b1fa2"/>
-        <text x="820" y="155" font-size="10" fill="#333">Python compiler</text>
-        <rect x="795" y="165" width="16" height="12" fill="#e8f5e9" stroke="#388e3c"/>
-        <text x="820" y="175" font-size="10" fill="#333">Generated output</text>
-    </svg>
-</div>
-
-<h2>Dimension Mapping</h2>
-
-<p>The IR uses symbolic dimension IDs that map to actual values from the model config:</p>
-
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Source in config.json</th>
-            <th>Example (Qwen2-0.5B)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr><td>0</td><td><code>tokens</code></td><td>batch_size x seq_len (runtime)</td><td>131072</td></tr>
-        <tr><td>1</td><td><code>embed</code></td><td>hidden_size</td><td>896</td></tr>
-        <tr><td>2</td><td><code>aligned_embed</code></td><td>hidden_size (64-byte aligned)</td><td>896</td></tr>
-        <tr><td>3</td><td><code>head_dim</code></td><td>hidden_size / num_attention_heads</td><td>64</td></tr>
-        <tr><td>5</td><td><code>num_heads</code></td><td>num_attention_heads</td><td>14</td></tr>
-        <tr><td>6</td><td><code>num_kv_heads</code></td><td>num_key_value_heads</td><td>2</td></tr>
-        <tr><td>8</td><td><code>intermediate</code></td><td>intermediate_size</td><td>4864</td></tr>
-        <tr><td>10</td><td><code>vocab</code></td><td>vocab_size</td><td>151936</td></tr>
-    </tbody>
-</table>
-
-<div class="card card-green">
-    <h3 style="margin-top: 0;">How Dimensions Resolve</h3>
-    <pre>shape[{dim:10}] → dimensions[10] → {name:"vocab", value:151936} → 151936 elements
-
-Example: token_emb shape = [vocab, aligned_embed] = [151936, 896]</pre>
-</div>
-
-<h2>Input Files</h2>
-
-<div class="grid grid-2">
+  <div class="grid-2">
     <div class="card">
-        <h3 style="margin-top: 0;">config.json <small>(from HuggingFace)</small></h3>
-        <p>Downloaded automatically. Provides model dimensions.</p>
-        <pre>{
-  "hidden_size": 896,
-  "vocab_size": 151936,
-  "num_attention_heads": 14,
-  "num_key_value_heads": 2,
-  "intermediate_size": 4864,
-  "num_hidden_layers": 24
-}</pre>
+      <h3>Dynamic Frameworks (PyTorch)</h3>
+      <ul>
+        <li>Memory allocated at runtime</li>
+        <li>Addresses change every run</li>
+        <li>Need hooks to observe tensors</li>
+        <li>Hooks add overhead to training</li>
+        <li>Can't observe without perturbing</li>
+      </ul>
     </div>
     <div class="card">
-        <h3 style="margin-top: 0;">global_buffers.json <small>(kernel_maps/)</small></h3>
-        <p>Defines global buffers using symbolic dimension names.</p>
-        <pre>{"buffers": [
-  {"name": "token_emb",
-   "scope": "global",
-   "role": "weight",
-   "shape": [{"dim":"vocab"},
-             {"dim":"aligned_embed"}]}
-]}</pre>
+      <h3>C-Kernel-Engine</h3>
+      <ul>
+        <li>Memory layout computed at compile time</li>
+        <li>Same offsets every run</li>
+        <li>Direct memory access via RDMA</li>
+        <li>Zero overhead observation</li>
+        <li>Observe without disturbing compute</li>
+      </ul>
     </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">decoder_layer_plan.json <small>(kernel_maps/)</small></h3>
-        <p>Defines operations in each transformer layer.</p>
-        <pre>{"steps": [
-  {"kernel": "rmsnorm",
-   "bind": {"input": "input",
-            "gamma": "ln1_gamma"}},
-  {"kernel": "qkv_project", ...},
-  {"kernel": "attention", ...}
-]}</pre>
-    </div>
-    <div class="card card-green">
-        <h3 style="margin-top: 0;">ir_v2.json <small>(Output)</small></h3>
-        <p>Self-documenting IR with all dimensions resolved.</p>
-        <pre>{
-  "version": 2,
-  "notes": ["...format guide..."],
-  "dimensions": [...],
-  "buffers": [...],
-  "nodes": [...]
-}</pre>
-    </div>
-</div>
+  </div>
 
-<h2>Usage</h2>
+  <h2>The Layout JSON: Your Memory Address Book</h2>
 
-<div class="card card-accent">
-    <h3 style="margin-top: 0;">Generate IR v2</h3>
-    <pre># Fetch config from HuggingFace
-make fetch-v2 IR_V2_HF=Qwen/Qwen2-0.5B
+  <p>
+    When you generate code with <code>build_ir_v4.py</code>, you also get a <code>layout.json</code>
+    that maps every tensor to its exact memory location:
+  </p>
 
-# Generate IR v2
-make ir-v2 IR_V2_HF=Qwen/Qwen2-0.5B
-
-# Generate C runtime
-./build/ck_ir_v2_demo --ir build/ir_v2.json --emit build/generated_v2.c</pre>
-</div>
-
-<div class="card">
-    <h3 style="margin-top: 0;">For GGUF Quantized Models</h3>
-    <pre># Use the GGUF-specific repo
-make ir-v2 IR_V2_HF=Qwen/Qwen2-0.5B-Instruct-GGUF \
-           IR_V2_WEIGHTS=qwen2-0_5b-instruct-q4_k_m.gguf</pre>
-</div>
-
-<h2>IR Lowering</h2>
-
-<p>The high-level IR is <strong>portable</strong> but not executable. The <strong>lowering pass</strong> converts it to a mode-specific form with a concrete memory plan.</p>
-
-<div class="img-container" style="background: #fafafa; padding: 1rem; border-radius: 8px;">
-    <svg width="900" height="200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
-            </marker>
-        </defs>
-        <rect width="900" height="200" fill="#fafafa"/>
-
-        <!-- High-level IR -->
-        <rect x="50" y="70" width="150" height="60" fill="#e8f5e9" stroke="#388e3c" rx="6" stroke-width="2"/>
-        <text x="125" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">ir_v2.json</text>
-        <text x="125" y="115" text-anchor="middle" font-size="10" fill="#666">Portable IR</text>
-
-        <!-- Arrow -->
-        <line x1="200" y1="100" x2="270" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
-        <text x="235" y="90" text-anchor="middle" font-size="10" fill="#666">--lower</text>
-
-        <!-- Lowering box -->
-        <rect x="280" y="50" width="140" height="100" fill="#f3e5f5" stroke="#7b1fa2" rx="6" stroke-width="2"/>
-        <text x="350" y="80" text-anchor="middle" font-size="11" font-weight="bold" fill="#7b1fa2">Lowering Pass</text>
-        <text x="350" y="100" text-anchor="middle" font-size="9" fill="#666">Filter nodes</text>
-        <text x="350" y="115" text-anchor="middle" font-size="9" fill="#666">Compute memory</text>
-        <text x="350" y="130" text-anchor="middle" font-size="9" fill="#666">Mode-specific</text>
-
-        <!-- Arrows to modes -->
-        <line x1="420" y1="70" x2="490" y2="40" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
-        <line x1="420" y1="100" x2="490" y2="100" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
-        <line x1="420" y1="130" x2="490" y2="160" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
-
-        <!-- Mode outputs -->
-        <rect x="500" y="20" width="140" height="40" fill="#e3f2fd" stroke="#1976d2" rx="5"/>
-        <text x="570" y="45" text-anchor="middle" font-size="11" font-weight="bold" fill="#1976d2">prefill.json</text>
-
-        <rect x="500" y="80" width="140" height="40" fill="#fff3e0" stroke="#f57c00" rx="5"/>
-        <text x="570" y="105" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">decode.json</text>
-
-        <rect x="500" y="140" width="140" height="40" fill="#ffebee" stroke="#c62828" rx="5"/>
-        <text x="570" y="165" text-anchor="middle" font-size="11" font-weight="bold" fill="#c62828">backward.json</text>
-
-        <!-- Memory plan note -->
-        <rect x="680" y="60" width="180" height="80" fill="white" stroke="#ddd" rx="5"/>
-        <text x="770" y="85" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">Each includes:</text>
-        <text x="690" y="105" font-size="9" fill="#666">• lowering metadata</text>
-        <text x="690" y="120" font-size="9" fill="#666">• memory_plan (offsets)</text>
-        <text x="690" y="135" font-size="9" fill="#666">• filtered nodes</text>
-    </svg>
-</div>
-
-<div class="grid grid-3">
-    <div class="card">
-        <h3 style="margin-top: 0;">Prefill Mode</h3>
-        <p>Process full sequence (prompt). All tokens in parallel.</p>
-        <pre>./build/ck_ir_v2_demo config.json \
-  --lower prefill</pre>
-    </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">Decode Mode</h3>
-        <p>Generate one token at a time. Uses KV cache.</p>
-        <pre>./build/ck_ir_v2_demo config.json \
-  --lower decode \
-  --lower-out build/decode.json</pre>
-    </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">Backward Mode</h3>
-        <p>Training. Auto-builds backward graph.</p>
-        <pre>./build/ck_ir_v2_demo config.json \
-  --lower backward</pre>
-    </div>
-</div>
-
-<div class="card card-green">
-    <h3 style="margin-top: 0;">What Lowering Adds</h3>
-    <pre>{
-  "lowering": {
-    "mode": "prefill",
-    "nodes_filtered": 12,
-    "nodes_kept": 252
-  },
-  "memory_plan": {
-    "total_bytes": 976914176,
-    "buffers": [
-      {"name": "token_emb", "offset": 0, "size": 272269312},
-      {"name": "embedded_input", "offset": 272269312, "size": 469762048},
-      {"name": "layer_0.ln1_gamma", "offset": 742031360, "size": 1792},
-      {"name": "layer_0.ln1_output", "offset": 742033152, "size": ...}
-    ]
-  },
-  "nodes": [ ... filtered & tagged ... ]
-}</pre>
-    <p><small>Note: All offsets are from a single base pointer. Weights and activations interleaved in execution order.</small></p>
-</div>
-
-<h2>Memory Layout Philosophy</h2>
-
-<p>C-Kernel-Engine uses a <strong>single contiguous memory allocation</strong> for the entire model. This design is critical for CPU performance.</p>
-
-<div class="card card-accent">
-    <h3 style="margin-top: 0;">Why One Allocation?</h3>
-    <ul>
-        <li><strong>CPU doesn't care</strong> if data is a weight or activation - it just needs sequential memory access</li>
-        <li><strong>Single base pointer + offsets</strong> = simpler memory management, no pointer chasing</li>
-        <li><strong>Hugepage alignment</strong> (1GB/2MB) enables NUMA-aware placement</li>
-        <li><strong>Layer-level prefetching</strong> - while layer N computes, layer N+1's data streams from different memory channel</li>
-    </ul>
-</div>
-
-<div class="img-container" style="background: #fafafa; padding: 1rem; border-radius: 8px;">
-    <svg width="800" height="420" xmlns="http://www.w3.org/2000/svg">
-        <rect width="800" height="420" fill="#fafafa"/>
-        <text x="400" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Memory Layout: Single Contiguous Block (Execution Order)</text>
-
-        <!-- Memory block -->
-        <rect x="100" y="50" width="600" height="350" fill="white" stroke="#333" stroke-width="2" rx="4"/>
-
-        <!-- Token embeddings -->
-        <rect x="100" y="50" width="600" height="40" fill="#e3f2fd" stroke="#1976d2"/>
-        <text x="400" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#1976d2">Token Embeddings (weight)</text>
-
-        <!-- Embedded input (activation right after weight) -->
-        <rect x="100" y="90" width="600" height="30" fill="#fff3e0" stroke="#f57c00"/>
-        <text x="400" y="110" text-anchor="middle" font-size="11" fill="#e65100">Embedded Input (activation)</text>
-
-        <!-- Layer 0 -->
-        <rect x="100" y="120" width="600" height="100" fill="#f3e5f5" stroke="#7b1fa2" stroke-dasharray="none"/>
-        <text x="120" y="140" font-size="12" font-weight="bold" fill="#7b1fa2">Layer 0</text>
-
-        <!-- Layer 0 contents -->
-        <rect x="120" y="150" width="140" height="20" fill="#e3f2fd"/>
-        <text x="190" y="164" text-anchor="middle" font-size="9" fill="#1976d2">ln1_gamma (W)</text>
-        <rect x="270" y="150" width="140" height="20" fill="#fff3e0"/>
-        <text x="340" y="164" text-anchor="middle" font-size="9" fill="#e65100">ln1_output (A)</text>
-        <rect x="420" y="150" width="140" height="20" fill="#e3f2fd"/>
-        <text x="490" y="164" text-anchor="middle" font-size="9" fill="#1976d2">wq, wk, wv (W)</text>
-
-        <rect x="120" y="175" width="140" height="20" fill="#fff3e0"/>
-        <text x="190" y="189" text-anchor="middle" font-size="9" fill="#e65100">q, k, v (A)</text>
-        <rect x="270" y="175" width="140" height="20" fill="#fff3e0"/>
-        <text x="340" y="189" text-anchor="middle" font-size="9" fill="#e65100">attn_scores (A)</text>
-        <rect x="420" y="175" width="140" height="20" fill="#e3f2fd"/>
-        <text x="490" y="189" text-anchor="middle" font-size="9" fill="#1976d2">proj_weight (W)</text>
-
-        <rect x="120" y="200" width="270" height="15" fill="#fff3e0"/>
-        <text x="255" y="211" text-anchor="middle" font-size="8" fill="#e65100">... MLP weights & activations interleaved ...</text>
-
-        <!-- Layer 1..N -->
-        <rect x="100" y="220" width="600" height="50" fill="#ede7f6" stroke="#7b1fa2" stroke-dasharray="4"/>
-        <text x="400" y="250" text-anchor="middle" font-size="12" fill="#7b1fa2">Layer 1 ... Layer N (same pattern)</text>
-
-        <!-- Final LN -->
-        <rect x="100" y="270" width="600" height="30" fill="#e8f5e9" stroke="#388e3c"/>
-        <text x="400" y="290" text-anchor="middle" font-size="11" fill="#2e7d32">Final LayerNorm (weight + activation)</text>
-
-        <!-- Logits -->
-        <rect x="100" y="300" width="600" height="30" fill="#fff3e0" stroke="#f57c00"/>
-        <text x="400" y="320" text-anchor="middle" font-size="11" fill="#e65100">Logits (activation)</text>
-
-        <!-- Gradients (training) -->
-        <rect x="100" y="330" width="600" height="70" fill="#ffebee" stroke="#c62828" stroke-dasharray="4"/>
-        <text x="400" y="360" text-anchor="middle" font-size="12" fill="#c62828">Gradient Storage (if training)</text>
-        <text x="400" y="380" text-anchor="middle" font-size="10" fill="#666">Same layout: d_weights and d_activations interleaved</text>
-
-        <!-- Arrow and annotation -->
-        <line x1="720" y1="70" x2="720" y2="380" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
-        <text x="740" y="225" font-size="10" fill="#333" transform="rotate(90 740 225)">Execution Order</text>
-
-        <!-- Legend -->
-        <rect x="110" y="405" width="60" height="12" fill="#e3f2fd" stroke="#1976d2"/>
-        <text x="180" y="415" font-size="10" fill="#333">Weight</text>
-        <rect x="230" y="405" width="60" height="12" fill="#fff3e0" stroke="#f57c00"/>
-        <text x="300" y="415" font-size="10" fill="#333">Activation</text>
-        <rect x="360" y="405" width="60" height="12" fill="#ffebee" stroke="#c62828"/>
-        <text x="430" y="415" font-size="10" fill="#333">Gradient</text>
-    </svg>
-</div>
-
-<div class="grid grid-2">
-    <div class="card">
-        <h3 style="margin-top: 0;">NUMA / Sub-NUMA Optimization</h3>
-        <p>With 1GB hugepages, each page can be placed on a different DRAM bank:</p>
-        <pre>Page 0 (0-1GB)   → DRAM Bank 0 (Layer 0-5)
-Page 1 (1-2GB)   → DRAM Bank 1 (Layer 6-11)
-Page 2 (2-3GB)   → DRAM Bank 2 (Layer 12-17)
-...</pre>
-        <p>While Layer 0 computes, Layer 6's data prefetches from a different memory channel - <strong>no bandwidth contention</strong>.</p>
-    </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">Offset-Based Access</h3>
-        <p>All tensors accessed via offsets from single base pointer:</p>
-        <pre>typedef struct {
-    size_t ln1_gamma;      // weight
-    size_t ln1_output;     // activation
-    size_t wq, wk, wv;     // weights
-    size_t q, k, v;        // activations
-    ...
-} LayerOffsets;
-
-// Access: base + layer->ln1_gamma</pre>
-    </div>
-</div>
-
-<div class="card card-green">
-    <h3 style="margin-top: 0;">Why NOT Separate Arenas?</h3>
-    <p>Separating weights/activations/gradients into different allocations would mean:</p>
-    <ul>
-        <li>3+ base pointers to track (or 6+ with sections)</li>
-        <li>Multiple malloc/canary regions to manage</li>
-        <li>Cache misses when jumping between arenas</li>
-        <li>Harder to optimize for NUMA placement</li>
-    </ul>
-    <p><strong>One allocation = one base pointer + offsets = maximum simplicity and performance.</strong></p>
-</div>
-
-<h2>Key Concepts</h2>
-
-<div class="grid grid-3">
-    <div class="card">
-        <h3 style="margin-top: 0;">Shape Resolution</h3>
-        <p>Each shape dimension is <code>{dim, mult, div}</code>:</p>
-        <pre>size = dimensions[dim].value
-       * mult / div</pre>
-    </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">Buffer Roles</h3>
-        <ul style="margin: 0; padding-left: 1.2rem;">
-            <li><code>weight</code> - Model params</li>
-            <li><code>activation</code> - Runtime tensors</li>
-            <li><code>grad</code> - Gradients</li>
-        </ul>
-    </div>
-    <div class="card">
-        <h3 style="margin-top: 0;">Buffer Scope</h3>
-        <ul style="margin: 0; padding-left: 1.2rem;">
-            <li><code>global</code> - Shared across layers</li>
-            <li><code>layer</code> - Per-layer tensors</li>
-        </ul>
-    </div>
-</div>
-
-<h2>IR v2 JSON Structure</h2>
-
-<pre>{
-  "version": 2,
-  "notes": [
-    "=== IR V2 FORMAT GUIDE ===",
-    "DIMENSIONS: maps numeric IDs to named values from config.json",
-    "  - dim:10 → dimensions[10] → 'vocab' → 151936",
-    "BUFFERS: each has shape, role, dtype, scope",
-    "NODES: kernel invocations with bindings to buffers"
-  ],
-  "config": {
-    "num_layers": 24,
-    "hidden_size": 896,
-    "vocab_size": 151936,
-    ...
-  },
-  "dimensions": [
-    {"id": 0, "name": "tokens", "value": 131072},
-    {"id": 1, "name": "embed", "value": 896},
-    {"id": 10, "name": "vocab", "value": 151936}
-  ],
-  "buffers": [
-    {
-      "name": "token_emb",
-      "scope": "global",
-      "role": "weight",
-      "dtype": "bf16",
-      "shape": [{"dim": 10}, {"dim": 2}]
+  <pre><code class="language-json">{
+  "model": "Qwen2-0.5B",
+  "layers": {
+    "layer_15": {
+      "attn_q": {"offset": "0x0A2400", "size": 1605632, "dtype": "bf16"},
+      "attn_k": {"offset": "0x0A4800", "size": 1605632, "dtype": "bf16"},
+      "attn_v": {"offset": "0x0A6C00", "size": 1605632, "dtype": "bf16"},
+      "mlp_gate": {"offset": "0x0B2000", "size": 3211264, "dtype": "q4_k"}
     }
-  ],
-  "nodes": [
-    {
-      "layer": 0,
-      "op": "rmsnorm",
-      "kernel": "rmsnorm_forward",
-      "bindings": [
-        {"arg": "input", "buffer": "input"},
-        {"arg": "gamma", "buffer": "ln1_gamma"}
-      ]
-    }
-  ]
-}</pre>
+  }
+}</code></pre>
+
+  <p>
+    This "address book" is the key to everything that follows. You can point to any tensor by name
+    and know exactly where it lives in memory.
+  </p>
+
+  <h2>What This Enables</h2>
+
+  <h3>1. Zero-Overhead RDMA Monitoring</h3>
+
+  <div class="card">
+    <p>
+      RDMA (Remote Direct Memory Access) supports <strong>one-sided operations</strong>. An observer
+      can read memory from compute nodes without those nodes even knowing it happened&mdash;no interrupts,
+      no CPU involvement, no overhead on training.
+    </p>
+
+    <div class="diagram">
+      <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                      RDMA Network (100-400 Gbps)                │
+└───────┬───────────────────┬───────────────────┬─────────────────┘
+        │                   │                   │
+   ┌────▼────┐         ┌────▼────┐         ┌────▼────┐
+   │ Node 0  │         │ Node 1  │         │ Observer│
+   │ Layers  │         │ Layers  │         │ Laptop  │
+   │  0-11   │         │ 12-23   │         │         │
+   │         │         │         │         │ RDMA    │
+   │ [memory]│         │ [memory]│         │ READ    │
+   │ weights │         │ weights │         │ only    │
+   │ grads   │         │ grads   │         │         │
+   │ acts    │         │ acts    │         │ UI/Viz  │
+   └─────────┘         └─────────┘         └─────────┘
+   (no logging)        (no logging)        (reads memory)
+      </pre>
+    </div>
+
+    <p>
+      The observer laptop can sample any tensor at any rate (1Hz, 10Hz, 100Hz) without
+      affecting training throughput. Traditional logging requires compute nodes to serialize
+      and send data&mdash;that's overhead you can't avoid.
+    </p>
+  </div>
+
+  <h3>2. Live Tensor Inspector</h3>
+
+  <div class="card">
+    <pre>
+┌─────────────────────────────────────────────────────────┐
+│ Layer 15 Attention                                      │
+├─────────────────────────────────────────────────────────┤
+│ Q [0x0A2400 - 0x0A4800]  896×896 bf16  ████████░░ 2.1ms │
+│ K [0x0A4800 - 0x0A6C00]  896×896 bf16  ██████████ 1.8ms │
+│ V [0x0A6C00 - 0x0A9000]  896×896 bf16  ███░░░░░░░ 0.4ms │
+│ Scores [0x0A9000]        896×896 f32   computing...     │
+└─────────────────────────────────────────────────────────┘
+    </pre>
+    <p>
+      Click any tensor to see values, histograms, NaN detection. Because memory layout is static,
+      these offsets work across runs&mdash;you can compare the same tensor position across different
+      training experiments.
+    </p>
+  </div>
+
+  <h3>3. Pipeline Parallel Visualization</h3>
+
+  <div class="card">
+    <pre>
+Node 0 (Layers 0-7)    Node 1 (Layers 8-15)   Node 2 (Layers 16-23)
+┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
+│ █ Micro-batch 0  │──▶│ █ Micro-batch 0  │──▶│ ░ waiting        │
+│ █ Micro-batch 1  │   │ ░ Micro-batch 1  │   │                  │
+│ ░ Micro-batch 2  │   │                  │   │                  │
+└──────────────────┘   └──────────────────┘   └──────────────────┘
+  RDMA: 12.4 GB/s        RDMA: 11.8 GB/s
+    </pre>
+    <p>
+      For distributed training, you know exactly which bytes transfer between nodes. Track
+      pipeline bubble efficiency in real-time without any instrumentation overhead.
+    </p>
+  </div>
+
+  <h3>4. Checkpoint Diff Tool</h3>
+
+  <div class="card">
+    <pre><code class="language-bash">ck-diff checkpoint_step1000.bump checkpoint_step2000.bump
+
+Layer 15 MLP Gate [0x0B2000]:
+  Step 1000: mean=-0.0012, std=0.0234
+  Step 2000: mean=-0.0018, std=0.0241
+  Delta:     mean=-0.0006, std=+0.0007  ✓ healthy
+
+Layer 23 Output [0x2A0000]:
+  WARNING: std increased 3x - possible gradient explosion</code></pre>
+    <p>
+      Compare checkpoints byte-by-byte. Because layout is deterministic, offset 0x0B2000 means
+      the same thing in both files.
+    </p>
+  </div>
+
+  <h3>5. Deterministic Replay Debugging</h3>
+
+  <div class="card">
+    <p>
+      Since memory layout is static:
+    </p>
+    <ul>
+      <li>Record input tokens + random seeds</li>
+      <li>Replay exact same forward pass</li>
+      <li>Step through layer-by-layer with known offsets</li>
+      <li>Compare across runs (impossible in PyTorch where allocations differ)</li>
+    </ul>
+  </div>
+
+  <h2>Mechanistic Interpretability</h2>
+
+  <p>
+    This is where deterministic memory becomes transformative. Mechanistic interpretability
+    research aims to understand <em>how</em> neural networks actually work internally.
+    The field struggles because frameworks hide everything behind abstractions.
+  </p>
+
+  <div class="card card-accent">
+    <h3 style="margin-top: 0;">The Interpretability Unlock</h3>
+    <table>
+      <tr>
+        <th>Traditional Approach</th>
+        <th>With C-Kernel-Engine</th>
+      </tr>
+      <tr>
+        <td>"What's attention head 7 doing?"<br>→ Add hooks, slow down training</td>
+        <td><code>layer_15_head_7 @ 0x0A2400</code><br>→ RDMA read, zero overhead</td>
+      </tr>
+      <tr>
+        <td>"Patch this activation"<br>→ Framework gymnastics</td>
+        <td><code>memcpy(0x0A2400, patch, size)</code><br>→ Direct memory write</td>
+      </tr>
+      <tr>
+        <td>"Trace information flow"<br>→ Black box</td>
+        <td>Follow the offsets in layout.json<br>→ Explicit dataflow graph</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>Live Circuit Discovery</h3>
+
+  <pre><code class="language-python"># While training is running, observe attention patterns
+for layer in range(24):
+    for head in range(14):
+        attn = rdma_read(f"layer_{layer}_head_{head}_scores")
+        if attn[query_pos, key_pos] > 0.8:
+            print(f"Strong connection: L{layer}H{head}")</code></pre>
+
+  <p>No hooks. No slowdown. Just read memory.</p>
+
+  <h3>Activation Patching at Scale</h3>
+
+  <pre><code class="language-python"># Causal intervention: "What happens if we zero this head?"
+original = rdma_read(node=0, offset=LAYER_15_HEAD_7)
+rdma_write(node=0, offset=LAYER_15_HEAD_7, data=zeros)
+# Observe effect on output
+rdma_write(node=0, offset=LAYER_15_HEAD_7, data=original)  # Restore</code></pre>
+
+  <h3>Neuron-Level Probing</h3>
+
+  <pre>
+Layer 15, Neuron 847:
+  Activates strongly on: "capital cities", "country names"
+  Offset: 0x0B2400 + 847*4
+  Historical max: 12.4 (on token "Paris")
+  Current: 0.02
+  </pre>
+
+  <h3>Gradient Attribution</h3>
+
+  <pre>
+"Which weights most affected this prediction?"
+
+∂Loss/∂W for every weight, at known offsets:
+  layer_15_mlp_gate[0x0B2000]: 0.0023  ← high attribution
+  layer_15_mlp_up[0x0B4000]:   0.0001  ← low
+  layer_22_attn_o[0x1A2000]:   0.0089  ← highest!
+  </pre>
+
+  <h2>Comparison with Traditional Approaches</h2>
+
+  <table>
+    <tr>
+      <th>Capability</th>
+      <th>Dynamic Framework</th>
+      <th>C-Kernel-Engine</th>
+    </tr>
+    <tr>
+      <td>Memory layout</td>
+      <td>Changes every run</td>
+      <td>Fixed at compile time</td>
+    </tr>
+    <tr>
+      <td>Observability</td>
+      <td>Hooks (add overhead)</td>
+      <td>Direct RDMA read (zero overhead)</td>
+    </tr>
+    <tr>
+      <td>Activation patching</td>
+      <td>Slow, framework-specific</td>
+      <td>Direct memory write</td>
+    </tr>
+    <tr>
+      <td>Probing classifiers</td>
+      <td>Offline analysis</td>
+      <td>Real-time</td>
+    </tr>
+    <tr>
+      <td>Attention visualization</td>
+      <td>Post-hoc</td>
+      <td>Live during training</td>
+    </tr>
+    <tr>
+      <td>Circuit tracing</td>
+      <td>Manual, tedious</td>
+      <td>Automated via layout.json</td>
+    </tr>
+    <tr>
+      <td>Reproducibility</td>
+      <td>Difficult (allocation varies)</td>
+      <td>Guaranteed (same offsets)</td>
+    </tr>
+  </table>
+
+  <h2>The Observer Architecture</h2>
+
+  <p>
+    A third machine (laptop, monitoring server) can observe training clusters via RDMA
+    without affecting their performance:
+  </p>
+
+  <div class="card">
+    <pre><code class="language-python"># observer.py - runs on separate machine
+class TrainingObserver:
+    def __init__(self, nodes, layout_json):
+        self.layout = load_layout(layout_json)  # Static offsets!
+        self.rdma = RDMAConnection(nodes)
+
+    def sample_gradients(self, layer):
+        offset = self.layout[f"layer_{layer}"]["grad_offset"]
+        size = self.layout[f"layer_{layer}"]["grad_size"]
+
+        # One-sided read - compute node doesn't notice
+        data = self.rdma.read(node=layer // 12, offset=offset, size=size)
+        return np.frombuffer(data, dtype=np.float32)
+
+    def check_for_nans(self):
+        for layer in range(24):
+            grad = self.sample_gradients(layer)
+            if np.isnan(grad).any():
+                alert(f"NaN detected in layer {layer}!")</code></pre>
+  </div>
+
+  <h2>The Philosophy</h2>
+
+  <blockquote>
+    "We can't interpret what we can't see."
+  </blockquote>
+
+  <p>
+    Dynamic frameworks hide computation behind layers of abstraction. The memory allocator
+    decides where tensors live. Hooks and callbacks add overhead to observe what's happening.
+  </p>
+
+  <p>
+    C-Kernel-Engine takes the opposite approach: <strong>everything is explicit</strong>.
+    The generated C code shows exactly what computation happens. The layout.json shows
+    exactly where every tensor lives. RDMA lets you observe without disturbing.
+  </p>
+
+  <p>
+    This doesn't solve interpretability&mdash;the science is still hard. But it removes
+    the <em>infrastructure barriers</em> that make interpretability research difficult.
+    When you can see everything, you can start to understand everything.
+  </p>
+
+  <div class="card card-accent">
+    <h3 style="margin-top: 0;">Summary</h3>
+    <ul>
+      <li><strong>Deterministic layout</strong> → Reproducible experiments, same offsets every run</li>
+      <li><strong>Zero-overhead observation</strong> → Don't perturb what you measure</li>
+      <li><strong>Explicit computation</strong> → No hidden framework magic</li>
+      <li><strong>Known offsets</strong> → Point to any neuron, any layer, any time</li>
+      <li><strong>RDMA observer</strong> → Separate monitoring from compute</li>
+    </ul>
+  </div>
+</div>
     </main>
 
     <!-- SVG Viewer Overlay (shared across all pages) -->

@@ -267,6 +267,8 @@ class TensorInfo:
 GGML_TYPE_F32 = 0
 GGML_TYPE_F16 = 1
 GGML_TYPE_Q4_0 = 2
+GGML_TYPE_Q5_0 = 6
+GGML_TYPE_Q5_1 = 7
 GGML_TYPE_Q8_0 = 8
 GGML_TYPE_Q4_K = 12
 GGML_TYPE_Q6_K = 14
@@ -279,6 +281,8 @@ def ggml_type_name(t: int) -> str:
         GGML_TYPE_F16: "F16",
         GGML_TYPE_BF16: "BF16",
         GGML_TYPE_Q4_0: "Q4_0",
+        GGML_TYPE_Q5_0: "Q5_0",
+        GGML_TYPE_Q5_1: "Q5_1",
         GGML_TYPE_Q8_0: "Q8_0",
         GGML_TYPE_Q4_K: "Q4_K",
         GGML_TYPE_Q6_K: "Q6_K",
@@ -320,6 +324,14 @@ def ggml_row_bytes(ggml_type: int, ne0: int) -> int:
         if ne0 % 32 != 0:
             raise GGUFError(f"Q4_0 requires ne0 % 32 == 0 (got ne0={ne0})")
         return (ne0 // 32) * 18
+    if ggml_type == GGML_TYPE_Q5_0:
+        if ne0 % 32 != 0:
+            raise GGUFError(f"Q5_0 requires ne0 % 32 == 0 (got ne0={ne0})")
+        return (ne0 // 32) * 22
+    if ggml_type == GGML_TYPE_Q5_1:
+        if ne0 % 32 != 0:
+            raise GGUFError(f"Q5_1 requires ne0 % 32 == 0 (got ne0={ne0})")
+        return (ne0 // 32) * 24
     if ggml_type == GGML_TYPE_Q8_0:
         if ne0 % 32 != 0:
             raise GGUFError(f"Q8_0 requires ne0 % 32 == 0 (got ne0={ne0})")

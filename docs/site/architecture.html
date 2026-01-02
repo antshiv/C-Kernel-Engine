@@ -849,6 +849,7 @@
                     <div class="menu-section">
                         <div class="menu-heading">Infrastructure</div>
                         <a href="memory-safety.html">Memory Safety<small>Bump allocator, canaries</small></a>
+                        <a href="deterministic-memory.html">Deterministic Memory<small>RDMA, interpretability</small></a>
                         <a href="profiling.html">Profiling Guide<small>Valgrind, perf, flamegraphs</small></a>
                         <a href="testing.html">Testing<small>Numerical parity verification</small></a>
                     </div>
@@ -1118,7 +1119,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 <div class="folder-structure">
     <div class="folder-header">
         <span class="folder-title">Project Structure</span>
-        <span class="folder-updated">Updated: 2026-01-02 07:36</span>
+        <span class="folder-updated">Updated: 2026-01-02 09:28</span>
     </div>
     <pre class="tree-output">
 .
@@ -1291,6 +1292,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   |-- build_ir_v4_q4k.py
 |   |-- ck_chat.py
 |   |-- ck_download.py
+|   |-- ck_run_v4.py
 |   |-- codegen_v4.py
 |   |-- compare_bump_payload.py
 |   |-- compare_bump_to_hf.py
@@ -1459,6 +1461,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |   `-- test_vision.py
 |-- bf_16_test.txt
 |-- build_errors.txt.txt
+|-- ck-v4
 |-- config.json
 |-- cores.txt
 |-- default.config.json
@@ -1471,7 +1474,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |-- make_config.txt
 |-- Makefile
 |-- make_test.txt
-|-- q4_issues.txt
+|-- q4_running_issues.txt
 |-- q6_issue.txt
 |-- quant_error.txt
 |-- quantize_info.txt
@@ -1480,6 +1483,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |-- qwen_model.c
 |-- README.md
 |-- requirements.txt
+|-- scale.txt
 |-- show_config.txt
 |-- small10mb.config.json
 |-- smolLM-135.json
@@ -1488,7 +1492,7 @@ make ck-emit CONFIG=config.json OUT=build/model.c</pre>
 |-- tiny.config.json
 `-- valgrind.supp
 
-35 directories, 330 files
+35 directories, 333 files
 </pre>
 </div>
 

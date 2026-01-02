@@ -61,6 +61,47 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
         u16 = np.frombuffer(raw, dtype=np.uint16)
         u32 = u16.astype(np.uint32) << 16
         mat = u32.view(np.float32)
+    elif info.ggml_type == gguf.GGML_TYPE_Q5_0:
+        if cols % 32 != 0:
+            raise gguf.GGUFError(
+                f"{info.name}: Q5_0 requires cols % 32 == 0 (got cols={cols})"
+            )
+        blocks_per_row = cols // 32
+        mat = np.empty((rows, cols), dtype=np.float32)
+        offset = 0
+        for r in range(rows):
+            row = mat[r]
+            for b in range(blocks_per_row):
+                scale = np.frombuffer(raw[offset:offset + 2], dtype=np.float16)[0].astype(np.float32)
+                qs = np.frombuffer(raw[offset + 2:offset + 18], dtype=np.uint8)
+                qh = np.frombuffer(raw[offset + 18:offset + 22], dtype=np.uint8)
+                for i in range(32):
+                    low = (qs[i // 2] >> ((i & 1) * 4)) & 0x0F
+                    high = (qh[i // 8] >> (i & 7)) & 0x01
+                    val = (high << 4) | low
+                    row[b * 32 + i] = (val - 16) * scale
+                offset += 22
+    elif info.ggml_type == gguf.GGML_TYPE_Q5_1:
+        if cols % 32 != 0:
+            raise gguf.GGUFError(
+                f"{info.name}: Q5_1 requires cols % 32 == 0 (got cols={cols})"
+            )
+        blocks_per_row = cols // 32
+        mat = np.empty((rows, cols), dtype=np.float32)
+        offset = 0
+        for r in range(rows):
+            row = mat[r]
+            for b in range(blocks_per_row):
+                scale = np.frombuffer(raw[offset:offset + 2], dtype=np.float16)[0].astype(np.float32)
+                bias = np.frombuffer(raw[offset + 2:offset + 4], dtype=np.float16)[0].astype(np.float32)
+                qs = np.frombuffer(raw[offset + 4:offset + 20], dtype=np.uint8)
+                qh = np.frombuffer(raw[offset + 20:offset + 24], dtype=np.uint8)
+                for i in range(32):
+                    low = (qs[i // 2] >> ((i & 1) * 4)) & 0x0F
+                    high = (qh[i // 8] >> (i & 7)) & 0x01
+                    val = (high << 4) | low
+                    row[b * 32 + i] = val * scale + bias
+                offset += 24
     elif info.ggml_type == gguf.GGML_TYPE_Q8_0:
         if cols % 32 != 0:
             raise gguf.GGUFError(
@@ -86,10 +127,17 @@ def read_matrix_f32(f, base: int, info: gguf.TensorInfo) -> np.ndarray:
 def weight_dtype(info: gguf.TensorInfo, label: str) -> int:
     if info.ggml_type in (gguf.GGML_TYPE_Q4_K, gguf.GGML_TYPE_Q6_K):
         return gguf.ck_dtype_from_ggml_type(info.ggml_type)
-    if info.ggml_type in (gguf.GGML_TYPE_F32, gguf.GGML_TYPE_F16, gguf.GGML_TYPE_BF16, gguf.GGML_TYPE_Q8_0):
+    if info.ggml_type in (
+        gguf.GGML_TYPE_F32,
+        gguf.GGML_TYPE_F16,
+        gguf.GGML_TYPE_BF16,
+        gguf.GGML_TYPE_Q8_0,
+        gguf.GGML_TYPE_Q5_0,
+        gguf.GGML_TYPE_Q5_1,
+    ):
         return CK_DT_FP32
     raise gguf.GGUFError(
-        f"{info.name}: expected Q4_K/Q6_K/Q8_0/F32/F16/BF16 for {label}, got {gguf.ggml_type_name(info.ggml_type)}"
+        f"{info.name}: expected Q4_K/Q6_K/Q8_0/Q5_0/Q5_1/F32/F16/BF16 for {label}, got {gguf.ggml_type_name(info.ggml_type)}"
     )
 
 
