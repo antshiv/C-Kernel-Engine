@@ -259,41 +259,41 @@ def main():
         write_vector_f32(w, ln_f, aligned_embed_dim)
         record_entry("final_ln_weight", "fp32", start, w.bytes_written - start)
 
-    tie = cfg.get("tie_word_embeddings", True)
-    if not tie and "lm_head.weight" not in state_dict:
-        raise SystemExit("tie_word_embeddings=false but lm_head.weight is missing")
-    if not tie:
-        lm_head = get_tensor(state_dict, "lm_head.weight").detach().cpu().numpy()
-        start = w.bytes_written
-        if q4k:
-            write_matrix_q4_k(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
-            dtype_name = "q4_k"
-        else:
-            write_matrix_padded_f32(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
-            dtype_name = "fp32"
-        record_entry("lm_head_weight", dtype_name, start, w.bytes_written - start)
+        tie = cfg.get("tie_word_embeddings", True)
+        if not tie and "lm_head.weight" not in state_dict:
+            raise SystemExit("tie_word_embeddings=false but lm_head.weight is missing")
+        if not tie:
+            lm_head = get_tensor(state_dict, "lm_head.weight").detach().cpu().numpy()
+            start = w.bytes_written
+            if q4k:
+                write_matrix_q4_k(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
+                dtype_name = "q4_k"
+            else:
+                write_matrix_padded_f32(w, lm_head, vocab_size, embed_dim, aligned_embed_dim)
+                dtype_name = "fp32"
+            record_entry("lm_head_weight", dtype_name, start, w.bytes_written - start)
 
-    checksum = w.digest()
+        checksum = w.digest()
 
-    f.flush()
-    f.seek(0)
-    f.write(b"BUMPWGT4")
-    f.write(struct.pack("<I", 4))  # version
-    f.write(struct.pack("<I", 1))  # model_type (legacy)
-    f.write(struct.pack("<I", int(num_layers)))
-    f.write(struct.pack("<I", int(vocab_size)))
-    f.write(struct.pack("<I", int(embed_dim)))
-    f.write(struct.pack("<I", int(intermediate)))
-    f.write(struct.pack("<I", int(context_len)))
-    f.write(struct.pack("<I", int(num_heads)))
-    f.write(struct.pack("<I", int(num_kv_heads)))
-    f.write(struct.pack("<I", int(head_dim)))
-    f.write(struct.pack("<Q", int(aligned_embed_dim)))
-    f.write(struct.pack("<Q", int(aligned_head_dim)))
-    f.write(struct.pack("<Q", int(aligned_intermediate)))
-    f.write(struct.pack("<Q", int(aligned_context)))
-    f.write(checksum)
-    f.write(b"\x00" * 16)
+        f.flush()
+        f.seek(0)
+        f.write(b"BUMPWGT4")
+        f.write(struct.pack("<I", 4))  # version
+        f.write(struct.pack("<I", 1))  # model_type (legacy)
+        f.write(struct.pack("<I", int(num_layers)))
+        f.write(struct.pack("<I", int(vocab_size)))
+        f.write(struct.pack("<I", int(embed_dim)))
+        f.write(struct.pack("<I", int(intermediate)))
+        f.write(struct.pack("<I", int(context_len)))
+        f.write(struct.pack("<I", int(num_heads)))
+        f.write(struct.pack("<I", int(num_kv_heads)))
+        f.write(struct.pack("<I", int(head_dim)))
+        f.write(struct.pack("<Q", int(aligned_embed_dim)))
+        f.write(struct.pack("<Q", int(aligned_head_dim)))
+        f.write(struct.pack("<Q", int(aligned_intermediate)))
+        f.write(struct.pack("<Q", int(aligned_context)))
+        f.write(checksum)
+        f.write(b"\x00" * 16)
 
     if args.map_out:
         os.makedirs(os.path.dirname(args.map_out) or ".", exist_ok=True)
