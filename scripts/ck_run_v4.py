@@ -382,15 +382,43 @@ def run_pipeline(args: argparse.Namespace):
         model_id = info['model_id']
         work_dir = CACHE_DIR / model_id.replace('/', '--')
         model_dir = step_download(model_id, CACHE_DIR, force=args.force_download)
-        config_path = model_dir / "config.json"
 
-        # Convert weights
-        weights_path = step_convert_hf(
-            model_dir, work_dir,
-            weight_dtype=args.weight_dtype or "float32",
-            force=args.force_convert
-        )
-        manifest_path = work_dir / "weights_manifest.json"
+        # Check if this is a GGUF-only repo (no safetensors)
+        has_safetensors = list(model_dir.glob("*.safetensors")) or list(model_dir.glob("model*.safetensors"))
+        gguf_files = list(model_dir.glob("*.gguf"))
+
+        if gguf_files and not has_safetensors:
+            # GGUF-only repo - pick the best GGUF file
+            log(f"  Detected GGUF-only repo with {len(gguf_files)} GGUF files", C_DIM)
+
+            # Prefer Q4_K_M if available, otherwise first file
+            gguf_path = None
+            weight_dtype = args.weight_dtype or "q4_k"
+
+            for pattern in ["*q4_k_m*", "*q4_k*", "*q6_k*", "*"]:
+                matches = list(model_dir.glob(pattern + ".gguf"))
+                if matches:
+                    gguf_path = matches[0]
+                    break
+
+            if not gguf_path:
+                gguf_path = gguf_files[0]
+
+            log(f"  Using GGUF: {gguf_path.name}", C_GREEN)
+            weights_path, config_path = step_convert_gguf(
+                gguf_path, work_dir,
+                force=args.force_convert
+            )
+            manifest_path = work_dir / "weights_manifest.json"
+        else:
+            # Standard HF repo with safetensors
+            config_path = model_dir / "config.json"
+            weights_path = step_convert_hf(
+                model_dir, work_dir,
+                weight_dtype=args.weight_dtype or "float32",
+                force=args.force_convert
+            )
+            manifest_path = work_dir / "weights_manifest.json"
 
     elif input_type == 'gguf':
         gguf_path = info['path']
