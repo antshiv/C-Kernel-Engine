@@ -107,10 +107,11 @@ def main() -> None:
         n_kv = r.u64()
 
         meta: Dict[str, object] = {}
+        arch_prefixes = ("general.", "llama.", "qwen2.", "qwen.")
         for _ in range(n_kv):
             key = r.key_str()
             vtype = r.u32()
-            if args.inspect or args.list or key.startswith(("general.", "llama.")):
+            if args.inspect or args.list or key.startswith(arch_prefixes):
                 meta[key] = gguf._gguf_read_value(r, vtype)
             else:
                 gguf._gguf_skip_value(r, vtype)
@@ -133,7 +134,7 @@ def main() -> None:
         data_start = gguf.align_up(r.tell(), alignment)
         r.seek(data_start)
 
-        arch = str(meta.get("general.architecture", "llama"))
+        arch = str(meta.get("general.architecture", "llama")).lower()
 
         if args.inspect or args.list:
             counts: Dict[int, int] = {}
@@ -215,10 +216,34 @@ def main() -> None:
         if len(tok.dims) != 2:
             raise gguf.GGUFError(f"{tok_name}: expected 2D, got dims={tok.dims}")
 
-        embed_dim = meta_int("llama.embedding_length") or tok.ne0
+        def meta_int_arch(suffix: str) -> Optional[int]:
+            prefixes = (arch, "llama", "qwen2", "qwen")
+            seen = set()
+            for prefix in prefixes:
+                if not prefix or prefix in seen:
+                    continue
+                seen.add(prefix)
+                value = meta_int(f"{prefix}.{suffix}")
+                if value is not None:
+                    return value
+            return None
+
+        def meta_float_arch(suffix: str) -> Optional[float]:
+            prefixes = (arch, "llama", "qwen2", "qwen")
+            seen = set()
+            for prefix in prefixes:
+                if not prefix or prefix in seen:
+                    continue
+                seen.add(prefix)
+                value = meta_float(f"{prefix}.{suffix}")
+                if value is not None:
+                    return value
+            return None
+
+        embed_dim = meta_int_arch("embedding_length") or tok.ne0
         vocab_size = tok.ne1
 
-        num_layers = meta_int("llama.block_count")
+        num_layers = meta_int_arch("block_count")
         if num_layers is None:
             layer_ids = []
             for name in tensors:
@@ -231,7 +256,7 @@ def main() -> None:
                 raise gguf.GGUFError("Could not infer num_layers (missing llama.block_count and no blk.* tensors found)")
             num_layers = max(layer_ids) + 1
 
-        intermediate = meta_int("llama.feed_forward_length")
+        intermediate = meta_int_arch("feed_forward_length")
         if intermediate is None:
             gate0 = tensors.get("blk.0.ffn_gate.weight")
             if gate0 and len(gate0.dims) == 2:
@@ -239,19 +264,19 @@ def main() -> None:
         if intermediate is None:
             raise gguf.GGUFError("Could not determine intermediate_size (missing llama.feed_forward_length)")
 
-        num_heads = meta_int("llama.attention.head_count")
+        num_heads = meta_int_arch("attention.head_count")
         if num_heads is None:
-            raise gguf.GGUFError("Missing llama.attention.head_count (num_heads)")
-        num_kv_heads = meta_int("llama.attention.head_count_kv") or num_heads
+            raise gguf.GGUFError("Missing attention.head_count (num_heads)")
+        num_kv_heads = meta_int_arch("attention.head_count_kv") or num_heads
 
-        context_len = meta_int("llama.context_length") or 0
+        context_len = meta_int_arch("context_length") or 0
         if args.context is not None:
             context_len = int(args.context)
         if context_len <= 0:
             raise gguf.GGUFError("Could not determine context length (use --context to override)")
 
-        rope_theta = meta_float("llama.rope.freq_base") or 10000.0
-        rms_eps = meta_float("llama.norm_rms_eps") or 1e-5
+        rope_theta = meta_float_arch("rope.freq_base") or 10000.0
+        rms_eps = meta_float_arch("norm_rms_eps") or 1e-5
 
         if embed_dim != tok.ne0:
             raise gguf.GGUFError(f"{tok_name}: embedding_length mismatch (meta={embed_dim}, tensor.ne0={tok.ne0})")
