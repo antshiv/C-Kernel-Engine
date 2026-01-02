@@ -27,8 +27,16 @@ import training_config as tc
 # ---------------------------------------------------------------------------
 
 PRESETS = {
-    "qwen2-0.5b": {"config": "qwen2_0.5.json", "name": "qwen2_0.5b"},
-    "smollm-135": {"config": "smolLM-135.json", "name": "smollm_135"},
+    "qwen2-0.5b": {
+        "config": "qwen2_0.5.json",
+        "name": "qwen2_0.5b",
+        "hf": "Qwen/Qwen2-0.5B",
+    },
+    "smollm-135": {
+        "config": "smolLM-135.json",
+        "name": "smollm_135",
+        "hf": "HuggingFaceTB/SmolLM-135M",
+    },
 }
 
 HOST_OPS = {"embedding", "rope_precompute"}
@@ -2351,8 +2359,18 @@ def main(argv: List[str]) -> int:
             args["name"] = preset["name"]
 
     if args["config"]:
-        print(f"[CONFIG] Reading local: {args['config']}")
-        config = v3.parse_config(args["config"])
+        config_path = args["config"]
+        if not os.path.exists(config_path):
+            preset = PRESETS.get(args.get("preset") or "")
+            hf_id = preset.get("hf") if preset else None
+            if hf_id:
+                print(f"[CONFIG] Local preset missing, fetching HF config: {hf_id}")
+                _, cached_path = v3.download_hf_config(hf_id)
+                config_path = cached_path
+            else:
+                raise FileNotFoundError(f"Config file not found: {config_path}")
+        print(f"[CONFIG] Reading local: {config_path}")
+        config = v3.parse_config(config_path)
         model_name = args["name"] or config.get("model_type", "model")
     else:
         model_id = v3.parse_hf_model_id(args["model"])
@@ -2360,15 +2378,15 @@ def main(argv: List[str]) -> int:
         config = v3.parse_config(cached_path)
         model_name = args["name"] or v3.model_id_to_name(model_id)
 
-        if args["dtype"]:
-            dtype = args["dtype"]
-            if dtype == "f32":
-                dtype = "fp32"
-            elif dtype == "f16":
-                dtype = "fp16"
-            if dtype not in ("fp32", "bf16", "fp16"):
-                raise ValueError(f"--dtype must be fp32|bf16|fp16, got: {dtype}")
-            config["dtype"] = dtype
+    if args["dtype"]:
+        dtype = args["dtype"]
+        if dtype == "f32":
+            dtype = "fp32"
+        elif dtype == "f16":
+            dtype = "fp16"
+        if dtype not in ("fp32", "bf16", "fp16"):
+            raise ValueError(f"--dtype must be fp32|bf16|fp16, got: {dtype}")
+        config["dtype"] = dtype
 
     if args["tokens"]:
         tokens = args["tokens"]
