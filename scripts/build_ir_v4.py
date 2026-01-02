@@ -2244,8 +2244,11 @@ def parse_args(argv: List[str]) -> Dict:
             args["dtype"] = arg.split("=", 1)[1].lower()
         elif arg.startswith("--weight-dtype="):
             w_dtype = arg.split("=", 1)[1].lower()
+            # Normalize aliases
+            if w_dtype == "q4_k_m":
+                w_dtype = "q4_k"
             if w_dtype not in ("q4_0", "q4_k", "q6_k", "q8_0", "q8_k", "f32", "bf16"):
-                raise ValueError(f"--weight-dtype must be q4_0/q4_k/q6_k/q8_0/q8_k/f32/bf16, got: {w_dtype}")
+                raise ValueError(f"--weight-dtype must be q4_0/q4_k/q4_k_m/q6_k/q8_0/q8_k/f32/bf16, got: {w_dtype}")
             args["weight_dtype"] = w_dtype
         elif arg.startswith("--modes="):
             modes = arg.split("=", 1)[1]

@@ -78,8 +78,18 @@ def run_cmd(cmd: list, cwd: Path = None, capture: bool = False) -> subprocess.Co
 def detect_input_type(model_input: str) -> tuple[str, dict]:
     """
     Detect input type and return (type, info).
-    Types: 'hf_id', 'hf_url', 'gguf', 'local_dir', 'local_config'
+    Types: 'hf_gguf', 'hf_id', 'hf_url', 'gguf', 'local_dir', 'local_config'
     """
+    # HuggingFace single file URL: hf://org/repo/file.gguf
+    # This downloads just the GGUF file, not the entire repo
+    if model_input.startswith('hf://') and model_input.endswith('.gguf'):
+        # Parse: hf://Qwen/Qwen2-0.5B-Instruct-GGUF/qwen2-0_5b-instruct-q4_k_m.gguf
+        parts = model_input[5:].split('/')  # Remove 'hf://'
+        if len(parts) >= 3:
+            repo_id = f"{parts[0]}/{parts[1]}"
+            filename = '/'.join(parts[2:])  # Handle nested paths
+            return 'hf_gguf', {'repo_id': repo_id, 'filename': filename}
+
     # Local GGUF file
     if model_input.endswith('.gguf') and Path(model_input).exists():
         return 'gguf', {'path': Path(model_input).resolve()}
@@ -141,6 +151,43 @@ def step_download(model_id: str, cache_dir: Path, force: bool = False) -> Path:
     )
 
     return model_dir
+
+
+def step_download_gguf(repo_id: str, filename: str, cache_dir: Path, force: bool = False) -> Path:
+    """Download a single GGUF file from HuggingFace Hub."""
+    log_step(1, f"Downloading {filename} from {repo_id}")
+
+    # Create cache directory based on repo
+    model_dir = cache_dir / repo_id.replace('/', '--')
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    gguf_path = model_dir / Path(filename).name
+
+    # Check if already downloaded
+    if gguf_path.exists() and not force:
+        log(f"  Using cached GGUF at {gguf_path}", C_DIM)
+        return gguf_path
+
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        log_error("huggingface_hub not installed. Run: pip install huggingface_hub")
+        sys.exit(1)
+
+    log(f"  Downloading to {gguf_path}", C_DIM)
+    downloaded_path = hf_hub_download(
+        repo_id=repo_id,
+        filename=filename,
+        local_dir=str(model_dir),
+    )
+
+    # hf_hub_download might put it in a subdirectory, move to expected location
+    downloaded = Path(downloaded_path)
+    if downloaded != gguf_path:
+        shutil.move(str(downloaded), str(gguf_path))
+
+    log(f"  Downloaded {gguf_path.stat().st_size / 1e6:.1f} MB", C_GREEN)
+    return gguf_path
 
 
 def step_convert_hf(model_dir: Path, output_dir: Path, weight_dtype: str = "float32", force: bool = False) -> Path:
@@ -321,6 +368,10 @@ def run_pipeline(args: argparse.Namespace):
     """Run the full v4 pipeline."""
     model_input = args.model
 
+    # Normalize weight dtype aliases
+    if args.weight_dtype == 'q4_k_m':
+        args.weight_dtype = 'q4_k'
+
     # Detect input type
     input_type, info = detect_input_type(model_input)
     log(f"{C_ORANGE}C-Kernel-Engine v4{C_RESET}")
@@ -368,6 +419,19 @@ def run_pipeline(args: argparse.Namespace):
         work_dir = config_path.parent / ".ck_build"
         manifest_path = None
         # No weight conversion for config-only (assume weights.bump exists)
+
+    elif input_type == 'hf_gguf':
+        # Download single GGUF file from HuggingFace
+        repo_id = info['repo_id']
+        filename = info['filename']
+        work_dir = CACHE_DIR / repo_id.replace('/', '--')
+
+        gguf_path = step_download_gguf(repo_id, filename, CACHE_DIR, force=args.force_download)
+        weights_path, config_path = step_convert_gguf(
+            gguf_path, work_dir,
+            force=args.force_convert
+        )
+        manifest_path = work_dir / "weights_manifest.json"
 
     else:
         log_error(f"Unknown input type: {input_type}")
@@ -417,10 +481,20 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Download GGUF directly (recommended for quantized models)
+  python scripts/ck_run_v4.py run hf://Qwen/Qwen2-0.5B-Instruct-GGUF/qwen2-0_5b-instruct-q4_k_m.gguf --weight-dtype=q4_k_m
+
+  # Full HuggingFace model (downloads all files)
   python scripts/ck_run_v4.py run HuggingFaceTB/SmolLM-135M
+
+  # Local GGUF file
   python scripts/ck_run_v4.py run ./model.gguf --weight-dtype=q4_k
+
+  # Generate code only (inspect before running)
   python scripts/ck_run_v4.py run Qwen/Qwen2-0.5B --generate-only
-  python scripts/ck_run_v4.py run ./local/config.json --prompt "Hello"
+
+  # Single prompt mode
+  python scripts/ck_run_v4.py run ./model.gguf --prompt "What is 2+2?" --max-tokens 50
 """
     )
 
@@ -429,8 +503,8 @@ Examples:
     # Run command
     run_parser = subparsers.add_parser('run', help='Run model')
     run_parser.add_argument('model', help='Model ID, URL, GGUF file, or local path')
-    run_parser.add_argument('--weight-dtype', choices=['float32', 'bf16', 'q4_k', 'q6_k'],
-                           help='Weight dtype (default: float32)')
+    run_parser.add_argument('--weight-dtype', choices=['float32', 'bf16', 'q4_k', 'q4_k_m', 'q6_k'],
+                           help='Weight dtype (default: float32). q4_k_m is alias for q4_k')
     run_parser.add_argument('--temperature', type=float, default=0.7,
                            help='Sampling temperature (default: 0.7)')
     run_parser.add_argument('--max-tokens', type=int, default=512,

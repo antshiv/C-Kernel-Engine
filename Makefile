@@ -1216,11 +1216,33 @@ ck-cli-v4: $(LIB)
 	@echo "    python scripts/ck_run_v4.py clean"
 	@echo ""
 	@echo "  Options:"
-	@echo "    --weight-dtype=TYPE    Weight type: float32, bf16, q4_k, q6_k"
+	@echo "    --weight-dtype=TYPE    Weight type: float32, bf16, q4_k, q4_k_m, q6_k"
 	@echo "    --generate-only        Generate C code without running"
 	@echo "    --force-convert        Re-convert weights"
 	@echo "    --force-compile        Re-generate and recompile"
 	@echo ""
+
+# Demo: Download Qwen2-0.5B Q4_K_M GGUF and run end-to-end
+demo-q4: $(LIB)
+	@echo ""
+	@echo "  $(C_ORANGE)Demo: Qwen2-0.5B Q4_K_M End-to-End$(C_RESET)"
+	@echo "  This will download ~400MB GGUF, convert, compile, and run"
+	@echo ""
+	@python3 scripts/ck_run_v4.py run \
+		"hf://Qwen/Qwen2-0.5B-Instruct-GGUF/qwen2-0_5b-instruct-q4_k_m.gguf" \
+		--weight-dtype=q4_k_m \
+		--prompt "What is 2+2?" \
+		--max-tokens 50
+
+# Demo: Generate code only (no inference)
+demo-q4-codegen: $(LIB)
+	@echo ""
+	@echo "  $(C_ORANGE)Demo: Generate Q4_K code only$(C_RESET)"
+	@echo ""
+	@python3 scripts/ck_run_v4.py run \
+		"hf://Qwen/Qwen2-0.5B-Instruct-GGUF/qwen2-0_5b-instruct-q4_k_m.gguf" \
+		--weight-dtype=q4_k_m \
+		--generate-only
 
 # Generate C code for a model without compiling (for inspection)
 # Usage: make generate-model MODEL=HuggingFaceTB/SmolLM-135M
