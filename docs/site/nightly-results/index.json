@@ -1,20 +1,20 @@
 {
-  "updated": "2026-01-02T19:51:30.331504Z",
+  "updated": "2026-01-02T22:31:30.715803Z",
   "reports": [
     {
       "date": "2026-01-02",
       "file": "report-2026-01-02.json",
       "summary": {
         "total": 47,
-        "passed": 41,
-        "failed": 6,
+        "passed": 44,
+        "failed": 3,
         "skipped": 0,
         "timeout": 0,
         "sub_tests_total": 93,
-        "sub_tests_passed": 88,
-        "sub_tests_failed": 5
+        "sub_tests_passed": 89,
+        "sub_tests_failed": 4
       },
-      "duration_sec": 156.64727091789246
+      "duration_sec": 137.1743996143341
     }
   ]
 }
