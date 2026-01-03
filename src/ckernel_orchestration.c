@@ -47,6 +47,7 @@ void ck_qkv_project_head_major(const float *input,
                                const float *wv, const float *bv,
                                float *q, float *k, float *v,
                                int tokens,
+                               int kv_stride_tokens,
                                int aligned_embed_dim,
                                int num_heads,
                                int num_kv_heads,
@@ -55,14 +56,18 @@ void ck_qkv_project_head_major(const float *input,
     if (!input || !wq || !wk || !wv || !q || !k || !v) {
         return;
     }
+    if (kv_stride_tokens < tokens) {
+        return;
+    }
 
     size_t head_weight_stride = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
-    size_t head_out_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    size_t q_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    size_t kv_head_stride = (size_t)kv_stride_tokens * (size_t)aligned_head_dim;
 
     for (int h = 0; h < num_heads; ++h) {
         const float *wq_h = wq + (size_t)h * head_weight_stride;
         const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *q_h = q + (size_t)h * head_out_stride;
+        float *q_h = q + (size_t)h * q_head_stride;
 
         gemm_blocked_serial(input, wq_h, bq_h, q_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
@@ -75,8 +80,8 @@ void ck_qkv_project_head_major(const float *input,
         const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
         const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
 
-        float *k_h = k + (size_t)h * head_out_stride;
-        float *v_h = v + (size_t)h * head_out_stride;
+        float *k_h = k + (size_t)h * kv_head_stride;
+        float *v_h = v + (size_t)h * kv_head_stride;
 
         gemm_blocked_serial(input, wk_h, bk_h, k_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
@@ -149,6 +154,7 @@ static void ck_qkv_project_head_major_q4_k(const float *input,
                                           const void *wv, const float *bv,
                                           float *q, float *k, float *v,
                                           int tokens,
+                                          int kv_stride_tokens,
                                           int aligned_embed_dim,
                                           int num_heads,
                                           int num_kv_heads,
@@ -157,10 +163,14 @@ static void ck_qkv_project_head_major_q4_k(const float *input,
     if (!input || !wq || !wk || !wv || !q || !k || !v) {
         return;
     }
+    if (kv_stride_tokens < tokens) {
+        return;
+    }
 
     const size_t head_w_elems = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
     const size_t head_w_bytes = ck_dtype_row_bytes(CK_DT_Q4_K, head_w_elems);
-    const size_t head_out_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t q_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t kv_head_stride = (size_t)kv_stride_tokens * (size_t)aligned_head_dim;
 
     const uint8_t *wq_bytes = (const uint8_t *)wq;
     const uint8_t *wk_bytes = (const uint8_t *)wk;
@@ -169,7 +179,7 @@ static void ck_qkv_project_head_major_q4_k(const float *input,
     for (int h = 0; h < num_heads; ++h) {
         const void *wq_h = wq_bytes + (size_t)h * head_w_bytes;
         const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *q_h = q + (size_t)h * head_out_stride;
+        float *q_h = q + (size_t)h * q_head_stride;
 
         gemm_nt_q4_k(input, wq_h, bq_h, q_h,
                      tokens, aligned_head_dim, aligned_embed_dim);
@@ -182,8 +192,8 @@ static void ck_qkv_project_head_major_q4_k(const float *input,
         const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
         const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
 
-        float *k_h = k + (size_t)h * head_out_stride;
-        float *v_h = v + (size_t)h * head_out_stride;
+        float *k_h = k + (size_t)h * kv_head_stride;
+        float *v_h = v + (size_t)h * kv_head_stride;
 
         gemm_nt_q4_k(input, wk_h, bk_h, k_h,
                      tokens, aligned_head_dim, aligned_embed_dim);
@@ -198,6 +208,7 @@ static void ck_qkv_project_head_major_quant(const float *input,
                                             const void *wv, const float *bv, CKDataType wv_dtype,
                                             float *q, float *k, float *v,
                                             int tokens,
+                                            int kv_stride_tokens,
                                             int aligned_embed_dim,
                                             int num_heads,
                                             int num_kv_heads,
@@ -206,9 +217,13 @@ static void ck_qkv_project_head_major_quant(const float *input,
     if (!input || !wq || !wk || !wv || !q || !k || !v) {
         return;
     }
+    if (kv_stride_tokens < tokens) {
+        return;
+    }
 
     const size_t head_w_elems = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
-    const size_t head_out_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t q_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t kv_head_stride = (size_t)kv_stride_tokens * (size_t)aligned_head_dim;
 
     const size_t wq_head_bytes = ck_dtype_row_bytes(wq_dtype, head_w_elems);
     const size_t wk_head_bytes = ck_dtype_row_bytes(wk_dtype, head_w_elems);
@@ -223,7 +238,7 @@ static void ck_qkv_project_head_major_quant(const float *input,
             ? (const void *)((const float *)wq + (size_t)h * head_w_elems)
             : (const void *)(wq_bytes + (size_t)h * wq_head_bytes);
         const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *q_h = q + (size_t)h * head_out_stride;
+        float *q_h = q + (size_t)h * q_head_stride;
 
         ck_gemm_nt_quant(input, wq_h, bq_h, q_h,
                          tokens, aligned_head_dim, aligned_embed_dim, wq_dtype);
@@ -240,8 +255,8 @@ static void ck_qkv_project_head_major_quant(const float *input,
         const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
         const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
 
-        float *k_h = k + (size_t)h * head_out_stride;
-        float *v_h = v + (size_t)h * head_out_stride;
+        float *k_h = k + (size_t)h * kv_head_stride;
+        float *v_h = v + (size_t)h * kv_head_stride;
 
         ck_gemm_nt_quant(input, wk_h, bk_h, k_h,
                          tokens, aligned_head_dim, aligned_embed_dim, wk_dtype);
@@ -431,6 +446,7 @@ static void ck_qkv_project_head_major_ref(const float *input,
                                           const float *wv, const float *bv,
                                           float *q, float *k, float *v,
                                           int tokens,
+                                          int kv_stride_tokens,
                                           int aligned_embed_dim,
                                           int num_heads,
                                           int num_kv_heads,
@@ -439,14 +455,18 @@ static void ck_qkv_project_head_major_ref(const float *input,
     if (!input || !wq || !wk || !wv || !q || !k || !v) {
         return;
     }
+    if (kv_stride_tokens < tokens) {
+        return;
+    }
 
     size_t head_weight_stride = (size_t)aligned_head_dim * (size_t)aligned_embed_dim;
-    size_t head_out_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    size_t q_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    size_t kv_head_stride = (size_t)kv_stride_tokens * (size_t)aligned_head_dim;
 
     for (int h = 0; h < num_heads; ++h) {
         const float *wq_h = wq + (size_t)h * head_weight_stride;
         const float *bq_h = bq ? (bq + (size_t)h * (size_t)aligned_head_dim) : NULL;
-        float *q_h = q + (size_t)h * head_out_stride;
+        float *q_h = q + (size_t)h * q_head_stride;
 
         gemm_naive_parallel(input, wq_h, bq_h, q_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
@@ -459,8 +479,8 @@ static void ck_qkv_project_head_major_ref(const float *input,
         const float *bk_h = bk ? (bk + (size_t)h * (size_t)aligned_head_dim) : NULL;
         const float *bv_h = bv ? (bv + (size_t)h * (size_t)aligned_head_dim) : NULL;
 
-        float *k_h = k + (size_t)h * head_out_stride;
-        float *v_h = v + (size_t)h * head_out_stride;
+        float *k_h = k + (size_t)h * kv_head_stride;
+        float *v_h = v + (size_t)h * kv_head_stride;
 
         gemm_naive_parallel(input, wk_h, bk_h, k_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
@@ -767,6 +787,7 @@ void ck_layer_forward_rmsnorm_swiglu(const CKLayerForwardParams *p)
                               p->wv, p->bv,
                               p->q, p->k, p->v,
                               p->tokens,
+                              p->tokens,
                               p->aligned_embed_dim,
                               p->num_heads,
                               p->num_kv_heads,
@@ -873,6 +894,7 @@ void ck_layer_forward_rmsnorm_swiglu_ref(const CKLayerForwardParams *p)
                                   p->wk, p->bk,
                                   p->wv, p->bv,
                                   p->q, p->k, p->v,
+                                  p->tokens,
                                   p->tokens,
                                   p->aligned_embed_dim,
                                   p->num_heads,
@@ -1448,6 +1470,7 @@ static void ck_qkv_project_head_major_q4_k_q8_k(const float *input,
                                                 const void *wv, const float *bv,
                                                 float *q, float *k, float *v,
                                                 int tokens,
+                                                int kv_stride_tokens,
                                                 int aligned_embed_dim,
                                                 int num_heads,
                                                 int num_kv_heads,
@@ -1459,13 +1482,17 @@ static void ck_qkv_project_head_major_q4_k_q8_k(const float *input,
     if (tokens <= 0 || aligned_embed_dim <= 0) {
         return;
     }
+    if (kv_stride_tokens < tokens) {
+        return;
+    }
     if ((aligned_embed_dim % QK_K) != 0) {
         return;
     }
 
     const int q8_blocks = aligned_embed_dim / QK_K;
     block_q8_K q8_buf[q8_blocks];
-    const size_t head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t q_head_stride = (size_t)tokens * (size_t)aligned_head_dim;
+    const size_t kv_head_stride = (size_t)kv_stride_tokens * (size_t)aligned_head_dim;
 
     float q_token[num_heads * aligned_head_dim];
     float k_token[num_kv_heads * aligned_head_dim];
@@ -1488,15 +1515,15 @@ static void ck_qkv_project_head_major_q4_k_q8_k(const float *input,
                                                   aligned_head_dim);
 
         for (int h = 0; h < num_heads; ++h) {
-            float *q_dst = q + (size_t)h * head_stride + (size_t)t * (size_t)aligned_head_dim;
+            float *q_dst = q + (size_t)h * q_head_stride + (size_t)t * (size_t)aligned_head_dim;
             memcpy(q_dst,
                    q_token + (size_t)h * (size_t)aligned_head_dim,
                    (size_t)aligned_head_dim * sizeof(float));
         }
 
         for (int h = 0; h < num_kv_heads; ++h) {
-            float *k_dst = k + (size_t)h * head_stride + (size_t)t * (size_t)aligned_head_dim;
-            float *v_dst = v + (size_t)h * head_stride + (size_t)t * (size_t)aligned_head_dim;
+            float *k_dst = k + (size_t)h * kv_head_stride + (size_t)t * (size_t)aligned_head_dim;
+            float *v_dst = v + (size_t)h * kv_head_stride + (size_t)t * (size_t)aligned_head_dim;
             memcpy(k_dst,
                    k_token + (size_t)h * (size_t)aligned_head_dim,
                    (size_t)aligned_head_dim * sizeof(float));
@@ -1679,6 +1706,7 @@ void ck_layer_forward_rmsnorm_swiglu_q4_k(const CKLayerForwardParamsQ4K *p)
                                                 p->wv, p->bv,
                                                 p->q, p->k, p->v,
                                                 p->tokens,
+                                                p->tokens,
                                                 aligned_D,
                                                 p->num_heads,
                                                 p->num_kv_heads,
@@ -1771,6 +1799,7 @@ void ck_layer_forward_rmsnorm_swiglu_q4_k(const CKLayerForwardParamsQ4K *p)
                                   p->wk, p->bk,
                                   p->wv, p->bv,
                                   p->q, p->k, p->v,
+                                  p->tokens,
                                   p->tokens,
                                   aligned_D,
                                   p->num_heads,
@@ -2151,6 +2180,7 @@ void ck_layer_forward_rmsnorm_swiglu_quant(const CKLayerForwardParamsQ4K *p)
                                    p->wk, p->bk, p->wk_dtype,
                                    p->wv, p->bv, p->wv_dtype,
                                    p->q, p->k, p->v,
+                                   p->tokens,
                                    p->tokens,
                                    p->aligned_embed_dim,
                                    p->num_heads,

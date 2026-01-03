@@ -126,7 +126,9 @@ def run_decode_parity_test(seed=0):
     aligned_embed_dim = align_up(embed_dim, 16)
     aligned_head_dim = align_up(head_dim, 16)
     aligned_intermediate_dim = align_up(intermediate_dim, 16)
-    aligned_context_window = align_up(cache_capacity, 16)
+    aligned_context_window_full = align_up(total_len, 16)
+    aligned_context_window_prefill = align_up(prompt_len, 16)
+    aligned_context_window_decode = align_up(cache_capacity, 16)
 
     x = aligned_empty((cache_capacity, aligned_embed_dim))
     x.fill(0.0)
@@ -175,13 +177,13 @@ def run_decode_parity_test(seed=0):
                               ctypes.c_int(head_dim),
                               ctypes.c_float(rope_theta))
 
-    def alloc_buffers(token_slots):
+    def alloc_buffers(token_slots, kv_tokens):
         return {
             "ln1_out": aligned_empty((token_slots, aligned_embed_dim)),
             "ln1_rstd": aligned_empty((token_slots,)),
             "q": aligned_empty((num_heads, token_slots, aligned_head_dim)),
-            "k": aligned_empty((num_kv_heads, cache_capacity, aligned_head_dim)),
-            "v": aligned_empty((num_kv_heads, cache_capacity, aligned_head_dim)),
+            "k": aligned_empty((num_kv_heads, kv_tokens, aligned_head_dim)),
+            "v": aligned_empty((num_kv_heads, kv_tokens, aligned_head_dim)),
             "attn_out": aligned_empty((num_heads, token_slots, aligned_head_dim)),
             "proj_tmp": aligned_empty((token_slots, aligned_embed_dim)),
             "proj_scratch": aligned_empty((token_slots, aligned_embed_dim)),
@@ -194,9 +196,21 @@ def run_decode_parity_test(seed=0):
             "output": aligned_empty((token_slots, aligned_embed_dim)),
         }
 
-    buf_full = alloc_buffers(cache_capacity)
-    buf_prefill = alloc_buffers(cache_capacity)
-    buf_decode = alloc_buffers(1)
+    buf_full = alloc_buffers(total_len, total_len)
+    buf_prefill = alloc_buffers(prompt_len, prompt_len)
+    buf_decode = alloc_buffers(1, 1)
+
+    def alloc_kv_cache():
+        guard_value = 123.0
+        buf = aligned_empty((num_kv_heads, cache_capacity + 1, aligned_head_dim))
+        buf.fill(guard_value)
+        cache = buf[:, :cache_capacity, :]
+        cache.fill(0.0)
+        guard = buf[:, cache_capacity:, :]
+        return cache, guard, guard_value
+
+    k_cache, k_guard, k_guard_value = alloc_kv_cache()
+    v_cache, v_guard, v_guard_value = alloc_kv_cache()
 
     for buf in (buf_full, buf_prefill, buf_decode):
         for arr in buf.values():
@@ -210,7 +224,7 @@ def run_decode_parity_test(seed=0):
         num_kv_heads=num_kv_heads,
         head_dim=head_dim,
         aligned_head_dim=aligned_head_dim,
-        aligned_context_window=aligned_context_window,
+        aligned_context_window=aligned_context_window_full,
         intermediate_dim=intermediate_dim,
         aligned_intermediate_dim=aligned_intermediate_dim,
         eps=eps,
@@ -259,7 +273,7 @@ def run_decode_parity_test(seed=0):
         num_kv_heads=num_kv_heads,
         head_dim=head_dim,
         aligned_head_dim=aligned_head_dim,
-        aligned_context_window=aligned_context_window,
+        aligned_context_window=aligned_context_window_prefill,
         intermediate_dim=intermediate_dim,
         aligned_intermediate_dim=aligned_intermediate_dim,
         eps=eps,
@@ -301,17 +315,19 @@ def run_decode_parity_test(seed=0):
 
     # Prefill for prompt tokens (fills KV cache for positions < prompt_len).
     lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(p_prefill))
-    # Repack K/V into cache layout so decode uses a fixed head stride.
-    lib.kv_cache_repack_head_major_inplace(ptr(buf_prefill["k"]),
-                                           ctypes.c_int(num_kv_heads),
-                                           ctypes.c_int(prompt_len),
-                                           ctypes.c_int(cache_capacity),
-                                           ctypes.c_int(aligned_head_dim))
-    lib.kv_cache_repack_head_major_inplace(ptr(buf_prefill["v"]),
-                                           ctypes.c_int(num_kv_heads),
-                                           ctypes.c_int(prompt_len),
-                                           ctypes.c_int(cache_capacity),
-                                           ctypes.c_int(aligned_head_dim))
+    # Prefill writes K/V in packed token-stride layout; repack into cache layout for decode.
+    np.copyto(k_cache.reshape(-1)[:buf_prefill["k"].size], buf_prefill["k"].reshape(-1))
+    np.copyto(v_cache.reshape(-1)[:buf_prefill["v"].size], buf_prefill["v"].reshape(-1))
+    lib.kv_cache_repack_head_major_inplace(ptr(k_cache),
+                                           num_kv_heads,
+                                           prompt_len,
+                                           cache_capacity,
+                                           aligned_head_dim)
+    lib.kv_cache_repack_head_major_inplace(ptr(v_cache),
+                                           num_kv_heads,
+                                           prompt_len,
+                                           cache_capacity,
+                                           aligned_head_dim)
 
     token_input = aligned_empty((1, aligned_embed_dim))
     token_input.fill(0.0)
@@ -327,7 +343,7 @@ def run_decode_parity_test(seed=0):
         num_kv_heads=num_kv_heads,
         head_dim=head_dim,
         aligned_head_dim=aligned_head_dim,
-        aligned_context_window=aligned_context_window,
+        aligned_context_window=aligned_context_window_decode,
         intermediate_dim=intermediate_dim,
         aligned_intermediate_dim=aligned_intermediate_dim,
         eps=eps,
@@ -352,8 +368,8 @@ def run_decode_parity_test(seed=0):
         ln1_out=ptr(buf_decode["ln1_out"]),
         ln1_rstd=ptr(buf_decode["ln1_rstd"]),
         q=ptr(buf_decode["q"]),
-        k=ptr(buf_prefill["k"]),
-        v=ptr(buf_prefill["v"]),
+        k=ptr(k_cache),
+        v=ptr(v_cache),
         scores=None,
         attn_out=ptr(buf_decode["attn_out"]),
         proj_tmp=ptr(buf_decode["proj_tmp"]),
@@ -378,10 +394,13 @@ def run_decode_parity_test(seed=0):
         decode_outputs[t] = buf_decode["output"][0]
 
         if head_dim < aligned_head_dim:
-            k_slice = buf_prefill["k"][:, t, head_dim:aligned_head_dim]
-            v_slice = buf_prefill["v"][:, t, head_dim:aligned_head_dim]
+            k_slice = k_cache[:, t, head_dim:aligned_head_dim]
+            v_slice = v_cache[:, t, head_dim:aligned_head_dim]
             if np.any(k_slice != 0.0) or np.any(v_slice != 0.0):
                 raise AssertionError("KV cache padded lanes are not zeroed")
+
+    if np.any(k_guard != k_guard_value) or np.any(v_guard != v_guard_value):
+        raise AssertionError("KV cache guard region was modified")
 
     out_full = torch.from_numpy(buf_full["output"][:total_len])
     out_decode = torch.from_numpy(decode_outputs[:total_len])
