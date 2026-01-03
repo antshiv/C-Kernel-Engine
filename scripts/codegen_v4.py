@@ -30,8 +30,13 @@ def emit_c_source_v4(layout: v3.ModelLayout,
                      output_path: str,
                      header_name: str,
                      mode: str,
-                     emit_main: bool = False) -> None:
-    """Emit generated_model.c with real kernel calls (fp32-only)."""
+                     emit_main: bool = False,
+                     emit_debug: bool = False) -> None:
+    """Emit generated_model.c with real kernel calls (fp32-only).
+
+    Args:
+        emit_debug: If True, insert debug prints after each layer to detect NaN/zero outputs.
+    """
     if mode not in ("prefill", "decode"):
         raise ValueError(f"v4 codegen only supports prefill/decode (got: {mode})")
     config = layout.config
@@ -168,6 +173,50 @@ def emit_c_source_v4(layout: v3.ModelLayout,
     if mode == "decode":
         add(f"static void {safe_name_lower}_decode_token({safe_name}Model *model, const int *token, int token_index);")
     add()
+
+    # Debug helpers (always emitted, but calls are conditional on emit_debug)
+    if emit_debug:
+        add("/* ============================================================================")
+        add(" * DEBUG HELPERS")
+        add(" * ============================================================================ */")
+        add()
+        add("static void debug_check_buffer(const char *name, const float *buf, int size) {")
+        add("    int nan_count = 0, inf_count = 0, zero_count = 0;")
+        add("    float min_val = 1e38f, max_val = -1e38f, sum = 0.0f;")
+        add("    for (int i = 0; i < size; ++i) {")
+        add("        float v = buf[i];")
+        add("        if (isnan(v)) { nan_count++; continue; }")
+        add("        if (isinf(v)) { inf_count++; continue; }")
+        add("        if (v == 0.0f) zero_count++;")
+        add("        if (v < min_val) min_val = v;")
+        add("        if (v > max_val) max_val = v;")
+        add("        sum += v;")
+        add("    }")
+        add("    float mean = (size - nan_count - inf_count > 0) ? sum / (size - nan_count - inf_count) : 0.0f;")
+        add("    fprintf(stderr, \"[DEBUG] %-30s size=%6d  nan=%d inf=%d zero=%d  range=[%.3e, %.3e] mean=%.3e\\n\",")
+        add("            name, size, nan_count, inf_count, zero_count, min_val, max_val, mean);")
+        add("    if (nan_count > 0 || inf_count > 0) {")
+        add("        fprintf(stderr, \"[DEBUG] *** WARNING: %s has %d NaN and %d Inf values! ***\\n\", name, nan_count, inf_count);")
+        add("    }")
+        add("}")
+        add()
+        add("static void debug_check_q4k_weights(const char *name, const void *w, int M, int K) {")
+        add("    /* Check Q4_K block scales for zeros */")
+        add("    const uint8_t *bytes = (const uint8_t *)w;")
+        add("    int blocks_per_row = K / 256;")
+        add("    int zero_scale_blocks = 0;")
+        add("    for (int row = 0; row < M && row < 16; ++row) {  /* Sample first 16 rows */")
+        add("        for (int b = 0; b < blocks_per_row; ++b) {")
+        add("            /* block_q4_K: first 2 bytes are d (fp16), next 2 are dmin (fp16) */")
+        add("            int offset = (row * blocks_per_row + b) * 144;  /* Q4_K block size = 144 bytes */")
+        add("            uint16_t d_bits = *(uint16_t *)&bytes[offset];")
+        add("            if (d_bits == 0) zero_scale_blocks++;")
+        add("        }")
+        add("    }")
+        add("    fprintf(stderr, \"[DEBUG] %-30s M=%d K=%d sampled_zero_scales=%d\\n\",")
+        add("            name, M, K, zero_scale_blocks);")
+        add("}")
+        add()
 
     # Magic header
     add("/* ============================================================================")
@@ -851,6 +900,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add("                      aligned_embed_dim,")
             add("                      1,")
             add("                      0);")
+        if emit_debug:
+            add()
+            add("    /* DEBUG: Check embedding output */")
+            add(f"    debug_check_buffer(\"embed_out\", embed_out, aligned_embed_dim);")
         add()
         add(f"    for (int layer_id = 0; layer_id < {safe_name}_NUM_LAYERS; ++layer_id) {{")
         add(f"        {safe_name_lower}_layer_forward_decode_token(")
@@ -861,6 +914,13 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("            aligned_head_dim,")
         add("            aligned_intermediate_dim,")
         add("            aligned_context_window);")
+        if emit_debug:
+            add()
+            add("        /* DEBUG: Check layer output */")
+            add("        char layer_name[64];")
+            add("        snprintf(layer_name, sizeof(layer_name), \"layer[%d].output\", layer_id);")
+            add(f"        float *layer_out = {safe_name}_PTR(model, {safe_name}_LAYERS[layer_id].output);")
+            add("        debug_check_buffer(layer_name, layer_out, aligned_embed_dim);")
         add("    }")
         add()
         add(f"    float *last_hidden = {safe_name}_PTR(model, {safe_name}_LAYERS[{safe_name}_NUM_LAYERS - 1].output);")
@@ -874,10 +934,18 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add(f"                   {safe_name}_EMBED_DIM,")
         add("                   aligned_embed_dim,")
         add(f"                   {config.get('rms_norm_eps', 1e-6)}f);")
+        if emit_debug:
+            add()
+            add("    /* DEBUG: Check final rmsnorm output */")
+            add("    debug_check_buffer(\"final_out (after rmsnorm)\", final_out, aligned_embed_dim);")
         add()
         add(f"    float *logits = {safe_name}_PTR(model, {safe_name}_FOOTER.logits);")
         if lm_head_use_q4_k:
             add(f"    const void *lm_head = (const void *){safe_name}_PTR(model, {safe_name}_FOOTER.lm_head_weight);")
+            if emit_debug:
+                add()
+                add("    /* DEBUG: Check Q4K lm_head weights */")
+                add(f"    debug_check_q4k_weights(\"lm_head (q4k)\", lm_head, {safe_name}_VOCAB_SIZE, aligned_embed_dim);")
             add("    const size_t q8_bytes = ck_dtype_row_bytes(CK_DT_Q8_K, (size_t)aligned_embed_dim);")
             add("    uint8_t q8_buf[q8_bytes];")
             add("    quantize_row_q8_k(final_out, q8_buf, aligned_embed_dim);")
@@ -897,6 +965,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add("                        1,")
             add(f"                        {safe_name}_VOCAB_SIZE,")
             add("                        aligned_embed_dim);")
+        if emit_debug:
+            add()
+            add("    /* DEBUG: Check logits output */")
+            add(f"    debug_check_buffer(\"logits\", logits, {safe_name}_VOCAB_SIZE);")
         add("}")
         add()
 

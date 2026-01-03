@@ -2224,6 +2224,8 @@ def parse_args(argv: List[str]) -> Dict:
         # Parallel planning options
         "parallel": "on",  # on/off
         "parallel_verbose": False,
+        # Debug options
+        "debug": False,  # Emit debug prints in generated C code
         # Training options
         "memory": None,  # Available memory in GB (auto-detect if None)
         "batch_size": None,  # Target batch size
@@ -2294,6 +2296,8 @@ def parse_args(argv: List[str]) -> Dict:
             args["parallel"] = parallel_val
         elif arg == "--parallel-verbose":
             args["parallel_verbose"] = True
+        elif arg == "--debug":
+            args["debug"] = True
         # Training options
         elif arg.startswith("--memory="):
             args["memory"] = float(arg.split("=", 1)[1])
@@ -2772,6 +2776,7 @@ def main(argv: List[str]) -> int:
                     header_name,
                     mode,
                     emit_main=(args.get("emit") == "exe"),
+                    emit_debug=args.get("debug", False),
                 )
             else:
                 v3.emit_c_source(
