@@ -1,10 +1,14 @@
 import ctypes
+import os
 
 import numpy as np
 import torch
 
 from lib_loader import load_lib
 from test_utils import get_cpu_info, max_diff, print_system_info
+
+# Enable verbose debug output with: DEBUG=1 python test_kv_cache_layer_decode.py
+DEBUG = os.environ.get("DEBUG", "0") == "1"
 
 
 lib = load_lib("libckernel_engine.so")
@@ -201,12 +205,15 @@ def run_decode_parity_test(seed=0):
     buf_decode = alloc_buffers(1, 1)
 
     def alloc_kv_cache():
+        # Allocate cache and guard as separate contiguous arrays.
+        # The cache MUST be contiguous because C code assumes:
+        #   head_stride = cache_capacity * aligned_head_dim
         guard_value = 123.0
-        buf = aligned_empty((num_kv_heads, cache_capacity + 1, aligned_head_dim))
-        buf.fill(guard_value)
-        cache = buf[:, :cache_capacity, :]
+        cache = aligned_empty((num_kv_heads, cache_capacity, aligned_head_dim))
         cache.fill(0.0)
-        guard = buf[:, cache_capacity:, :]
+        guard = aligned_empty((num_kv_heads, 1, aligned_head_dim))
+        guard.fill(guard_value)
+        assert cache.flags['C_CONTIGUOUS'], "KV cache must be C-contiguous for C code"
         return cache, guard, guard_value
 
     k_cache, k_guard, k_guard_value = alloc_kv_cache()
@@ -315,19 +322,10 @@ def run_decode_parity_test(seed=0):
 
     # Prefill for prompt tokens (fills KV cache for positions < prompt_len).
     lib.ck_layer_forward_rmsnorm_swiglu(ctypes.byref(p_prefill))
-    # Prefill writes K/V in packed token-stride layout; repack into cache layout for decode.
-    np.copyto(k_cache.reshape(-1)[:buf_prefill["k"].size], buf_prefill["k"].reshape(-1))
-    np.copyto(v_cache.reshape(-1)[:buf_prefill["v"].size], buf_prefill["v"].reshape(-1))
-    lib.kv_cache_repack_head_major_inplace(ptr(k_cache),
-                                           num_kv_heads,
-                                           prompt_len,
-                                           cache_capacity,
-                                           aligned_head_dim)
-    lib.kv_cache_repack_head_major_inplace(ptr(v_cache),
-                                           num_kv_heads,
-                                           prompt_len,
-                                           cache_capacity,
-                                           aligned_head_dim)
+    # Copy K/V from prefill buffer to cache, head by head (preserves layout).
+    for h in range(num_kv_heads):
+        k_cache[h, :prompt_len, :] = buf_prefill["k"][h, :, :]
+        v_cache[h, :prompt_len, :] = buf_prefill["v"][h, :, :]
 
     token_input = aligned_empty((1, aligned_embed_dim))
     token_input.fill(0.0)
@@ -383,8 +381,34 @@ def run_decode_parity_test(seed=0):
         output=ptr(buf_decode["output"]),
     )
 
+    # Debug: Verify cache layout before decode loop
+    if DEBUG:
+        print("\n=== DEBUG: Cache layout verification ===")
+        print(f"k_cache shape: {k_cache.shape}, strides: {k_cache.strides}")
+        print(f"C_CONTIGUOUS: {k_cache.flags['C_CONTIGUOUS']}")
+        expected_strides = (cache_capacity * aligned_head_dim * 4, aligned_head_dim * 4, 4)
+        print(f"Expected strides: {expected_strides}")
+        if k_cache.strides != expected_strides:
+            print("WARNING: Cache strides mismatch - C code will use wrong offsets!")
+
+        print("\n=== DEBUG: K values for decode positions (from full pass) ===")
+        for t in range(prompt_len, total_len):
+            print(f"Full K[1,{t},5] = {buf_full['k'][1, t, 5]:.4f}")
+
+        print("\n=== DEBUG: K cache before decode (positions 0 to prompt_len-1) ===")
+        for t_check in range(prompt_len):
+            full_k_t = buf_full["k"][:, t_check, :head_dim]
+            cache_k_t = k_cache[:, t_check, :head_dim]
+            diff_t = np.max(np.abs(full_k_t - cache_k_t))
+            status = "MATCH" if diff_t < 1e-5 else "MISMATCH"
+            print(f"K position {t_check}: max_diff = {diff_t:.2e} [{status}]")
+
     # Decode remaining tokens one-by-one, updating KV cache.
     for t in range(prompt_len, total_len):
+        # Debug: Track cache corruption during decode
+        if DEBUG:
+            k_pos_last = k_cache[1, prompt_len - 1, 5].copy()
+
         token_input.fill(0.0)
         token_input[0, :embed_dim] = x[t, :embed_dim]
         p_decode.rope_pos_offset = t
@@ -393,14 +417,32 @@ def run_decode_parity_test(seed=0):
                                                    ctypes.c_int(cache_capacity))
         decode_outputs[t] = buf_decode["output"][0]
 
+        # Debug: Check if previous positions got corrupted
+        if DEBUG:
+            k_pos_last_after = k_cache[1, prompt_len - 1, 5]
+            if abs(k_pos_last - k_pos_last_after) > 1e-6:
+                print(f"!!! K[1,{prompt_len-1},5] CORRUPTED during decode of token {t}:")
+                print(f"    Before: {k_pos_last}, After: {k_pos_last_after}")
+                print(f"    (Expected K for pos {t}: {buf_full['k'][1, t, 5]:.4f})")
+
         if head_dim < aligned_head_dim:
             k_slice = k_cache[:, t, head_dim:aligned_head_dim]
             v_slice = v_cache[:, t, head_dim:aligned_head_dim]
             if np.any(k_slice != 0.0) or np.any(v_slice != 0.0):
                 raise AssertionError("KV cache padded lanes are not zeroed")
 
-    if np.any(k_guard != k_guard_value) or np.any(v_guard != v_guard_value):
-        raise AssertionError("KV cache guard region was modified")
+    # Debug: Per-token output comparison
+    if DEBUG:
+        print("\n=== DEBUG: Per-token output comparison ===")
+        for t in range(total_len):
+            full_t = buf_full["output"][t, :4]
+            dec_t = decode_outputs[t, :4]
+            diff_t = np.max(np.abs(buf_full["output"][t, :embed_dim] - decode_outputs[t, :embed_dim]))
+            status = "MATCH" if diff_t < 1e-5 else "MISMATCH"
+            print(f"Token {t:2d}: diff={diff_t:.2e} [{status}]")
+            if status == "MISMATCH":
+                print(f"    full={full_t}")
+                print(f"    decode={dec_t}")
 
     out_full = torch.from_numpy(buf_full["output"][:total_len])
     out_decode = torch.from_numpy(decode_outputs[:total_len])

@@ -224,6 +224,7 @@ class ModelLayout:
     weight_bytes: int = 0
     activation_bytes: int = 0
     canary_count: int = 0
+    canaries: List[Canary] = field(default_factory=list)
 
 # ============================================================================
 # CONFIG PARSER
@@ -827,9 +828,16 @@ def build_model_layout(config: Dict, model_name: str) -> ModelLayout:
     for layer in section.layers:
         count_buffers(layer.buffers)
 
-    # Count canaries
-    canary_count = 4  # header start/end, footer start/end
-    canary_count += len(section.layers) * 2  # layer start/end
+    # Collect canaries
+    canaries: List[Canary] = []
+    canaries.append(section.header_canary_start)
+    canaries.append(section.header_canary_end)
+    for layer in section.layers:
+        canaries.append(layer.canary_start)
+        canaries.append(layer.canary_end)
+    canaries.append(section.footer_canary_start)
+    canaries.append(section.footer_canary_end)
+    canary_count = len(canaries)
 
     return ModelLayout(
         name=model_name,
@@ -839,7 +847,8 @@ def build_model_layout(config: Dict, model_name: str) -> ModelLayout:
         total_bytes=allocator.offset,
         weight_bytes=weight_bytes,
         activation_bytes=activation_bytes,
-        canary_count=canary_count
+        canary_count=canary_count,
+        canaries=canaries,
     )
 
 # ============================================================================
@@ -914,6 +923,8 @@ def emit_layout_json(layout: ModelLayout, output_path: str):
         },
         "sections": sections_json,
     }
+    if layout.canaries:
+        output["canaries"] = [canary_to_dict(c) for c in layout.canaries]
 
     with open(output_path, 'w') as f:
         json.dump(output, f, indent=2)
@@ -1168,16 +1179,23 @@ def emit_c_header(layout: ModelLayout, output_path: str, extra_api: Optional[Lis
     add("    const char *name;")
     add(f"}} {safe_name}Canary;")
     add()
+    canaries = list(layout.canaries) if layout.canaries else []
+    if not canaries:
+        canaries = [
+            section.header_canary_start,
+            section.header_canary_end,
+        ]
+        for layer in section.layers:
+            canaries.append(layer.canary_start)
+            canaries.append(layer.canary_end)
+        canaries.append(section.footer_canary_start)
+        canaries.append(section.footer_canary_end)
+
     add(f"static const {safe_name}Canary {safe_name}_CANARIES[] = {{")
-    add(f"    {{0x{section.header_canary_start.offset:08X}, \"header_start\"}},")
-    add(f"    {{0x{section.header_canary_end.offset:08X}, \"header_end\"}},")
-    for layer in section.layers:
-        add(f"    {{0x{layer.canary_start.offset:08X}, \"layer_{layer.layer_id}_start\"}},")
-        add(f"    {{0x{layer.canary_end.offset:08X}, \"layer_{layer.layer_id}_end\"}},")
-    add(f"    {{0x{section.footer_canary_start.offset:08X}, \"footer_start\"}},")
-    add(f"    {{0x{section.footer_canary_end.offset:08X}, \"footer_end\"}},")
+    for canary in canaries:
+        add(f"    {{0x{canary.offset:08X}, \"{canary.name}\"}},")
     add("};")
-    add(f"#define {safe_name}_CANARY_COUNT {layout.canary_count}")
+    add(f"#define {safe_name}_CANARY_COUNT {len(canaries)}")
     add()
 
     # Model struct

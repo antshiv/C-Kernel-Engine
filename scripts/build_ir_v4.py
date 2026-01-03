@@ -1854,8 +1854,13 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
 
     section = lowered["sections"][0]
     mode = lowered.get("mode", "prefill")
+    # Keep per-buffer canaries to detect intra-layer overruns in tests and production.
+    guard_buffers = bool(lowered.get("config", {}).get("guard_buffers", True))
+
+    canaries: List[v3.Canary] = []
 
     header_canary_start = allocator.alloc_canary("header_start")
+    canaries.append(header_canary_start)
     header_buffers = []
     name_to_buffer = {}
 
@@ -1899,6 +1904,9 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
             tied_to=spec.get("tied_to"),
         )
         name_to_buffer[name] = buf
+        if guard_buffers:
+            canary = allocator.alloc_canary(f"{name}_end")
+            canaries.append(canary)
         return buf
 
     # Training mode has a different structure: buffers are under "buffers" key
@@ -1915,6 +1923,7 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
     for spec in header_buf_specs:
         header_buffers.append(alloc_buffer(spec))
     header_canary_end = allocator.alloc_canary("header_end")
+    canaries.append(header_canary_end)
 
     layers = []
     if mode == "training":
@@ -1922,8 +1931,10 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
         for layer_entry in layer_buf_specs:
             layer_id = layer_entry["id"]
             canary_start = allocator.alloc_canary(f"layer_{layer_id}_start")
+            canaries.append(canary_start)
             buffers = [alloc_buffer(spec) for spec in layer_entry.get("buffers", [])]
             canary_end = allocator.alloc_canary(f"layer_{layer_id}_end")
+            canaries.append(canary_end)
             start_offset = canary_start.offset
             end_offset = allocator.offset
             layers.append(
@@ -1939,8 +1950,10 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
         for layer in layer_buf_specs:
             layer_id = layer["id"]
             canary_start = allocator.alloc_canary(f"layer_{layer_id}_start")
+            canaries.append(canary_start)
             buffers = [alloc_buffer(spec) for spec in layer["buffers"]]
             canary_end = allocator.alloc_canary(f"layer_{layer_id}_end")
+            canaries.append(canary_end)
             start_offset = canary_start.offset
             end_offset = allocator.offset
             layers.append(
@@ -1954,8 +1967,10 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
             )
 
     footer_canary_start = allocator.alloc_canary("footer_start")
+    canaries.append(footer_canary_start)
     footer_buffers = [alloc_buffer(spec) for spec in footer_buf_specs]
     footer_canary_end = allocator.alloc_canary("footer_end")
+    canaries.append(footer_canary_end)
 
     globals_buffers = [alloc_buffer(spec) for spec in section.get("globals", [])]
 
@@ -1978,7 +1993,7 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
     for layer in layers:
         count_buffers(layer.buffers)
 
-    canary_count = 4 + len(layers) * 2
+    canary_count = len(canaries)
 
     section_layout = v3.SectionLayout(
         name=section["name"],
@@ -2004,6 +2019,7 @@ def build_layout_from_lowered(lowered: Dict, model_name: str) -> v3.ModelLayout:
         weight_bytes=weight_bytes,
         activation_bytes=activation_bytes,
         canary_count=canary_count,
+        canaries=canaries,
     )
 
 
