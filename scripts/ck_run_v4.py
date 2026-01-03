@@ -722,22 +722,61 @@ def run_smoke_test(model_dir: Path, weights_path: Path, use_valgrind: bool) -> N
 
 
 def run_parity_tests() -> None:
+    """Run parity tests with auto-escalation to DEBUG mode on failure.
+
+    Test registry - each test covers specific regression cases:
+    - test_kv_cache_layer_decode.py:
+        - Non-contiguous cache stride bug (numpy view with guard region)
+        - KV cache write offset calculation
+        - Prefill → decode KV handoff
+    - test_fused_attention_decode.py:
+        - Fused attention kernel correctness
+    - test_multi_layer_parity.py:
+        - Progressive layer test (1 → 2 → 4 layers)
+        - Inter-layer data handoff
+        - Residual connection across layers
+    """
     tests = [
         PROJECT_ROOT / "unittest" / "test_kv_cache_layer_decode.py",
         PROJECT_ROOT / "unittest" / "test_fused_attention_decode.py",
+        PROJECT_ROOT / "unittest" / "test_multi_layer_parity.py",
     ]
+    failed_tests = []
+
     for test in tests:
         if not test.exists():
             log(f"  Skipping missing test: {test}", C_DIM)
             continue
+
         cmd = [sys.executable, str(test)]
         env = os.environ.copy()
         ld_path = str(PROJECT_ROOT / "build")
         env["LD_LIBRARY_PATH"] = f"{ld_path}:{env.get('LD_LIBRARY_PATH', '')}"
-        result = subprocess.run(cmd, cwd=PROJECT_ROOT, env=env)
+
+        # First run: normal mode
+        result = subprocess.run(cmd, cwd=PROJECT_ROOT, env=env,
+                               capture_output=True, text=True)
+
         if result.returncode != 0:
-            log_error(f"Test failed: {test}")
-            sys.exit(1)
+            log_error(f"Test failed: {test.name}")
+            log(f"  {C_ORANGE}Auto-escalating to DEBUG mode...{C_RESET}")
+
+            # Second run: DEBUG mode to show diagnostics
+            env_debug = env.copy()
+            env_debug["DEBUG"] = "1"
+            subprocess.run(cmd, cwd=PROJECT_ROOT, env=env_debug)
+
+            failed_tests.append(test.name)
+        else:
+            # Show success from captured output
+            for line in result.stdout.splitlines():
+                if "PASS" in line or "TEST:" in line:
+                    print(line)
+
+    if failed_tests:
+        log_error(f"Failed tests: {', '.join(failed_tests)}")
+        log(f"  {C_DIM}Tip: Run with DEBUG=1 to see detailed diagnostics{C_RESET}")
+        sys.exit(1)
 
 
 def step_run_chat(model_dir: Path, args: argparse.Namespace):

@@ -1043,6 +1043,11 @@ help:
 	@echo "  make ck-cli          Build CLI tool with all dependencies"
 	@echo "  make ck-cli-v4       Build v4 CLI (IR v4 codegen + compile)"
 	@echo "  make generate-model MODEL=<name>  Generate C code for model (inspect before compile)"
+	@echo ""
+	@echo "  Testing:"
+	@echo "  make test-unit       Run unit tests only (fast, no model download)"
+	@echo "  make test-v4         Full v4 test suite (download, convert, compile, test)"
+	@echo "  make test-v4-clean   Full v4 test with force recompile"
 	@echo "  ./build/ck run <model> [--generate-only] [--force-convert] [--verbose]"
 	@echo ""
 	@echo "  Build:"
@@ -1243,6 +1248,46 @@ demo-q4-codegen: $(LIB)
 		"hf://Qwen/Qwen2-0.5B-Instruct-GGUF/qwen2-0_5b-instruct-q4_k_m.gguf" \
 		--weight-dtype=q4_k_m \
 		--generate-only
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TEST TARGETS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Run unit tests only (fast, no model download)
+test-unit: $(LIB)
+	@echo ""
+	@echo "  $(C_ORANGE)Running Unit Tests$(C_RESET)"
+	@echo "  (Auto-escalates to DEBUG mode on failure)"
+	@echo ""
+	@cd unittest && LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH python3 test_kv_cache_layer_decode.py
+	@cd unittest && LD_LIBRARY_PATH=$(BUILD_DIR):$$LD_LIBRARY_PATH python3 test_multi_layer_parity.py
+
+# Full test: download model, convert, compile, run smoke + parity tests
+test-v4: $(LIB)
+	@echo ""
+	@echo "  $(C_ORANGE)Full Test Suite (Qwen2-0.5B Q4_K)$(C_RESET)"
+	@echo "  Downloads model, converts, compiles, runs all tests"
+	@echo ""
+	@python3 scripts/ck_run_v4.py run \
+		https://huggingface.co/Qwen/Qwen2-0.5B-Instruct-GGUF \
+		--weight-dtype=q4_k \
+		--test \
+		--test-only
+
+# Full test with force recompile (catches stale build issues)
+test-v4-clean: $(LIB)
+	@echo ""
+	@echo "  $(C_ORANGE)Clean Test (force recompile)$(C_RESET)"
+	@echo ""
+	@python3 scripts/ck_run_v4.py run \
+		https://huggingface.co/Qwen/Qwen2-0.5B-Instruct-GGUF \
+		--weight-dtype=q4_k \
+		--test \
+		--test-only \
+		--force-compile \
+		--force-convert
+
+.PHONY: test-unit test-v4 test-v4-clean
 
 # Generate C code for a model without compiling (for inspection)
 # Usage: make generate-model MODEL=HuggingFaceTB/SmolLM-135M
