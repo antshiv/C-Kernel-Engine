@@ -59,30 +59,37 @@ def dequant_q4_k_row_c(lib, row_bytes: bytes, k: int) -> np.ndarray:
 
 
 def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
-             warmup: int, iterations: int) -> int:
-    x = (np.random.randn(k).astype(np.float32) * 0.1).astype(np.float32)
-    w = (np.random.randn(m_out, k).astype(np.float32) * 0.1).astype(np.float32)
+             warmup: int, iterations: int, pad_to_block: bool = False) -> int:
+    k_used = k
+    if pad_to_block:
+        k_used = ((k + QK_K - 1) // QK_K) * QK_K
+
+    x = (np.random.randn(k_used).astype(np.float32) * 0.1).astype(np.float32)
+    w = (np.random.randn(m_out, k_used).astype(np.float32) * 0.1).astype(np.float32)
+    if pad_to_block and k_used != k:
+        x[k:] = 0.0
+        w[:, k:] = 0.0
 
     # Quantize weights (Q4_K)
-    row_bytes = (k // QK_K) * BLOCK_Q4_K_SIZE
+    row_bytes = (k_used // QK_K) * BLOCK_Q4_K_SIZE
     w_q4 = b"".join(quantize_q4_k_row(w[i]) for i in range(m_out))
     w_buf = ctypes.create_string_buffer(w_q4, len(w_q4))
 
     # Quantize activations (Q8_K) using C
-    q8_blocks = k // QK_K
+    q8_blocks = k_used // QK_K
     x_q8 = ctypes.create_string_buffer(q8_blocks * BLOCK_Q8_K_SIZE)
     lib.quantize_row_q8_k(
         x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         ctypes.cast(x_q8, ctypes.c_void_p),
-        ctypes.c_int(k),
+        ctypes.c_int(k_used),
     )
 
     # Reference: dequantize and compute FP32 matvec
-    x_deq = dequant_q8_k_row(x_q8.raw, k)
-    w_deq = np.zeros((m_out, k), dtype=np.float32)
+    x_deq = dequant_q8_k_row(x_q8.raw, k_used)
+    w_deq = np.zeros((m_out, k_used), dtype=np.float32)
     for i in range(m_out):
         row = w_q4[i * row_bytes:(i + 1) * row_bytes]
-        w_deq[i] = dequant_q4_k_row_c(lib, row, k)
+        w_deq[i] = dequant_q4_k_row_c(lib, row, k_used)
     y_ref = w_deq @ x_deq
     w_t = torch.from_numpy(w)
     x_t = torch.from_numpy(x)
@@ -99,7 +106,7 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
            w_ptr,
            x_q8_ptr,
            ctypes.c_int(m_out),
-           ctypes.c_int(k))
+           ctypes.c_int(k_used))
         return out
 
     y_ref_kernel = run_gemv("gemv_q4_k_q8_k_ref")
@@ -115,7 +122,7 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
         y_gemm.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
         ctypes.c_int(1),
         ctypes.c_int(m_out),
-        ctypes.c_int(k),
+        ctypes.c_int(k_used),
     )
 
     max_diff_ref = float(np.max(np.abs(y_ref_kernel - y_ref)))
@@ -130,41 +137,41 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
     acc_report = TestReport(
         test_name="Q4_K x Q8_K Matvec (Decode)",
         dtype="q4_k/q8_k",
-        shape=f"M={m_out}, K={k}, y=W@x",
+        shape=f"M={m_out}, K={k} (padded {k_used}), y=W@x" if pad_to_block else f"M={m_out}, K={k}, y=W@x",
         cpu_info=get_cpu_info()
     )
     acc_report.add_result(TestResult(
-        name=f"gemv_ref vs dequant (M={m_out},K={k})",
+        name=f"gemv_ref vs dequant (M={m_out},K={k_used})",
         passed=max_diff_ref <= tol,
         max_diff=max_diff_ref,
         tolerance=tol
     ))
     acc_report.add_result(TestResult(
-        name=f"gemv_avx2 vs dequant (M={m_out},K={k})",
+        name=f"gemv_avx2 vs dequant (M={m_out},K={k_used})",
         passed=max_diff_avx2 <= tol,
         max_diff=max_diff_avx2,
         tolerance=tol
     ))
     acc_report.add_result(TestResult(
-        name=f"gemv_vnni vs dequant (M={m_out},K={k})",
+        name=f"gemv_vnni vs dequant (M={m_out},K={k_used})",
         passed=max_diff_vnni <= tol,
         max_diff=max_diff_vnni,
         tolerance=tol
     ))
     acc_report.add_result(TestResult(
-        name=f"gemv_dispatch vs dequant (M={m_out},K={k})",
+        name=f"gemv_dispatch vs dequant (M={m_out},K={k_used})",
         passed=max_diff_dispatch <= tol,
         max_diff=max_diff_dispatch,
         tolerance=tol
     ))
     acc_report.add_result(TestResult(
-        name=f"gemm_nt vs dequant (M={m_out},K={k})",
+        name=f"gemm_nt vs dequant (M={m_out},K={k_used})",
         passed=max_diff_gemm <= tol,
         max_diff=max_diff_gemm,
         tolerance=tol
     ))
     acc_report.add_result(TestResult(
-        name=f"gemm_nt vs FP32 (M={m_out},K={k})",
+        name=f"gemm_nt vs FP32 (M={m_out},K={k_used})",
         passed=max_diff_fp32 <= tol_fp32,
         max_diff=max_diff_fp32,
         tolerance=tol_fp32
@@ -175,16 +182,16 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
     y_ptr = y_gemm.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
     def quant_fn() -> None:
-        lib.quantize_row_q8_k(x_ptr, x_q8_ptr, ctypes.c_int(k))
+        lib.quantize_row_q8_k(x_ptr, x_q8_ptr, ctypes.c_int(k_used))
 
     def matvec_fn() -> None:
         lib.gemv_q4_k_q8_k(y_ptr, w_ptr, x_q8_ptr,
-                           ctypes.c_int(m_out), ctypes.c_int(k))
+                           ctypes.c_int(m_out), ctypes.c_int(k_used))
 
     def end_to_end_fn() -> None:
-        lib.quantize_row_q8_k(x_ptr, x_q8_ptr, ctypes.c_int(k))
+        lib.quantize_row_q8_k(x_ptr, x_q8_ptr, ctypes.c_int(k_used))
         lib.gemv_q4_k_q8_k(y_ptr, w_ptr, x_q8_ptr,
-                           ctypes.c_int(m_out), ctypes.c_int(k))
+                           ctypes.c_int(m_out), ctypes.c_int(k_used))
 
     def torch_matvec_fn() -> None:
         _ = torch.matmul(w_t, x_t)
@@ -200,18 +207,18 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
     perf_report = TestReport(
         test_name="Q4_K x Q8_K Matvec (Performance)",
         dtype="q4_k/q8_k",
-        shape=f"M={m_out}, K={k}, y=W@x",
+        shape=f"M={m_out}, K={k} (padded {k_used}), y=W@x" if pad_to_block else f"M={m_out}, K={k}, y=W@x",
         cpu_info=get_cpu_info()
     )
     perf_report.add_result(TestResult(
-        name=f"Q8_K quantize (M={m_out},K={k})",
+        name=f"Q8_K quantize (M={m_out},K={k_used})",
         passed=True,
         max_diff=0.0,
         tolerance=0.0,
         kernel_time=q_time
     ))
     perf_report.add_result(TestResult(
-        name=f"Q4_K x Q8_K gemv (M={m_out},K={k})",
+        name=f"Q4_K x Q8_K gemv (M={m_out},K={k_used})",
         passed=True,
         max_diff=0.0,
         tolerance=0.0,
@@ -219,7 +226,7 @@ def run_case(lib, m_out: int, k: int, tol: float, tol_fp32: float,
         kernel_time=m_time
     ))
     perf_report.add_result(TestResult(
-        name=f"End-to-end (M={m_out},K={k})",
+        name=f"End-to-end (M={m_out},K={k_used})",
         passed=True,
         max_diff=0.0,
         tolerance=0.0,
@@ -301,6 +308,8 @@ def main() -> int:
     status = 0
     for m_out, k in sizes:
         status |= run_case(lib, m_out, k, tol, tol_fp32, warmup, iterations)
+    # Padded case for models with K not divisible by QK_K (e.g., 896 -> 1024).
+    status |= run_case(lib, 16, 896, tol, tol_fp32, warmup, iterations, pad_to_block=True)
 
     return status
 

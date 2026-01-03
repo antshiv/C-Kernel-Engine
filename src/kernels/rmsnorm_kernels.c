@@ -63,7 +63,9 @@ void rmsnorm_forward(const float *input,
 
         float mean_sq = sum_sq / (float)D;
         float rstd = 1.0f / sqrtf(mean_sq + eps);
-        rstd_cache[t] = rstd;
+        if (rstd_cache) {
+            rstd_cache[t] = rstd;
+        }
 
         // Apply normalization and scale (vectorized)
         __m512 rstd_vec = _mm512_set1_ps(rstd);
@@ -100,7 +102,9 @@ void rmsnorm_forward(const float *input,
 
         float mean_sq = sum_sq / (float)D;
         float rstd = 1.0f / sqrtf(mean_sq + eps);
-        rstd_cache[t] = rstd;
+        if (rstd_cache) {
+            rstd_cache[t] = rstd;
+        }
 
         // Apply normalization and scale (vectorized)
         __m256 rstd_vec = _mm256_set1_ps(rstd);
@@ -127,7 +131,9 @@ void rmsnorm_forward(const float *input,
         double mean_sq = sum_sq / (double)D;
         double r = sqrt(mean_sq + (double)eps);
         float rstd = (float)(1.0 / r);
-        rstd_cache[t] = rstd;
+        if (rstd_cache) {
+            rstd_cache[t] = rstd;
+        }
 
         // Apply normalization and scale
         for (int d = 0; d < D; ++d) {
@@ -337,4 +343,3 @@ void rmsnorm_backward(const float *d_output,
         }
     }
 }
-

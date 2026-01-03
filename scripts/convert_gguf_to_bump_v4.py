@@ -35,6 +35,7 @@ from convert_hf_to_bump import (
 HEADER_SIZE = 128
 CACHE_ALIGN = 64
 FLOAT_SIZE = 4
+QK_ALIGN_BYTES = 256 * FLOAT_SIZE
 
 CK_DT_FP32 = gguf.CK_DT_FP32
 CK_DT_Q4_K = gguf.CK_DT_Q4_K
@@ -354,11 +355,6 @@ def main() -> None:
         aligned_intermediate = gguf.align_up_elems(intermediate, FLOAT_SIZE, CACHE_ALIGN)
         aligned_context = gguf.align_up_elems(context_len, FLOAT_SIZE, CACHE_ALIGN)
 
-        if aligned_embed_dim != embed_dim:
-            print(f"[warn] aligned_embed_dim={aligned_embed_dim} (embed_dim={embed_dim}) - padding FP32 weights")
-        if aligned_intermediate != intermediate:
-            print(f"[warn] aligned_intermediate={aligned_intermediate} (intermediate={intermediate}) - padding FP32 weights")
-
         required = {
             "output_norm.weight",
         }
@@ -487,15 +483,20 @@ def main() -> None:
             quant_embed = True
 
         if quant_embed:
-            if embed_dim % 256 != 0:
-                raise gguf.GGUFError(f"K-quant requires hidden_size multiple of 256 (got {embed_dim})")
+            aligned_embed_dim = gguf.align_up_elems(embed_dim, FLOAT_SIZE, QK_ALIGN_BYTES)
             if aligned_embed_dim != embed_dim:
-                raise gguf.GGUFError("K-quant requires no padding for embed_dim (aligned_embed_dim != embed_dim)")
+                print(f"[warn] K-quant padded embed_dim {embed_dim} -> {aligned_embed_dim}")
+        else:
+            if aligned_embed_dim != embed_dim:
+                print(f"[warn] aligned_embed_dim={aligned_embed_dim} (embed_dim={embed_dim}) - padding FP32 weights")
+
         if quant_intermediate:
-            if intermediate % 256 != 0:
-                raise gguf.GGUFError(f"K-quant requires intermediate_size multiple of 256 (got {intermediate})")
+            aligned_intermediate = gguf.align_up_elems(intermediate, FLOAT_SIZE, QK_ALIGN_BYTES)
             if aligned_intermediate != intermediate:
-                raise gguf.GGUFError("K-quant requires no padding for intermediate (aligned_intermediate != intermediate)")
+                print(f"[warn] K-quant padded intermediate {intermediate} -> {aligned_intermediate}")
+        else:
+            if aligned_intermediate != intermediate:
+                print(f"[warn] aligned_intermediate={aligned_intermediate} (intermediate={intermediate}) - padding FP32 weights")
 
         dtype_table_bytes = bytes(dtype_table)
         manifest_entries = []

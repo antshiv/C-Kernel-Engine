@@ -414,8 +414,10 @@ def copy_qk_head_packed(
 
     in_dim = info.ne0
     out_dim = info.ne1
-    if in_dim != aligned_embed_dim:
-        raise GGUFError(f"{info.name}: expected in_dim={aligned_embed_dim}, got {in_dim}")
+    if in_dim > aligned_embed_dim:
+        raise GGUFError(f"{info.name}: expected in_dim<=aligned_embed_dim (got {in_dim} > {aligned_embed_dim})")
+    if info.ggml_type in (GGML_TYPE_Q4_K, GGML_TYPE_Q6_K) and (aligned_embed_dim % 256) != 0:
+        raise GGUFError(f"{info.name}: aligned_embed_dim must be multiple of 256 for K-quant (got {aligned_embed_dim})")
     if out_dim != group_count * head_dim:
         raise GGUFError(
             f"{info.name}: expected out_dim={group_count * head_dim} (group_count*head_dim), got {out_dim}"

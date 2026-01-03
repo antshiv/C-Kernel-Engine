@@ -124,6 +124,30 @@ def run_forward_tests(T=64, D=256, eps=1e-5, warmup=10, iterations=1000):
         kernel_time=kernel_time
     ))
 
+    # C kernel without rstd cache (inference-only path)
+    out_no_cache = np.zeros((T, D), dtype=np.float32)
+    out_no_cache_ptr = numpy_to_ptr(out_no_cache)
+
+    def c_rmsnorm_no_cache():
+        lib.rmsnorm_forward(
+            x_ptr, gamma_ptr, out_no_cache_ptr, None,
+            ctypes.c_int(T), ctypes.c_int(D), ctypes.c_int(D),
+            ctypes.c_float(eps)
+        )
+
+    c_rmsnorm_no_cache()
+    out_nc = torch.from_numpy(out_no_cache.copy())
+    diff_nc = max_diff(out_nc, ref)
+
+    report.add_result(TestResult(
+        name="RMSNorm (no rstd cache)",
+        passed=diff_nc <= 1e-6,
+        max_diff=diff_nc,
+        tolerance=1e-6,
+        pytorch_time=None,
+        kernel_time=None
+    ))
+
     return report
 
 

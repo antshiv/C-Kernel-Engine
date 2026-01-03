@@ -193,14 +193,19 @@ def layer_forward_ref(x,
     return res1 + mlp
 
 
-def run_decode(func, params, total_len, cache_capacity):
+def run_decode(func, params, total_len, cache_capacity, token_input, x_tokens,
+               output_buffer, out_history, embed_dim):
     for t in range(total_len):
+        token_input.fill(0.0)
+        token_input[0, :embed_dim] = x_tokens[t, :embed_dim]
         params.rope_pos_offset = t
         func(ctypes.byref(params), t, cache_capacity)
+        out_history[t] = output_buffer[0, :embed_dim]
     return params
 
 
-def build_buffers(cache_capacity,
+def build_buffers(token_slots,
+                  cache_capacity,
                   embed_dim,
                   aligned_embed_dim,
                   num_heads,
@@ -209,22 +214,22 @@ def build_buffers(cache_capacity,
                   aligned_context_window,
                   aligned_intermediate_dim):
     return {
-        "ln1_out": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "ln1_rstd": aligned_empty((cache_capacity,)),
-        "q": aligned_empty((num_heads, cache_capacity, aligned_head_dim)),
+        "ln1_out": aligned_empty((token_slots, aligned_embed_dim)),
+        "ln1_rstd": aligned_empty((token_slots,)),
+        "q": aligned_empty((num_heads, token_slots, aligned_head_dim)),
         "k": aligned_empty((num_kv_heads, cache_capacity, aligned_head_dim)),
         "v": aligned_empty((num_kv_heads, cache_capacity, aligned_head_dim)),
         "scores": aligned_empty((num_heads, aligned_context_window, aligned_context_window)),
-        "attn_out": aligned_empty((num_heads, cache_capacity, aligned_head_dim)),
-        "proj_tmp": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "proj_scratch": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "residual1": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "ln2_out": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "ln2_rstd": aligned_empty((cache_capacity,)),
-        "fc1_out": aligned_empty((cache_capacity, 2 * aligned_intermediate_dim)),
-        "swiglu_out": aligned_empty((cache_capacity, aligned_intermediate_dim)),
-        "mlp_out": aligned_empty((cache_capacity, aligned_embed_dim)),
-        "output": aligned_empty((cache_capacity, aligned_embed_dim)),
+        "attn_out": aligned_empty((num_heads, token_slots, aligned_head_dim)),
+        "proj_tmp": aligned_empty((token_slots, aligned_embed_dim)),
+        "proj_scratch": aligned_empty((token_slots, aligned_embed_dim)),
+        "residual1": aligned_empty((token_slots, aligned_embed_dim)),
+        "ln2_out": aligned_empty((token_slots, aligned_embed_dim)),
+        "ln2_rstd": aligned_empty((token_slots,)),
+        "fc1_out": aligned_empty((token_slots, 2 * aligned_intermediate_dim)),
+        "swiglu_out": aligned_empty((token_slots, aligned_intermediate_dim)),
+        "mlp_out": aligned_empty((token_slots, aligned_embed_dim)),
+        "output": aligned_empty((token_slots, aligned_embed_dim)),
     }
 
 
@@ -324,8 +329,11 @@ def run_case(seed=0,
                                 sin_cache,
                                 rope_offset=0)
 
+    token_input = aligned_empty((1, aligned_embed_dim))
+    token_input.fill(0.0)
+
     common_params = dict(
-        tokens=cache_capacity,
+        tokens=1,
         embed_dim=embed_dim,
         aligned_embed_dim=aligned_embed_dim,
         num_heads=num_heads,
@@ -337,7 +345,7 @@ def run_case(seed=0,
         aligned_intermediate_dim=aligned_intermediate_dim,
         eps=eps,
         rope_pos_offset=0,
-        input=ptr(x),
+        input=ptr(token_input),
         ln1_gamma=ptr(ln1_gamma),
         ln2_gamma=ptr(ln2_gamma),
         rope_cos=cos_cache_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
@@ -357,7 +365,8 @@ def run_case(seed=0,
     )
 
     def run_decode_kernel(func):
-        buffers = build_buffers(cache_capacity,
+        buffers = build_buffers(1,
+                                cache_capacity,
                                 embed_dim,
                                 aligned_embed_dim,
                                 num_heads,
@@ -386,8 +395,17 @@ def run_case(seed=0,
             mlp_out=ptr(buffers["mlp_out"]),
             output=ptr(buffers["output"]),
         )
-        run_decode(func, params, total_len, cache_capacity)
-        out = torch.from_numpy(buffers["output"][:total_len, :embed_dim]).float()
+        out_history = np.zeros((total_len, embed_dim), dtype=np.float32)
+        run_decode(func,
+                   params,
+                   total_len,
+                   cache_capacity,
+                   token_input,
+                   x,
+                   buffers["output"],
+                   out_history,
+                   embed_dim)
+        out = torch.from_numpy(out_history).float()
         return out
 
     out_fused = run_decode_kernel(lib.ck_layer_forward_rmsnorm_swiglu_decode_fused_attn)

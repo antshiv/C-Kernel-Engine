@@ -95,16 +95,17 @@ def main():
         raise SystemExit("Config missing required fields for conversion")
 
     head_dim = embed_dim // num_heads
-    aligned_embed_dim = align_up_elems(embed_dim, FLOAT_SIZE, CACHE_ALIGN)
+    qk_align_bytes = 256 * FLOAT_SIZE
+    aligned_embed_dim = align_up_elems(embed_dim, FLOAT_SIZE, qk_align_bytes if q4k else CACHE_ALIGN)
     aligned_head_dim = align_up_elems(head_dim, FLOAT_SIZE, CACHE_ALIGN)
-    aligned_intermediate = align_up_elems(intermediate, FLOAT_SIZE, CACHE_ALIGN)
+    aligned_intermediate = align_up_elems(intermediate, FLOAT_SIZE, qk_align_bytes if q4k else CACHE_ALIGN)
     aligned_context = align_up_elems(context_len, FLOAT_SIZE, CACHE_ALIGN)
 
     if q4k:
-        if embed_dim % 256 != 0 or intermediate % 256 != 0:
-            raise SystemExit("Q4_K requires embed_dim and intermediate_size to be multiples of 256")
-        if aligned_embed_dim != embed_dim or aligned_head_dim != head_dim or aligned_intermediate != intermediate:
-            raise SystemExit("Q4_K conversion requires no padding (aligned dims must equal model dims)")
+        if aligned_embed_dim != embed_dim:
+            print(f"[warn] Q4_K padded embed_dim {embed_dim} -> {aligned_embed_dim}")
+        if aligned_intermediate != intermediate:
+            print(f"[warn] Q4_K padded intermediate {intermediate} -> {aligned_intermediate}")
 
     model_name = cfg.get("model_type", "model")
     graph = v4.build_graph_ir_v4(

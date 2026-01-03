@@ -87,6 +87,14 @@ def emit_c_source_v4(layout: v3.ModelLayout,
     use_fast_q4 = use_q4_k and all_q4_k
     use_quant_path = has_quant and not use_fast_q4
 
+    aligned_embed = int(config.get("aligned_embed") or 0)
+    aligned_head = int(config.get("aligned_head") or 0)
+    aligned_intermediate = int(config.get("aligned_intermediate") or 0)
+    aligned_context = int(config.get("aligned_context") or 0)
+
+    def aligned_expr(value: int, fallback: str) -> str:
+        return str(value) if value > 0 else fallback
+
     layer_names = _layer_buffer_names(section)
 
     required_prefill = [
@@ -477,10 +485,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("    }")
         add()
         add(f"    const int elem_bytes = {safe_name}_DTYPE_BYTES;")
-        add(f"    const int aligned_embed_dim = {safe_name_lower}_align_elems({safe_name}_EMBED_DIM, elem_bytes, 64);")
-        add(f"    const int aligned_head_dim = {safe_name_lower}_align_elems({safe_name}_HEAD_DIM, elem_bytes, 64);")
-        add(f"    const int aligned_intermediate_dim = {safe_name_lower}_align_elems({safe_name}_INTERMEDIATE, elem_bytes, 64);")
-        add(f"    const int aligned_context_window = {safe_name_lower}_align_elems({safe_name}_MAX_SEQ_LEN, elem_bytes, 64);")
+        add(f"    const int aligned_embed_dim = {aligned_expr(aligned_embed, f'{safe_name_lower}_align_elems({safe_name}_EMBED_DIM, elem_bytes, 64)')};")
+        add(f"    const int aligned_head_dim = {aligned_expr(aligned_head, f'{safe_name_lower}_align_elems({safe_name}_HEAD_DIM, elem_bytes, 64)')};")
+        add(f"    const int aligned_intermediate_dim = {aligned_expr(aligned_intermediate, f'{safe_name_lower}_align_elems({safe_name}_INTERMEDIATE, elem_bytes, 64)')};")
+        add(f"    const int aligned_context_window = {aligned_expr(aligned_context, f'{safe_name_lower}_align_elems({safe_name}_MAX_SEQ_LEN, elem_bytes, 64)')};")
         add()
         add(f"    float *embed_out = {safe_name}_PTR(model, {safe_name}_HEADER.embedded_input);")
         if embed_use_q4_k:
@@ -808,10 +816,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("    }")
         add()
         add(f"    const int elem_bytes = {safe_name}_DTYPE_BYTES;")
-        add(f"    const int aligned_embed_dim = {safe_name_lower}_align_elems({safe_name}_EMBED_DIM, elem_bytes, 64);")
-        add(f"    const int aligned_head_dim = {safe_name_lower}_align_elems({safe_name}_HEAD_DIM, elem_bytes, 64);")
-        add(f"    const int aligned_intermediate_dim = {safe_name_lower}_align_elems({safe_name}_INTERMEDIATE, elem_bytes, 64);")
-        add(f"    const int aligned_context_window = {safe_name_lower}_align_elems({safe_name}_MAX_SEQ_LEN, elem_bytes, 64);")
+        add(f"    const int aligned_embed_dim = {aligned_expr(aligned_embed, f'{safe_name_lower}_align_elems({safe_name}_EMBED_DIM, elem_bytes, 64)')};")
+        add(f"    const int aligned_head_dim = {aligned_expr(aligned_head, f'{safe_name_lower}_align_elems({safe_name}_HEAD_DIM, elem_bytes, 64)')};")
+        add(f"    const int aligned_intermediate_dim = {aligned_expr(aligned_intermediate, f'{safe_name_lower}_align_elems({safe_name}_INTERMEDIATE, elem_bytes, 64)')};")
+        add(f"    const int aligned_context_window = {aligned_expr(aligned_context, f'{safe_name_lower}_align_elems({safe_name}_MAX_SEQ_LEN, elem_bytes, 64)')};")
         add("    if (token_index < 0 || token_index >= aligned_context_window) {")
         add("        return;")
         add("    }")

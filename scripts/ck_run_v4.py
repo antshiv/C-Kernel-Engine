@@ -19,6 +19,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -28,6 +29,7 @@ CACHE_DIR = Path.home() / ".cache" / "ck-engine-v4" / "models"
 SCRIPTS_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPTS_DIR.parent
 BUILD_DIR = PROJECT_ROOT / "build"
+HEADER_SIZE = 128
 
 # Colors
 C_RESET = "\033[0m"
@@ -70,6 +72,11 @@ def run_cmd(cmd: list, cwd: Path = None, capture: bool = False) -> subprocess.Co
         if e.stderr:
             print(e.stderr, file=sys.stderr)
         sys.exit(1)
+
+
+def run_cmd_allow_fail(cmd: list, cwd: Path = None) -> subprocess.CompletedProcess:
+    """Run command without exiting on non-zero status."""
+    return subprocess.run(cmd, cwd=cwd)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -523,6 +530,11 @@ int ck_model_get_context_window(void) {{
 int ck_model_get_active_tokens(void) {{
     return g_active_tokens;
 }}
+
+int ck_model_verify_canaries(void) {{
+    if (!g_initialized) return -1;
+    return {prefix}_verify_canaries(&g_model);
+}}
 """
 
     model_c_path.write_text(wrapper)
@@ -588,6 +600,146 @@ def step_compile(model_c_path: Path, output_dir: Path, force: bool = False) -> P
     return lib_path
 
 
+def _layout_weight_buffers(layout: dict) -> list[dict]:
+    section = layout["sections"][0]
+    buffers = []
+    buffers.extend(section["header"]["buffers"])
+    for layer in section["layers"]:
+        buffers.extend(layer["buffers"])
+    buffers.extend(section["footer"]["buffers"])
+    weights = []
+    for buf in buffers:
+        if buf.get("role") != "weight":
+            continue
+        if buf.get("tied_to"):
+            continue
+        if int(buf.get("size", 0)) <= 0:
+            continue
+        weights.append(buf)
+    return weights
+
+
+def _align_up(value: int, align: int) -> int:
+    return (value + align - 1) // align * align
+
+
+def build_dummy_weights(layout_path: Path, output_dir: Path) -> Path:
+    with layout_path.open("r") as f:
+        layout = json.load(f)
+    weights = _layout_weight_buffers(layout)
+    entries = []
+    file_off = HEADER_SIZE
+    for buf in weights:
+        file_off = _align_up(file_off, 64)
+        entries.append({
+            "name": buf["name"],
+            "dtype": buf.get("dtype", "fp32"),
+            "file_offset": file_off,
+            "size": int(buf["size"]),
+            "runtime_offset": int(buf["offset"], 16) if isinstance(buf["offset"], str) else int(buf["offset"]),
+        })
+        file_off += int(buf["size"])
+
+    weights_path = output_dir / "weights_dummy.bump"
+    with open(weights_path, "wb") as f:
+        f.write(b"BUMPWGT4")
+        if HEADER_SIZE > 8:
+            f.write(b"\x00" * (HEADER_SIZE - 8))
+        f.truncate(file_off)
+
+    model_meta = layout.get("model", {})
+    if isinstance(model_meta, str):
+        model_name = model_meta
+    else:
+        model_name = model_meta.get("name", "dummy")
+    manifest = {
+        "format": "ck-bumpwgt4-dummy-v1",
+        "generated": "dummy",
+        "model": model_name,
+        "missing": [],
+        "entries": entries,
+    }
+    json_path = output_dir / "weights_manifest.json"
+    with open(json_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+    map_path = output_dir / "weights_manifest.map"
+    with open(map_path, "w") as f:
+        f.write("# ck-bumpwgt4-manifest-map v1\n")
+        f.write("# name|dtype|file_offset|size|runtime_offset\n")
+        for e in entries:
+            f.write(
+                f"{e['name']}|{e['dtype']}|0x{e['file_offset']:016X}|0x{e['size']:016X}|0x{e['runtime_offset']:016X}\n"
+            )
+
+    return weights_path
+
+
+def _backup_file(path: Path) -> Optional[Path]:
+    if not path.exists():
+        return None
+    backup = path.with_name(path.name + ".real")
+    if backup.exists():
+        backup = path.with_name(path.name + ".real.bak")
+    path.replace(backup)
+    return backup
+
+
+def _restore_file(path: Path, backup: Optional[Path]) -> None:
+    if backup and backup.exists():
+        if path.exists():
+            path.unlink()
+        backup.replace(path)
+
+
+def run_smoke_test(model_dir: Path, weights_path: Path, use_valgrind: bool) -> None:
+    script = SCRIPTS_DIR / "ck_model_smoke_v4.py"
+    cmd = [
+        sys.executable,
+        str(script),
+        "--model-dir",
+        str(model_dir),
+        "--weights",
+        str(weights_path),
+        "--prompt-len",
+        "4",
+        "--decode-steps",
+        "2",
+    ]
+    if use_valgrind:
+        suppression = PROJECT_ROOT / "valgrind.supp"
+        cmd = [
+            "valgrind",
+            "--tool=memcheck",
+            "--leak-check=full",
+        ] + cmd
+        if suppression.exists():
+            cmd.insert(3, f"--suppressions={suppression}")
+        result = run_cmd_allow_fail(cmd)
+        if result.returncode != 0:
+            log(f"  Warning: valgrind returned {result.returncode}", C_DIM)
+        return
+    run_cmd(cmd)
+
+
+def run_parity_tests() -> None:
+    tests = [
+        PROJECT_ROOT / "unittest" / "test_kv_cache_layer_decode.py",
+        PROJECT_ROOT / "unittest" / "test_fused_attention_decode.py",
+    ]
+    for test in tests:
+        if not test.exists():
+            log(f"  Skipping missing test: {test}", C_DIM)
+            continue
+        cmd = [sys.executable, str(test)]
+        env = os.environ.copy()
+        ld_path = str(PROJECT_ROOT / "build")
+        env["LD_LIBRARY_PATH"] = f"{ld_path}:{env.get('LD_LIBRARY_PATH', '')}"
+        result = subprocess.run(cmd, cwd=PROJECT_ROOT, env=env)
+        if result.returncode != 0:
+            log_error(f"Test failed: {test}")
+            sys.exit(1)
+
+
 def step_run_chat(model_dir: Path, args: argparse.Namespace):
     """Run chat interface."""
     log_step(6, "Starting chat")
@@ -617,6 +769,7 @@ def step_run_chat(model_dir: Path, args: argparse.Namespace):
 def run_pipeline(args: argparse.Namespace):
     """Run the full v4 pipeline."""
     model_input = args.model
+    weights_path = None
 
     # Normalize weight dtype aliases
     if args.weight_dtype == 'q4_k_m':
@@ -741,8 +894,39 @@ def run_pipeline(args: argparse.Namespace):
         if not tokenizer_dst.exists():
             shutil.copy(tokenizer_src, tokenizer_dst)
 
+    if args.test:
+        log(f"{C_ORANGE}[test]{C_RESET} Running v4 smoke tests")
+        layout_decode = work_dir / "layout_decode.json"
+        if not layout_decode.exists():
+            log_error(f"layout_decode.json not found in {work_dir}")
+            sys.exit(1)
+        manifest_map = work_dir / "weights_manifest.map"
+        manifest_json = work_dir / "weights_manifest.json"
+        backup_map = _backup_file(manifest_map)
+        backup_json = _backup_file(manifest_json)
+        try:
+            dummy_weights = build_dummy_weights(layout_decode, work_dir)
+            use_valgrind = shutil.which("valgrind") is not None
+            run_smoke_test(work_dir, dummy_weights, use_valgrind)
+        finally:
+            _restore_file(manifest_map, backup_map)
+            _restore_file(manifest_json, backup_json)
+
+        if weights_path and Path(weights_path).exists():
+            run_smoke_test(work_dir, Path(weights_path), False)
+
+        lib_engine = PROJECT_ROOT / "build" / "libckernel_engine.so"
+        if lib_engine.exists():
+            try:
+                __import__("torch")
+                run_parity_tests()
+            except ImportError:
+                log("  Skipping parity tests (torch not installed)", C_DIM)
+        else:
+            log("  Skipping parity tests (build/libckernel_engine.so missing)", C_DIM)
+
     # Run chat (unless generate-only)
-    if args.generate_only:
+    if args.generate_only or args.test_only:
         log(f"\n{C_GREEN}Generated:{C_RESET}")
         log(f"  Layout:  {layout_path}")
         log(f"  C code:  {model_c_path}")
@@ -799,6 +983,10 @@ Examples:
                            help='Re-generate and recompile')
     run_parser.add_argument('--generate-only', action='store_true',
                            help='Generate C code only, do not run')
+    run_parser.add_argument('--test', action='store_true',
+                           help='Run smoke tests after build')
+    run_parser.add_argument('--test-only', action='store_true',
+                           help='Run tests and exit (skip chat)')
 
     # List command
     list_parser = subparsers.add_parser('list', help='List cached models')

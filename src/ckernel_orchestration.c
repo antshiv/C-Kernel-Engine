@@ -1065,18 +1065,20 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
     const int ad = p->aligned_head_dim;
     const int aligned_intermediate = p->aligned_intermediate_dim;
 
-    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
-    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
-    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
-    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
-    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
-    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
-    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+    /* Decode buffers are single-token; token_index only applies to KV cache. */
+    const size_t token_slot = 0;
+    const float *input_row = p->input + token_slot * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + token_slot * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + token_slot * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + token_slot * (size_t)aligned_D;
+    float *residual_row = p->residual1 + token_slot * (size_t)aligned_D;
+    float *mlp_row = p->mlp_out + token_slot * (size_t)aligned_D;
+    float *out_row = p->output + token_slot * (size_t)aligned_D;
 
     float ln1_rstd_tmp = 0.0f;
     float ln2_rstd_tmp = 0.0f;
-    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
-    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_slot) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_slot) : &ln2_rstd_tmp;
 
     // Scratch for a single token in head-major layout: [head, aligned_head_dim].
     size_t q_elems = (size_t)H * (size_t)ad;
@@ -1172,8 +1174,8 @@ void ck_layer_forward_rmsnorm_swiglu_decode(const CKLayerForwardParams *p,
 
     // MLP block for this token.
     int up_dim = 2 * aligned_intermediate;
-    float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
-    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+    float *fc1_row = p->fc1_out + token_slot * (size_t)up_dim;
+    float *swiglu_row = p->swiglu_out + token_slot * (size_t)aligned_intermediate;
 
     ck_mlp_swiglu_forward(ln2_row,
                           p->w1,
@@ -1223,19 +1225,21 @@ void ck_layer_forward_rmsnorm_swiglu_decode_fused(const CKLayerForwardParams *p,
     const int ad = p->aligned_head_dim;
     const int aligned_intermediate = p->aligned_intermediate_dim;
 
-    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
-    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
-    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
-    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
-    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
-    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
-    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
-    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+    /* Decode buffers are single-token; token_index only applies to KV cache. */
+    const size_t token_slot = 0;
+    const float *input_row = p->input + token_slot * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + token_slot * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + token_slot * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + token_slot * (size_t)aligned_D;
+    float *residual_row = p->residual1 + token_slot * (size_t)aligned_D;
+    float *swiglu_row = p->swiglu_out + token_slot * (size_t)aligned_intermediate;
+    float *mlp_row = p->mlp_out + token_slot * (size_t)aligned_D;
+    float *out_row = p->output + token_slot * (size_t)aligned_D;
 
     float ln1_rstd_tmp = 0.0f;
     float ln2_rstd_tmp = 0.0f;
-    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
-    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_slot) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_slot) : &ln2_rstd_tmp;
 
     // Scratch for a single token in head-major layout: [head, aligned_head_dim].
     size_t q_elems = (size_t)H * (size_t)ad;
@@ -1880,18 +1884,20 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
     const int aligned_intermediate = p->aligned_intermediate_dim;
     const int K_concat = H * ad;
 
-    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
-    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
-    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
-    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
-    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
-    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
-    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+    /* Decode buffers are single-token; token_index only applies to KV cache. */
+    const size_t token_slot = 0;
+    const float *input_row = p->input + token_slot * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + token_slot * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + token_slot * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + token_slot * (size_t)aligned_D;
+    float *residual_row = p->residual1 + token_slot * (size_t)aligned_D;
+    float *mlp_row = p->mlp_out + token_slot * (size_t)aligned_D;
+    float *out_row = p->output + token_slot * (size_t)aligned_D;
 
     float ln1_rstd_tmp = 0.0f;
     float ln2_rstd_tmp = 0.0f;
-    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
-    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_slot) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_slot) : &ln2_rstd_tmp;
 
     /* Scratch for a single token in head-major layout: [head, aligned_head_dim]. */
     size_t q_elems = (size_t)H * (size_t)ad;
@@ -1999,8 +2005,8 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
 
         /* MLP block for this token (Q8_K activations). */
         int up_dim = 2 * aligned_intermediate;
-        float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
-        float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+        float *fc1_row = p->fc1_out + token_slot * (size_t)up_dim;
+        float *swiglu_row = p->swiglu_out + token_slot * (size_t)aligned_intermediate;
 
         ck_mlp_swiglu_forward_q4_k_q8_k(ln2_row,
                                         p->w1,
@@ -2102,8 +2108,8 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
 
     /* MLP block for this token. */
     int up_dim = 2 * aligned_intermediate;
-    float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
-    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+    float *fc1_row = p->fc1_out + token_slot * (size_t)up_dim;
+    float *swiglu_row = p->swiglu_out + token_slot * (size_t)aligned_intermediate;
 
     ck_mlp_swiglu_forward_q4_k(ln2_row,
                                p->w1,
@@ -2261,18 +2267,20 @@ void ck_layer_forward_rmsnorm_swiglu_decode_quant(const CKLayerForwardParamsQ4K 
     const int aligned_intermediate = p->aligned_intermediate_dim;
     const int K_concat = H * ad;
 
-    const float *input_row = p->input + (size_t)token_index * (size_t)aligned_D;
-    float *ln1_row = p->ln1_out + (size_t)token_index * (size_t)aligned_D;
-    float *ln2_row = p->ln2_out + (size_t)token_index * (size_t)aligned_D;
-    float *proj_row = p->proj_tmp + (size_t)token_index * (size_t)aligned_D;
-    float *residual_row = p->residual1 + (size_t)token_index * (size_t)aligned_D;
-    float *mlp_row = p->mlp_out + (size_t)token_index * (size_t)aligned_D;
-    float *out_row = p->output + (size_t)token_index * (size_t)aligned_D;
+    /* Decode buffers are single-token; token_index only applies to KV cache. */
+    const size_t token_slot = 0;
+    const float *input_row = p->input + token_slot * (size_t)aligned_D;
+    float *ln1_row = p->ln1_out + token_slot * (size_t)aligned_D;
+    float *ln2_row = p->ln2_out + token_slot * (size_t)aligned_D;
+    float *proj_row = p->proj_tmp + token_slot * (size_t)aligned_D;
+    float *residual_row = p->residual1 + token_slot * (size_t)aligned_D;
+    float *mlp_row = p->mlp_out + token_slot * (size_t)aligned_D;
+    float *out_row = p->output + token_slot * (size_t)aligned_D;
 
     float ln1_rstd_tmp = 0.0f;
     float ln2_rstd_tmp = 0.0f;
-    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_index) : &ln1_rstd_tmp;
-    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_index) : &ln2_rstd_tmp;
+    float *ln1_rstd = p->ln1_rstd ? (p->ln1_rstd + token_slot) : &ln1_rstd_tmp;
+    float *ln2_rstd = p->ln2_rstd ? (p->ln2_rstd + token_slot) : &ln2_rstd_tmp;
 
     size_t q_elems = (size_t)H * (size_t)ad;
     size_t kv_elems = (size_t)H_kv * (size_t)ad;
@@ -2383,8 +2391,8 @@ void ck_layer_forward_rmsnorm_swiglu_decode_quant(const CKLayerForwardParamsQ4K 
                     p->eps);
 
     int up_dim = 2 * aligned_intermediate;
-    float *fc1_row = p->fc1_out + (size_t)token_index * (size_t)up_dim;
-    float *swiglu_row = p->swiglu_out + (size_t)token_index * (size_t)aligned_intermediate;
+    float *fc1_row = p->fc1_out + token_slot * (size_t)up_dim;
+    float *swiglu_row = p->swiglu_out + token_slot * (size_t)aligned_intermediate;
 
     ck_mlp_swiglu_forward_quant(ln2_row,
                                 p->w1,

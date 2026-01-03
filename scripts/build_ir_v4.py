@@ -123,6 +123,8 @@ QUANT_KERNELS = {
 # Alignment helpers
 # ---------------------------------------------------------------------------
 
+QK_K = 256
+
 def align_up_bytes(n: int, alignment: int) -> int:
     return (n + alignment - 1) & ~(alignment - 1)
 
@@ -137,6 +139,9 @@ def align_up_elems(elems: int, elem_bytes: int, alignment: int) -> int:
 def build_graph_ir_v4(config: Dict, model_name: str, alignment_bytes: int = 64) -> Dict:
     dtype = config["dtype"]
     elem_bytes = v3.DTYPE_BYTES.get(dtype, 4)
+    weight_dtype = str(config.get("weight_dtype", "")).lower()
+    use_k_align = weight_dtype.startswith(("q4_k", "q6_k", "q8_k"))
+    qk_align_bytes = QK_K * elem_bytes
 
     E = config["embed_dim"]
     H = config["num_heads"]
@@ -146,10 +151,14 @@ def build_graph_ir_v4(config: Dict, model_name: str, alignment_bytes: int = 64) 
     T = config["max_seq_len"]
     V = config["vocab_size"]
 
-    AE = align_up_elems(E, elem_bytes, alignment_bytes)
+    AE = align_up_elems(E, elem_bytes, qk_align_bytes if use_k_align else alignment_bytes)
     AD = align_up_elems(D, elem_bytes, alignment_bytes)
-    AI = align_up_elems(I, elem_bytes, alignment_bytes)
+    AI = align_up_elems(I, elem_bytes, qk_align_bytes if use_k_align else alignment_bytes)
     AC = align_up_elems(T, elem_bytes, alignment_bytes)
+    config["aligned_embed"] = AE
+    config["aligned_head"] = AD
+    config["aligned_intermediate"] = AI
+    config["aligned_context"] = AC
 
     symbols = {
         "E": {"name": "embed_dim", "value": E},
