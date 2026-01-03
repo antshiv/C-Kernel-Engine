@@ -210,6 +210,13 @@ def generate(model: CKModel, prompt: str, max_tokens: int = 50,
         logits = model.prefill(token_ids)
         prefill_time = time.time() - t0
 
+        # NaN detection
+        if np.isnan(logits).any():
+            nan_count = np.isnan(logits).sum()
+            print(f"\n[DEBUG] NaN in prefill logits: {nan_count}/{logits.size} values")
+            print(f"[DEBUG] logits shape: {logits.shape}, dtype: {logits.dtype}")
+            print(f"[DEBUG] logits range: [{np.nanmin(logits):.3e}, {np.nanmax(logits):.3e}]")
+
         for i in range(max_tokens):
             # Sample
             t_sample = time.time()
@@ -229,6 +236,11 @@ def generate(model: CKModel, prompt: str, max_tokens: int = 50,
             t_decode = time.time()
             logits = model.decode_step(next_token)
             decode_times.append(time.time() - t_decode)
+
+            # NaN detection
+            if np.isnan(logits).any():
+                nan_count = np.isnan(logits).sum()
+                print(f"\n[DEBUG] NaN in decode logits (step {i}): {nan_count}/{logits.size} values")
     else:
         for i in range(max_tokens):
             # Forward pass (first is prefill, rest are decode)
