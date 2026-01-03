@@ -5,8 +5,10 @@
 #include "ckernel_quant.h"
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__)
 #include <immintrin.h>
@@ -87,6 +89,103 @@ void ck_qkv_project_head_major(const float *input,
                             tokens, aligned_head_dim, aligned_embed_dim);
         gemm_blocked_serial(input, wv_h, bv_h, v_h,
                             tokens, aligned_head_dim, aligned_embed_dim);
+    }
+}
+
+static int ck_layer_debug_enabled(void)
+{
+    static int cached = -2;
+    if (cached != -2) {
+        return cached;
+    }
+    const char *env = getenv("CK_LAYER_DEBUG");
+    if (env && (env[0] == '1' || env[0] == 'y' || env[0] == 'Y')) {
+        cached = 1;
+    } else {
+        cached = 0;
+    }
+    return cached;
+}
+
+static void ck_debug_check_buffer(const char *stage, const float *buf, int size)
+{
+    if (!ck_layer_debug_enabled() || !buf) {
+        return;
+    }
+    int nan_count = 0, inf_count = 0;
+    float min_val = 1e38f, max_val = -1e38f;
+    for (int i = 0; i < size; ++i) {
+        float v = buf[i];
+        if (isnan(v)) {
+            nan_count++;
+        } else if (isinf(v)) {
+            inf_count++;
+        } else {
+            if (v < min_val) min_val = v;
+            if (v > max_val) max_val = v;
+        }
+    }
+    if (nan_count > 0 || inf_count > 0) {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s size=%5d nan=%d inf=%d\n",
+                stage, size, nan_count, inf_count);
+    } else {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s size=%5d range=[%.3e, %.3e]\n",
+                stage, size, min_val, max_val);
+    }
+}
+
+static void ck_debug_check_q8k(const char *stage, const void *q8_buf, int num_blocks)
+{
+    if (!ck_layer_debug_enabled() || !q8_buf) {
+        return;
+    }
+    const block_q8_K *blocks = (const block_q8_K *)q8_buf;
+    int nan_scale = 0, inf_scale = 0;
+    float min_d = 1e38f, max_d = -1e38f;
+    for (int i = 0; i < num_blocks; ++i) {
+        float d = blocks[i].d;
+        if (isnan(d)) {
+            nan_scale++;
+        } else if (isinf(d)) {
+            inf_scale++;
+        } else {
+            if (d < min_d) min_d = d;
+            if (d > max_d) max_d = d;
+        }
+    }
+    if (nan_scale > 0 || inf_scale > 0) {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s blocks=%d nan_scale=%d inf_scale=%d\n",
+                stage, num_blocks, nan_scale, inf_scale);
+    } else {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s blocks=%d scale_range=[%.3e, %.3e]\n",
+                stage, num_blocks, min_d, max_d);
+    }
+}
+
+static void ck_debug_check_q4k_weights(const char *stage, const void *q4_buf, int num_blocks)
+{
+    if (!ck_layer_debug_enabled() || !q4_buf) {
+        return;
+    }
+    const block_q4_K *blocks = (const block_q4_K *)q4_buf;
+    int nan_d = 0, nan_dmin = 0;
+    float min_d = 1e38f, max_d = -1e38f;
+    for (int i = 0; i < num_blocks; ++i) {
+        float d = CK_FP16_TO_FP32(blocks[i].d);
+        float dm = CK_FP16_TO_FP32(blocks[i].dmin);
+        if (isnan(d)) nan_d++;
+        if (isnan(dm)) nan_dmin++;
+        if (!isnan(d) && !isinf(d)) {
+            if (d < min_d) min_d = d;
+            if (d > max_d) max_d = d;
+        }
+    }
+    if (nan_d > 0 || nan_dmin > 0) {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s blocks=%d nan_d=%d nan_dmin=%d\n",
+                stage, num_blocks, nan_d, nan_dmin);
+    } else {
+        fprintf(stderr, "[LAYER_DEBUG] %-30s blocks=%d d_range=[%.3e, %.3e]\n",
+                stage, num_blocks, min_d, max_d);
     }
 }
 
@@ -1937,6 +2036,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
     float attn_token[q_elems];
 
     /* LN1 / RMSNorm. */
+    ck_debug_check_buffer("input_row", input_row, aligned_D);
     rmsnorm_forward(input_row,
                     p->ln1_gamma,
                     ln1_row,
@@ -1945,6 +2045,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                     D,
                     aligned_D,
                     p->eps);
+    ck_debug_check_buffer("ln1_out (after rmsnorm)", ln1_row, aligned_D);
 
     if (ck_q8k_activations_enabled()) {
         if ((aligned_D % QK_K) == 0 && (aligned_intermediate % QK_K) == 0) {
@@ -1955,6 +2056,8 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
 
         /* Project Q/K/V with Q8_K activations. */
         quantize_row_q8_k(ln1_row, q8_buf, aligned_D);
+        ck_debug_check_q8k("q8_buf (after quantize)", q8_buf, q8_blocks_embed);
+        ck_debug_check_q4k_weights("wq weights", p->wq, (aligned_D / QK_K) * (H * ad));
         ck_qkv_project_head_major_token_q4_k_q8_k(q8_buf,
                                                   p->wq, p->bq,
                                                   p->wk, p->bk,
@@ -1964,6 +2067,9 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                                                   H,
                                                   H_kv,
                                                   ad);
+        ck_debug_check_buffer("q_token (after QKV proj)", q_token, (int)q_elems);
+        ck_debug_check_buffer("k_token (after QKV proj)", k_token, (int)kv_elems);
+        ck_debug_check_buffer("v_token (after QKV proj)", v_token, (int)kv_elems);
 
         /* RoPE for the new token at absolute position `p->rope_pos_offset`. */
         if (p->rope_cos && p->rope_sin) {
@@ -2001,6 +2107,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                                                       cache_capacity,
                                                       hd,
                                                       ad);
+        ck_debug_check_buffer("attn_token (after attention)", attn_token, (int)q_elems);
 
         /* Quantized output projection (Wo) with Q8_K activations. */
         quantize_row_q8_k(attn_token, q8_buf, aligned_D);
@@ -2011,6 +2118,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                           /*M=*/1,
                           aligned_D,
                           /*K=*/K_concat);
+        ck_debug_check_buffer("proj_row (after Wo proj)", proj_row, aligned_D);
 
         for (int j = D; j < aligned_D; ++j) {
             proj_row[j] = 0.0f;
@@ -2047,6 +2155,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                                         mlp_row,
                                         aligned_D,
                                         aligned_intermediate);
+        ck_debug_check_buffer("mlp_row (after MLP)", mlp_row, aligned_D);
 
         /* Final residual. */
         ck_residual_add_token_major(residual_row,
@@ -2054,6 +2163,7 @@ void ck_layer_forward_rmsnorm_swiglu_decode_q4_k(const CKLayerForwardParamsQ4K *
                                     out_row,
                                     /*tokens=*/1,
                                     aligned_D);
+        ck_debug_check_buffer("out_row (final output)", out_row, aligned_D);
         return;
         }
     }
