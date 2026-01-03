@@ -31,11 +31,13 @@ def emit_c_source_v4(layout: v3.ModelLayout,
                      header_name: str,
                      mode: str,
                      emit_main: bool = False,
-                     emit_debug: bool = False) -> None:
+                     emit_debug: bool = False,
+                     emit_parity: bool = False) -> None:
     """Emit generated_model.c with real kernel calls (fp32-only).
 
     Args:
         emit_debug: If True, insert debug prints after each layer to detect NaN/zero outputs.
+        emit_parity: If True, save intermediate buffers to files for comparison with PyTorch.
     """
     if mode not in ("prefill", "decode"):
         raise ValueError(f"v4 codegen only supports prefill/decode (got: {mode})")
@@ -215,6 +217,55 @@ def emit_c_source_v4(layout: v3.ModelLayout,
         add("    }")
         add("    fprintf(stderr, \"[DEBUG] %-30s M=%d K=%d sampled_zero_scales=%d\\n\",")
         add("            name, M, K, zero_scale_blocks);")
+        add("}")
+        add()
+
+    # Parity helpers (save buffers to files for comparison with PyTorch)
+    if emit_parity:
+        add("/* ============================================================================")
+        add(" * PARITY HELPERS (save buffers for PyTorch comparison)")
+        add(" * ============================================================================ */")
+        add()
+        add("static const char *g_parity_dir = NULL;")
+        add("static int g_parity_token_idx = 0;")
+        add()
+        add("void parity_set_output_dir(const char *dir) {")
+        add("    g_parity_dir = dir;")
+        add("}")
+        add()
+        add("void parity_set_token_index(int idx) {")
+        add("    g_parity_token_idx = idx;")
+        add("}")
+        add()
+        add("static void parity_save_buffer(const char *name, const float *buf, int size) {")
+        add("    if (!g_parity_dir) return;")
+        add("    char path[512];")
+        add("    snprintf(path, sizeof(path), \"%s/%s_tok%d.bin\", g_parity_dir, name, g_parity_token_idx);")
+        add("    FILE *f = fopen(path, \"wb\");")
+        add("    if (!f) { fprintf(stderr, \"[PARITY] Failed to open %s\\n\", path); return; }")
+        add("    fwrite(buf, sizeof(float), size, f);")
+        add("    fclose(f);")
+        add("    fprintf(stderr, \"[PARITY] Saved %s (%d floats)\\n\", path, size);")
+        add("}")
+        add()
+        add("static void parity_save_q4k_dequant(const char *name, const void *q4k, int M, int K) {")
+        add("    if (!g_parity_dir) return;")
+        add("    /* Dequantize Q4_K weights to FP32 for comparison */")
+        add("    float *dequant = (float *)malloc((size_t)M * K * sizeof(float));")
+        add("    if (!dequant) return;")
+        add("    for (int row = 0; row < M; ++row) {")
+        add("        const uint8_t *row_ptr = (const uint8_t *)q4k + row * (K / 256) * 144;")
+        add("        dequant_q4_k_row(row_ptr, dequant + row * K, (size_t)K);")
+        add("    }")
+        add("    char path[512];")
+        add("    snprintf(path, sizeof(path), \"%s/%s_dequant.bin\", g_parity_dir, name);")
+        add("    FILE *f = fopen(path, \"wb\");")
+        add("    if (f) {")
+        add("        fwrite(dequant, sizeof(float), (size_t)M * K, f);")
+        add("        fclose(f);")
+        add("        fprintf(stderr, \"[PARITY] Saved %s (%d x %d floats)\\n\", path, M, K);")
+        add("    }")
+        add("    free(dequant);")
         add("}")
         add()
 
@@ -904,6 +955,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add()
             add("    /* DEBUG: Check embedding output */")
             add(f"    debug_check_buffer(\"embed_out\", embed_out, aligned_embed_dim);")
+        if emit_parity:
+            add()
+            add("    /* PARITY: Save embedding output */")
+            add("    parity_save_buffer(\"embed_out\", embed_out, aligned_embed_dim);")
         add()
         add(f"    for (int layer_id = 0; layer_id < {safe_name}_NUM_LAYERS; ++layer_id) {{")
         add(f"        {safe_name_lower}_layer_forward_decode_token(")
@@ -921,6 +976,13 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add("        snprintf(layer_name, sizeof(layer_name), \"layer[%d].output\", layer_id);")
             add(f"        float *layer_out = {safe_name}_PTR(model, {safe_name}_LAYERS[layer_id].output);")
             add("        debug_check_buffer(layer_name, layer_out, aligned_embed_dim);")
+        if emit_parity:
+            add()
+            add("        /* PARITY: Save layer output */")
+            add("        char parity_name[64];")
+            add("        snprintf(parity_name, sizeof(parity_name), \"layer_%d_output\", layer_id);")
+            add(f"        float *parity_out = {safe_name}_PTR(model, {safe_name}_LAYERS[layer_id].output);")
+            add("        parity_save_buffer(parity_name, parity_out, aligned_embed_dim);")
         add("    }")
         add()
         add(f"    float *last_hidden = {safe_name}_PTR(model, {safe_name}_LAYERS[{safe_name}_NUM_LAYERS - 1].output);")
@@ -938,6 +1000,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add()
             add("    /* DEBUG: Check final rmsnorm output */")
             add("    debug_check_buffer(\"final_out (after rmsnorm)\", final_out, aligned_embed_dim);")
+        if emit_parity:
+            add()
+            add("    /* PARITY: Save final rmsnorm output */")
+            add("    parity_save_buffer(\"final_rmsnorm_out\", final_out, aligned_embed_dim);")
         add()
         add(f"    float *logits = {safe_name}_PTR(model, {safe_name}_FOOTER.logits);")
         if lm_head_use_q4_k:
@@ -969,6 +1035,10 @@ def emit_c_source_v4(layout: v3.ModelLayout,
             add()
             add("    /* DEBUG: Check logits output */")
             add(f"    debug_check_buffer(\"logits\", logits, {safe_name}_VOCAB_SIZE);")
+        if emit_parity:
+            add()
+            add("    /* PARITY: Save logits */")
+            add(f"    parity_save_buffer(\"logits\", logits, {safe_name}_VOCAB_SIZE);")
         add("}")
         add()
 

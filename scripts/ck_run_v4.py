@@ -299,11 +299,12 @@ def step_convert_gguf(gguf_path: Path, output_dir: Path, force: bool = False) ->
 
 def step_build_ir(config_path: Path, output_dir: Path, manifest_path: Path = None,
                   weight_dtype: str = None, modes: list = None, force: bool = False,
-                  debug: bool = False) -> Path:
+                  debug: bool = False, parity: bool = False) -> Path:
     """Build IR and generate layout JSON.
 
     Args:
         debug: If True, emit debug prints in generated C code to trace NaN/zero issues.
+        parity: If True, save intermediate buffers for parity comparison with PyTorch.
     """
     log_step(3, "Building IR v4 and layout")
 
@@ -337,6 +338,9 @@ def step_build_ir(config_path: Path, output_dir: Path, manifest_path: Path = Non
 
     if debug:
         cmd.append("--debug")
+
+    if parity:
+        cmd.append("--parity")
 
     run_cmd(cmd)
     log(f"  Created {layout_path}", C_GREEN)
@@ -919,14 +923,15 @@ def run_pipeline(args: argparse.Namespace):
         sys.exit(1)
 
     # Build IR
-    # If debug is enabled, force recompile to ensure debug code is generated
-    force_for_debug = args.force_compile or getattr(args, 'debug', False)
+    # If debug or parity is enabled, force recompile to ensure special code is generated
+    force_for_debug = args.force_compile or getattr(args, 'debug', False) or getattr(args, 'parity', False)
     layout_path = step_build_ir(
         config_path, work_dir,
         manifest_path=manifest_path,
         weight_dtype=args.weight_dtype,
         force=force_for_debug,
         debug=getattr(args, 'debug', False),
+        parity=getattr(args, 'parity', False),
     )
 
     # Generate C code
@@ -1039,6 +1044,8 @@ Examples:
                            help='Run tests and exit (skip chat)')
     run_parser.add_argument('--debug', action='store_true',
                            help='Emit debug prints in generated C code to trace NaN/zero issues')
+    run_parser.add_argument('--parity', action='store_true',
+                           help='Save intermediate buffers for parity comparison with PyTorch')
 
     # List command
     list_parser = subparsers.add_parser('list', help='List cached models')
